@@ -1,4 +1,5 @@
 
+
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,9 +44,9 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
             style: pw.TextStyle(fontSize: 4),
           ),
           pw.SizedBox(width: 405),
-          pw.Padding(padding: const pw.EdgeInsets.only(right:5,),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -83,7 +84,7 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -101,7 +102,7 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -146,7 +147,7 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                         pw.Padding(padding:pw.EdgeInsets.only(top:10),
                           child:pw.Text(
                             'Sale Order Report',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                           ),),
                         pw.Padding(padding:pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
                           child:pw.Expanded(
@@ -158,40 +159,40 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Text('S.No', style: pw.TextStyle(
-                                          fontSize: 6, fontWeight: pw.FontWeight.bold)),
+                                          fontSize: 8, fontWeight: pw.FontWeight.bold)),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(child: pw.Text('Date',
-                                          style: pw.TextStyle(fontSize: 6,
+                                          style: pw.TextStyle(fontSize: 8,
                                               fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Order Number',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Customer Code',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Customer/Company Name',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Expected\nDelivery Date',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     // Add more Text widgets for additional columns if needed
@@ -207,7 +208,7 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                                         child: pw.Center(
                                           child:
                                           pw.Text('${serialNumber++}',
-                                              style: pw.TextStyle(fontSize: 6)),
+                                              style: pw.TextStyle(fontSize: 8)),
                                         )
                                     ),
                                     pw.Container(
@@ -217,26 +218,26 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                                             ? DateFormat('dd-MM-yyyy').format(
                                             DateTime.parse("${data["date"]}").toLocal())
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['orderNo'].toString(),
-                                              style: pw.TextStyle(fontSize: 6)),)
+                                              style: pw.TextStyle(fontSize: 8)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['custCode'],
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
 
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['custName'],
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     // pw.Container(
                                     //   padding: pw.EdgeInsets.all(8.0),
@@ -251,7 +252,7 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                                             ? DateFormat('dd-MM-yyyy').format(
                                             DateTime.parse("${data["deliveryDate"]}").toLocal())
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
 
                                   ]);

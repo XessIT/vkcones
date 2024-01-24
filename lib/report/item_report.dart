@@ -17,6 +17,7 @@ class _ItemCreationReportState extends State<ItemCreationReport> {
   List<Map<String, dynamic>> filteredData = [];
 
   bool showInitialData = true;
+  final ScrollController _scrollController = ScrollController();
 
 
   @override
@@ -173,154 +174,159 @@ class _ItemCreationReportState extends State<ItemCreationReport> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                        child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Table(
-                                border: TableBorder.all(),
-                                defaultColumnWidth: const FixedColumnWidth(100.0),
-                                columnWidths: const <int, TableColumnWidth>{
-                                  0:FixedColumnWidth(90),
-                                  1:FixedColumnWidth(50),
-                                  2:FixedColumnWidth(120),
-                                  7:FixedColumnWidth(100),
-                                },
-                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                children:[
-                                  //Table row starting
-                                  TableRow(
-                                      children: [
-                                        TableCell(
-                                            child:Center(
-                                              child: Column(
-                                                children: [
-                                                  const SizedBox(height: 8,),
-                                                  Text('S.No',),
-                                                  const SizedBox(height: 8,)
-                                                ],
-                                              ),)),
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          controller: _scrollController,
+                          child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              controller: _scrollController,
+                              child: Table(
+                                  border: TableBorder.all(),
+                                  defaultColumnWidth: const FixedColumnWidth(100.0),
+                                  columnWidths: const <int, TableColumnWidth>{
+                                    0:FixedColumnWidth(90),
+                                    1:FixedColumnWidth(50),
+                                    2:FixedColumnWidth(120),
+                                    7:FixedColumnWidth(100),
+                                  },
+                                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                  children:[
+                                    //Table row starting
+                                    TableRow(
+                                        children: [
+                                          TableCell(
+                                              child:Center(
+                                                child: Column(
+                                                  children: [
+                                                    const SizedBox(height: 8,),
+                                                    Text('S.No',),
+                                                    const SizedBox(height: 8,)
+                                                  ],
+                                                ),)),
 
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('Item Group',),)),
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('Item Group',),)),
 
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('Item Name',),)),
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('HSN/SAC Code',
-                                              ),)),
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('Size',
-                                              ),)),
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('Colour',
-                                              ),)),
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('Unit',
-                                              ),)),
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('Gst%',
-                                              ),)),
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('Sales Rate',
-                                              ),)),
-                                        TableCell(
-                                            child:Center(
-                                              child: Text('Action',
-                                              ),)),
-                                      ]),
-                                  // Table row end
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('Item Name',),)),
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('HSN/SAC Code',
+                                                ),)),
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('Size',
+                                                ),)),
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('Colour',
+                                                ),)),
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('Unit',
+                                                ),)),
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('Gst%',
+                                                ),)),
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('Sales Rate',
+                                                ),)),
+                                          TableCell(
+                                              child:Center(
+                                                child: Text('Action',
+                                                ),)),
+                                        ]),
+                                    // Table row end
 
-                                  //Table row start
-                for (var i = 0; i < filteredData.length; i++) ...[
-                                  TableRow(
-                                    // decoration: BoxDecoration(color: Colors.grey[200]),
-                                      children: [
-                                        // 1 s.no
-                                        TableCell(child: Center(child: Column(
-                                          children: [
-                                            const SizedBox(height: 10,),
-                                            Text("${i+1}"),
-                                            const SizedBox(height: 10,)
-                                          ],
-                                        ))),
-                                        TableCell(child: Center(child: Column(
-                                          children: [
-                                            const SizedBox(height: 10,),
-                                            Text("${filteredData[i]["itemGroup"]}"),
-                                            const SizedBox(height: 10,)
-                                          ],
-                                        ))),
-                                        TableCell(child:Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child:  Text("${filteredData[i]["itemName"]}"),
-                                        )
-                                        ),
-                                        TableCell(child:Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child:  Text("${filteredData[i]["code"]}"),
-                                        )
-                                        ),
-                                        TableCell(child:Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child: Text("${filteredData[i]["size"]}"),
-                                        )
-                                        ),
-                                        TableCell(child:Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child:  Text("${filteredData[i]["unit"]}"),
-                                        )
-                                        ),
-                                        TableCell(child:Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child: Text("${filteredData[i]["color"]}"),
-                                        )
-                                        ),  TableCell(child:Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child:Text("${filteredData[i]["gst"]}"),
-                                        )
-                                        ),
-                                        TableCell(child:Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child: Text("${filteredData[i]["rate"]}"),
-                                        )
-                                        ),
-                                        TableCell(child:Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child: Row(
+                                    //Table row start
+                                          for (var i = 0; i < filteredData.length; i++) ...[
+                                    TableRow(
+                                      // decoration: BoxDecoration(color: Colors.grey[200]),
+                                        children: [
+                                          // 1 s.no
+                                          TableCell(child: Center(child: Column(
                                             children: [
-                                              SizedBox(width: 45,height: 30,
-                                                child: MaterialButton(
-
-                                                  color: Colors.green.shade600,
-                                                  onPressed: (){},child:Icon(Icons.edit_note,color: Colors.white,),),
-                                              ),
-                                              const SizedBox(width: 5,),
-                                              SizedBox(width: 45,height: 30,
-                                                child: MaterialButton(
-                                                  color: Colors.red.shade600,
-                                                  onPressed: (){},child:Icon(Icons.delete,color: Colors.white,),),
-                                              ),
+                                              const SizedBox(height: 10,),
+                                              Text("${i+1}"),
+                                              const SizedBox(height: 10,)
                                             ],
+                                          ))),
+                                          TableCell(child: Center(child: Column(
+                                            children: [
+                                              const SizedBox(height: 10,),
+                                              Text("${filteredData[i]["itemGroup"]}"),
+                                              const SizedBox(height: 10,)
+                                            ],
+                                          ))),
+                                          TableCell(child:Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child:  Text("${filteredData[i]["itemName"]}"),
+                                          )
                                           ),
-                                        )
-                                        ),
+                                          TableCell(child:Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child:  Text("${filteredData[i]["code"]}"),
+                                          )
+                                          ),
+                                          TableCell(child:Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child: Text("${filteredData[i]["size"]}"),
+                                          )
+                                          ),
+                                          TableCell(child:Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child:  Text("${filteredData[i]["unit"]}"),
+                                          )
+                                          ),
+                                          TableCell(child:Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child: Text("${filteredData[i]["color"]}"),
+                                          )
+                                          ),  TableCell(child:Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child:Text("${filteredData[i]["gst"]}"),
+                                          )
+                                          ),
+                                          TableCell(child:Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child: Text("${filteredData[i]["rate"]}"),
+                                          )
+                                          ),
+                                          TableCell(child:Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 45,height: 30,
+                                                  child: MaterialButton(
+
+                                                    color: Colors.green.shade600,
+                                                    onPressed: (){},child:Icon(Icons.edit_note,color: Colors.white,),),
+                                                ),
+                                                const SizedBox(width: 5,),
+                                                SizedBox(width: 45,height: 30,
+                                                  child: MaterialButton(
+                                                    color: Colors.red.shade600,
+                                                    onPressed: (){},child:Icon(Icons.delete,color: Colors.white,),),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                          ),
 
 
 
 
-                                      ]
+                                        ]
 
-                                  )
-                                      ]
-                                ]
-                            )
+                                    )
+                                        ]
+                                  ]
+                              )
+                          ),
                         ),
                       ),
                     ),

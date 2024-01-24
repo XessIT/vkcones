@@ -46,7 +46,7 @@ class _WindingReportPdfState extends State<WindingReportPdf> {
           pw.SizedBox(width:665),
           pw.Padding(padding: const pw.EdgeInsets.only(right:20,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -86,7 +86,7 @@ class _WindingReportPdfState extends State<WindingReportPdf> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -104,7 +104,7 @@ class _WindingReportPdfState extends State<WindingReportPdf> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),

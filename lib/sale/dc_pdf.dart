@@ -61,9 +61,9 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
             style: pw.TextStyle(fontSize: 4),
           ),
           pw.SizedBox(width: 405),
-          pw.Padding(padding: const pw.EdgeInsets.only(right:5,),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -105,7 +105,7 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -123,7 +123,7 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -146,7 +146,7 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 15 : 18;
+        recordsPerPage = (j == 0) ? 19 : 23;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
@@ -169,7 +169,7 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
                         pw.Padding(padding:pw.EdgeInsets.only(top:10),
                           child:pw.Text(
                             'Delivery Challan Report',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                           ),),
                         pw.Padding(padding:(pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10)),
 
@@ -181,47 +181,54 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
                                   children: [
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Text('S.No', style: pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold)),
+                                      child: pw.Text('S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(10.0),
                                       child: pw.Center(child: pw.Text('Date   ',
-                                          style: pw.TextStyle(fontSize: 6,
+                                          style: pw.TextStyle(fontSize: 8,
                                               fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('DC No',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Customer Code',
-                                              style: pw.TextStyle(fontSize: 6,
+                                          child: pw.Text('Invoice No',
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Customer/Company Name',
-                                              style: pw.TextStyle(fontSize: 6,
+                                          child: pw.Text('Customer\nCode',
+                                              style: pw.TextStyle(fontSize: 8,
+                                                  fontWeight: pw.FontWeight.bold)),)
+                                    ),
+                                    pw.Container(
+                                        padding: pw.EdgeInsets.all(8.0),
+                                        child: pw.Center(
+                                          child: pw.Text('Customer/\nCompany Name',
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Place of supply',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Total',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     // Add more Text widgets for additional columns if needed
@@ -234,51 +241,65 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
                                   return pw.TableRow(children: [
                                     //  for (var value in data.values)
                                     pw.Container(
+                                      width:50,
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child:
 
-                                          pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 6)),
+                                          pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8)),
                                         )
                                     ),
                                     pw.Container(
+                                      width:85,
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data["date"] != null
                                             ? DateFormat('dd-MM-yyyy').format(
                                             DateTime.parse("${data["date"]}"))
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
+                                      width:90,
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['dcNo'].toString(),
-                                              style: pw.TextStyle(fontSize: 6)),)
+                                              style: pw.TextStyle(fontSize: 8)),)
                                     ),
                                     pw.Container(
+                                      width:90,
+                                        padding: pw.EdgeInsets.all(8.0),
+                                        child: pw.Center(
+                                          child: pw.Text(data['invoiceNo'].toString(),
+                                              style: pw.TextStyle(fontSize: 8)),)
+                                    ),
+                                    pw.Container(
+                                      width:80,
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['custCode'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
+                                      width:90,
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['custName'],
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
+                                      width:80,
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['supplyPlace'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
+                                      width:70,
                                       padding: pw.EdgeInsets.only(left:10.0,top: 8,bottom: 8),
                                       child: pw.Center(
                                         child: pw.Text(data['grandTotal'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                   ]);
                                 }
@@ -291,10 +312,10 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
                             child: pw.Row(
                                 mainAxisAlignment: pw.MainAxisAlignment.end,
                                 children: [
-                                  pw.Text("Total :",style:  pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold),),
+                                  pw.Text("Total :",style:  pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold),),
                                   pw.SizedBox(width: 10),
                                   pw.Container(
-                                    width: 65,
+                                    width: 50,
                                     decoration: pw.BoxDecoration(
                                       border: pw.Border.all(
                                         color: const PdfColor.fromInt(0xFF000000),
@@ -302,12 +323,12 @@ class _DcReportPDFViewState extends State<DcReportPDFView> {
                                       ),
                                       // borderRadius: pw.BorderRadius.circular(2),
                                     ),
-                                    padding:pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 8),
+                                    padding:pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right:3),
                                     child: pw.Align(
                                       alignment:pw.Alignment.topRight,
                                       child:pw.Text(
                                         '${total.toStringAsFixed(2)}',
-                                        style:  pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold),
+                                        style:  pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold),
                                       ),
 
 

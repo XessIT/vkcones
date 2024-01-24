@@ -478,22 +478,24 @@ class _MachineReportState extends State<MachineReport> {
                                       child: const Text("Generate", style: TextStyle(color: Colors.white)),
 
                                     ),
+
+
+                                    IconButton(
+                                      icon: Icon(Icons.refresh),
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>MachineReport()));
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.arrow_back),
+                                      onPressed: () {
+                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                        Navigator.pop(context);
+                                      },
+                                    ),
                                   ],
                                 ),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.refresh),
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MachineReport()));
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.arrow_back),
-                                onPressed: () {
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
-                                  Navigator.pop(context);
-                                },
-                              )
 
                             ],
                           ),

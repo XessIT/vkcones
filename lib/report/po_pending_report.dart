@@ -28,6 +28,10 @@ class _POPendingReportState extends State<POPendingReport> {
   bool isDateRangeValid=true;
   int currentPage = 1;
   int rowsPerPage = 10;
+  final ScrollController _scrollController = ScrollController();
+
+
+
 
   void updateFilteredData() {
     final startIndex = (currentPage - 1) * rowsPerPage;
@@ -491,27 +495,38 @@ class _POPendingReportState extends State<POPendingReport> {
                                 )),
                             const SizedBox(height: 20,),
                             filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
-                            PaginatedDataTable(
-                              columnSpacing:70, rowsPerPage:25,
-                              columns: [
-                                const DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold,),))),
-                                const DataColumn(label: Center(child: Text("Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                const DataColumn(label: Center(child: Text("Pending PO No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                const DataColumn(label: Center(child: Text("Invoice No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                const DataColumn(label: Center(child: Text("Supplier Code",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                const DataColumn(label: Center(child: Text("Supplier/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-/*
-                                const DataColumn(label: Center(child: Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold),))),
-*/
-                                DataColumn(
-                                  label: const Center(child: Text("   Action", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  onSort: (columnIndex, ascending) {
-                                  },
-                                  tooltip: "Action",
-                                ),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width:1200,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:70, rowsPerPage:25,
+                                    columns: [
+                                      const DataColumn(label: Center(child: Text("  S.No",style: TextStyle(fontWeight: FontWeight.bold,),))),
+                                      const DataColumn(label: Center(child: Text("     Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      const DataColumn(label: Center(child: Text("Pending PO No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      const DataColumn(label: Center(child: Text("   Invoice No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      const DataColumn(label: Center(child: Text("Supplier Code",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      const DataColumn(label: Center(child: Text("Supplier/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  /*
+                                      const DataColumn(label: Center(child: Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  */
+                                      DataColumn(
+                                        label: const Center(child: Text("Action", style: TextStyle(fontWeight: FontWeight.bold))),
+                                        onSort: (columnIndex, ascending) {
+                                        },
+                                        tooltip: "Action",
+                                      ),
 
-                              ],
-                              source: _YourDataTableSource(filteredData,context,generatedButton),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -577,6 +592,8 @@ class _POPendingReportState extends State<POPendingReport> {
                   ),
                 )
 */
+
+
               ],
             ),
           ),
@@ -590,6 +607,19 @@ class _YourDataTableSource extends DataTableSource {
   List<Map<String, dynamic>> customerdata = [];
   final BuildContext context;
   final bool generatedButton;
+  Future<List<Map<String, dynamic>>> fetchReturnItems(String invoiceNo) async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:3309/sales_return_item_view?invoiceNo=$invoiceNo'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.cast<Map<String, dynamic>>();
+      } else {
+        throw Exception('Error loading unit entries: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load unit entries: $e');
+    }
+  }
   _YourDataTableSource(this.data,this.context, this.generatedButton);
   void printButtonPressed(int rowIndex) {
     if (rowIndex >= 0 && rowIndex < data.length) {

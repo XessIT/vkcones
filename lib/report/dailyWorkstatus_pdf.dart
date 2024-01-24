@@ -45,7 +45,7 @@ class _Dailyworkstatus_pdfState extends State<Dailyworkstatus_pdf> {
           pw.SizedBox(width: 665),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 20,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -83,7 +83,7 @@ class _Dailyworkstatus_pdfState extends State<Dailyworkstatus_pdf> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -101,7 +101,7 @@ class _Dailyworkstatus_pdfState extends State<Dailyworkstatus_pdf> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -131,7 +131,7 @@ class _Dailyworkstatus_pdfState extends State<Dailyworkstatus_pdf> {
           pw.Page(
             pageFormat: format,
             build: (pw.Context context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 310: format.availableHeight +300;
+              final double pageHeight = j == 0 ? format.availableHeight + 310: format.availableHeight +450;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -147,7 +147,7 @@ class _Dailyworkstatus_pdfState extends State<Dailyworkstatus_pdf> {
                             pw.Padding(padding:pw.EdgeInsets.only(top:10),
                               child:pw.Text(
                                 'Daily Work Status',
-                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                               ),),
                             pw.Padding(padding: pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
                               child:pw.Expanded(
@@ -157,84 +157,95 @@ class _Dailyworkstatus_pdfState extends State<Dailyworkstatus_pdf> {
                                     pw.TableRow(
                                       children: [
                                         pw.Container(
+                                          width:60,
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(child: pw.Text('S.No',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),
                                           ),),
                                         pw.Container(
+                                          width:90,
                                           padding: pw.EdgeInsets.all(8.0),
-                                          child: pw.Center(child: pw.Text('  Shift Date    ',
-                                              style: pw.TextStyle(fontSize: 6,
+                                          child: pw.Center(child: pw.Text('Shift Date',
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),
                                           ),),
                                         pw.Container(
+                                          width:100,
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(child: pw.Text('Department Name',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),
                                           ),),
                                         pw.Container(
+                                          width: 80,
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(child: pw.Text('Shift Type'   ,
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),
                                           ),),
                                         pw.Container(
+                                            width: 100,
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Machine Name',
-                                                  style: pw.TextStyle(fontSize: 6,
+                                                  style: pw.TextStyle(fontSize: 8,
                                                       fontWeight: pw.FontWeight.bold)),)
                                         ),
                                         pw.Container(
+                                          width: 100,
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Person -1',
-                                                  style: pw.TextStyle(fontSize: 6,
+                                                  style: pw.TextStyle(fontSize: 8,
                                                       fontWeight: pw.FontWeight.bold)),)
                                         ),
 
                                         pw.Container(
+                                            width: 100,
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Person -2', style: pw.TextStyle(
-                                                  fontSize: 6,
+                                                  fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                         ),
                                         pw.Container(
+                                            width: 100,
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Person -3', style: pw.TextStyle(
-                                                  fontSize: 6,
+                                                  fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                         ),
                                         pw.Container(
+                                            width: 80,
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Finished Reels', style: pw.TextStyle(
-                                                  fontSize: 6,
+                                                  fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                         ),
                                         pw.Container(
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Finished Weight', style: pw.TextStyle(
-                                                  fontSize: 6,
+                                                  fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                         ),
                                         pw.Container(
+                                            width: 100,
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Production Qty', style: pw.TextStyle(
-                                                  fontSize: 6,
+                                                  fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                         ),
                                         pw.Container(
+                                            width: 100,
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Extra Production', style: pw.TextStyle(
-                                                  fontSize: 6,
+                                                  fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                         ),
 
@@ -254,7 +265,7 @@ class _Dailyworkstatus_pdfState extends State<Dailyworkstatus_pdf> {
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child:
-                                            pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 6)),
+                                            pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8)),
                                           ),
                                         ),
                                         pw.Container(
@@ -264,69 +275,69 @@ class _Dailyworkstatus_pdfState extends State<Dailyworkstatus_pdf> {
                                                 ? DateFormat('dd-MM-yyyy').format(
                                               DateTime.parse("${data["createDate"]}").toLocal(),)
                                                 : "",
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 8)),),
                                         ),
                                         pw.Container(
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text(data['machineType'].toString(),
-                                                  style: pw.TextStyle(fontSize: 6)),)
+                                                  style: pw.TextStyle(fontSize: 8)),)
                                         ),
                                         pw.Container(
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text(data['shiftType'].toString(),
-                                                  style: pw.TextStyle(fontSize: 6)),)
+                                                  style: pw.TextStyle(fontSize: 8)),)
                                         ),
 
                                         pw.Container(
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text(data['machineName'].toString(),
-                                                  style: pw.TextStyle(fontSize: 6)),)
+                                                  style: pw.TextStyle(fontSize: 8)),)
                                         ),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['person1'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 8)),),
                                         ),
 
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['person2'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 8)),),
                                         ),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['person3'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 8)),),
                                         ),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['finish_reel'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 8)),),
                                         ),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['finish_weight'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 8)),),
                                         ),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['productionQty'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 8)),),
                                         ),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['extraproduction'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 8)),),
                                         ),
 
 

@@ -72,7 +72,7 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
           pw.SizedBox(width: 405),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -114,7 +114,7 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -132,7 +132,7 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -179,7 +179,7 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
                           pw.Padding(padding:pw.EdgeInsets.only(top:10),
                             child:pw.Text(
                               'Purchase Report',
-                              style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                             ),),
 
                           pw.Padding(
@@ -191,40 +191,40 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
                                   children: [
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Text('      S.No', style: pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold)),
+                                      child: pw.Text('      S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(child: pw.Text('Date',
-                                          style: pw.TextStyle(fontSize: 6,
+                                          style: pw.TextStyle(fontSize: 8,
                                               fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Invoice Number',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Supplier Code',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Supplier/Company Name',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Grand Total',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     // Add more Text widgets for additional columns if needed
@@ -239,7 +239,7 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text(sn.toString(), style: pw.TextStyle(fontSize: 6)),
+                                        child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8)),
                                       ),
                                     ),
                                     pw.Container(
@@ -249,32 +249,32 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
                                             ? DateFormat('dd-MM-yyyy').format(
                                           DateTime.parse("${data["date"]}").toLocal(),)
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['invoiceNo'].toString(),
-                                              style: pw.TextStyle(fontSize: 6)),)
+                                              style: pw.TextStyle(fontSize: 8)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['supCode'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['supName'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       alignment: pw.Alignment.centerRight,  // Align the content to the right
                                       child: pw.Text(
                                         (double.parse(data['grandTotal'].toString()) - double.parse(data['returnTotal'].toString())).toStringAsFixed(2),
-                                        style: pw.TextStyle(fontSize: 6),
+                                        style: pw.TextStyle(fontSize: 8),
                                       ),
                                     ),
 
@@ -289,7 +289,7 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
                               child: pw.Row(
                                   mainAxisAlignment: pw.MainAxisAlignment.end,
                                   children: [
-                                    pw.Text("Total :",style:  pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold),),
+                                    pw.Text("Total :",style:  pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold),),
                                     pw.SizedBox(width: 10),
                                     pw.Container(
                                       width: 65,
@@ -305,7 +305,7 @@ class _PurchaseOverallReportState extends State<PurchaseOverallReport> {
                                         alignment:pw.Alignment.topRight,
                                         child:pw.Text(
                                           '${total.toStringAsFixed(2)}',
-                                          style:  pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold),
+                                          style:  pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold),
                                         ),
                                       ),
                                     ),

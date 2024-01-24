@@ -315,27 +315,27 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                             child:
                                             TypeAheadFormField<String>(
                                               textFieldConfiguration: TextFieldConfiguration(
-                                                controller: searchController,
+                                                  controller: searchController,
 
-                                                style: const TextStyle(fontSize: 13),
-                                                onChanged: (value) {
-                                                  String capitalizedValue = capitalizeFirstLetter(value);
-                                                  searchController.value = searchController.value.copyWith(
-                                                    text: capitalizedValue,
-                                                    selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                                  );
-                                                },
-                                                decoration: InputDecoration(
-                                                  suffixIcon: Icon(Icons.search),
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  labelText: "",
-                                                  labelStyle: TextStyle(fontSize: 13),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
+                                                  style: const TextStyle(fontSize: 13),
+                                                  onChanged: (value) {
+                                                    String capitalizedValue = capitalizeFirstLetter(value);
+                                                    searchController.value = searchController.value.copyWith(
+                                                      text: capitalizedValue,
+                                                      selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                    );
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    suffixIcon: Icon(Icons.search),
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    labelText: "",
+                                                    labelStyle: TextStyle(fontSize: 13),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
                                                   ),
-                                                ),
-                                                inputFormatters: [UpperCaseTextFormatter()]
+                                                  inputFormatters: [UpperCaseTextFormatter()]
                                               ),
                                               suggestionsCallback: (pattern) async {
                                                 if (pattern.isEmpty) {
@@ -438,18 +438,24 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                           child: const Text("Generate", style: TextStyle(color: Colors.white)),
                                         )
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.refresh),
-                                      onPressed: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Winding_printing_production()));
-                                      },
+                                    Padding(
+                                      padding: const EdgeInsets.only(top:37),
+                                      child: IconButton(
+                                        icon: Icon(Icons.refresh),
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>Winding_printing_production()));
+                                        },
+                                      ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.arrow_back),
-                                      onPressed: () {
-                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
-                                        Navigator.pop(context);
-                                      },
+                                    Padding(
+                                      padding: const EdgeInsets.only(top:37),
+                                      child: IconButton(
+                                        icon: Icon(Icons.arrow_back),
+                                        onPressed: () {
+                                          // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                          Navigator.pop(context);
+                                        },
+                                      ),
                                     ),
 
                                     if (!isDateRangeValid)

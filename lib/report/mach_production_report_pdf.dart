@@ -24,6 +24,7 @@ class ProductionReportPdf extends StatefulWidget {
 
 class _ProductionReportPdfState extends State<ProductionReportPdf> {
   pw.Widget _buildFooter(pw.Context context, int currentPage, int totalPages) {
+    // ... (rest of your code)
     // Get the current date and time
     DateTime now = DateTime.now();
 
@@ -32,6 +33,8 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
 
     // Format the time in AM/PM
     String formattedTime = DateFormat('hh.mm a').format(now);
+
+
     return pw.Container(
 
       child: pw.Row(
@@ -41,10 +44,10 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
             '$formattedDate   $formattedTime',
             style: pw.TextStyle(fontSize: 4),
           ),
-          pw.SizedBox(width:405),
-          pw.Padding(padding: const pw.EdgeInsets.only(right: 5,),
+          pw.SizedBox(width: 405),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -82,7 +85,7 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -100,7 +103,7 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -146,7 +149,7 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                         pw.Padding(padding:pw.EdgeInsets.only(top:10),
                           child:pw.Text(
                             'Machine Production Report',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                           ),),
                         pw.Padding(
                           padding:pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
@@ -158,39 +161,39 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                                 children: [
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
-                                    child: pw.Text('S.No', style: pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold)),
+                                    child: pw.Text('   S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(child: pw.Text('Date',
-                                        style: pw.TextStyle(fontSize: 6,
+                                        style: pw.TextStyle(fontSize: 8,
                                             fontWeight: pw.FontWeight.bold)),
                                     ),),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Machine Name',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Item Group',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Item  Name',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Quantity',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   // Add more Text widgets for additional columns if needed
@@ -205,7 +208,7 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
-                                      child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 6)),
+                                      child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8)),
                                     ),
                                   ),
                                   pw.Container(
@@ -215,31 +218,31 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                                           ? DateFormat('dd-MM-yyyy').format(
                                         DateTime.parse("${data["createDate"]}").toLocal(),)
                                           : "",
-                                          style: pw.TextStyle(fontSize: 6)),),
+                                          style: pw.TextStyle(fontSize: 8)),),
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['machineName'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),)
+                                            style: pw.TextStyle(fontSize: 8)),)
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['itemGroup'],
-                                          style: pw.TextStyle(fontSize: 6)),),
+                                          style: pw.TextStyle(fontSize: 8)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['itemName'],
-                                          style: pw.TextStyle(fontSize: 6)),),
+                                          style: pw.TextStyle(fontSize: 8)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['qty'],
-                                          style: pw.TextStyle(fontSize: 6)),),
+                                          style: pw.TextStyle(fontSize: 8)),),
                                   ),
 
                                 ]);

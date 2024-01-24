@@ -99,7 +99,7 @@ class _CustomerOrderIndividualReportState
             ),),
           pw.SizedBox(width: 393),
           pw.Text(
-            'Page $currentPage of $totalPages',
+            'Page ${context.pageNumber} of ${context.pagesCount}',
             style: pw.TextStyle(fontSize: 4),
           ),
 
@@ -107,6 +107,8 @@ class _CustomerOrderIndividualReportState
       ),
     );
   }
+
+  int serialNumber = 1;
 
   pw.Widget _buildDataTable(List<Map<String, dynamic>> data, String? invoiceNo) {
     double totalAmount = 0.0; // Initialize totalAmount for each iteration
@@ -121,20 +123,20 @@ class _CustomerOrderIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('S.No',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('S.No',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Item Group',style: pw.TextStyle(fontSize: 6)),
+              pw.Text('Item Group',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
             ])),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Item Name',style: pw.TextStyle(fontSize: 6)),
+              pw.Text('Item Name',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
             ])),
             pw.Padding(
@@ -142,7 +144,7 @@ class _CustomerOrderIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Quantity',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('Quantity',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -159,7 +161,7 @@ class _CustomerOrderIndividualReportState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text((i + 1).toString(),style: pw.TextStyle(fontSize: 6)),
+                        pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 9)),
                         pw.SizedBox(height: 3),
                       ]
                   ),
@@ -169,13 +171,13 @@ class _CustomerOrderIndividualReportState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text(data[i]['itemGroup'],style: pw.TextStyle(fontSize: 6),),
+                        pw.Text(data[i]['itemGroup'],style: pw.TextStyle(fontSize: 9),),
                         pw.SizedBox(height: 3),
                       ])),
               pw.Center(child: pw.Column(
                   children: [
                     pw.SizedBox(height: 3),
-                    pw.Text(data[i]['itemName'],style: pw.TextStyle(fontSize: 6)),
+                    pw.Text(data[i]['itemName'],style: pw.TextStyle(fontSize: 9)),
                     pw.SizedBox(height: 3),
                   ])),
 
@@ -184,7 +186,7 @@ class _CustomerOrderIndividualReportState
                 child: pw.Center( child: pw.Column(
                     children: [
                       pw.SizedBox(height: 3),
-                      pw.Text(data[i]['qty'].toString(),style: pw.TextStyle(fontSize: 6)),
+                      pw.Text(data[i]['qty'].toString(),style: pw.TextStyle(fontSize: 9)),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -210,7 +212,7 @@ class _CustomerOrderIndividualReportState
     final List<Map<String, dynamic>> customerdata = await fetchEntries(custCode);
     double totalqty = 0.0;
 
-    final int recordsPerPage = 19;
+    int recordsPerPage;
 
     pw.Widget createHeader() {
       return pw.Container(
@@ -233,7 +235,7 @@ class _CustomerOrderIndividualReportState
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize:20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -251,7 +253,7 @@ class _CustomerOrderIndividualReportState
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -273,6 +275,7 @@ class _CustomerOrderIndividualReportState
     }
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < data.length; j += recordsPerPage) {
+        recordsPerPage = (j == 0) ? 19 : 23;
         final List<Map<String, dynamic>> pageData =
         data.skip(j).take(recordsPerPage).toList();
 
@@ -284,7 +287,7 @@ class _CustomerOrderIndividualReportState
           pw.Page(
             pageFormat: format,
             build: (context) {
-              final double pageHeight =  format.availableHeight ;
+              final double pageHeight = j == 0 ? format.availableHeight : format.availableHeight +90;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -292,12 +295,12 @@ class _CustomerOrderIndividualReportState
                   pw.Divider(),
                   pw.Text(
                     'Sale Order Report',
-                    style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                    style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                   ),
                   pw.Padding(
                     padding: pw.EdgeInsets.only(top: 5.0),
                     child: pw.Container(
-                      height:pageHeight * 0.82,
+                      height:pageHeight * 0.81,
                       width: double.infinity,
                       padding: pw.EdgeInsets.all(0.0),
                       decoration: pw.BoxDecoration(
@@ -315,12 +318,12 @@ class _CustomerOrderIndividualReportState
                                     "Customer Details",
                                     style: pw.TextStyle(
                                       fontWeight: pw.FontWeight.bold,
-                                      fontSize: 8,
+                                      fontSize: 12,
                                     ),
                                   ),
                                   pw.SizedBox(width:220),
                                   pw.Padding(
-                                    padding:pw.EdgeInsets.only(left:73),
+                                    padding:pw.EdgeInsets.only(left:60),
                                     child:
                                     pw.SizedBox(
                                       width: 60,
@@ -341,7 +344,7 @@ class _CustomerOrderIndividualReportState
                                                 style: pw.TextStyle(
                                                     fontWeight:
                                                     pw.FontWeight.bold,
-                                                    fontSize: 5),
+                                                    fontSize: 7),
                                               ),
                                             ),
                                             pw.Divider(
@@ -354,7 +357,7 @@ class _CustomerOrderIndividualReportState
                                                 style: pw.TextStyle(
                                                     fontWeight:
                                                     pw.FontWeight.bold,
-                                                    fontSize: 5),
+                                                    fontSize: 7),
                                               ),
                                             ),
                                             pw.SizedBox(height: 2),
@@ -365,7 +368,7 @@ class _CustomerOrderIndividualReportState
                                                 style: pw.TextStyle(
                                                     fontWeight:
                                                     pw.FontWeight.bold,
-                                                    fontSize: 5),
+                                                    fontSize: 7),
                                               ),
                                             ),
                                           ],
@@ -392,28 +395,28 @@ class _CustomerOrderIndividualReportState
                                             pw.Text(
                                               "Customer Code",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Customer/Company Name",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Customer Mobile",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Customer Address",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                           ],
@@ -424,33 +427,33 @@ class _CustomerOrderIndividualReportState
                                         child: pw.Column(
                                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                                           children: [
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
                                           ],
                                         ),
                                       ),
                                       pw.Padding(
-                                        padding: pw.EdgeInsets.only(top:13,left:4,right:4,bottom: 4),
+                                        padding: pw.EdgeInsets.only(top:10,left:4,right:4,bottom: 0),
                                         child: pw.Column(
                                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                                           children: [
-                                            pw.Text(widget.customercode.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(widget.customercode.toString(), style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(widget.customerName.toString(), style: pw.TextStyle(fontSize: 7,fontWeight: pw.FontWeight.bold)),
+                                            pw.Text(widget.customerName.toString(), style: pw.TextStyle(fontSize: 9,fontWeight: pw.FontWeight.bold)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text("+91 "+customerdata[0]["custMobile"].toString(), style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text("+91 "+customerdata[0]["custMobile"].toString(), style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
                                             pw.Container(
                                               constraints: pw.BoxConstraints(
-                                                maxWidth:100,
+                                                maxWidth:105,
                                               ),
-                                              child: pw.Text(customerdata[0]["custAddress"].toString(), style: pw.TextStyle(fontSize: 7,)),
+                                              child: pw.Text(customerdata[0]["custAddress"].toString(), style: pw.TextStyle(fontSize: 9,)),
 
                                             ),
                                             pw.SizedBox(height: 3),
@@ -458,7 +461,7 @@ class _CustomerOrderIndividualReportState
                                           ],
                                         ),
                                       ),
-                                      pw.Padding(padding: pw.EdgeInsets.only(bottom:10,left: 80.0),
+                                      pw.Padding(padding: pw.EdgeInsets.only(bottom:10,left: 10.0),
                                         child:pw.Row(
                                             children: [
                                               pw.Padding(
@@ -469,35 +472,35 @@ class _CustomerOrderIndividualReportState
                                                     pw.Text(
                                                       "GSTIN",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.SizedBox(height: 3),
                                                     pw.Text(
                                                       "Delivery Type",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.SizedBox(height: 3),
                                                     pw.Text(
                                                       "Expected Delivery Date",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.SizedBox(height: 3),
                                                     pw.Text(
                                                       "",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.SizedBox(height: 3),
                                                     pw.Text(
                                                       "",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.SizedBox(height: 3),
@@ -512,27 +515,27 @@ class _CustomerOrderIndividualReportState
                                                     pw.Text(
                                                       " :",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.SizedBox(height: 3),
                                                     pw.Text(
                                                       " :",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.SizedBox(height: 3),
                                                     pw.Text(
                                                       " :",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.Text(
                                                       " ",
                                                       style: pw.TextStyle(
-                                                        fontSize: 7,
+                                                        fontSize: 9,
                                                       ),
                                                     ),
                                                     pw.SizedBox(height: 6),
@@ -544,15 +547,15 @@ class _CustomerOrderIndividualReportState
                                                 child: pw.Column(
                                                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                                                   children: [
-                                                    pw.Text(customerdata[0]["gstin"].toString(), style: pw.TextStyle(fontSize: 7,)),
+                                                    pw.Text(customerdata[0]["gstin"].toString(), style: pw.TextStyle(fontSize: 9,)),
                                                     pw.SizedBox(height: 3),
-                                                    pw.Text(widget.deliveryType.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                                    pw.Text(widget.deliveryType.toString(), style: pw.TextStyle(fontSize: 9,)),
                                                     pw.SizedBox(height: 3),
                                                     pw.Text(  widget.deliveryDate != null
                                                         ? DateFormat("dd-MM-yyyy")
                                                         .format(DateTime.parse(
                                                         "${widget.deliveryDate}").toLocal())
-                                                        : "", style: pw.TextStyle(fontSize: 7,)),
+                                                        : "", style: pw.TextStyle(fontSize: 9,)),
                                                     pw.SizedBox(height: 3),
                                                     pw.Text(""),
                                                     pw.SizedBox(height: 3),
@@ -573,7 +576,7 @@ class _CustomerOrderIndividualReportState
                                 padding: pw.EdgeInsets.only(left:20,bottom: 10,top: 10),
                                 child: pw.Text(
                                   "Product Details",
-                                  style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold),
+                                  style: pw.TextStyle(fontSize: 12,fontWeight: pw.FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -593,11 +596,11 @@ class _CustomerOrderIndividualReportState
                                 child: pw.Row(
                                   mainAxisAlignment: pw.MainAxisAlignment.end,
                                   children: [
-                                    pw.Text("Total", style: pw.TextStyle(fontSize: 6)),
+                                    pw.Text("Total", style: pw.TextStyle(fontSize: 9)),
                                     pw.SizedBox(width: 10),
                                     pw.Container(
                                       height: 13,
-                                      width: 102,
+                                      width: 90,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -608,7 +611,7 @@ class _CustomerOrderIndividualReportState
                                         fit: pw.BoxFit.scaleDown,
                                         child:
                                         pw.Text(totalqty.toString(),
-                                            style: pw.TextStyle(fontSize: 6)),
+                                            style: pw.TextStyle(fontSize: 9)),
                                         alignment: pw.Alignment.center,
                                       ),
                                     ),

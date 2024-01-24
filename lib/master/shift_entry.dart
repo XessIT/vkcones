@@ -49,6 +49,10 @@ class _ShiftCreationState extends State<ShiftCreation> {
   TextEditingController shiftTiming=TextEditingController();
   TextEditingController controller2= TextEditingController();
   TextEditingController controller= TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+
+
   String selectedSupplier = "";
   bool isDateRangeValid=true;
   DateTime? fromdate;
@@ -137,6 +141,24 @@ class _ShiftCreationState extends State<ShiftCreation> {
       print('Error: $e');
     }
   }
+
+  List<String> filteredSuggestions(List<Map<String, dynamic>> data, Map<String, dynamic> dataToInsertShift) {
+    DateTime newFromDate = DateTime.parse(dataToInsertShift['fromDate']);
+    DateTime newToDate = DateTime.parse(dataToInsertShift['toDate']);
+
+    return data
+        .where((item) {
+      DateTime existingFromDate = DateTime.parse(item['fromDate']);
+      DateTime existingToDate = DateTime.parse(item['toDate']);
+      bool overlap = !(newToDate.isBefore(existingFromDate) || newFromDate.isAfter(existingToDate));
+      bool empCodeMatch = item['emp_code'] == dataToInsertShift['emp_code'];
+      return !overlap || !empCodeMatch;
+    })
+        .map((item) => item['first_name'].toString())
+        .toSet()
+        .toList();
+  }
+
   Future<void> deleteItem(BuildContext context, int id) async {
     try {
       final response = await http.delete(
@@ -215,32 +237,7 @@ class _ShiftCreationState extends State<ShiftCreation> {
     });
     print("Filtered Data Length: ${filteredData.length}");
   }
-  /*void filterShift(String searchText) {
-    print("Search Text: $searchText");
-    setState(() {
-      if (searchText.isEmpty) {
-        filteredData = List<Map<String, dynamic>>.from(data);
-      } else {
-        filteredData = data.where((item) {
-          String supName = item['emp_code']?.toString()?.toLowerCase() ?? '';
-          String searchTextLowerCase = searchText.toLowerCase();
 
-          return supName.contains(searchTextLowerCase);
-        }).toList();
-      }
-      filteredData.sort((a, b) {
-        DateTime? dateA = DateTime.tryParse(a['date'] ?? '');
-        DateTime? dateB = DateTime.tryParse(b['date'] ?? '');
-
-        if (dateA == null || dateB == null) {
-          return 0;
-        }
-
-        return dateB.compareTo(dateA);
-      });
-    });
-    print("Filtered Data Length: ${filteredData.length}");
-  }*/
 
   bool ordernumberexiest(String name) {
     return data.any((item) => item['emp_code'].toString().toLowerCase() == name.toLowerCase());
@@ -565,7 +562,7 @@ class _ShiftCreationState extends State<ShiftCreation> {
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 20),
                                       child: SizedBox(
-                                        width: 220,height:38,
+                                        width: 220,height:34,
                                         child: DropdownButtonHideUnderline(
                                           child: DropdownButtonFormField<String>(
                                             decoration: InputDecoration(
@@ -755,8 +752,14 @@ class _ShiftCreationState extends State<ShiftCreation> {
                                       ),
                                       suggestionsCallback: (pattern) async {
                                         if (pattern.isEmpty) {
-                                          return [];
+                                          List<String> allSuggestions = data4
+                                              .map((item) => item['first_name'].toString())
+                                              .toSet()
+                                              .toList();
+                                          allSuggestions.sort(); // Sort suggestions alphabetically
+                                          return allSuggestions;
                                         }
+                                        // Your existing logic for filtering based on user input
                                         List<String> suggestions = data4
                                             .where((item) =>
                                         (item['first_name']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()) ||
@@ -764,8 +767,10 @@ class _ShiftCreationState extends State<ShiftCreation> {
                                             .map((item) => item['first_name'].toString())
                                             .toSet()
                                             .toList();
+                                        suggestions.sort(); // Sort suggestions alphabetically
                                         return suggestions;
                                       },
+
                                       itemBuilder: (context, suggestion) {
                                         Map<String, dynamic> customerData = data4.firstWhere(
                                               (item) => item['first_name'].toString() == suggestion,
@@ -1107,22 +1112,33 @@ class _ShiftCreationState extends State<ShiftCreation> {
                                 ),
 
                                 const SizedBox(height: 20,),
-                                PaginatedDataTable(
-                                  columnSpacing:87,
-                                  //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                  rowsPerPage:25,
-                                  columns:   const [
-                                    DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                    DataColumn(label: Center(child: Text("Employee ID",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                    DataColumn(label: Center(child: Text("Employee Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                    DataColumn(label: Center(child: Text("From Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                    DataColumn(label: Center(child: Text("To Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                    DataColumn(label: Center(child: Text("Shift Type",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                    DataColumn(label: Center(child: Text("Alter Employee ",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                    //DataColumn(label: Center(child: Text("Shift Time",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                    DataColumn(label: Center(child: Text("Action",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  ],
-                                  source: _YourDataTableSource(filteredData,context,generatedButton,onDelete),
+                                Scrollbar(
+                                  thumbVisibility: true,
+                                  controller: _scrollController,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    controller: _scrollController,
+                                    child: SizedBox(
+                                      width:1300,
+                                      child: PaginatedDataTable(
+                                        columnSpacing:87,
+                                        //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                        rowsPerPage:25,
+                                        columns:   const [
+                                          DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                          DataColumn(label: Center(child: Text("Employee ID",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                          DataColumn(label: Center(child: Text("Employee Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                          DataColumn(label: Center(child: Text("From Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                          DataColumn(label: Center(child: Text("To Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                          DataColumn(label: Center(child: Text("Shift Type",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                          DataColumn(label: Center(child: Text("Alter Employee ",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                          //DataColumn(label: Center(child: Text("Shift Time",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                          DataColumn(label: Center(child: Text("Action",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                        ],
+                                        source: _YourDataTableSource(filteredData,context,generatedButton,onDelete),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -1180,27 +1196,36 @@ class _YourDataTableSource extends DataTableSource {
                 ?? "-",
           ),
         )),
-        DataCell(Center(child:
-        Row(
-          children: [
-            IconButton(icon: Icon(Icons.edit,color:Colors. blue,),onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>ShiftView(
-                id:row["id"],
-                empID:row["emp_code"],
-                empName:row["first_name"],
-                fromDate:row["fromDate"],
-                toDate:row["toDate"],
-                shiftType:row["shiftType"],
-                shiftTime:row["shiftTime"],
-              )));
-            },),
-            IconButton(icon: Icon(Icons.delete,color:Colors. red,),
-              onPressed: (){
-                showDeleteConfirmationDialog(context, id);
-              },),
-          ],
+        DataCell(
+          Center(
+            child: Row(
+              children: [
+                if (row["alterEmp"] == null || row["alterEmp"].isEmpty)
+                  IconButton(
+                    icon: Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ShiftView(
+                        id: row["id"],
+                        empID: row["emp_code"],
+                        empName: row["first_name"],
+                        fromDate: row["fromDate"],
+                        toDate: row["toDate"],
+                        shiftType: row["shiftType"],
+                        shiftTime: row["shiftTime"],
+                      )));
+                    },
+                  ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    showDeleteConfirmationDialog(context, id);
+                  },
+                ),
+              ],
+            ),
+          ),
         ),
-        )),
+
       ],
     );
   }

@@ -25,6 +25,7 @@ class PurchaseIndividualReport extends StatefulWidget {
   String? total;
   String? grandTotal;
   String? payType;
+  String? amt;
 
   PurchaseIndividualReport({super.key,
     required this.invoiceNo,
@@ -42,6 +43,7 @@ class PurchaseIndividualReport extends StatefulWidget {
     required this.total,
     required this.grandTotal,
     required this. payType,
+    required this. amt,
   });
 
   @override
@@ -55,6 +57,7 @@ class _PurchaseIndividualReportState
   double totalGST = 0.0;
   double totalqty = 0.0;
   double totalSales = 0.0;
+  double totalamt = 0.0;
   String? callinvoiceNo;
   List<dynamic> datareturn = [];
 
@@ -193,10 +196,20 @@ class _PurchaseIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Quantity(pack)',style: pw.TextStyle(fontSize: 10),),
+                pw.Text('Quantity\n(pack)',style: pw.TextStyle(fontSize: 10),),
                 pw.SizedBox(height: 3),
               ])),
             ),
+            pw.Padding(
+              padding: pw.EdgeInsets.only(right: 0),
+              child: pw.Center(child:
+              pw.Column(children: [
+                pw.SizedBox(height: 3),
+                pw.Text('Amount',style: pw.TextStyle(fontSize: 10),),
+                pw.SizedBox(height: 3),
+              ])),
+            ),
+
             pw.Padding(
               padding: pw.EdgeInsets.only(right: 0),
               child: pw.Center(child:
@@ -267,6 +280,15 @@ class _PurchaseIndividualReportState
                     children: [
                       pw.SizedBox(height: 3),
                       pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize: 10)),
+                      pw.SizedBox(height: 3),
+                    ])),
+              ),
+              pw.Padding(
+                padding: pw.EdgeInsets.only(right: 5),
+                child: pw.Center( child: pw.Column(
+                    children: [
+                      pw.SizedBox(height: 3),
+                      pw.Text(data[i]['amt'],style: pw.TextStyle(fontSize: 10)),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -351,6 +373,15 @@ class _PurchaseIndividualReportState
                 pw.SizedBox(height: 3),
               ])),
             ),
+            pw.Padding(
+              padding: pw.EdgeInsets.only(right: 0),
+              child: pw.Center(child:
+              pw.Column(children: [
+                pw.SizedBox(height: 3),
+                pw.Text('Amount',style: pw.TextStyle(fontSize: 10),),
+                pw.SizedBox(height: 3),
+              ])),
+            ),
 
             pw.Padding(
               padding: pw.EdgeInsets.only(right: 0),
@@ -429,6 +460,15 @@ class _PurchaseIndividualReportState
                       pw.SizedBox(height: 3),
                     ])),
               ),
+              pw.Padding(
+                padding: pw.EdgeInsets.only(right: 0),
+                child: pw.Center( child: pw.Column(
+                    children: [
+                      pw.SizedBox(height: 3),
+                      pw.Text(data1[i]['amt'],style: pw.TextStyle(fontSize: 10)),
+                      pw.SizedBox(height: 3),
+                    ])),
+              ),
 
               pw.Padding(
                 padding: pw.EdgeInsets.only(right: 0),
@@ -472,6 +512,7 @@ class _PurchaseIndividualReportState
     totalGST = 0.0;
     totalqty = 0.0;
     totalSales = 0.0;
+    totalamt = 0.0;
 
     final int recordsPerPage = 19;
     final filteredData = data.where((item) => item['invoiceNo'] == invoiceNo).toList();

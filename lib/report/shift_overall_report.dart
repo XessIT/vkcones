@@ -45,15 +45,17 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
             style: pw.TextStyle(fontSize: 4),
           ),
           pw.SizedBox(width: 405),
-          pw.Padding(padding: const pw.EdgeInsets.only(right:5,),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
       ),
     );
   }
+
+  int serialNumber=1;
   Future<Uint8List> _generatePdfWithCopies(PdfPageFormat format, int copies) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final image = await imageFromAssetBundle("assets/pillaiyar.png");
@@ -84,7 +86,7 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -102,7 +104,7 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -125,7 +127,7 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 19 : 23;
+        recordsPerPage = (j == 0) ? 19: 23;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
@@ -148,7 +150,7 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
                             pw.Padding(padding:pw.EdgeInsets.only(top:10),
                               child:pw.Text(
                                 'Shift Report',
-                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                               ),),
                             pw.Padding(padding: pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
                               child:
@@ -159,47 +161,47 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
                                     children: [
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
-                                        child: pw.Text('      S.No', style: pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold)),
+                                        child: pw.Text(' S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(child: pw.Text('Employee ID',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),
                                         ),),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Employee Name',
-                                                style: pw.TextStyle(fontSize: 6,
+                                                style: pw.TextStyle(fontSize: 8,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('From Date',
-                                                style: pw.TextStyle(fontSize: 6,
+                                                style: pw.TextStyle(fontSize: 8,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('To Date',
-                                                style: pw.TextStyle(fontSize: 6,
+                                                style: pw.TextStyle(fontSize: 8,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Shift Type',
-                                                style: pw.TextStyle(fontSize: 6,
+                                                style: pw.TextStyle(fontSize: 8,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Alter Employee',
-                                                style: pw.TextStyle(fontSize: 6,
+                                                style: pw.TextStyle(fontSize: 8,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       // Add more Text widgets for additional columns if needed
@@ -214,20 +216,20 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text(sn.toString(), style: pw.TextStyle(fontSize: 6)),
+                                          child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8)),
                                         ),
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['emp_code'].toString(),
-                                                style: pw.TextStyle(fontSize: 6)),)
+                                                style: pw.TextStyle(fontSize: 8)),)
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['first_name'].toString(),
-                                              style: pw.TextStyle(fontSize: 6)),),
+                                              style: pw.TextStyle(fontSize: 8)),),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
@@ -236,7 +238,7 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
                                               ? DateFormat('dd-MM-yyyy').format(
                                             DateTime.parse("${data["fromDate"]}").toLocal(),)
                                               : "",
-                                              style: pw.TextStyle(fontSize: 6)),),
+                                              style: pw.TextStyle(fontSize: 8)),),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
@@ -245,13 +247,13 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
                                               ? DateFormat('dd-MM-yyyy').format(
                                             DateTime.parse("${data["toDate"]}").toLocal(),)
                                               : "",
-                                              style: pw.TextStyle(fontSize: 6)),),
+                                              style: pw.TextStyle(fontSize: 8)),),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['shiftType'].toString(),
-                                              style: pw.TextStyle(fontSize: 6)),),
+                                              style: pw.TextStyle(fontSize: 8)),),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
@@ -259,7 +261,7 @@ class _ShiftOverallReportState extends State<ShiftOverallReport> {
                                           child: pw.Text(
                                             "${data['alterEmp'] ?? ""}${data['alterEmpID'] != null ? " - (${data['alterEmpID']})" : ""}"
                                                 ?? "-",
-                                            style: pw.TextStyle(fontSize: 6),
+                                            style: pw.TextStyle(fontSize: 8),
                                           ),
                                         ),
                                       ),

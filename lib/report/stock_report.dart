@@ -87,7 +87,7 @@ class _StockReportState extends State<StockReport> {
       } else {
         filteredData = data.where((item) {
           String supName = item['itemName']?.toString()?.toLowerCase() ?? '';
-        //  String supitemName = item['itemName']?.toString()?.toLowerCase() ?? '';
+          //  String supitemName = item['itemName']?.toString()?.toLowerCase() ?? '';
           String searchTextLowerCase = searchText.toLowerCase();
 
           return supName.contains(searchTextLowerCase);
@@ -229,19 +229,7 @@ class _StockReportState extends State<StockReport> {
                                             ),
                                           ),
                                         ),
-                                        IconButton(
-                                          icon: Icon(Icons.refresh),
-                                          onPressed: () {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context)=>StockReport()));
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: Icon(Icons.arrow_back),
-                                          onPressed: () {
-                                            // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
-                                            Navigator.pop(context);
-                                          },
-                                        ),
+
                                         if (supplierSuggestions.isNotEmpty)
                                           Container(
                                             padding: EdgeInsets.all(8),
@@ -275,6 +263,19 @@ class _StockReportState extends State<StockReport> {
                                             ),
                                           ),
                                       ],
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.refresh),
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>StockReport()));
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.arrow_back),
+                                      onPressed: () {
+                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                        Navigator.pop(context);
+                                      },
                                     ),
                                   ],
                                 ),
@@ -318,7 +319,7 @@ class _StockReportState extends State<StockReport> {
                                   DataColumn(label: Center(child: Text("       Item Name",style: TextStyle(fontWeight: FontWeight.bold),))),
                                   // DataColumn(label: Center(child: Text("Size",style: TextStyle(fontWeight: FontWeight.bold),))),
                                   // DataColumn(label: Center(child: Text("Color",style: TextStyle(fontWeight: FontWeight.bold),))),
-                              //    DataColumn(label: Center(child: Text("  Unit",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  //    DataColumn(label: Center(child: Text("  Unit",style: TextStyle(fontWeight: FontWeight.bold),))),
                                   DataColumn(label: Center(child: Text("Current Stock",style: TextStyle(fontWeight: FontWeight.bold),))),
                                 ],
                                 source: _YourDataTableSource(filteredData,context,generatedButton),
@@ -413,7 +414,7 @@ class _YourDataTableSource extends DataTableSource {
         DataCell(Center(child: Text("${row["itemName"]}"))),
         // DataCell(Center(child: Text("${row["size"]}"))),
         // DataCell(Center(child: Text("${row["color"]}"))),
-       // DataCell(Center(child: Text("${row["unit"]}"))),
+        // DataCell(Center(child: Text("${row["unit"]}"))),
         DataCell(Center(child: Text("${row["qty"]}"))),
       ],
     );

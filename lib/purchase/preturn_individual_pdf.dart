@@ -111,13 +111,15 @@ class _PreturnIndividualReportState
           pw.SizedBox(width: 393),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
       ),
     );
   }
+
+  int serialNumber = 1;
 
   pw.Widget _buildDataTable(List<Map<String, dynamic>> data, String? invoiceNo) {
     return pw.Table(
@@ -130,21 +132,21 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('S.No',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('S.No',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Product Code',style: pw.TextStyle(fontSize: 7)),
+              pw.Text('Product Code',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
 
             ])),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Product Name',style: pw.TextStyle(fontSize: 6)),
+              pw.Text('Product Name',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
             ])),
             pw.Padding(
@@ -152,7 +154,7 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Quantity',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('Quantity',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -161,7 +163,7 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Rate per Unit',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('Rate per Unit',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -170,7 +172,7 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('GST',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('GST',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -179,7 +181,7 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Total',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('Total',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -195,7 +197,7 @@ class _PreturnIndividualReportState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text((i + 1).toString(),style: pw.TextStyle(fontSize: 6)),
+                        pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 9)),
                         pw.SizedBox(height: 3),
                       ]
                   ),
@@ -205,13 +207,13 @@ class _PreturnIndividualReportState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text(data[i]['prodCode'],style: pw.TextStyle(fontSize: 6),),
+                        pw.Text(data[i]['prodCode'],style: pw.TextStyle(fontSize: 9),),
                         pw.SizedBox(height: 3),
                       ])),
               pw.Center(child: pw.Column(
                   children: [
                     pw.SizedBox(height: 3),
-                    pw.Text(data[i]['prodName'],style: pw.TextStyle(fontSize: 6)),
+                    pw.Text(data[i]['prodName'],style: pw.TextStyle(fontSize: 9)),
                     pw.SizedBox(height: 3),
                   ])),
               pw.Padding(
@@ -219,7 +221,7 @@ class _PreturnIndividualReportState
                 child: pw.Center( child: pw.Column(
                     children: [
                       pw.SizedBox(height: 3),
-                      pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize: 6)),
+                      pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize: 9)),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -230,7 +232,7 @@ class _PreturnIndividualReportState
                       pw.SizedBox(height: 3),
                       pw.Align(
                         alignment: pw.Alignment.topRight,
-                        child: pw.Text(data[i]['rate'],style: pw.TextStyle(fontSize: 6)),
+                        child: pw.Text(data[i]['rate'],style: pw.TextStyle(fontSize: 9)),
                       ),
 
                       pw.SizedBox(height: 3),
@@ -241,7 +243,7 @@ class _PreturnIndividualReportState
                 child: pw.Center( child: pw.Column(
                     children: [
                       pw.SizedBox(height: 3),
-                      pw.Text(data[i]['amtGST'],style: pw.TextStyle(fontSize: 6)),
+                      pw.Text(data[i]['amtGST'],style: pw.TextStyle(fontSize: 9)),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -252,7 +254,7 @@ class _PreturnIndividualReportState
                       pw.SizedBox(height: 3),
                       pw.Align(
                         alignment:pw.Alignment.topRight,
-                        child: pw.Text(data[i]['total'],style: pw.TextStyle(fontSize: 6)),
+                        child: pw.Text(data[i]['total'],style: pw.TextStyle(fontSize: 9)),
                       ),
                       pw.SizedBox(height: 3),
                     ])),
@@ -274,21 +276,21 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('S.No',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('S.No',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Product Code',style: pw.TextStyle(fontSize: 6)),
+              pw.Text('Product Code',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
 
             ])),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Product Name',style: pw.TextStyle(fontSize: 6)),
+              pw.Text('Product Name',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
             ])),
             pw.Padding(
@@ -296,7 +298,7 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Quantity',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('Quantity',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -305,7 +307,7 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Rate per Unit',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('Rate per Unit',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -314,7 +316,7 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('GST',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('GST',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -323,7 +325,7 @@ class _PreturnIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Total',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('Total',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -339,7 +341,7 @@ class _PreturnIndividualReportState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text((i + 1).toString(),style: pw.TextStyle(fontSize: 6)),
+                        pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 9)),
                         pw.SizedBox(height: 3),
                       ]
                   ),
@@ -349,13 +351,13 @@ class _PreturnIndividualReportState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text(data1[i]['prodCode'],style: pw.TextStyle(fontSize: 6),),
+                        pw.Text(data1[i]['prodCode'],style: pw.TextStyle(fontSize: 9),),
                         pw.SizedBox(height: 3),
                       ])),
               pw.Center(child: pw.Column(
                   children: [
                     pw.SizedBox(height: 3),
-                    pw.Text(data1[i]['prodName'],style: pw.TextStyle(fontSize: 6)),
+                    pw.Text(data1[i]['prodName'],style: pw.TextStyle(fontSize: 9)),
                     pw.SizedBox(height: 3),
                   ])),
               pw.Padding(
@@ -363,7 +365,7 @@ class _PreturnIndividualReportState
                 child: pw.Center( child: pw.Column(
                     children: [
                       pw.SizedBox(height: 3),
-                      pw.Text(data1[i]['qty'],style: pw.TextStyle(fontSize: 6)),
+                      pw.Text(data1[i]['qty'],style: pw.TextStyle(fontSize: 9)),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -374,7 +376,7 @@ class _PreturnIndividualReportState
                       pw.SizedBox(height: 3),
                       pw.Align(
                         alignment: pw.Alignment.topRight,
-                        child: pw.Text(data1[i]['rate'],style: pw.TextStyle(fontSize: 6)),
+                        child: pw.Text(data1[i]['rate'],style: pw.TextStyle(fontSize: 9)),
                       ),
 
                       pw.SizedBox(height: 3),
@@ -385,7 +387,7 @@ class _PreturnIndividualReportState
                 child: pw.Center( child: pw.Column(
                     children: [
                       pw.SizedBox(height: 3),
-                      pw.Text(data1[i]['amtGST'],style: pw.TextStyle(fontSize: 6)),
+                      pw.Text(data1[i]['amtGST'],style: pw.TextStyle(fontSize: 9)),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -396,7 +398,7 @@ class _PreturnIndividualReportState
                       pw.SizedBox(height: 3),
                       pw.Align(
                         alignment:pw.Alignment.topRight,
-                        child: pw.Text(data1[i]['total'],style: pw.TextStyle(fontSize: 6)),
+                        child: pw.Text(data1[i]['total'],style: pw.TextStyle(fontSize: 9)),
                       ),
                       pw.SizedBox(height: 3),
                     ])),
@@ -419,7 +421,7 @@ class _PreturnIndividualReportState
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
     final List<Map<String, dynamic>> data = await fetchUnitEntries(preturnNo);
     final List<Map<String, dynamic>> data1 = await fetchPurchase(callinvoiceNo!);
-    final int recordsPerPage = 19;
+    int recordsPerPage ;
     final filteredData = data.where((item) => item['preturnNo'] == preturnNo).toList();
     final filteredData1 = data1.where((item) => callinvoiceNo == callinvoiceNo).toList();
     totalGST = 0.0;
@@ -428,6 +430,7 @@ class _PreturnIndividualReportState
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < filteredData.length; j += recordsPerPage) {
+        recordsPerPage = (j == 0) ? 10: 15;
         final List<Map<String, dynamic>> pageData =
         filteredData.skip(j).take(recordsPerPage).toList();
         for (var j = 0; j < filteredData1.length; j += recordsPerPage) {
@@ -450,7 +453,7 @@ class _PreturnIndividualReportState
             pw.Page(
               pageFormat: format,
               build: (context) {
-                final double pageHeight =  format.availableHeight ;
+                final double pageHeight = j == 0 ? format.availableHeight : format.availableHeight +90;
                 return pw.Column(
                   children: [
                     if (j == 0)
@@ -509,7 +512,7 @@ class _PreturnIndividualReportState
                     pw.Divider(),
                     pw.Text(
                       'Purchase Return Report',
-                      style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                      style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                     ),
                     pw.SizedBox(height: 8),
 
@@ -517,7 +520,7 @@ class _PreturnIndividualReportState
                       padding: pw.EdgeInsets.only(top: 5.0),
                       child: pw.Container(
                         width: double.infinity,
-                        height:pageHeight * 0.78,
+                        height:pageHeight * 0.77,
                         padding: pw.EdgeInsets.all(0.0),
                         decoration: pw.BoxDecoration(
                           border: pw.Border.all(color: PdfColors.grey),
@@ -535,11 +538,11 @@ class _PreturnIndividualReportState
                                       "Supplier Details",
                                       style: pw.TextStyle(
                                         fontWeight: pw.FontWeight.bold,
-                                        fontSize: 8,
+                                        fontSize: 12,
                                       ),
                                     ),
                                     pw.Padding(
-                                      padding: pw.EdgeInsets.only(left:305),
+                                      padding: pw.EdgeInsets.only(left:300),
                                       child: pw.Align(
                                         alignment: pw.Alignment.topRight,
                                         child: pw.SizedBox(
@@ -547,25 +550,25 @@ class _PreturnIndividualReportState
                                           child: pw.Container(
                                             width: 50,
                                             child: pw.Column(
-                                              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                                              crossAxisAlignment: pw.CrossAxisAlignment.start,
                                               children: [
                                                 pw.Text(
                                                   widget.date != null
                                                       ? DateFormat("dd-MM-yyyy").format(DateTime.parse("${widget.date}").toLocal())
                                                       : "",
-                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 5),
+                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 7),
                                                 ),
                                                 pw.Divider(
                                                   color: PdfColors.grey,
                                                 ),
                                                 pw.Text(
                                                   "Return Number",
-                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 5),
+                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 7),
                                                 ),
                                                 pw.SizedBox(height: 2),
                                                 pw.Text(
                                                   widget.preturnNo.toString(),
-                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 5),
+                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 7),
                                                 ),
                                               ],
                                             ),
@@ -592,35 +595,35 @@ class _PreturnIndividualReportState
                                               pw.Text(
                                                 "Supplier Code",
                                                 style: pw.TextStyle(
-                                                  fontSize: 7,
+                                                  fontSize: 9,
                                                 ),
                                               ),
                                               pw.SizedBox(height: 3),
                                               pw.Text(
                                                 "Supplier Name",
                                                 style: pw.TextStyle(
-                                                  fontSize: 7,
+                                                  fontSize: 9,
                                                 ),
                                               ),
                                               pw.SizedBox(height: 3),
                                               pw.Text(
                                                 "Supplier Address",
                                                 style: pw.TextStyle(
-                                                  fontSize: 7,
+                                                  fontSize: 9,
                                                 ),
                                               ),
                                               pw.SizedBox(height: 3),
                                               pw.Text(
                                                 "Supplier Pincode",
                                                 style: pw.TextStyle(
-                                                  fontSize: 7,
+                                                  fontSize: 9,
                                                 ),
                                               ),
                                               pw.SizedBox(height: 3),
                                               pw.Text(
                                                 "Supplier Mobile",
                                                 style: pw.TextStyle(
-                                                  fontSize: 7,
+                                                  fontSize: 9,
                                                 ),
                                               ),
                                               pw.SizedBox(height: 3),
@@ -632,15 +635,15 @@ class _PreturnIndividualReportState
                                           child: pw.Column(
                                             crossAxisAlignment: pw.CrossAxisAlignment.start,
                                             children: [
-                                              pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
-                                              pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
-                                              pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
-                                              pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
-                                              pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
                                             ],
                                           ),
@@ -650,15 +653,15 @@ class _PreturnIndividualReportState
                                           child: pw.Column(
                                             crossAxisAlignment: pw.CrossAxisAlignment.start,
                                             children: [
-                                              pw.Text(widget.supCode.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(widget.supCode.toString(), style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
-                                              pw.Text(widget.supName.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(widget.supName.toString(), style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
-                                              pw.Text(widget.supAddress.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(widget.supAddress.toString(), style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
-                                              pw.Text(widget.pincode.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(widget.pincode.toString(), style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
-                                              pw.Text(widget.supMobile.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                              pw.Text(widget.supMobile.toString(), style: pw.TextStyle(fontSize: 9,)),
                                               pw.SizedBox(height: 3),
 
                                             ],
@@ -675,7 +678,7 @@ class _PreturnIndividualReportState
                                   padding: pw.EdgeInsets.only(left:20,bottom: 10,top: 10),
                                   child: pw.Text(
                                     "Product Details",
-                                    style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold),
+                                    style: pw.TextStyle(fontSize: 12,fontWeight: pw.FontWeight.bold),
                                   ),
                                 ),
                               ),
@@ -693,7 +696,7 @@ class _PreturnIndividualReportState
                                   child: pw.Row(
                                     mainAxisAlignment: pw.MainAxisAlignment.end,
                                     children: [
-                                      pw.Text("Total", style: pw.TextStyle(fontSize: 6)),
+                                      pw.Text("Total", style: pw.TextStyle(fontSize: 9)),
                                       pw.SizedBox(width: 10),
                                       pw.Container(
                                         // padding: pw.EdgeInsets.all(7.0),
@@ -708,7 +711,7 @@ class _PreturnIndividualReportState
                                         child: pw.Row(
                                           mainAxisAlignment: pw.MainAxisAlignment.end,
                                           children: [
-                                            pw.Text(    "${totalGST.toStringAsFixed(2)}",style: pw.TextStyle(fontSize: 6)),
+                                            pw.Text(    "${totalGST.toStringAsFixed(2)}",style: pw.TextStyle(fontSize: 9)),
 
                                           ],
                                         ),
@@ -724,7 +727,7 @@ class _PreturnIndividualReportState
                                   padding: pw.EdgeInsets.only(left:20,bottom: 10,top: 10),
                                   child: pw.Text(
                                     "Product Return Details",
-                                    style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold),
+                                    style: pw.TextStyle(fontSize: 12,fontWeight: pw.FontWeight.bold),
                                   ),
                                 ),
                               ),
@@ -742,7 +745,7 @@ class _PreturnIndividualReportState
                                   child: pw.Row(
                                     mainAxisAlignment: pw.MainAxisAlignment.end,
                                     children: [
-                                      pw.Text("Total", style: pw.TextStyle(fontSize: 6)),
+                                      pw.Text("Total", style: pw.TextStyle(fontSize: 9)),
                                       pw.SizedBox(width: 10),
                                       pw.Container(
                                         // padding: pw.EdgeInsets.all(7.0),
@@ -759,7 +762,7 @@ class _PreturnIndividualReportState
                                           children: [
                                             pw.Text(
                                               widget.grandTotal.toString(),
-                                              style: pw.TextStyle(fontSize: 6),
+                                              style: pw.TextStyle(fontSize: 9),
                                             ),
                                           ],
                                         ),
@@ -773,7 +776,7 @@ class _PreturnIndividualReportState
                               pw.Padding(
                                 padding: pw.EdgeInsets.only(left: 320),child:
                               pw.Container(
-                                  width: 100,
+                                  width: 110,
                                   padding: pw.EdgeInsets.all(2.0),
                                   decoration: pw.BoxDecoration(
                                     border: pw.Border.all(color: PdfColors.black),
@@ -786,9 +789,9 @@ class _PreturnIndividualReportState
                                             crossAxisAlignment: pw.CrossAxisAlignment.start,
 
                                             children: [
-                                              pw.Text("Purchase Total",style: pw.TextStyle(fontSize: 6)),
-                                              pw.Text("Return Total",style: pw.TextStyle(fontSize: 6)),
-                                              pw.Text("Grand Total",style: pw.TextStyle(fontSize: 6)),
+                                              pw.Text("Purchase Total",style: pw.TextStyle(fontSize: 9)),
+                                              pw.Text("Return Total",style: pw.TextStyle(fontSize: 9)),
+                                              pw.Text("Grand Total",style: pw.TextStyle(fontSize: 9)),
 
 
 
@@ -798,27 +801,27 @@ class _PreturnIndividualReportState
                                           // crossAxisAlignment: pw.CrossAxisAlignment.end,
 
                                             children: [
-                                              pw.Text(": ",style: pw.TextStyle(fontSize: 6)),
-                                              pw.Text(": ",style: pw.TextStyle(fontSize: 6)),
-                                              pw.Text(": ",style: pw.TextStyle(fontSize: 6)),
+                                              pw.Text(": ",style: pw.TextStyle(fontSize: 9)),
+                                              pw.Text(": ",style: pw.TextStyle(fontSize: 9)),
+                                              pw.Text(": ",style: pw.TextStyle(fontSize: 9)),
 
                                             ]
                                         ), pw.Column(
                                           //  crossAxisAlignment: pw.CrossAxisAlignment.end,
 
                                             children: [
-                                              pw.Text("Rs.",style: pw.TextStyle(fontSize: 6)),
-                                              pw.Text("Rs.",style: pw.TextStyle(fontSize: 6)),
-                                              pw.Text("Rs.",style: pw.TextStyle(fontSize: 6)),
+                                              pw.Text("Rs.",style: pw.TextStyle(fontSize: 9)),
+                                              pw.Text("Rs.",style: pw.TextStyle(fontSize: 9)),
+                                              pw.Text("Rs.",style: pw.TextStyle(fontSize: 9)),
 
                                             ]
                                         ), pw.Column(
                                             crossAxisAlignment: pw.CrossAxisAlignment.end,
 
                                             children: [
-                                              pw.Text("${totalGST.toStringAsFixed(2)}",style: pw.TextStyle(fontSize: 6,),),
-                                              pw.Text("${widget.grandTotal}",style: pw.TextStyle(fontSize: 6)),
-                                              pw.Text("${totalSales.toStringAsFixed(2)}",style: pw.TextStyle(fontSize: 6)),
+                                              pw.Text("${totalGST.toStringAsFixed(2)}",style: pw.TextStyle(fontSize: 9,),),
+                                              pw.Text("${widget.grandTotal}",style: pw.TextStyle(fontSize: 9)),
+                                              pw.Text("${totalSales.toStringAsFixed(2)}",style: pw.TextStyle(fontSize: 9)),
                                             ]
                                         ),
 

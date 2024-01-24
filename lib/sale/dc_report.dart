@@ -597,7 +597,7 @@ class _DcReportState extends State<DcReport> {
                                 DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
                                 DataColumn(label: Center(child: Text("   Date",style: TextStyle(fontWeight: FontWeight.bold),))),
                                 DataColumn(label: Center(child: Text("   DC No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                // DataColumn(label: Center(child: Text("  Invoice No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text(" Invoice No",style: TextStyle(fontWeight: FontWeight.bold),))),
                                 DataColumn(label: Center(child: Text("  Customer Code",style: TextStyle(fontWeight: FontWeight.bold),))),
                                 DataColumn(label: Center(child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
                                 DataColumn(label: Center(child: Text("Place Of Supply",style: TextStyle(fontWeight: FontWeight.bold),))),
@@ -706,6 +706,7 @@ class _YourDataTableSource extends DataTableSource {
         )),
 
         DataCell(Center(child: Text("${row["dcNo"]}"))),
+        DataCell(Center(child: Text("${row["invoiceNo"]}"))),
         DataCell(Center(child: Text("${row["custCode"]}"))),
         DataCell(Center(child: Container(
             constraints: BoxConstraints(maxWidth:150),child: Text("${row["custName"]}")))),

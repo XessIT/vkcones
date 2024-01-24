@@ -8,7 +8,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:http/http.dart'as http;
-
 import 'dc.dart';
 
 
@@ -80,12 +79,12 @@ class _dcIndividualPDFViewState
         children: [
           pw.Text(
             '        $formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 3.5),
+            style: pw.TextStyle(fontSize: 4),
           ),
           pw.SizedBox(width: 390),
           pw.Text(
             'Page $currentPage of $totalPages',
-            style: pw.TextStyle(fontSize: 5),
+            style: pw.TextStyle(fontSize: 4),
           ),
 
         ],
@@ -277,6 +276,7 @@ class _dcIndividualPDFViewState
           pw.Page(
             pageFormat: format,
             build: (context) {
+              final double pageHeight =  format.availableHeight;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -340,6 +340,7 @@ class _dcIndividualPDFViewState
                     padding: pw.EdgeInsets.only(top: 5.0),
                     child: pw.Container(
                       width: double.infinity,
+                      height:pageHeight * 0.80,
                       padding: pw.EdgeInsets.all(0.0),
                       decoration: pw.BoxDecoration(
                         border: pw.Border.all(color: PdfColors.grey),
@@ -412,9 +413,33 @@ class _dcIndividualPDFViewState
                                                           child: pw.Text(
                                                             widget.dcNo.toString(),
                                                             style: pw.TextStyle(
+                                                              // fontWeight:
+                                                              // pw.FontWeight.bold,
+                                                                fontSize: 5),
+                                                          ),
+                                                        ),
+                                                        pw.Divider(
+                                                          color: PdfColors.grey,
+                                                        ),
+                                                        pw.Align(
+                                                          alignment: pw.Alignment.topLeft,
+                                                          child: pw.Text(
+                                                            "Invoice Number",
+                                                            style: pw.TextStyle(
                                                                 fontWeight:
                                                                 pw.FontWeight.bold,
                                                                 fontSize: 6),
+                                                          ),
+                                                        ),
+                                                        pw.SizedBox(height: 2),
+                                                        pw.Align(
+                                                          alignment: pw.Alignment.topLeft,
+                                                          child: pw.Text(
+                                                            widget.invNo.toString(),
+                                                            style: pw.TextStyle(
+                                                              // fontWeight:
+                                                              // pw.FontWeight.bold,
+                                                                fontSize: 5),
                                                           ),
                                                         ),
                                                       ],

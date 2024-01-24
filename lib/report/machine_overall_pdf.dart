@@ -50,9 +50,9 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
             style: pw.TextStyle(fontSize: 4),
           ),
           pw.SizedBox(width: 405),
-          pw.Padding(padding: const pw.EdgeInsets.only(right: 5,),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -91,7 +91,7 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -109,7 +109,7 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -132,7 +132,7 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 19 : 23;
+        recordsPerPage = (j == 0) ? 19: 23;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
@@ -142,6 +142,7 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
               final double pageHeight = j == 0 ? format.availableHeight + 290: format.availableHeight +405;
               return pw.Column(
                 children: [
+                  if (j == 0)
                   createHeader(),
                   pw.SizedBox(height: 5),
                   pw.Container(
@@ -154,7 +155,7 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
                         pw.Padding(padding:pw.EdgeInsets.only(top:10),
                           child:pw.Text(
                             'Machine Report',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                           ),),
                         pw.Padding(padding:(pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10)),
                           child:pw.Expanded(
@@ -164,50 +165,57 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
                                 pw.TableRow(
                                   children: [
                                     pw.Container(
-                                      padding: pw.EdgeInsets.only(top: 8.0),
-                                      child: pw.Text(' S.No ', style: pw.TextStyle(
-                                          fontSize: 6, fontWeight: pw.FontWeight.bold)),
+                                      width: 50,
+                                      padding: pw.EdgeInsets.all(8.0),
+                                      child: pw.Text('S.No', style: pw.TextStyle(
+                                          fontSize: 8, fontWeight: pw.FontWeight.bold)),
                                     ),
                                     pw.Container(
+                                      width: 70,
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('    Date    ',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
+                                      width:90,
+                                        padding: pw.EdgeInsets.only(left:20,top:8,bottom: 8,right:8),
                                         child: pw.Center(
                                           child: pw.Text('Machine Model',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
+                                        width:90,
+                                        padding: pw.EdgeInsets.only(left:20,top:8,bottom: 8,right:8),
                                         child: pw.Center(
                                           child: pw.Text('Machine Name',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
+                                        width:90,
+                                        padding: pw.EdgeInsets.only(left:20,top:8,right:8),
                                         child: pw.Center(
                                           child: pw.Text('Machine Supplier Name',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
+                                        width:80,
+                                        padding: pw.EdgeInsets.only(left:15,top:8,right:8),
                                         child: pw.Center(
                                           child: pw.Text('Date of purchcase',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
+                                        width:80,
+                                        padding: pw.EdgeInsets.only(left:15,top:8,bottom: 8,right:8),
                                         child: pw.Center(
                                           child: pw.Text('Warranty Date',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     // Add more Text widgets for additional columns if needed
@@ -224,7 +232,7 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
                                         child: pw.Center(
                                           child:
                                           pw.Text('${serialNumber++}',
-                                              style: pw.TextStyle(fontSize: 6)),
+                                              style: pw.TextStyle(fontSize: 8)),
                                         )
                                     ),
                                     pw.Container(
@@ -234,25 +242,25 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
                                             ? DateFormat('dd-MM-yyyy').format(
                                             DateTime.parse("${data["date"]}").toLocal())
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['machineModel'],
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['machineName'],
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['machineSupName'],
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
@@ -262,7 +270,7 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
                                             DateTime.parse("${data["purchaseDate"]}")
                                                 .toLocal())
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
@@ -272,7 +280,7 @@ class _MachineReportPDFState extends State<MachineReportPDF> {
                                             DateTime.parse("${data["warrantyDate"]}")
                                                 .toLocal())
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
 
                                   ]);

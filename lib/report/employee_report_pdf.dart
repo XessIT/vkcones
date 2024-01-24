@@ -8,6 +8,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+
+
 class EmployeeReportPDF extends StatefulWidget {
   final List<Map<String, dynamic>> customerData;
   EmployeeReportPDF({
@@ -41,9 +43,9 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
             style: pw.TextStyle(fontSize: 4),
           ),
           pw.SizedBox(width: 405),
-          pw.Padding(padding: const pw.EdgeInsets.only(right:5,),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -58,6 +60,7 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
     final List<Map<String, dynamic>> customerData = widget.customerData;
     int recordsPerPage;
+    int serialNumber=1;
     pw.Widget createHeader() {
       return pw.Container(
         child: pw.Column(
@@ -79,7 +82,7 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -97,7 +100,7 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -144,7 +147,7 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                         pw.Padding(padding:pw.EdgeInsets.only(top:10),
                           child:pw.Text(
                             'Employee Report',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                           ),),
                         pw.Padding(padding:pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
                           child:pw.Table(
@@ -154,40 +157,40 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                                 children: [
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
-                                    child: pw.Text('S.No', style: pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold)),
+                                    child: pw.Text('S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(child: pw.Text('Emp ID',
-                                        style: pw.TextStyle(fontSize: 6,
+                                        style: pw.TextStyle(fontSize: 8,
                                             fontWeight: pw.FontWeight.bold)),
                                     ),),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Employee Name',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Mobile',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Designation',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Salary \n per Day',
-                                            style: pw.TextStyle(fontSize: 6,
+                                            style: pw.TextStyle(fontSize: 8,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                 ],
@@ -201,7 +204,7 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
-                                      child: pw.Text(sn.toString(), style: pw.TextStyle(fontSize: 6)),
+                                      child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8)),
                                     ),
                                   ),
                                   // pw.Container(
@@ -217,31 +220,31 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['emp_code'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),)
+                                            style: pw.TextStyle(fontSize: 8)),)
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['first_name'],
-                                          style: pw.TextStyle(fontSize: 6)),),
+                                          style: pw.TextStyle(fontSize: 8)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['empMobile'].toString(),
-                                          style: pw.TextStyle(fontSize: 6)),),
+                                          style: pw.TextStyle(fontSize: 8)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['empPosition'],
-                                          style: pw.TextStyle(fontSize: 6)),),
+                                          style: pw.TextStyle(fontSize: 8)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
-                                      child: pw.Text(data['dailySalary'].toString(),
-                                          style: pw.TextStyle(fontSize: 6)),),
+                                      child: pw.Text(data['salary'].toString(),
+                                          style: pw.TextStyle(fontSize: 8)),),
                                   ),
                                 ]);
                               }

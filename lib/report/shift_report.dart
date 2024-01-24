@@ -458,18 +458,25 @@ class _ShiftReportState extends State<ShiftReport> {
                                         child: const Text("Generate", style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.refresh),
-                                      onPressed: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ShiftReport()));
-                                      },
+                                    SizedBox(width:20),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top:37,),
+                                      child: IconButton(
+                                        icon: Icon(Icons.refresh),
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>ShiftReport()));
+                                        },
+                                      ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.arrow_back),
-                                      onPressed: () {
-                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
-                                        Navigator.pop(context);
-                                      },
+                                    Padding(
+                                      padding: const EdgeInsets.only(top:37),
+                                      child: IconButton(
+                                        icon: Icon(Icons.arrow_back),
+                                        onPressed: () {
+                                          // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                          Navigator.pop(context);
+                                        },
+                                      ),
                                     )
                                   ],
                                 ),

@@ -108,7 +108,7 @@ class _PoIndividualReportState
             padding: pw.EdgeInsets.only(right:0),
             child:
             pw.Text(
-              'Page $currentPage of $totalPages      ',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),),
 
@@ -131,27 +131,27 @@ class _PoIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('S.No',style: pw.TextStyle(fontSize:6),),
+                pw.Text('S.No',style: pw.TextStyle(fontSize:9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Product Code',style: pw.TextStyle(fontSize:6)),
+              pw.Text('Product Code',style: pw.TextStyle(fontSize:9)),
               pw.SizedBox(height: 3),
 
             ])),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Product Name',style: pw.TextStyle(fontSize:6)),
+              pw.Text('Product Name',style: pw.TextStyle(fontSize:9)),
               pw.SizedBox(height: 3),
             ])),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Unit',style: pw.TextStyle(fontSize: 6)),
+              pw.Text('Unit',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
             ])),
             pw.Padding(
@@ -159,7 +159,7 @@ class _PoIndividualReportState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Quantity',style: pw.TextStyle(fontSize: 6),),
+                pw.Text('Quantity',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -174,7 +174,7 @@ class _PoIndividualReportState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text((i + 1).toString(),style: pw.TextStyle(fontSize: 6)),
+                        pw.Text((i + 1).toString(),style: pw.TextStyle(fontSize: 9)),
                         pw.SizedBox(height: 3),
                       ]
                   ),
@@ -184,19 +184,19 @@ class _PoIndividualReportState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text(data[i]['prodCode'],style: pw.TextStyle(fontSize: 6),),
+                        pw.Text(data[i]['prodCode'],style: pw.TextStyle(fontSize: 9),),
                         pw.SizedBox(height: 3),
                       ])),
               pw.Center(child: pw.Column(
                   children: [
                     pw.SizedBox(height: 3),
-                    pw.Text(data[i]['prodName'],style: pw.TextStyle(fontSize: 6)),
+                    pw.Text(data[i]['prodName'],style: pw.TextStyle(fontSize: 9)),
                     pw.SizedBox(height: 3),
                   ])),
               pw.Center(child: pw.Column(
                   children: [
                     pw.SizedBox(height: 3),
-                    pw.Text(data[i]['unit'],style: pw.TextStyle(fontSize: 6)),
+                    pw.Text(data[i]['unit'],style: pw.TextStyle(fontSize: 9)),
                     pw.SizedBox(height: 3),
                   ])),
               pw.Padding(
@@ -204,7 +204,7 @@ class _PoIndividualReportState
                 child: pw.Center( child: pw.Column(
                     children: [
                       pw.SizedBox(height: 3),
-                      pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize:6)),
+                      pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize:9)),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -237,7 +237,7 @@ class _PoIndividualReportState
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < filteredData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 16 : 23;
+        recordsPerPage = (j == 0) ? 10 : 15;
         final List<Map<String, dynamic>> pageData =
         filteredData.skip(j).take(recordsPerPage).toList();
         for (var item in pageData) {
@@ -247,7 +247,7 @@ class _PoIndividualReportState
           pw.Page(
             pageFormat: format,
             build: (context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 245: format.availableHeight +405;
+              final double pageHeight = j == 0 ? format.availableHeight : format.availableHeight +80;
               return pw.Padding(padding: pw.EdgeInsets.only(top: 5),
                   child:
                   pw.Column(
@@ -291,7 +291,7 @@ class _PoIndividualReportState
                                             "5/624-I5,SOWDESWARI \n"
                                                 "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                                                 "NAMAKKAL-638008 ",
-                                            style: const pw.TextStyle(fontSize: 10),
+                                            style: const pw.TextStyle(fontSize: 6),
                                             textAlign: pw.TextAlign.center))
                                   ]), ),
 
@@ -310,7 +310,7 @@ class _PoIndividualReportState
                       pw.Divider(),
                       pw.Text(
                         'Purchase Order',
-                        style: pw.TextStyle(fontSize: 10  , fontWeight: pw.FontWeight.bold),
+                        style: pw.TextStyle(fontSize: 14 , fontWeight: pw.FontWeight.bold),
                       ),
                       pw.SizedBox(height:5),
 
@@ -338,7 +338,7 @@ class _PoIndividualReportState
                                         "Supplier Details",
                                         style: pw.TextStyle(
                                           fontWeight: pw.FontWeight.bold,
-                                          fontSize: 9,
+                                          fontSize: 12,
                                         ),
                                       ),
                                       pw.Padding(
@@ -395,35 +395,35 @@ class _PoIndividualReportState
                                                 pw.Text(
                                                   "Supplier Code",
                                                   style: pw.TextStyle(
-                                                    fontSize: 6,
+                                                    fontSize: 10,
                                                   ),
                                                 ),
                                                 pw.SizedBox(height: 5),
                                                 pw.Text(
                                                   "Supplier Name",
                                                   style: pw.TextStyle(
-                                                    fontSize: 6,
+                                                    fontSize: 10,
                                                   ),
                                                 ),
                                                 pw.SizedBox(height: 5),
                                                 pw.Text(
                                                   "Supplier Address",
                                                   style: pw.TextStyle(
-                                                    fontSize: 6,
+                                                    fontSize: 10,
                                                   ),
                                                 ),
                                                 pw.SizedBox(height: 5),
                                                 pw.Text(
                                                   "Supplier Pincode",
                                                   style: pw.TextStyle(
-                                                    fontSize: 6,
+                                                    fontSize: 10,
                                                   ),
                                                 ),
                                                 pw.SizedBox(height: 5),
                                                 pw.Text(
                                                   "Supplier Mobile",
                                                   style: pw.TextStyle(
-                                                    fontSize: 6,
+                                                    fontSize: 10,
                                                   ),
                                                 ),
                                                 // pw.SizedBox(height: 5),
@@ -437,7 +437,7 @@ class _PoIndividualReportState
                                                 pw.Text(
                                                   "Delivery Date",
                                                   style: pw.TextStyle(
-                                                    fontSize: 6,
+                                                    fontSize: 10,
                                                   ),
                                                 ),
                                                 pw.SizedBox(height: 5),
@@ -449,17 +449,17 @@ class _PoIndividualReportState
                                             child: pw.Column(
                                               crossAxisAlignment: pw.CrossAxisAlignment.start,
                                               children: [
-                                                pw.Text(":", style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text(":", style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text(":", style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text(":", style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text(":", style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text(":", style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 // pw.SizedBox(height: 5),
                                                 // pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
@@ -472,22 +472,22 @@ class _PoIndividualReportState
                                             pw.Column(
                                               crossAxisAlignment: pw.CrossAxisAlignment.start,
                                               children: [
-                                                pw.Text(widget.supCode.toString(), style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(widget.supCode.toString(), style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text(widget.supName.toString(), style: pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold)),
+                                                pw.Text(widget.supName.toString(), style: pw.TextStyle(fontSize: 10,fontWeight: pw.FontWeight.bold)),
                                                 pw.SizedBox(height: 4),
-                                                pw.Text(supdata[0]["supAddress"].toString(), style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(supdata[0]["supAddress"].toString(), style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text(supdata[0]["pincode"].toString(), style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text(supdata[0]["pincode"].toString(), style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text("+91 "+supdata[0]["supMobile"].toString(), style: pw.TextStyle(fontSize: 6,)),
+                                                pw.Text("+91 "+supdata[0]["supMobile"].toString(), style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
                                                 // pw.Text(widget.deliveryType.toString(), style: pw.TextStyle(fontSize: 10,)),
                                                 pw.Text(
                                                   widget.deliveryDate != null
                                                       ? formatDate(widget.deliveryDate)
                                                       : "",
-                                                  style: pw.TextStyle(fontSize: 6),
+                                                  style: pw.TextStyle(fontSize: 10),
                                                 ),
                                                 pw.SizedBox(height:4),
                                                 pw.Text("")
@@ -506,12 +506,12 @@ class _PoIndividualReportState
                                     padding: pw.EdgeInsets.only(left:20,bottom: 10,top: 10),
                                     child: pw.Text(
                                       "Product Details",
-                                      style: pw.TextStyle(fontSize: 9,fontWeight: pw.FontWeight.bold),
+                                      style: pw.TextStyle(fontSize: 12,fontWeight: pw.FontWeight.bold),
                                     ),
                                   ),
                                 ),
                                 pw.Container(
-                                    height:270,
+                                   //height:200,
                                     child: pw.Column(
                                         children: [
                                           pw.Padding(
@@ -561,27 +561,29 @@ class _PoIndividualReportState
 
                                     )
                                 ),
+                                pw.SizedBox(height:130),
 
                                 pw.Padding(
                                   padding: pw.EdgeInsets.only(right: 380),
-                                  child:pw.Text("Terms & Conditions",style:pw.TextStyle(fontSize: 4,),),),
+                                  child:pw.Text("Terms & Conditions",style:pw.
+                                  TextStyle(fontSize: 8,),),),
                                 pw.SizedBox(height: 10),
                                 pw.Padding(
-                                  padding:pw.EdgeInsets.only(right:270),
+                                  padding:pw.EdgeInsets.only(right:230),
                                   child:
                                   pw.Column(
                                       crossAxisAlignment:pw.CrossAxisAlignment.start,
                                       children: [
-                                        pw.Text("*  Products may be returned within [X] days, subject to our return policy. ",
-                                          style:pw.TextStyle(fontSize: 3,),
+                                        pw.Text("*  Products may be returned within [2] days, subject to our return policy. ",
+                                          style:pw.TextStyle(fontSize: 6,),
                                         ),
                                         pw.SizedBox(height: 5),
                                         pw.Text("*  Payment is due upon receipt of invoice, unless otherwise agreed in writing.",
-                                          style:pw.TextStyle(fontSize:3,),
+                                          style:pw.TextStyle(fontSize:6,),
                                         ),
                                         pw.SizedBox(height: 5),
                                         pw.Text("*  Delivery dates are estimates; delays do not constitute a breach of contract.",
-                                          style:pw.TextStyle(fontSize: 3,),
+                                          style:pw.TextStyle(fontSize: 6,),
                                         ),
                                       ]
                                   ),),

@@ -19,7 +19,7 @@ class Winding_printing_pdf extends StatefulWidget {
   @override
   State<Winding_printing_pdf> createState() => _Winding_printing_pdfState();
 }
-int serialNumber=1;
+
 class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
   pw.Widget _buildFooter(pw.Context context, int currentPage, int totalPages) {
     // ... (rest of your code)
@@ -45,7 +45,7 @@ class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
           pw.SizedBox(width: 665),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 20,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -83,7 +83,7 @@ class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -101,7 +101,7 @@ class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -131,7 +131,7 @@ class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
           pw.Page(
             pageFormat: format,
             build: (pw.Context context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 310: format.availableHeight +300;
+              final double pageHeight = j == 0 ? format.availableHeight + 310: format.availableHeight +450;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -147,7 +147,7 @@ class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
                             pw.Padding(padding:pw.EdgeInsets.only(top:10),
                               child:pw.Text(
                                 'Winding Printing Production Report',
-                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                               ),),
                             pw.Padding(padding: pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
                               child:pw.Expanded(
@@ -159,32 +159,32 @@ class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(child: pw.Text('S.No',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 9,
                                                   fontWeight: pw.FontWeight.bold)),
                                           ),),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(child: pw.Text('  Date    ',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 9,
                                                   fontWeight: pw.FontWeight.bold)),
                                           ),),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(child: pw.Text('  Gsm    ',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 9,
                                                   fontWeight: pw.FontWeight.bold)),
                                           ),),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(child: pw.Text('  No of Cones'   ,
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 9,
                                                   fontWeight: pw.FontWeight.bold)),
                                           ),),
                                         pw.Container(
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text('Status',
-                                                  style: pw.TextStyle(fontSize: 6,
+                                                  style: pw.TextStyle(fontSize: 9,
                                                       fontWeight: pw.FontWeight.bold)),)
                                         ),
 
@@ -205,7 +205,7 @@ class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child:
-                                            pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 6)),
+                                            pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 9)),
                                           ),
                                         ),
                                         pw.Container(
@@ -215,27 +215,27 @@ class _Winding_printing_pdfState extends State<Winding_printing_pdf> {
                                                 ? DateFormat('dd-MM-yyyy').format(
                                               DateTime.parse("${data["date"]}").toLocal(),)
                                                 : "",
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 9)),),
                                         ),
 
                                         pw.Container(
                                             padding: pw.EdgeInsets.all(8.0),
                                             child: pw.Center(
                                               child: pw.Text(data['gsm'].toString(),
-                                                  style: pw.TextStyle(fontSize: 6)),)
+                                                  style: pw.TextStyle(fontSize: 9)),)
                                         ),
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['numofcones'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 9)),),
                                         ),
 
                                         pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(data['status'],
-                                                style: pw.TextStyle(fontSize: 6)),),
+                                                style: pw.TextStyle(fontSize: 9)),),
                                         ),
 
                                       ]);

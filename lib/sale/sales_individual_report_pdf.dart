@@ -24,7 +24,7 @@ class SalesIndividualReportPDFView extends StatefulWidget {
   final String? date;
   final String? transportNo;
   final int? custmobile;
-final  String? customerData;
+  final  String? customerData;
 
   SalesIndividualReportPDFView({
     required this.customerData ,Key? key,
@@ -95,11 +95,11 @@ class _SalesIndividualReportPDFViewState
           pw.SizedBox(width: 393),
           pw.Padding(
             padding: pw.EdgeInsets.only(right:0),
-          child:
-          pw.Text(
-            'Page ${context.pageNumber} of ${context.pagesCount}',
-            style: pw.TextStyle(fontSize: 4),
-          ),),
+            child:
+            pw.Text(
+              'Page ${context.pageNumber} of ${context.pagesCount}',
+              style: pw.TextStyle(fontSize: 4),
+            ),),
 
         ],
       ),
@@ -391,16 +391,16 @@ class _SalesIndividualReportPDFViewState
                                           mainAxisAlignment: pw.MainAxisAlignment.start,
                                           children: [
                                             pw.Align(
-                                              alignment: pw.Alignment.topLeft,child:
+                                                alignment: pw.Alignment.topLeft,child:
                                             pw.Padding(
-                                              padding: pw.EdgeInsets.only(right:0,bottom: 10,top: 10),
-                                         child: pw.Text(
-                                              "Customer Details",
-                                              style: pw.TextStyle(
-                                                fontWeight: pw.FontWeight.bold,
-                                                fontSize: 12,
-                                              ),
-                                            ),)),
+                                              padding: pw.EdgeInsets.only(right:175,bottom: 10,top: 10),
+                                              child: pw.Text(
+                                                "Customer Details",
+                                                style: pw.TextStyle(
+                                                  fontWeight: pw.FontWeight.bold,
+                                                  fontSize: 12,
+                                                ),
+                                              ),)),
                                           ],
                                         ),
                                         pw.Padding(
@@ -507,64 +507,64 @@ class _SalesIndividualReportPDFViewState
                                   pw.Padding(
                                     padding: pw.EdgeInsets.only(right:10),
                                     child: pw.Column(
-                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                      children: [
-                                        pw.Row(
+                                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                        children: [
+                                          pw.Row(
 
-                                          children: [
-                                            pw.Text(
-                                              "Date            ",
-                                              style: pw.TextStyle(
-                                                  fontSize: 7),
-                                            ),
-                                            pw.Text(
-                                              widget.date != null
-                                                  ? DateFormat("dd-MM-yyyy")
-                                                  .format(DateTime.parse(
-                                                  "${widget.date}").toLocal())
-                                                  : "",
-                                              style: pw.TextStyle(
-                                                  fontSize: 7),
-                                            ),
+                                              children: [
+                                                pw.Text(
+                                                  "Date            ",
+                                                  style: pw.TextStyle(
+                                                      fontSize: 7),
+                                                ),
+                                                pw.Text(
+                                                  widget.date != null
+                                                      ? DateFormat("dd-MM-yyyy")
+                                                      .format(DateTime.parse(
+                                                      "${widget.date}").toLocal())
+                                                      : "",
+                                                  style: pw.TextStyle(
+                                                      fontSize: 7),
+                                                ),
 
-                                          ]
-                                        ),
-                                        pw.SizedBox(height:3),
-                                        pw.Row(
-                                          children: [
-                                            pw.Text(
-                                              "Invoice No  ",
-                                              style: pw.TextStyle(
-                                                                                                   fontSize: 7),
-                                            ),
-                                            pw.Text(
-                                              " ${widget.invoiceNo.toString()}     ",
-                                              style: pw.TextStyle(
+                                              ]
+                                          ),
+                                          pw.SizedBox(height:3),
+                                          pw.Row(
+                                              children: [
+                                                pw.Text(
+                                                  "Invoice No  ",
+                                                  style: pw.TextStyle(
+                                                      fontSize: 7),
+                                                ),
+                                                pw.Text(
+                                                  " ${widget.invoiceNo.toString()}     ",
+                                                  style: pw.TextStyle(
 
-                                                  fontSize: 7),
-                                            ),
+                                                      fontSize: 7),
+                                                ),
 
-                                          ]
-                                        ),
-                                        pw.SizedBox(height:3),
-                                        pw.Row(
-                                          children: [
-                                            pw.Text(
-                                              "OrderNo     ",
-                                              style: const pw.TextStyle(fontSize: 7),
-                                            ),
-                                           /* pw.Text(
+                                              ]
+                                          ),
+                                          pw.SizedBox(height:3),
+                                          pw.Row(
+                                              children: [
+                                                pw.Text(
+                                                  "OrderNo     ",
+                                                  style: const pw.TextStyle(fontSize: 7),
+                                                ),
+                                                /* pw.Text(
                                               "${widget.customerData}     ",
                                               style: const pw.TextStyle(fontSize: 7),
                                             ),*/
-                                          ]
-                                        ),
+                                              ]
+                                          ),
 
 
 
 
-                                      ]
-                                  ),),
+                                        ]
+                                    ),),
 
 
 
@@ -607,6 +607,7 @@ class _SalesIndividualReportPDFViewState
                                           pw.Padding(
                                             padding: pw.EdgeInsets.only(right: 0),
                                             child: pw.Container(
+                                              width:50,
                                               padding: pw.EdgeInsets.all(2.0),
                                               decoration: pw.BoxDecoration(
                                                 border: pw.Border.all(color: PdfColors.black),
@@ -687,7 +688,7 @@ class _SalesIndividualReportPDFViewState
 
 
 
-                               // pw.SizedBox(height: 20,),
+                                // pw.SizedBox(height: 20,),
                               ],
                             ),])
                       ),

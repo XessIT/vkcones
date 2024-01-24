@@ -83,7 +83,7 @@ class _dcIndividualReportPDFViewState
             ),),
           pw.SizedBox(width: 393),
           pw.Text(
-            'Page $currentPage of $totalPages',
+            'Page ${context.pageNumber} of ${context.pagesCount}',
             style: pw.TextStyle(fontSize: 4),
           ),
 
@@ -107,14 +107,14 @@ class _dcIndividualReportPDFViewState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('S.No',style: pw.TextStyle(fontSize: 5),),
+                pw.Text('S.No',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Item Group',style: pw.TextStyle(fontSize: 5)),
+              pw.Text('Item Group',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
 
             ])),
@@ -122,7 +122,7 @@ class _dcIndividualReportPDFViewState
             pw.Center(child:
             pw.Column(children: [
               pw.SizedBox(height: 3),
-              pw.Text('Item Name',style: pw.TextStyle(fontSize: 5)),
+              pw.Text('Item Name',style: pw.TextStyle(fontSize: 9)),
               pw.SizedBox(height: 3),
             ])),
 
@@ -131,7 +131,7 @@ class _dcIndividualReportPDFViewState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Rate',style: pw.TextStyle(fontSize: 5),),
+                pw.Text('Rate',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
 
               ])),
@@ -141,7 +141,7 @@ class _dcIndividualReportPDFViewState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Quantity(Pack)',style: pw.TextStyle(fontSize: 5),),
+                pw.Text('Quantity(Pack)',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
 
               ])),
@@ -151,7 +151,7 @@ class _dcIndividualReportPDFViewState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('GST',style: pw.TextStyle(fontSize: 5),),
+                pw.Text('GST',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),
             ),
@@ -160,7 +160,7 @@ class _dcIndividualReportPDFViewState
               child: pw.Center(child:
               pw.Column(children: [
                 pw.SizedBox(height: 3),
-                pw.Text('Total',style: pw.TextStyle(fontSize: 5),),
+                pw.Text('Total',style: pw.TextStyle(fontSize: 9),),
                 pw.SizedBox(height: 3),
               ])),),
           ],
@@ -175,7 +175,7 @@ class _dcIndividualReportPDFViewState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text((i + 1).toString(),style: pw.TextStyle(fontSize: 6)),
+                        pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 9)),
                         pw.SizedBox(height: 3),
                       ]
                   ),
@@ -185,13 +185,13 @@ class _dcIndividualReportPDFViewState
                   child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text(data[i]['itemGroup'],style: pw.TextStyle(fontSize: 6),),
+                        pw.Text(data[i]['itemGroup'],style: pw.TextStyle(fontSize: 9),),
                         pw.SizedBox(height: 3),
                       ])),
               pw.Center(child: pw.Column(
                   children: [
                     pw.SizedBox(height: 3),
-                    pw.Text(data[i]['itemName'],style: pw.TextStyle(fontSize: 6)),
+                    pw.Text(data[i]['itemName'],style: pw.TextStyle(fontSize: 9)),
                     pw.SizedBox(height: 3),
                   ])),
 
@@ -200,7 +200,7 @@ class _dcIndividualReportPDFViewState
                 child: pw.Center( child: pw.Column(
                     children: [
                       pw.SizedBox(height: 3),
-                      pw.Text(data[i]['rate'].toString(),style: pw.TextStyle(fontSize: 6)),
+                      pw.Text(data[i]['rate'].toString(),style: pw.TextStyle(fontSize: 9)),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -210,7 +210,7 @@ class _dcIndividualReportPDFViewState
                     children: [
                       pw.SizedBox(height: 3),
                       pw.Align(alignment: pw.Alignment.center,
-                        child: pw.Text(data[i]['qty'].toString(),style: pw.TextStyle(fontSize: 6)),),
+                        child: pw.Text(data[i]['qty'].toString(),style: pw.TextStyle(fontSize: 9)),),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -220,7 +220,7 @@ class _dcIndividualReportPDFViewState
                     children: [
                       pw.SizedBox(height: 3),
                       pw.Align(alignment: pw.Alignment.topRight,
-                        child:  pw.Text(data[i]['amtGST'].toString(),style: pw.TextStyle(fontSize: 6)),),
+                        child:  pw.Text(data[i]['amtGST'].toString(),style: pw.TextStyle(fontSize: 9)),),
 
                       pw.SizedBox(height: 3),
                     ])),
@@ -232,7 +232,7 @@ class _dcIndividualReportPDFViewState
                     children: [
                       pw.SizedBox(height: 3),
                       pw.Align(alignment: pw.Alignment.center,
-                        child: pw.Text(data[i]['total'].toString(),style: pw.TextStyle(fontSize: 6)),),
+                        child: pw.Text(data[i]['total'].toString(),style: pw.TextStyle(fontSize: 9)),),
                       pw.SizedBox(height: 3),
                     ])),
               ),
@@ -258,8 +258,7 @@ class _dcIndividualReportPDFViewState
     totalqty = 0.0;
     total=0.0;
 
-
-    final int recordsPerPage = 19;
+    int recordsPerPage ;
 
     pw.Widget createHeader() {
       return pw.Container(
@@ -282,7 +281,7 @@ class _dcIndividualReportPDFViewState
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -300,7 +299,7 @@ class _dcIndividualReportPDFViewState
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -323,6 +322,7 @@ class _dcIndividualReportPDFViewState
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < data.length; j += recordsPerPage) {
+        recordsPerPage = (j == 0) ? 19 : 23;
         final List<Map<String, dynamic>> pageData =
         data.skip(j).take(recordsPerPage).toList();
 
@@ -337,7 +337,7 @@ class _dcIndividualReportPDFViewState
           pw.Page(
             pageFormat: format,
             build: (context) {
-              final double pageHeight =  format.availableHeight ;
+              final double pageHeight = j == 0 ? format.availableHeight : format.availableHeight +90;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -345,13 +345,13 @@ class _dcIndividualReportPDFViewState
                   pw.Divider(),
                   pw.Text(
                     'Delivery Challan Report ',
-                    style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                    style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                   ),
                   pw.Padding(
                     padding: pw.EdgeInsets.only(top: 5.0),
                     child: pw.Container(
                       width: double.infinity,
-                      height:pageHeight * 0.82,
+                      height:pageHeight * 0.81,
                       padding: pw.EdgeInsets.all(0.0),
                       decoration: pw.BoxDecoration(
                         border: pw.Border.all(color: PdfColors.grey),
@@ -369,7 +369,7 @@ class _dcIndividualReportPDFViewState
                                     "Customer Details",
                                     style: pw.TextStyle(
                                       fontWeight: pw.FontWeight.bold,
-                                      fontSize: 8,
+                                      fontSize: 12,
                                     ),
                                   ),
                                   pw.SizedBox(width: 220),
@@ -378,7 +378,7 @@ class _dcIndividualReportPDFViewState
                                         pw.Align(
                                           alignment: pw.Alignment.topRight,
                                           child: pw.Padding(
-                                            padding: pw.EdgeInsets.only(left:80,top:20),
+                                            padding: pw.EdgeInsets.only(left:70,top:20),
                                             child: pw.Column(
                                               crossAxisAlignment:
                                               pw.CrossAxisAlignment.end,
@@ -402,7 +402,7 @@ class _dcIndividualReportPDFViewState
                                                             style: pw.TextStyle(
                                                                 fontWeight:
                                                                 pw.FontWeight.bold,
-                                                                fontSize: 5),
+                                                                fontSize: 7),
                                                           ),
                                                         ),
                                                         pw.Divider(
@@ -415,7 +415,7 @@ class _dcIndividualReportPDFViewState
                                                             style: pw.TextStyle(
                                                                 fontWeight:
                                                                 pw.FontWeight.bold,
-                                                                fontSize: 5),
+                                                                fontSize: 7),
                                                           ),
                                                         ),
                                                         pw.SizedBox(height: 2),
@@ -426,7 +426,31 @@ class _dcIndividualReportPDFViewState
                                                             style: pw.TextStyle(
                                                                 fontWeight:
                                                                 pw.FontWeight.bold,
-                                                                fontSize: 5),
+                                                                fontSize: 7),
+                                                          ),
+                                                        ),
+                                                        pw.Divider(
+                                                          color: PdfColors.grey,
+                                                        ),
+                                                        pw.Align(
+                                                          alignment: pw.Alignment.topLeft,
+                                                          child: pw.Text(
+                                                            "Invoice Number",
+                                                            style: pw.TextStyle(
+                                                                fontWeight:
+                                                                pw.FontWeight.bold,
+                                                                fontSize: 7),
+                                                          ),
+                                                        ),
+                                                        pw.SizedBox(height: 2),
+                                                        pw.Align(
+                                                          alignment: pw.Alignment.topLeft,
+                                                          child: pw.Text(
+                                                            widget.invNo.toString(),
+                                                            style: pw.TextStyle(
+                                                                fontWeight:
+                                                                pw.FontWeight.bold,
+                                                                fontSize: 7),
                                                           ),
                                                         ),
                                                       ],
@@ -457,42 +481,42 @@ class _dcIndividualReportPDFViewState
                                             pw.Text(
                                               "Customer Code",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Customer/Company Name",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Customer Address",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Customer Address",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Place of supply",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Customer Mobile",
                                               style: pw.TextStyle(
-                                                fontSize: 7,
+                                                fontSize: 9,
                                               ),
                                             ),
 
@@ -506,17 +530,17 @@ class _dcIndividualReportPDFViewState
                                         child: pw.Column(
                                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                                           children: [
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
                                           ],
                                         ),
@@ -526,17 +550,17 @@ class _dcIndividualReportPDFViewState
                                         child: pw.Column(
                                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                                           children: [
-                                            pw.Text(widget.custCode.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(widget.custCode.toString(), style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(widget.custName.toString(), style: pw.TextStyle(fontSize: 7,fontWeight: pw.FontWeight.bold)),
+                                            pw.Text(widget.custName.toString(), style: pw.TextStyle(fontSize: 9,fontWeight: pw.FontWeight.bold)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(widget.custAddress.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(widget.custAddress.toString(), style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(widget.pincode.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(widget.pincode.toString(), style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(widget.supplyPlace.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text(widget.supplyPlace.toString(), style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text("+91 "+widget.custMobile.toString(), style: pw.TextStyle(fontSize: 7,)),
+                                            pw.Text("+91 "+widget.custMobile.toString(), style: pw.TextStyle(fontSize: 9,)),
                                             pw.SizedBox(height: 3),
                                           ],
                                         ),
@@ -553,7 +577,7 @@ class _dcIndividualReportPDFViewState
                                 padding: pw.EdgeInsets.only(left:20,bottom: 10,top: 10),
                                 child: pw.Text(
                                   "Product Details",
-                                  style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold),
+                                  style: pw.TextStyle(fontSize: 12,fontWeight: pw.FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -573,7 +597,7 @@ class _dcIndividualReportPDFViewState
                                 child: pw.Row(
                                   mainAxisAlignment: pw.MainAxisAlignment.end,
                                   children: [
-                                    pw.Text("Total", style: pw.TextStyle(fontSize: 6)),
+                                    pw.Text("Total", style: pw.TextStyle(fontSize: 9)),
                                     pw.SizedBox(width: 10),
                                     pw.Container(
                                       height: 13,
@@ -588,13 +612,13 @@ class _dcIndividualReportPDFViewState
                                         fit: pw.BoxFit.scaleDown,
                                         child:
                                         pw.Text(total.toStringAsFixed(2),
-                                            style: pw.TextStyle(fontSize: 6)),
+                                            style: pw.TextStyle(fontSize: 9)),
                                         alignment: pw.Alignment.center,
                                       ),
                                     ),
                                     pw.Container(
                                       height: 13,
-                                      width: 80,
+                                      width: 98,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -605,13 +629,13 @@ class _dcIndividualReportPDFViewState
                                         fit: pw.BoxFit.scaleDown,
                                         child:
                                         pw.Text(totalqty.toString(),
-                                            style: pw.TextStyle(fontSize: 6)),
+                                            style: pw.TextStyle(fontSize: 9)),
                                         alignment: pw.Alignment.center,
                                       ),
                                     ),
                                     pw.Container(
                                       height: 13,
-                                      width: 65,
+                                      width: 50,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -622,7 +646,7 @@ class _dcIndividualReportPDFViewState
                                         fit: pw.BoxFit.scaleDown,
                                         child:
                                         pw.Text(totalGST.toStringAsFixed(2),
-                                            style: pw.TextStyle(fontSize: 6)),
+                                            style: pw.TextStyle(fontSize: 9)),
                                         alignment: pw.Alignment.topRight,
                                       ),
                                     ),
@@ -638,7 +662,7 @@ class _dcIndividualReportPDFViewState
                                       ),
                                       child: pw.FittedBox(
                                         fit: pw.BoxFit.scaleDown,
-                                        child: pw.Text(widget.grandTotal.toString(), style: pw.TextStyle(fontSize: 6,)),
+                                        child: pw.Text(widget.grandTotal.toString(), textAlign:pw.TextAlign.right,style: pw.TextStyle(fontSize: 9,)),
                                       ),
                                     ),],
 

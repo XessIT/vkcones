@@ -42,6 +42,10 @@ class _SalesReturnsReportsState extends State<SalesReturnsReports> {
   DateTime? fromDate;
   DateTime? toDate;
   TextEditingController searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+
+
 
   List<String> itemGroupValues = [];
   List<String> invoiceNumber = [];
@@ -553,26 +557,37 @@ class _SalesReturnsReportsState extends State<SalesReturnsReports> {
                             ),
                             const SizedBox(height: 20,),
                             filteredData.isNotEmpty?
-                            PaginatedDataTable(
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width: 1100,
+                                  child: PaginatedDataTable(
 
-                              columnSpacing:filteredData.isNotEmpty?50.0:180,
-                              //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              rowsPerPage:25,
-                              columns:    [
-                                DataColumn(label: Center(child: filteredData!.isNotEmpty?Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),):Text(""))),
-                                DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Date",style: TextStyle(fontWeight: FontWeight.bold),):Text(""))),
-                                DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Invoice No",style: TextStyle(fontWeight: FontWeight.bold)):Text(""),)),
-                                DataColumn(label: Center(child: filteredData!.isNotEmpty?Text("Sales Return No",style: TextStyle(fontWeight: FontWeight.bold)):Text(""),)),
-                                DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold)):Text(""))),
-                                DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold)):Text(""))),
-                                DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold)):Text(""))),
-                                DataColumn(
-                                  label: Center(child:filteredData!.isNotEmpty? Text("    Action", style: TextStyle(fontWeight: FontWeight.bold)):Text("")),
+                                    columnSpacing:filteredData.isNotEmpty?50.0:180,
+                                    //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    rowsPerPage:25,
+                                    columns:    [
+                                      DataColumn(label: Center(child: filteredData!.isNotEmpty?Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),):Text(""))),
+                                      DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Date",style: TextStyle(fontWeight: FontWeight.bold),):Text(""))),
+                                      DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Invoice No",style: TextStyle(fontWeight: FontWeight.bold)):Text(""),)),
+                                      DataColumn(label: Center(child: filteredData!.isNotEmpty?Text("Sales Return No",style: TextStyle(fontWeight: FontWeight.bold)):Text(""),)),
+                                      DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold)):Text(""))),
+                                      DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold)):Text(""))),
+                                      DataColumn(label: Center(child:filteredData!.isNotEmpty? Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold)):Text(""))),
+                                      DataColumn(
+                                        label: Center(child:filteredData!.isNotEmpty? Text("    Action", style: TextStyle(fontWeight: FontWeight.bold)):Text("")),
 
+                                      ),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+
+                                  ),
                                 ),
-                              ],
-                              source: _YourDataTableSource(filteredData,context,generatedButton),
-
+                              ),
                             ):Text("No Data Available",style: TextStyle(fontWeight: FontWeight.bold,),)
                             /*  SizedBox(height: 16),
                             if (filteredData.isNotEmpty)

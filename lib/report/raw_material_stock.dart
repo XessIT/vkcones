@@ -420,18 +420,24 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
                                           },
                                           child: const Text("Generate", style: TextStyle(color: Colors.white)),
                                         )),
-                                    IconButton(
-                                      icon: Icon(Icons.refresh),
-                                      onPressed: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>RawMaterialStockEntries()));
-                                      },
+                                    Padding(
+                                      padding: const EdgeInsets.only(top:37),
+                                      child: IconButton(
+                                        icon: Icon(Icons.refresh),
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>RawMaterialStockEntries()));
+                                        },
+                                      ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.arrow_back),
-                                      onPressed: () {
-                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
-                                        Navigator.pop(context);
-                                      },
+                                    Padding(
+                                      padding: const EdgeInsets.only(top:37),
+                                      child: IconButton(
+                                        icon: Icon(Icons.arrow_back),
+                                        onPressed: () {
+                                          // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                          Navigator.pop(context);
+                                        },
+                                      ),
                                     ),
                                     if (!isDateRangeValid)
                                       Padding(

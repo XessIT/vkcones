@@ -242,21 +242,27 @@ class _EmployeeReportState extends State<EmployeeReport> {
                                         ),
                                       ],
                                     ),
-                                  ],
+
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom:20),
+                                      child: IconButton(
+                                        icon: Icon(Icons.refresh),
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>EmployeeReport()));
+                                        },
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom:20),
+                                      child: IconButton(
+                                        icon: Icon(Icons.arrow_back),
+                                        onPressed: () {
+                                          // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ),   ],
                                 ),
-                                IconButton(
-                                  icon: Icon(Icons.refresh),
-                                  onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>EmployeeReport()));
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.arrow_back),
-                                  onPressed: () {
-                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
-                                    Navigator.pop(context);
-                                  },
-                                )
                               ],
                             ),
                           ],

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:math_expressions/math_expressions.dart';
 import 'package:vinayaga_project/main.dart';
 import 'package:http/http.dart' as http;
 import '../home.dart';
@@ -39,6 +40,7 @@ class _MachineEntryState extends State<MachineEntry> {
   TextEditingController purchaseRate=TextEditingController();
   String? errorMessage="";
   String dropdownvalue = "Choose...";
+  final ScrollController _scrollController = ScrollController();
 
 
   bool isMachineNameExists(String name) {
@@ -819,34 +821,47 @@ class _MachineEntryState extends State<MachineEntry> {
                           children: [
                             Padding(
                               padding:  EdgeInsets.all(8.0),
-                              child: SingleChildScrollView(
-                                child: Container(
-                                    width: double.infinity,
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Column(
-                                        children: [
-                                          SizedBox(height: 20,),
-                                          PaginatedDataTable(
-                                            columnSpacing:60.0,
-                                            //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                            rowsPerPage:10,
-                                            columns:   const [
-                                              DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                              DataColumn(label: Center(child: Text("   Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                              DataColumn(label: Center(child: Text("Machine S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                              DataColumn(label: Center(child: Text("Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                              DataColumn(label: Center(child: Text("Machine Type",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                              DataColumn(label: Center(child: Text("Machine Model",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                              DataColumn(label: Center(child: Text("     Action",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                            ],
-                                            source: _YourDataTableSource(showInitialData ? data : filteredData, context,generatedButton,  onDelete, showDeleteConfirmationDialog),
+                              child: Container(
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 20,),
+                                        Scrollbar(
+                                          controller: _scrollController,
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            controller: _scrollController,
+                                            child: SizedBox(
+                                              width: 1200,
+                                              height:700,
 
+                                              child: PaginatedDataTable(
+                                                columnSpacing:50.0,
+
+                                                //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                                rowsPerPage:10,
+                                                columns:   const [
+                                                  DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                                  DataColumn(label: Center(child: Text("   Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                                  DataColumn(label: Center(child: Text("Machine S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                                  DataColumn(label: Center(child: Text("Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                                  DataColumn(label: Center(child: Text("Machine Type",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                                  DataColumn(label: Center(child: Text("Machine Model",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                                  DataColumn(label: Center(child: Text("     Action",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                                ],
+                                                source: _YourDataTableSource(showInitialData ? data : filteredData, context,generatedButton,  onDelete, showDeleteConfirmationDialog),
+
+
+
+                                              ),
+                                            ),
                                           ),
-                                        ],
-                                      ),
-                                    )
-                                ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
                               ),
                             ),
                           ],

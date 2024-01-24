@@ -35,6 +35,7 @@ class PreturnOverallReport extends StatefulWidget {
 
 class _PreturnOverallReportState extends State<PreturnOverallReport> {
   pw.Widget _buildFooter(pw.Context context, int currentPage, int totalPages) {
+    // ... (rest of your code)
     // Get the current date and time
     DateTime now = DateTime.now();
 
@@ -43,6 +44,8 @@ class _PreturnOverallReportState extends State<PreturnOverallReport> {
 
     // Format the time in AM/PM
     String formattedTime = DateFormat('hh.mm a').format(now);
+
+
     return pw.Container(
 
       child: pw.Row(
@@ -53,9 +56,9 @@ class _PreturnOverallReportState extends State<PreturnOverallReport> {
             style: pw.TextStyle(fontSize: 4),
           ),
           pw.SizedBox(width: 405),
-          pw.Padding(padding: const pw.EdgeInsets.only(right: 10,),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
+              'Page ${context.pageNumber} of ${context.pagesCount}',
               style: pw.TextStyle(fontSize: 4),
             ),)
         ],
@@ -94,7 +97,7 @@ class _PreturnOverallReportState extends State<PreturnOverallReport> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -112,7 +115,7 @@ class _PreturnOverallReportState extends State<PreturnOverallReport> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -157,8 +160,8 @@ class _PreturnOverallReportState extends State<PreturnOverallReport> {
                       children: [
                         pw.Padding(padding:pw.EdgeInsets.only(top:10),
                           child:pw.Text(
-                            'Purchase Return Reort',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            'Purchase Return Report',
+                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                           ),),
                         pw.Padding(padding:(pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10)),
                           child:pw.Expanded(
@@ -169,40 +172,40 @@ class _PreturnOverallReportState extends State<PreturnOverallReport> {
                                   children: [
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Text('      S.No', style: pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold)),
+                                      child: pw.Text('      S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(child: pw.Text('Date',
-                                          style: pw.TextStyle(fontSize: 6,
+                                          style: pw.TextStyle(fontSize: 8,
                                               fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Return Number',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Product Code',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Product Name',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Quantity',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     // Add more Text widgets for additional columns if needed
@@ -219,7 +222,7 @@ class _PreturnOverallReportState extends State<PreturnOverallReport> {
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child:
-                                        pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 6)),
+                                        pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8)),
                                       ),
                                     ),
                                     pw.Container(
@@ -229,31 +232,31 @@ class _PreturnOverallReportState extends State<PreturnOverallReport> {
                                             ? DateFormat('dd-MM-yyyy').format(
                                           DateTime.parse("${data["date"]}").toLocal(),)
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['preturnNo'].toString(),
-                                              style: pw.TextStyle(fontSize: 6)),)
+                                              style: pw.TextStyle(fontSize: 8)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['prodCode'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['prodName'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['qty'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8)),),
                                     ),
                                   ]);
                                 }
