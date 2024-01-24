@@ -17,7 +17,7 @@ createInvoicePDF({
   required String date,
   required String grandtotal,
   required String pincode,
-  required String gstin,
+  required String gstin, required String transportNo,
 }) async {
   /// serial number declare
   int globalItemCounter = 0;
@@ -1593,17 +1593,30 @@ createInvoicePDF({
                                         ])),
                               ],
                             )),
-                        if (!noNdateString.startsWith('WO'))
+                       // if (!noNdateString.startsWith('WO'))
                           pw.Padding(
                             padding: pw.EdgeInsets.only(top: 7, bottom: 7, left: 2),
                             child: pw.Row(
+                              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
+                                pw.Row(
                               children: [
                                 if (!noNdateString.startsWith('WO'))
                                   pw.Text("Ref.No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
                                 if (!noNdateString.startsWith('WO'))
                                   pw.Text("$noNdateString", style: pw.TextStyle(fontSize: 7)),
                               ],
+                            ),   pw.Row(
+                              children: [
+
+                                  pw.Text("Transport No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
+
+                                  pw.Text(transportNo, style: pw.TextStyle(fontSize: 7)),
+                                pw.SizedBox(width: 10),
+                              ],
                             ),
+          ]
+          ),
                           ),
 
 
@@ -1990,18 +2003,30 @@ createInvoicePDF({
                                         ])),
                               ],
                             )),
-                        if (!noNdateString.startsWith('WO'))
-                          pw.Padding(
-                            padding: pw.EdgeInsets.only(top: 7, bottom: 7, left: 2),
-                            child: pw.Row(
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(top: 7, bottom: 7, left: 2),
+                          child: pw.Row(
+                              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                               children: [
-                                if (!noNdateString.startsWith('WO'))
-                                  pw.Text("Ref.No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
-                                if (!noNdateString.startsWith('WO'))
-                                  pw.Text("$noNdateString", style: pw.TextStyle(fontSize: 7)),
-                              ],
-                            ),
+                                pw.Row(
+                                  children: [
+                                    if (!noNdateString.startsWith('WO'))
+                                      pw.Text("Ref.No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
+                                    if (!noNdateString.startsWith('WO'))
+                                      pw.Text("$noNdateString", style: pw.TextStyle(fontSize: 7)),
+                                  ],
+                                ),   pw.Row(
+                                  children: [
+
+                                    pw.Text("Transport No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
+
+                                    pw.Text(transportNo, style: pw.TextStyle(fontSize: 7)),
+                                    pw.SizedBox(width: 10),
+                                  ],
+                                ),
+                              ]
                           ),
+                        ),
 
 
 
@@ -2387,18 +2412,31 @@ createInvoicePDF({
                                         ])),
                               ],
                             )),
-                        if (!noNdateString.startsWith('WO'))
-                          pw.Padding(
-                            padding: pw.EdgeInsets.only(top: 7, bottom: 7, left: 2),
-                            child: pw.Row(
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(top: 7, bottom: 7, left: 2),
+                          child: pw.Row(
+                              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                               children: [
-                                if (!noNdateString.startsWith('WO'))
-                                  pw.Text("Ref.No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
-                                if (!noNdateString.startsWith('WO'))
-                                  pw.Text("$noNdateString", style: pw.TextStyle(fontSize: 7)),
-                              ],
-                            ),
+                                pw.Row(
+                                  children: [
+                                    if (!noNdateString.startsWith('WO'))
+                                      pw.Text("Ref.No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
+                                    if (!noNdateString.startsWith('WO'))
+                                      pw.Text("$noNdateString  ", style: pw.TextStyle(fontSize: 7)),
+                                  ],
+                                ),   pw.Row(
+                                  children: [
+
+                                    pw.Text("Transport No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
+
+                                    pw.Text(transportNo, style: pw.TextStyle(fontSize: 7)),
+                                    pw.SizedBox(width: 10),
+                                  ],
+                                ),
+                              ]
                           ),
+                        ),
+
 
 
 
