@@ -31,6 +31,9 @@ import 'package:vinayaga_project/purchase/purchase_order_report.dart';
 //import 'package:vinayaga_project/purchase_report.dart';
 import 'package:vinayaga_project/purchase/purchase_return.dart';
 import 'package:vinayaga_project/purchase/purchase_return_report.dart';
+import 'package:vinayaga_project/report/Attendance/Attendance.dart';
+import 'package:vinayaga_project/report/Attendance/Attendance_report.dart';
+import 'package:vinayaga_project/report/Attendance/salary.dart';
 import 'package:vinayaga_project/report/Other_Worker_Report.dart';
 import 'package:vinayaga_project/report/balance_sheet_report.dart';
 import 'package:vinayaga_project/report/customer_report.dart';
@@ -57,6 +60,7 @@ import 'package:vinayaga_project/report/winding_report.dart';
 import 'package:vinayaga_project/sale/dc.dart';
 import 'package:vinayaga_project/sale/dc_report.dart';
 import 'package:vinayaga_project/sale/entry_sales.dart';
+import 'package:vinayaga_project/sale/hand_bill_dc_report.dart';
 import 'package:vinayaga_project/sale/non_order_sale_entry.dart';
 import 'package:vinayaga_project/sale/order_report.dart';
 import 'package:vinayaga_project/sale/pending_report.dart';
@@ -65,18 +69,17 @@ import 'package:vinayaga_project/sale/quation/quotation_report%20(1).dart';
 import 'package:vinayaga_project/sale/sales_order_entry.dart';
 import 'package:vinayaga_project/sale/sales_report.dart';
 import 'package:vinayaga_project/sale/sales_return/sales_return.dart';
+import 'package:vinayaga_project/sale/sample_dc.dart';
 import 'package:vinayaga_project/settings/colour_entry.dart';
 import 'package:vinayaga_project/settings/settings_entry.dart';
 import 'package:vinayaga_project/settings/transport_entry.dart';
 //import 'package:vinayaga_project/settings/unit_entry.dart';
 
-import 'Attendance/Attendance.dart';
-import 'Attendance/Attendance_report.dart';
-import 'Attendance/salary.dart';
 import 'home.dart';
 import 'master/Worker Entry.dart';
 import 'master/employee_id_creation.dart';
 import 'master/itemgroup.dart';
+import 'master/raw_metirial_entry.dart';
 import 'master/tabcontroller.dart';
 import 'master/with_printing.dart';
 import 'non_order_sales_report.dart';
@@ -347,6 +350,12 @@ class _MyAppState extends State<MyApp> {
         return const NonOrderSalesReport();
       case 'winding_printing_production_report':
         return const Winding_printing_production();
+        case 'raw_material_entry':
+        return const Raw_material();
+      case 'sampledc':
+        return const SampleDC();
+      case 'hand_delivery_challan_report':
+        return const HandbilldcReport();
     }
     return null;
   }
@@ -411,8 +420,12 @@ class MyScaffold extends StatelessWidget {
           route: "old_entry_sales",
         ),*/
         AdminMenuItem(
-          title: 'Delivery Challan Entry',
+          title: 'Delivery Challan',
           route: 'dc',
+        ),
+        AdminMenuItem(
+          title: 'Hand Bill DC',
+          route: 'sampledc',
         ),
 
         AdminMenuItem(
@@ -430,22 +443,10 @@ class MyScaffold extends StatelessWidget {
       route: '/master',
       icon: Icons.ac_unit_rounded,
       children: [
-        /* AdminMenuItem(
-          title: 'For Check Item Creation',
-          route: '/check_itempages',
-        ),*/
-        // AdminMenuItem(
-        //   title: 'Employee ID creation',
-        //   route: 'empID_creation',
-        // ),
        AdminMenuItem(
           title: 'Employee',
           route: 'employee_profile_update',
         ),
-        // AdminMenuItem(
-        //   title: 'BioMetric',
-        //   route: 'finger_print_device_entry',
-        // ),
         AdminMenuItem(
           title: 'Attendance',
           route: 'attendance_entry',
@@ -466,18 +467,10 @@ class MyScaffold extends StatelessWidget {
           title: 'Worker',
           route: 'worker_entry',
         ),
-       /* AdminMenuItem(
-          title: 'Winding Entry',
-          route: 'winding_entry',
-        ),
         AdminMenuItem(
-          title: 'Finishing Entry',
-          route: 'finishing_entry',
-        ),*/
-        // AdminMenuItem(
-        //   title: 'Production',
-        //   route: 'production_entry',
-        // ),
+          title: 'Raw_Material',
+          route: 'raw_material_entry',
+        ),
         AdminMenuItem(
           title: 'Salary Calculation',
           route: 'salary_payment_entry',
@@ -534,6 +527,10 @@ class MyScaffold extends StatelessWidget {
         AdminMenuItem(
           title: 'Delivery Challan',
           route: 'delivery_challan_report',
+        ),
+        AdminMenuItem(
+          title: 'Hand Bill DC',
+          route: 'hand_delivery_challan_report',
         ),
         AdminMenuItem(
           title: 'Balance Sheet',

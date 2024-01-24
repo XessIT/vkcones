@@ -61,6 +61,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
   DateTime date = DateTime.now();
   String? selectedmachinefinishing;
+
+
   Future<void> fetchData(String shiftType, String machName, DateTime desiredDate) async {
     final response = await http.get(
       Uri.parse('http://localhost:3309/fetch_daily_Work_status?shiftType=$shiftType&machName=$machName&desiredDate=$desiredDate'),
@@ -79,7 +81,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
           person3code.text = data[0]['winding_empcode2'] ?? '';
         } else {
           person1.text = data[0]['winding_asstwo'] ?? '';
-          //person1code.text = data[0]['winding_oPempcode1'] ?? '';
           person2code.text = data[0]['winding_oPempcode1'] ?? '';
           person3code.text = data[0]['winding_empcode1'] ?? '';
           person2.text = data[0]['winding_assOne'] ?? '';
@@ -979,52 +980,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                               ),
                                             ),
                                           ),
-                                          /*TextFormField(
-                                            style: const TextStyle(fontSize: 13),
-                                            readOnly: true, // Set the field as read-only
-                                            onTap: () {
-                                              showDatePicker(
-                                                context: context,
-                                                initialDate: fromDate,
-                                                firstDate: DateTime(2000), // Set the range of selectable dates
-                                                lastDate: DateTime.now(),
-                                              ).then((date) {
-                                                if (date != null) {
-                                                  setState(() {
 
-
-                                                    fromDate = date; // Update the selected date
-                                                    //    toDate = fromDate.add(Duration(days: 1));
-                                                    controller.text = DateFormat("dd-MM-yyyy").format(fromDate);
-                                                    shiftType=null;
-                                                    deptType= null;
-                                                    selectedmachinefinishing = null;
-                                                    productionQuantityController.clear();
-                                                    numofreels.clear();
-                                                    kgofreels.clear();
-                                                    reelsgsm.clear();
-                                                    extraproductionamt.clear();
-                                                    setState(() {
-                                                      controller;
-                                                    });
-                                                    print("date ${controller.text}");
-                                                  });
-                                                }
-                                              });
-                                            },
-                                            controller: controller,
-                                            // controller: TextEditingController(
-                                            //   text: DateFormat('yyyy-MM-dd').format(selectedDate)),
-                                            // controller: TextEditingController(text: selectedDate.toString().split(' ')[0]), // Set the initial value of the field to the selected date
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Date",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          ),*/
                                         ),
                                       ],),
                                     ),
@@ -1811,6 +1767,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     onChanged: (value) {
                                                       setState(() {
                                                         if(deptType=="Printing")
+
                                                           if(int.parse(Numofcones!) < int.parse(value)){
                                                             _formKey.currentState!.reset();
                                                             setState(() {
@@ -2153,11 +2110,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                               // Show an error message
                                                             }
                                                           }
-
-
-
                                                       )
-
                                                   ),
                                                 ),
                                               ),
@@ -2346,7 +2299,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           if (i > 0 &&
                                                               rowData[i].prodgsm == rowData[i - 1].prodgsm &&
                                                               rowData[i].itemGroup == rowData[i - 1].itemGroup &&
-                                                              rowData[i].itemName == rowData[i - 1].itemName) {
+                                                              rowData[i].itemName == rowData[i - 1].itemName)
+                                                          {
                                                             showDialog(
                                                               context: context,
                                                               builder: (BuildContext context) {
@@ -2366,6 +2320,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                             );
                                                           } else {
                                                             // Check if the quantity is 0
+                                                            if(deptType=="finishing")
                                                             if (rowData[i].numofproduction.text == '0' && rowData[i].totalqty.text == '0')
                                                             {
                                                               showDialog(
@@ -2385,8 +2340,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                                   );
                                                                 },
                                                               );
-                                                            } else {
-                                                              // Quantity is not 0, add the row
+                                                            }
+                                                            else {
                                                               addRow();
                                                               serialnumber++;
                                                               if (i ==  0) {
@@ -2439,8 +2394,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                               fromDate = date;
                               showProductionQuantity();
                               if (_formKey.currentState!.validate()) {
-                                //  for (var i = 0; i < rowData.length; i++) {
-                                if (deptType == null) {
+
+                               if (deptType == null) {
                                   setState(() {
                                     errormsg = "* Select a Machine Type";
                                   });
@@ -2455,22 +2410,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                   });
                                 }
                                 else{
-                                  /* List<Map<String, dynamic>> unitEntries = await fetchDuplicateEntry();
-                                    bool isDuplicate = unitEntries.any((entry) =>
-                                    entry['machineType'] == dataToInsertorditem['machineType'] &&
-                                        entry['shiftType'] == dataToInsertorditem['shiftType'] &&
-                                        entry['machineName'] == dataToInsertorditem['machineName'] &&
-                                        entry['person1'] == dataToInsertorditem['person1'] &&
-                                        entry['person2'] == dataToInsertorditem['person2'] &&
-                                        entry['createDate'] == dataToInsertorditem['createDate']
-                                    );
-                                    if (isDuplicate) {
-                                      String status = selectedCheckbox == 1 ? "without printing" : "with printing";
-                                      print('Duplicate entry, not inserted');
-                                    } else {
-*/                                      await submititemDataToDatabase();
-                                  //  }
-                                  //  }
+                                   await submititemDataToDatabase();
                                 }
                               }
                             },

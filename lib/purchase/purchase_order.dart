@@ -118,7 +118,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
 
 
   Map<String, dynamic> dataToInsert = {};
-  Future<void> insertData(Map<String, dynamic> rowsDataToInsert) async {
+  Future<void> insertData(Map<String, dynamic> rowsDataToInsert) async  {
     const String apiUrl = 'http://localhost:3309/purchaseorder_entry';
     try {
       final response = await http.post(
@@ -141,6 +141,8 @@ class _PurchaseorderState extends State<Purchaseorder> {
     }
   }
   Map<String, dynamic> dataToInsertcustomer = {};
+
+
 
   Future<void> insertDatacustomer(Map<String, dynamic> dataToInsertcustomer) async {
     const String apiUrl = 'http://localhost:3309/customer_entry'; // Replace with your server details
@@ -253,9 +255,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
       print('Error: $error');
     }
   }
-
-
-
   void filterCodeData(String searchText) {
     setState(() {
       if (searchText.isEmpty) {
@@ -426,7 +425,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
           print('CallUnit:$callUnit');
         });
         callUnit=unit;
-
         print('Unit: $unit');
       } else {
         print('Error: ${response.statusCode}');
@@ -856,6 +854,10 @@ class _PurchaseorderState extends State<Purchaseorder> {
   TextEditingController totqtycontrolls = TextEditingController();
   List<Map<String, dynamic>> filteredData2 = [];
   List<Map<String, dynamic>> data2 = [];
+  final ScrollController _scrollController = ScrollController();
+
+
+
 
 
 
@@ -1617,290 +1619,296 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                 child: Text("Product Details",
                                   style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)),
                             const SizedBox(height: 20,),
-
                             SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: FocusTraversalGroup(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 0),
-                                  child: Table(
-                                    border: TableBorder.all(color: Colors.black54),
-                                    defaultColumnWidth: const FixedColumnWidth(240.0),
-                                    columnWidths: const <int, TableColumnWidth>{
-                                      0: FixedColumnWidth(325),
-                                      1: FixedColumnWidth(325),
-                                      2: FixedColumnWidth(170),
-                                      3: FixedColumnWidth(170),
-                                    },
-                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                    children: [
-                                      TableRow(children: [
-                                        TableCell(
-                                          child: Container(
-                                            color: Colors.blue.shade100,
-                                            child: Center(
-                                                child: Column(
+                              child: Scrollbar(
+                                thumbVisibility: true,
+                                controller: _scrollController,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  controller: _scrollController,
+                                  child: FocusTraversalGroup(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 0),
+                                      child: Table(
+                                        border: TableBorder.all(color: Colors.black54),
+                                        defaultColumnWidth: const FixedColumnWidth(240.0),
+                                        columnWidths: const <int, TableColumnWidth>{
+                                          0: FixedColumnWidth(325),
+                                          1: FixedColumnWidth(325),
+                                          2: FixedColumnWidth(170),
+                                          3: FixedColumnWidth(170),
+                                        },
+                                        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                        children: [
+                                          TableRow(children: [
+                                            TableCell(
+                                              child: Container(
+                                                color: Colors.blue.shade100,
+                                                child: Center(
+                                                    child: Column(
+                                                      children: [
+                                                        SizedBox(height: 10),
+                                                        Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 10),
+                                                      ],
+                                                    )),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                color: Colors.blue.shade100,
+                                                child: Center(child: Column(
                                                   children: [
                                                     SizedBox(height: 10),
-                                                    Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                    Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold)),
                                                     SizedBox(height: 10),
                                                   ],
                                                 )),
-                                          ),
-                                        ),
-                                        TableCell(
-                                          child: Container(
-                                            color: Colors.blue.shade100,
-                                            child: Center(child: Column(
-                                              children: [
-                                                SizedBox(height: 10),
-                                                Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                SizedBox(height: 10),
-                                              ],
-                                            )),
-                                          ),
-                                        ),
-                                        TableCell(
-                                          child: Container(
-                                            color: Colors.blue.shade100,
-                                            child: Center(child: Column(
-                                              children: [
-                                                SizedBox(height: 10),
-                                                Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                SizedBox(height: 10),
-                                              ],
-                                            )),
-                                          ),
-                                        ),
-                                        TableCell(
-                                          child: Container(
-                                            color: Colors.blue.shade100,
-                                            child: Center(
-                                              child: Column(
-                                                children: [
-                                                  SizedBox(height: 10),
-                                                  Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                  SizedBox(height: 10),
-                                                ],
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      ]),
-
-                                      for (var i = 0; i < rowData.length; i++)
-                                        TableRow(children: [
-                                          TableCell(
-                                            child: SizedBox(
-                                              height: 60,
+                                            TableCell(
                                               child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
                                                 color: Colors.blue.shade100,
-                                                child: Padding(
-                                                    padding: const EdgeInsets.all(5.0),
-                                                    child: TypeAheadFormField<String?>(
-                                                      textFieldConfiguration: TextFieldConfiguration(
-                                                        onChanged: (value){
-                                                        },
-                                                        controller: TextEditingController(text: rowData[i].itemGroup),
-                                                        decoration: InputDecoration(
-                                                          filled: true,
-                                                          fillColor: Colors.white,
-                                                          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                child: Center(child: Column(
+                                                  children: [
+                                                    SizedBox(height: 10),
+                                                    Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                    SizedBox(height: 10),
+                                                  ],
+                                                )),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                color: Colors.blue.shade100,
+                                                child: Center(
+                                                  child: Column(
+                                                    children: [
+                                                      SizedBox(height: 10),
+                                                      Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 10),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ]),
+                                
+                                          for (var i = 0; i < rowData.length; i++)
+                                            TableRow(children: [
+                                              TableCell(
+                                                child: SizedBox(
+                                                  height: 60,
+                                                  child: Container(
+                                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                    color: Colors.blue.shade100,
+                                                    child: Padding(
+                                                        padding: const EdgeInsets.all(5.0),
+                                                        child: TypeAheadFormField<String?>(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+                                                            onChanged: (value){
+                                                            },
+                                                            controller: TextEditingController(text: rowData[i].itemGroup),
+                                                            decoration: InputDecoration(
+                                                              filled: true,
+                                                              fillColor: Colors.white,
+                                                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                            ),
+                                                            inputFormatters: [CapitalizeInputFormatter()],
+                                                          ),
+                                                          suggestionsCallback: (pattern) async {
+                                                            return itemGroups.where((group) => group.toLowerCase().startsWith(pattern.toLowerCase()));
+                                                          },
+                                                          itemBuilder: (context, suggestion) {
+                                                            return ListTile(
+                                                              title: Text(suggestion!),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (String? suggestion) async {
+                                                            if (itemGroups.contains(suggestion)) {
+                                                              setState(() {
+                                                                rowData[i].itemGroup = suggestion;
+                                                                rowData[i].itemName = null;
+                                                                rowData[i].qtyController.text = "";
+                                                              });
+                                                            } else {
+                                                              // Clear the itemGroup field if the suggestion is not in the itemGroups list
+                                                              setState(() {
+                                                                rowData[i].itemGroup = null;
+                                                              });
+                                                              // Show an error messag
+                                                            }
+                                                          },
+                                                        )
+                                
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              TableCell(
+                                                child: SingleChildScrollView(
+                                                  child: Container(
+                                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                    height: 60,
+                                                    color: Colors.blue.shade100,
+                                                    child: Padding(
+                                                      padding: EdgeInsets.all(5.0),
+                                                      child: TypeAheadFormField<String?>(
+                                                        textFieldConfiguration: TextFieldConfiguration(
+                                                          controller: TextEditingController(text: rowData[i].itemName),
+                                                          decoration: InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                          ),
+                                                          inputFormatters: [CapitalizeInputFormatter()],
                                                         ),
-                                                        inputFormatters: [CapitalizeInputFormatter()],
-                                                      ),
-                                                      suggestionsCallback: (pattern) async {
-                                                        return itemGroups.where((group) => group.toLowerCase().startsWith(pattern.toLowerCase()));
-                                                      },
-                                                      itemBuilder: (context, suggestion) {
-                                                        return ListTile(
-                                                          title: Text(suggestion!),
-                                                        );
-                                                      },
-                                                      onSuggestionSelected: (String? suggestion) async {
-                                                        if (itemGroups.contains(suggestion)) {
+                                                        suggestionsCallback: (pattern) async {
+                                                          return itemNames.where((name) => name.toLowerCase().startsWith(pattern.toLowerCase()));
+                                                        },
+                                                        itemBuilder: (context, suggestion) {
+                                                          return ListTile(
+                                                            title: Text(suggestion!),
+                                                          );
+                                                        },
+                                                        onSuggestionSelected: (String? suggestion) async {
                                                           setState(() {
-                                                            rowData[i].itemGroup = suggestion;
-                                                            rowData[i].itemName = null;
+                                                            print('Selected Item: $suggestion');
+                                                            rowData[i].itemName = suggestion;
                                                             rowData[i].qtyController.text = "";
                                                           });
-                                                        } else {
-                                                          // Clear the itemGroup field if the suggestion is not in the itemGroups list
-                                                          setState(() {
-                                                            rowData[i].itemGroup = null;
-                                                          });
-                                                          // Show an error messag
-                                                        }
-                                                      },
-                                                    )
-
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                          TableCell(
-                                            child: SingleChildScrollView(
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                                height: 60,
-                                                color: Colors.blue.shade100,
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: TypeAheadFormField<String?>(
-                                                    textFieldConfiguration: TextFieldConfiguration(
-                                                      controller: TextEditingController(text: rowData[i].itemName),
-                                                      decoration: InputDecoration(
+                                              TableCell(
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  height: 60,
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(5.0),
+                                                    child: TextFormField(
+                                                      controller: rowData[i].qtyController,
+                                                      keyboardType: TextInputType.number,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          rowData[i].quantity = int.tryParse(value) ?? 0;
+                                                          calculateTotalQty(i);
+                                                        });
+                                                      },
+                                                      inputFormatters: <TextInputFormatter>[
+                                                        FilteringTextInputFormatter.digitsOnly,
+                                                        LengthLimitingTextInputFormatter(10)
+                                                      ],
+                                                      decoration: const InputDecoration(
                                                         filled: true,
                                                         fillColor: Colors.white,
-                                                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                        enabledBorder: OutlineInputBorder(
+                                                          borderSide: BorderSide(color: Colors.grey),
+                                                        ),
                                                       ),
-                                                      inputFormatters: [CapitalizeInputFormatter()],
-                                                    ),
-                                                    suggestionsCallback: (pattern) async {
-                                                      return itemNames.where((name) => name.toLowerCase().startsWith(pattern.toLowerCase()));
-                                                    },
-                                                    itemBuilder: (context, suggestion) {
-                                                      return ListTile(
-                                                        title: Text(suggestion!),
-                                                      );
-                                                    },
-                                                    onSuggestionSelected: (String? suggestion) async {
-                                                      setState(() {
-                                                        print('Selected Item: $suggestion');
-                                                        rowData[i].itemName = suggestion;
-                                                        rowData[i].qtyController.text = "";
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          TableCell(
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                              height: 60,
-                                              color: Colors.blue.shade100,
-                                              child: Padding(
-                                                padding: EdgeInsets.all(5.0),
-                                                child: TextFormField(
-                                                  controller: rowData[i].qtyController,
-                                                  keyboardType: TextInputType.number,
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      rowData[i].quantity = int.tryParse(value) ?? 0;
-                                                      calculateTotalQty(i);
-                                                    });
-                                                  },
-                                                  inputFormatters: <TextInputFormatter>[
-                                                    FilteringTextInputFormatter.digitsOnly,
-                                                    LengthLimitingTextInputFormatter(10)
-                                                  ],
-                                                  decoration: const InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    enabledBorder: OutlineInputBorder(
-                                                      borderSide: BorderSide(color: Colors.grey),
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                          TableCell(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Visibility(
-                                                    visible: true,
-                                                    child: IconButton(
-                                                      icon: Icon(Icons.remove_circle_outline, color: Colors.red),
-                                                      onPressed:  () => deleteRow(i) ,
-                                                    ),
-                                                  ),
-                                                  Visibility(
-                                                    visible: i == rowData.length - 1 &&
-                                                        rowData[i].itemGroup != null &&
-                                                        rowData[i].itemName != null &&
-                                                        rowData[i].qtyController.text.isNotEmpty,
-                                                    child: IconButton(
-                                                      icon: Icon(Icons.add_circle_outline, color: Colors.green),
-                                                      onPressed: () {
-                                                        bool isDuplicate = false;
-
-                                                        // Iterate through all previous rows
-                                                        for (int j = 0; j < i; j++) {
-                                                          if (rowData[i].itemGroup == rowData[j].itemGroup &&
-                                                              rowData[i].itemName == rowData[j].itemName) {
-                                                            isDuplicate = true;
-                                                            break; // Break the loop if a duplicate is found
-                                                          }
-                                                        }
-
-                                                        if (isDuplicate) {
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (BuildContext context) {
-                                                              return AlertDialog(
-                                                                title: Text('Alert'),
-                                                                content: Text('Already Exist the Products'),
-                                                                actions: [
-                                                                  TextButton(
-                                                                    onPressed: () {
-                                                                      Navigator.of(context).pop();
-                                                                    },
-                                                                    child: Text('OK'),
-                                                                  ),
-                                                                ],
-                                                              );
-                                                            },
-                                                          );
-                                                        } else {
-                                                          // Check if the quantity is 0
-                                                          if (rowData[i].qtyController.text == '0') {
-                                                            showDialog(
-                                                              context: context,
-                                                              builder: (BuildContext context) {
-                                                                return AlertDialog(
-                                                                  title: Text('Alert'),
-                                                                  content: Text('Quantity cannot be 0'),
-                                                                  actions: [
-                                                                    TextButton(
-                                                                      onPressed: () {
-                                                                        Navigator.of(context).pop();
-                                                                      },
-                                                                      child: Text('OK'),
-                                                                    ),
-                                                                  ],
-                                                                );
-                                                              },
-                                                            );
-                                                          } else {
-                                                            // Quantity is not 0, add the row
-                                                            addRow();
-                                                            if (i == 0) {
-                                                              // Enable the first row removal once a second row is added
-                                                              setState(() {
-                                                                // isFirstRowRemovalEnabled = true;
-                                                              });
+                                              TableCell(
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Visibility(
+                                                        visible: true,
+                                                        child: IconButton(
+                                                          icon: Icon(Icons.remove_circle_outline, color: Colors.red),
+                                                          onPressed:  () => deleteRow(i) ,
+                                                        ),
+                                                      ),
+                                                      Visibility(
+                                                        visible: i == rowData.length - 1 &&
+                                                            rowData[i].itemGroup != null &&
+                                                            rowData[i].itemName != null &&
+                                                            rowData[i].qtyController.text.isNotEmpty,
+                                                        child: IconButton(
+                                                          icon: Icon(Icons.add_circle_outline, color: Colors.green),
+                                                          onPressed: () {
+                                                            bool isDuplicate = false;
+                                
+                                                            // Iterate through all previous rows
+                                                            for (int j = 0; j < i; j++) {
+                                                              if (rowData[i].itemGroup == rowData[j].itemGroup &&
+                                                                  rowData[i].itemName == rowData[j].itemName) {
+                                                                isDuplicate = true;
+                                                                break; // Break the loop if a duplicate is found
+                                                              }
                                                             }
-                                                          }
-                                                        }
-                                                      },
-                                                    )
-
-
+                                
+                                                            if (isDuplicate) {
+                                                              showDialog(
+                                                                context: context,
+                                                                builder: (BuildContext context) {
+                                                                  return AlertDialog(
+                                                                    title: Text('Alert'),
+                                                                    content: Text('Already Exist the Products'),
+                                                                    actions: [
+                                                                      TextButton(
+                                                                        onPressed: () {
+                                                                          Navigator.of(context).pop();
+                                                                        },
+                                                                        child: Text('OK'),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+                                                            } else {
+                                                              // Check if the quantity is 0
+                                                              if (rowData[i].qtyController.text == '0') {
+                                                                showDialog(
+                                                                  context: context,
+                                                                  builder: (BuildContext context) {
+                                                                    return AlertDialog(
+                                                                      title: Text('Alert'),
+                                                                      content: Text('Quantity cannot be 0'),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          onPressed: () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child: Text('OK'),
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                );
+                                                              } else {
+                                                                // Quantity is not 0, add the row
+                                                                addRow();
+                                                                if (i == 0) {
+                                                                  // Enable the first row removal once a second row is added
+                                                                  setState(() {
+                                                                    // isFirstRowRemovalEnabled = true;
+                                                                  });
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                        )
+                                
+                                
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              )
+                                            ]
                                             ),
-                                          )
-                                        ]
-                                        ),
-                                    ],
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1943,15 +1951,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                               orderNomber = 'WO$year$month-001';
                             }
                             for (var i = 0; i < rowData.length; i++) {
-
-                              // if (rowData[i].itemGroup == null ||
-                              //     rowData[i].itemName == null ||
-                              //     rowData[i].qtyController.text.isEmpty) {
-                              //   setState(() {
-                              //     errorMessage = '* Fill all fields in the table';
-                              //   });
-                              //   return;
-                              // }
                               if (i > 0 &&
                                   rowData[i].itemGroup == rowData[i - 1].itemGroup &&
                                   rowData[i].itemName == rowData[i - 1].itemName) {
@@ -2056,7 +2055,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                   setState(() {
                                     errorMessage = '* Enter a pincode';
                                   });
-
                                 }
                                 else if (!pincodeRegex.hasMatch(pincode.text)) {
                                   setState(() {
@@ -2071,16 +2069,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                 else if (!gstregex2.hasMatch(GSTIN.text)) {
                                   setState(() {
                                     errorMessage = '* Invalid GSTIN';
-                                  });
-                                }
-                                else if (deliveryType == null) {
-                                  setState(() {
-                                    errorMessage = '* Select a DeliveryType';
-                                  });
-                                }
-                                else if (deliveryDate == null) {
-                                  setState(() {
-                                    errorMessage = '* Select a Expected Delivery Date';
                                   });
                                 }
                                 else if (rowData[i].itemGroup == null || rowData[i].itemName == null || rowData[i].qtyController.text.isEmpty) {
@@ -2107,7 +2095,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                       'itemName': rowData[i].itemName,
                                       'unit': callUnit,
                                       'qty': '0',
-                                      //   'modifyDate': "",
                                     };
                                     await insertDataStock(dataToInsert2); //s
                                   }
@@ -2224,6 +2211,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                   },
                                 );
                               }
+
                               else if (_formKey.currentState!.validate()) {
                                 final deliveryDate = deliverydate?.toIso8601String();
                                 String enteredcustCode = custCode.text;
