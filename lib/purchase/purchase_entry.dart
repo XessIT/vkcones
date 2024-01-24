@@ -111,46 +111,102 @@ class _PurchaseState extends State<Purchase> {
 
   List<Map<String, dynamic>> datapendingInsertList = [];
 
+/*
   void removeRow(int rowIndex) {
     if (rowIndex >= 0 && rowIndex < controllers.length) {
-      DateTime now=DateTime.now();
-      String year=(now.year%100).toString();
-      String month=now.month.toString().padLeft(2,'0');
+      DateTime now = DateTime.now();
+      String year = (now.year % 100).toString();
+      String month = now.month.toString().padLeft(2, '0');
       if (poNumber.isEmpty) {
         poNumber = 'PP$year$month/001';
       }
-      // Retrieve the data from the row being removed
       Map<String, dynamic> removedRowData = {
-        "poNo":poNUMber.text,
-        "date":date.toString(),
-        "invoiceNo":invoiceNo.text.trim(),
-        "pendingOrderNo":poNumber,
+        "poNo": poNumber,
+        "date": date.toString(),
+        "invoiceNo": invoiceNo.text.trim(),
+        "pendingOrderNo": poNumber,
         "supCode": supCode.text,
-        "supName":supName.text,
+        "supName": supName.text,
         "prodCode": controllers[rowIndex][0].text,
         "prodName": controllers[rowIndex][1].text,
-        "qty": controllers[rowIndex][10].text,
-        "pincode":pincode.text,
-        "deliveryDate":"",
+        'qty': controllers[rowIndex][10].text.isNotEmpty ? controllers[rowIndex][10].text : '0',
+        "pincode": pincode.text,
+        "deliveryDate": "",
         'unit': controllers[rowIndex][2].text,
       };
 
-      // Remove the row from your local data structure (controllers)
       controllers.removeAt(rowIndex);
+      rowslenth = controllers.length;
+      rowslenth2 = controllers.length;
 
-      // Add the removed data to the pending data list
-      datapendingInsertList.add(removedRowData);
+      List<Map<String, dynamic>> rowDataToInsert = [removedRowData];
+      datapendingInsertList.addAll(rowDataToInsert);
+
       focusNodes.removeAt(rowIndex);
       isRowFilled.removeAt(rowIndex);
-      // Trigger a rebuild of the UI to reflect the changes
       setState(() {
         grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+        for (int i = rowIndex; i < controllers.length; i++) {
+          int fetchedIndex = i + 1;
+          controllers[i][10].text = fetchedQuantities[fetchedIndex].toString();
+          fetchedQuantities[i] = fetchedQuantities[fetchedIndex]!;
+        }
+      });
+    } else {
+      print("Invalid index: $rowIndex");
+    }
+  }
+*/
+  void removeRow(int rowIndex) {
+    if (rowIndex >= 0 && rowIndex < controllers.length) {
+      DateTime now = DateTime.now();
+      String year = (now.year % 100).toString();
+      String month = now.month.toString().padLeft(2, '0');
+      if (poNumber.isEmpty) {
+        poNumber = 'PP$year$month/001';
+      }
+      Map<String, dynamic> removedRowData = {
+        "poNo": poNumber,
+        "date": date.toString(),
+        "invoiceNo": invoiceNo.text.trim(),
+        "pendingOrderNo": poNumber,
+        "supCode": supCode.text,
+        "supName": supName.text,
+        "prodCode": controllers[rowIndex][0].text,
+        "prodName": controllers[rowIndex][1].text,
+        'qty': controllers[rowIndex][10].text.isNotEmpty ? controllers[rowIndex][10].text : '0',
+        "pincode": pincode.text,
+        "deliveryDate": "",
+        'unit': controllers[rowIndex][2].text,
+      };
+
+      controllers.removeAt(rowIndex);
+      rowslenth = controllers.length;
+      rowslenth2 = controllers.length;
+
+      List<Map<String, dynamic>> rowDataToInsert = [removedRowData];
+      datapendingInsertList.addAll(rowDataToInsert);
+
+      focusNodes.removeAt(rowIndex);
+      isRowFilled.removeAt(rowIndex);
+      setState(() {
+        grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+
+        // Update remaining rows without changing their quantities
+        for (int i = rowIndex; i < controllers.length; i++) {
+          int fetchedIndex = i + 1; // Adjust for the removed row
+          controllers[i][10].text = fetchedQuantities[fetchedIndex].toString();
+          fetchedQuantities[i] = fetchedQuantities[fetchedIndex]!;
+          rowData[i]['unit'] = controllers[i][2].text; // Ensure rowData unit is correct
+        }
       });
     } else {
       print("Invalid index: $rowIndex");
     }
   }
 
+  int? rowslenth=0;
+  int? rowslenth2=0;
 
 /*
   void removeRow(int index) {
@@ -387,10 +443,12 @@ class _PurchaseState extends State<Purchase> {
         if (i >= controllers.length) {
           controllers.add(List.generate(11, (j) => TextEditingController()));
         }
+
         String datepass =DateTime.now().toString();
         print("Inserting data for row $i");
         Map<String, dynamic> datapendingInsert = {
-          "poNo":poNUMber.text,
+          "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
+          //"poNo":poNUMber,
           "date":datepass.toString(),
           "invoiceNo":invoiceNo.text,
           "pendingOrderNo":poNumber,
@@ -398,12 +456,13 @@ class _PurchaseState extends State<Purchase> {
           "supName":supName.text,
           "prodCode": controllers[i][0].text,
           "prodName": controllers[i][1].text,
-          "qty": controllers[i][11].text,
+          'qty':controllers[i][11].text.isNotEmpty?controllers[i][11].text:'0',
           "pincode":pincode.text,
           "deliveryDate":"",
           'unit': controllers[i][2].text,
         };
         insertFutures.add(insertDataPendingReport(datapendingInsert));
+
         Future.microtask(() {
           setState(() {
             alertVisible=true;
@@ -414,7 +473,8 @@ class _PurchaseState extends State<Purchase> {
             builder: (BuildContext context) {
               return AlertDialog(
                   title: const Text("PO Number"),
-                  content:  poNUMber.text.isNotEmpty?Text("${poNUMber.text} had partially purchased, Pending PO is ${poNumber.toString()} "):Text("$pendingPoNUMber had partially purchase, Pending PO Number is ${poNumber.toString()}    "),
+                  //content:  poNUMber.text.isNotEmpty?Text("${poNUMber.text} had Partially purchased, Pending PO is ${poNumber.toString()} "):Text("$pendingPoNUMber had partially purchase, Pending PO Number is ${poNumber.toString()}    "),
+                  content: const Text("Partially purchased"),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () {
@@ -609,7 +669,9 @@ class _PurchaseState extends State<Purchase> {
       Map<String, dynamic> dataToInsertSupItem2 = {
         'invoiceNo':invoiceNo.text,
         "date":date.toString(),
-        "poNo":poNUMber.text.isEmpty? pendingPoNUMber.text:poNUMber.text,
+        // "poNo":poNUMber.text,
+ //        "poNo":poNUMber.text.isEmpty? pendingPoNUMber.text:poNUMber.text,
+        "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
         'purchaseDate': formattedPurchaseDate,
         /*"supName": supplierInfo["supName"].toString(),
         "supCode": supplierInfo["supCode"].toString(),
@@ -1286,7 +1348,7 @@ class _PurchaseState extends State<Purchase> {
                                               onSuggestionSelected: (suggestion) {
                                                 if (isMachineNameExists(suggestion)) {
                                                   setState(() {
-                                                    errorMessage = '* PoNo already exists';
+                                                    errorMessage = '* This Order already exists';
                                                   });
                                                 } else {
                                                   errorMessage = null;
@@ -1811,13 +1873,14 @@ class _PurchaseState extends State<Purchase> {
                                                           visible:false,
                                                           child: TextFormField(
                                                               style: TextStyle(fontSize: 13,
-                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['unit'] == 'Kg' || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
                                                               ),
                                                               controller: controllers[i][10],
                                                               inputFormatters: [
                                                                 UpperCaseTextFormatter(),
                                                                 FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-
+                                                                if (j == 7)
+                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
                                                               ],
                                                               decoration: const InputDecoration(
                                                                 filled: true,
@@ -1825,7 +1888,7 @@ class _PurchaseState extends State<Purchase> {
                                                               ),
 
                                                               textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                              enabled: j == 5 || rowData[i]['unit'] == 'Kg' || j == 3 || j == 7 ,
+                                                              enabled: j == 5 || rowData[i]['prodName'].startsWith('GSM')|| j == 3 || j == 7 ,
                                                               onChanged: (value) async {
                                                                 final int rowIndex = i;
                                                                 final int colIndex = j;
@@ -1863,7 +1926,7 @@ class _PurchaseState extends State<Purchase> {
 
 
 
-                                                                  if( rowData[i]['unit'] != 'Kg'){
+                                                                  if (rowData[i]['prodName'].startsWith('GSM')){
                                                                     if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
                                                                       double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
                                                                       double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
@@ -1948,7 +2011,7 @@ class _PurchaseState extends State<Purchase> {
                                                                         print(" pending Qty  $pending");
                                                                         // editqty = editedqty;
                                                                       });
-                                                                      controllers[rowIndex][11].text = pendingqty.toString();
+                                                                      controllers[rowIndex][11].text = pending.toString();
                                                                       grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
                                                                     }
 
@@ -1975,10 +2038,12 @@ class _PurchaseState extends State<Purchase> {
                                                           visible:false,
                                                           child: TextFormField(
                                                               style: TextStyle(fontSize: 13,
-                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['unit'] == 'Kg' || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
                                                               ),
                                                               controller: controllers[i][11],
-                                                              inputFormatters: [UpperCaseTextFormatter(),                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                              inputFormatters: [UpperCaseTextFormatter(),
+                                                                if (j == 7)
+                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
                                                               ],
                                                               decoration: const InputDecoration(
                                                                 filled: true,
@@ -1986,8 +2051,7 @@ class _PurchaseState extends State<Purchase> {
                                                               ),
 
                                                               textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                              enabled:  j == 5 || rowData[i]['unit'] ==
-                                                                  'Kg' || j == 3 || j == 6 ,
+                                                              enabled:  j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 3 || j == 6 ,
                                                               onChanged: (value) async {
                                                                 final int rowIndex = i;
                                                                 final int colIndex = j;
@@ -2025,7 +2089,7 @@ class _PurchaseState extends State<Purchase> {
                                                                   errorMessage = '';
 
 
-                                                                  if( rowData[i]['unit'] != 'Kg'){
+                                                                  if (rowData[i]['prodName'].startsWith('GSM')){
                                                                     if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
                                                                       double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
                                                                       double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
@@ -2109,7 +2173,7 @@ class _PurchaseState extends State<Purchase> {
                                                                         print(" pending Qty  $pending");
                                                                         // editqty = editedqty;
                                                                       });
-                                                                      controllers[rowIndex][11].text = pendingqty.toString();
+                                                                      controllers[rowIndex][11].text = pending.toString();
                                                                       grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
                                                                     }
 
@@ -2134,21 +2198,25 @@ class _PurchaseState extends State<Purchase> {
                                                         padding: const EdgeInsets.all(8.0),
                                                         child: TextFormField(
                                                             style: TextStyle(fontSize: 13,
-                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['unit'] == 'Kg' || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
                                                             ),
                                                             controller: controllers[i][j],
                                                             // enabled: !(j == 6 || j == 8 || j == 9) || (rowData[i]['unit'] != 'Kg' && rowData[i]['unit'] != 'Nos'), // Set enabled based on conditions for controllers[i][6], [8], and [9]
 
                                                             inputFormatters: [UpperCaseTextFormatter(),
-                                                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')
+                                                              ),
+                                                              if (j == 7)
+                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
                                                             ],
+
                                                             decoration: const InputDecoration(
                                                               filled: true,
                                                               fillColor: Colors.white,
                                                             ),
 
                                                             textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                            enabled:  j == 5 || rowData[i]['unit'] == 'Kg' || j == 3 || j == 7 ,
+                                                            enabled:  j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 3 || j == 7 ,
                                                             onChanged: (value) async {
                                                               final int rowIndex = i;
                                                               final int colIndex = j;
@@ -2186,7 +2254,7 @@ class _PurchaseState extends State<Purchase> {
                                                                 errorMessage = '';
 
 
-                                                                if( rowData[i]['unit'] != 'Kg'){
+                                                                if (!rowData[i]['prodName'].startsWith('GSM')) {
                                                                   if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
                                                                     double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
                                                                     double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
@@ -2226,7 +2294,7 @@ class _PurchaseState extends State<Purchase> {
                                                                       print(" pending Qty  $pending");
                                                                       // editqty = editedqty;
                                                                     });
-                                                                    controllers[rowIndex][11].text = pendingqty.toString();
+                                                                    controllers[rowIndex][11].text = pending.toString();
                                                                     grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
                                                                   }}else{
                                                                   if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
@@ -2271,7 +2339,7 @@ class _PurchaseState extends State<Purchase> {
                                                                       print(" pending Qty  $pending");
                                                                       // editqty = editedqty;
                                                                     });
-                                                                    controllers[rowIndex][11].text = pendingqty.toString();
+                                                                    controllers[rowIndex][11].text = pending.toString();
                                                                     grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
                                                                   }
 
@@ -2288,49 +2356,6 @@ class _PurchaseState extends State<Purchase> {
                                                         ),
                                                       ),
                                                     ),
-                                                  /*TableCell(
-                                                    child: Wrap(
-                                                      children: [
-                                                        Center(
-                                                          child: IconButton(
-                                                            icon: Icon(Icons.remove_circle_outline),
-                                                            color: Colors.red.shade600,
-                                                            onPressed: () {
-                                                              showDialog(
-                                                                context: context,
-                                                                builder: (BuildContext context) {
-                                                                  return AlertDialog(
-                                                                    title: Text('Confirmation'),
-                                                                    content: Text('Are you sure you want to remove this Product?'),
-                                                                    actions: <Widget>[
-                                                                      TextButton(
-                                                                        child: Text('No', style: TextStyle(color: Colors.red.shade500)),
-                                                                        onPressed: () {
-                                                                          Navigator.of(context).pop(); // Close the alert box
-                                                                        },
-                                                                      ),
-                                                                      TextButton(
-                                                                        child: Text('Yes', style: TextStyle(color: Colors.blue.shade500)),
-                                                                        onPressed: () {
-                                                                          try {
-                                                                            removeRow(i); // Remove the row
-                                                                            Navigator.of(context).pop(); // Close the alert box
-                                                                            // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => PurchaseReturn()));
-                                                                          } catch (e) {
-                                                                            print('Navigation Error: $e');
-                                                                          }// Close the alert box
-                                                                        },
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
-                                                              );
-                                                            },
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),*/
                                                   TableCell(
                                                     child: Padding(
                                                       padding: const EdgeInsets.all(8.0),
@@ -2340,7 +2365,7 @@ class _PurchaseState extends State<Purchase> {
 
                                                           //  if (controllers.length ==controllers.length && i != controllers.length - 1) // Render "Add" button only in the last row
                                                           IconButton(
-                                                              icon: Icon(Icons.remove_circle_outline),
+                                                              icon: const Icon(Icons.remove_circle_outline),
                                                               color: Colors.red.shade600,
                                                               onPressed: () {
                                                                 if (_formKey
@@ -2362,38 +2387,12 @@ class _PurchaseState extends State<Purchase> {
                                                                         builder: (
                                                                             BuildContext context) {
                                                                           return AlertDialog(
-                                                                            title: Text(
-                                                                                'Confirmation'),
-                                                                            content: Text(
-                                                                                'Are you sure you want to remove this row?'),
-                                                                            actions: <
-                                                                                Widget>[
-                                                                              TextButton(
-                                                                                child: Text(
-                                                                                    'Cancel'),
-                                                                                onPressed: () {
-                                                                                  Navigator
-                                                                                      .of(
-                                                                                      context)
-                                                                                      .pop(); // Close the alert box
-                                                                                },
-                                                                              ),
-                                                                              TextButton(
-                                                                                child: Text(
-                                                                                    'Remove'),
-                                                                                onPressed: () {
-                                                                                  setState(() {
-                                                                                    removeRow(i); // Remove the row
-
-                                                                                  });
-                                                                                  Navigator
-                                                                                      .of(
-                                                                                      context)
-                                                                                      .pop(); // Close the alert box
-                                                                                },
-                                                                              ),
-                                                                            ],
-                                                                          );
+                                                                            title: Text('Confirmation'),
+                                                                            content: Text('Are you sure you want to remove this row?'),
+                                                                            actions: <Widget>[TextButton(child: Text('Cancel'),
+                                                                              onPressed: () {Navigator.of(context).pop();},),
+                                                                              TextButton(child: Text('Remove'),
+                                                                                onPressed: () {removeRow(i);Navigator.of(context).pop(); },),],);
                                                                         },
                                                                       );
                                                                     } else {
@@ -2542,11 +2541,8 @@ class _PurchaseState extends State<Purchase> {
                               //   });
                               // }
                               else {
-                                if (_formKey.currentState!.validate() &&
-                                    /*poNo.text.isNotEmpty &&
-                                  purchaseDate.text.isNotEmpty &&
-                                  invoiceNo.text.isNotEmpty &&
-                                  payType != null &&*/
+                                if (_formKey.currentState!.validate()
+                                  /*  &&
                                     !controllers.any((controller) =>
                                     controller[0].text.isEmpty ||
                                         controller[1].text.isEmpty ||
@@ -2560,7 +2556,8 @@ class _PurchaseState extends State<Purchase> {
                                         controller[9].text.isEmpty ||
                                         controller[10].text.isEmpty
 
-                                    )) {
+                                    )*/
+                                ) {
                                   for (var i = 0; i < controllers.length; i++) {
                                     String enteredProdCode = controllers[i][0]
                                         .text;
@@ -2575,8 +2572,7 @@ class _PurchaseState extends State<Purchase> {
 
                                   if (hasDuplicateProdCode && hasNewProdCode) {
                                     // Case: Both duplicate and new product codes
-                                    for (int i = 0; i <
-                                        controllers.length; i++) {
+                                    for (int i = 0; i < controllers.length; i++) {
                                       String enteredProdCode = controllers[i][0]
                                           .text;
                                       bool isDuplicate = await checkForDuplicate(
@@ -2634,15 +2630,16 @@ class _PurchaseState extends State<Purchase> {
                                   for (var i = 0; i < datapendingInsertList.length; i++) {
                                     insertFutures.add(insertDataPendingReport(datapendingInsertList[i]));
                                     await Future.wait(insertFutures);
-                                    datapendingInsertList.clear();
                                   }
 
+                                  // datapendingInsertList.clear();
 
                                   setState(() {
                                     isDataSaved = true;
                                   });
 
-                                } else {
+                                }
+                                else {
                                   setState(() {
                                     errorMessage =
                                     '* Fill all fields in the table';

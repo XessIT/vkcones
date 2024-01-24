@@ -2250,7 +2250,6 @@ class _PurchaseState extends State<Purchase> {
                                                                           recieved= editedqty;
                                                                           pending= pendingqty;
 
-
                                                                           print("  Qty $qty");
                                                                           print(" received Qty $recieved");
                                                                           print(" pending Qty  $pending");
@@ -2622,8 +2621,6 @@ class _PurchaseState extends State<Purchase> {
                                     insertFutures.add(insertDataPendingReport(datapendingInsertList[i]));
                                     await Future.wait(insertFutures);
                                     datapendingInsertList.clear();}
-
-
                                   setState(() {
                                     isDataSaved = true;
                                   });
