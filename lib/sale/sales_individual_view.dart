@@ -14,6 +14,7 @@ class SalesView extends StatefulWidget {
   final String? itemGroup;
   final String? custpincode;
   final String? customerData;
+  final String? transportNo;
   final int? custmobile;
   //final List<Map<String, dynamic>> customerData;
   const SalesView({required this.customerData ,Key? key,
@@ -24,7 +25,7 @@ class SalesView extends StatefulWidget {
     required this.custmobile,
     required this.date,
     required this.grandtotal,
-    required this.itemGroup, required this.custpincode
+    required this.itemGroup, required this.custpincode, required this.transportNo
   }) : super(key: key);
 
   @override
@@ -365,6 +366,27 @@ class _SalesViewState extends State<SalesView> {
                                                             filled: true,
                                                             fillColor: Colors.white,
                                                             labelText: "Customer Mobile",
+                                                            border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(8,),
+                                                            )
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ), Padding(
+                                                    padding: const EdgeInsets.all(8.0),
+                                                    child: SizedBox(
+                                                      width: 180,
+                                                      //height: 30,
+                                                      child: TextFormField(
+                                                        readOnly: true,
+                                                        initialValue: widget.transportNo.toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 13),
+                                                        keyboardType: TextInputType.text,
+                                                        decoration: InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                            labelText: "Transport No",
                                                             border: OutlineInputBorder(
                                                               borderRadius: BorderRadius.circular(8,),
                                                             )
