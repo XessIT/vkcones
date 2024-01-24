@@ -16,6 +16,8 @@ class WorkerEntry extends StatefulWidget {
 
 class _WorkerEntryState extends State<WorkerEntry> {
   // Function to show the alert dialog
+  Color? hoverColor;
+
   Future<void> _showAlertDialog() async {
     return showDialog(
       barrierDismissible: false,
@@ -28,31 +30,49 @@ class _WorkerEntryState extends State<WorkerEntry> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                ListTile(
-                  title: GestureDetector(
-                    onTap: () {
-                      // Handle text click, you can navigate or perform any action here
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => WithPrinting()));
-                    },
-                    child: Text('With Printing'),
+                TextButton(
+                  onPressed: () {},
+                  child: ListTile(
+                    title: GestureDetector(
+                      onTap: () {
+                        // Handle text click, you can navigate or perform any action here
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => WithPrinting()));
+                      },
+                      child: Text(
+                        'With Printing',
+                        style: TextStyle(
+                          color: hoverColor,
+                        ),
+                      ),
+                    ),
                   ),
-                ), /// WITH PRINTING
-                ListTile(
-                  title: GestureDetector(
-                    onTap: () {
-                      // Handle text click, you can navigate or perform any action here
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => WorkerTab()));
-                    },
-                    child: Text('Without Printing'),
+                ),
+                /// WITH PRINTING
+                TextButton
+                  (
+                  onPressed: () {  },
+                  child: ListTile(
+                    title: GestureDetector(
+
+                      onTap: () {
+                        // Handle text click, you can navigate or perform any action here
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => WorkerTab()));
+                      },
+                      child: Text('Without Printing'),
+                    ),
                   ),
                 ), /// WITHOUT PRINTING
-                ListTile(
-                  title: GestureDetector(
-                    onTap: () {
-                      // Handle text click, you can navigate or perform any action here
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => Other_worker()));
-                    },
-                    child: Text('Others'),
+                TextButton
+                  (
+                  onPressed: () {  },
+                  child: ListTile(
+                    title: GestureDetector(
+                      onTap: () {
+                        // Handle text click, you can navigate or perform any action here
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Other_worker()));
+                      },
+                      child: Text('Others'),
+                    ),
                   ),
                 ), /// OTHERS
 
@@ -88,4 +108,7 @@ class _WorkerEntryState extends State<WorkerEntry> {
     );
   }
 }
+
+
+
 

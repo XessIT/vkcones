@@ -1,6 +1,7 @@
 
 
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -31,6 +32,8 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   TextEditingController invoiceNo=TextEditingController();
   String? Process;
   List<List<TextEditingController>> controllers = [];
+  String selectedCustCode = '';
+
 
 
 
@@ -61,6 +64,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   double? dedamt; /// for dedecution AMt
   double? chequeamt; /// For cheque amt
   double? initialAmt; // Initial amount (cheque amount before deductions)
+
   ///For Intialamt
 
 
@@ -338,12 +342,6 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
       FocusScope.of(context).requestFocus(invoiceNoFocusNode);
     }
   }
-
-
-
-
-
-
   @override
   void initState() {
     super.initState();
@@ -483,6 +481,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   }
 
   ///table values fetch starts
+/*
   Future<void> fetchDataByOrderNumber(List<String> invoiceNos) async {
     try {
       if (invoiceNos.isEmpty) {
@@ -517,17 +516,33 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
             custCode.text= row["custCode"].toString()??"";
             custName.text= row["custName"].toString()??"";
 
+
+            if (selectedCustCode.isNotEmpty && row["custCode"] != selectedCustCode) {
+              // Display an error or handle it as needed
+              setState(() {
+                errorMessage = 'CustCode does not match the previous selection, Click the Reset Button Enter A valid data Again';
+                {
+               custCode.clear();
+               custName.clear();
+               invoiceNo.clear();
+               grandTotal.clear();
+
+                }
+              }
+             );
+              return;
+            }
+            // Set the selected custCode for future comparison
+            selectedCustCode = row["custCode"];
+
             setState(() {
               if(invoiceNo.text.isEmpty){
                 custCode.clear();
                 custName.clear();
-                //grandTotal.clear();
+
               }
 
             });
-
-
-
             for (int j = 0; j < 6; j++) {
               TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
               rowControllers.add(controller);
@@ -537,11 +552,114 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
         });
       } else {
         print('Error: ${response.statusCode}');
+        setState(() {
+          selectedCustCode = '';
+
+        });
       }
     } catch (error) {
       print('Error: $error');
+      setState(() {
+        selectedCustCode = '';
+
+      });
     }
   }
+*/
+  Future<void> fetchDataByOrderNumber(List<String> invoiceNos) async {
+    try {
+      if (invoiceNos.isEmpty) {
+        setState(() {
+          controllers.clear();
+        });
+        return;
+      }
+
+      final url = Uri.parse('http://localhost:3309/balance_sheet_values_get_for_table?invoiceNos=${invoiceNos.join(',')}');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> rows = responseData;
+
+        setState(() {
+          // Clear data structures before populating them with new data
+          controllers.clear();
+
+          for (var i = 0; i < rows.length; i++) {
+            List<TextEditingController> rowControllers = [];
+            Map<String, dynamic> row = {
+              'invoiceNo': rows[i]['invoiceNo'],
+              'grandTotal': rows[i]['grandTotal'],
+              'custCode': rows[i]["custCode"],
+              'custName': rows[i]["custName"],
+            };
+            print('Response Fetch Data: $responseData');
+            print('Rows: $rows');
+            custCode.text = row["custCode"].toString() ?? "";
+            custName.text = row["custName"].toString() ?? "";
+
+            if (selectedCustCode.isNotEmpty && row["custCode"] != selectedCustCode) {
+              // Display an error in an alert dialog
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Error'),
+                    content: Text('Customer Code/ Company Name does not match the previous selection'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => BalanaceSheet()));
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              setState(() {
+                custCode.clear();
+                custName.clear();
+                invoiceNo.clear();
+                grandTotal.clear();
+              });
+
+              return;
+            }
+
+            // Set the selected custCode for future comparison
+            selectedCustCode = row["custCode"];
+
+            setState(() {
+              if (invoiceNo.text.isEmpty) {
+                custCode.clear();
+                custName.clear();
+              }
+            });
+            for (int j = 0; j < 6; j++) {
+              TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
+              rowControllers.add(controller);
+            }
+            controllers.add(rowControllers);
+          }
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+        setState(() {
+          selectedCustCode = '';
+        });
+      }
+    } catch (error) {
+      print('Error: $error');
+      setState(() {
+        selectedCustCode = '';
+      });
+    }
+  }
+
 
   void calculate(){
     for (int i = 0; i < controllers.length; i++){
@@ -610,7 +728,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                             child: Wrap(
                               children: [
                                 SizedBox(
-                                  width:250,
+                                  width:300,
                                   child: Container(
                                     child: Column(
                                       children: [
@@ -626,7 +744,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                               SingleChildScrollView(
                                                 scrollDirection: Axis.horizontal,
 
-                                                child: SizedBox(width: 250,
+                                                child: SizedBox(width: 300,
                                                   child: TypeAheadFormField<String>(
                                                     textFieldConfiguration: TextFieldConfiguration(
                                                       controller: invoiceNo,
@@ -693,7 +811,11 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                                         title: Text(suggestion),
                                                       );
                                                     },
+
+
                                                     onSuggestionSelected: (suggestion) async {
+                                                      // Find the corresponding custCode for the selected invoice
+
                                                       if (!selectedInvoiceNo.contains(suggestion)) {
                                                         setState(() {
 
@@ -704,6 +826,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                                           );
                                                         });
                                                       }
+
                                                       print('Selected Order Numbers: $selectedOrderNumbers');
                                                     },
                                                   ),
@@ -765,6 +888,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                       width: 220,height: 70,
                                       child: TextFormField(
                                         controller: custCode,
+                                        readOnly: true,
                                         style: TextStyle(fontSize: 13),
                                         onChanged: (value) {
                                           setState(() {
@@ -788,6 +912,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                       width: 220,height: 70,
                                       child: TextFormField(
                                         controller: custName,
+                                        readOnly: true,
                                         style: TextStyle(fontSize: 13),
                                         onChanged: (value) {
                                           balance.clear();
@@ -818,6 +943,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                       width: 220,height: 70,
                                       child: TextFormField(
                                         controller: chequeno,
+
                                         style: TextStyle(fontSize: 13),
                                         onChanged: (value) {
                                           setState(() {
@@ -825,7 +951,8 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                           });
                                         },
                                         inputFormatters: [
-                                          UpperCaseTextFormatter(),
+                                         // UpperCaseTextFormatter(),
+                                          FilteringTextInputFormatter.digitsOnly, // Allow only numeric input
                                           LengthLimitingTextInputFormatter(6)
                                         ],
                                         decoration: InputDecoration(
@@ -837,7 +964,36 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                           ),
                                         ),
                                       ),
-                                    ), /// Ceque Number
+                                    ),/// Ceque Number
+                                    SizedBox(
+                                      width: 220,height: 70,
+                                      child: TextFormField(
+                                        controller: bankName,
+                                        style: TextStyle(fontSize: 13),
+                                        onChanged: (value) {
+                                          String capitalizedValue = capitalizeFirstLetter(value);
+                                          bankName.value = bankName.value.copyWith(
+                                            text: capitalizedValue,
+                                            selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                          );
+                                          setState(() {
+                                            errorMessage = null; // Reset error message when user types
+                                          });
+                                        },
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')), // Allow only alphabetic characters
+                                        ],
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: "Name of Bank",
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                    ), /// Bank name
+/*
                                     SizedBox(
                                       width: 220,
                                       height: 70,
@@ -863,9 +1019,10 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         ),
                                       ),
                                     ),  /// Invoice Amount
+*/
                                   ],
                                 ),
-                              ),
+                              ),  /// Invoice Amount
                               SizedBox(
                                 height: 20,
                               ),
@@ -926,8 +1083,35 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         ],
                                       ),
 
-                                    ),   /// Cheque Amount
+                                    ),/// Cheque Amount
 
+                                    SizedBox(
+                                      width: 220,
+                                      height: 70,
+                                      child: TextFormField(
+                                        readOnly: true,
+                                        controller: grandTotal,
+                                        style: TextStyle(fontSize: 13),
+                                        onChanged: (value) {
+
+                                          setState(() {
+                                            grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                          });
+
+                                          // The onChanged callback is not needed for a readOnly field
+                                        },
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: "Invoice Amount",
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                    ),  /// Invoice Amount
+
+/*
                                     SizedBox(
                                       width: 220,height: 70,
                                       child: TextFormField(
@@ -953,6 +1137,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         ),
                                       ),
                                     ),  /// BankName
+*/
 
                                     SizedBox(
                                       width: 220,height: 38,
@@ -998,37 +1183,38 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                           FocusScope.of(context).requestFocus(focusOrder[2]);
                                         },
                                         onChanged: (value) {
-
                                           setState(() {
-                                            dedamt = deductionAmt.text.isNotEmpty ? double.parse
-                                              (deductionAmt.text) / controllers.length : null;
-
+                                            dedamt = deductionAmt.text.isNotEmpty ? double.parse(deductionAmt.text) / controllers.length : null;
                                             print("amt value : $dedamt");
-                                            for (int i = 0; i < controllers.length; i++){
-                                              controllers[i][3].text =dedamt!.toStringAsFixed(2);
-
+                                            for (int i = 0; i < controllers.length; i++) {
+                                              controllers[i][3].text = dedamt!.toStringAsFixed(2);
                                             }
-
-
-
                                           });
 
-
-                                          for (int i = 0; i < controllers.length; i++){
+                                          for (int i = 0; i < controllers.length; i++) {
                                             double invoiceAmont = double.tryParse(controllers[i][1].text) ?? 0.0;
                                             double receivedAmount = invoiceAmont - dedamt!;
                                             controllers[i][4].text = receivedAmount.toStringAsFixed(2);
                                             print(controllers[i][4].text);
                                           }
 
-
-                                          // updateReceivedAmt();
+                                          // Update receivedAmt based on the deductionAmt and chequeAmt
                                           setState(() {
                                             double chequeAmtValue = double.tryParse(chequeAmt.text) ?? 0.0;
                                             double deductionAmtValue = double.tryParse(deductionAmt.text) ?? 0.0;
+
+                                            // Check if deductionAmt is greater than or equal to chequeAmt
+                                            if (deductionAmtValue >= chequeAmtValue) {
+                                              errorMessage = 'Deduction Amount should be less than Cheque Amount';
+                                              // Clear deductionAmt field
+                                              deductionAmt.text = '';
+                                              return;
+                                            } else {
+                                              errorMessage = null; // Reset error message when user types
+                                            }
+
                                             double receivedamt = chequeAmtValue - deductionAmtValue;
                                             receivedAmt.text = receivedamt.toStringAsFixed(2);
-                                            errorMessage = null; // Reset error message when user types
                                           });
                                         },
                                         controller: deductionAmt,
@@ -1047,6 +1233,65 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         ],
                                       ),
                                     ), ///deductionAmt
+
+/*
+                                    SizedBox(
+                                      width: 220,
+                                      child: TextFormField(
+                                        onEditingComplete: () {
+                                          // Move focus to the next controller in the order
+                                          FocusScope.of(context).requestFocus(focusOrder[2]);
+                                        },
+                                        onChanged: (value) {
+                                          setState(() {
+                                            dedamt = deductionAmt.text.isNotEmpty ? double.parse(deductionAmt.text) / controllers.length : null;
+                                            print("amt value : $dedamt");
+                                            for (int i = 0; i < controllers.length; i++) {
+                                              controllers[i][3].text = dedamt!.toStringAsFixed(2);
+                                            }
+                                          });
+
+                                          for (int i = 0; i < controllers.length; i++) {
+                                            double invoiceAmont = double.tryParse(controllers[i][1].text) ?? 0.0;
+                                            double receivedAmount = invoiceAmont - dedamt!;
+                                            controllers[i][4].text = receivedAmount.toStringAsFixed(2);
+                                            print(controllers[i][4].text);
+                                          }
+
+                                          // Update receivedAmt based on the deductionAmt and chequeAmt
+                                          setState(() {
+                                            double chequeAmtValue = double.tryParse(chequeAmt.text) ?? 0.0;
+                                            double deductionAmtValue = double.tryParse(deductionAmt.text) ?? 0.0;
+
+                                            // Check if deductionAmt is greater than or equal to chequeAmt
+                                            if (deductionAmtValue >= chequeAmtValue) {
+                                              errorMessage = 'Deduction Amount should be less than Cheque Amount';
+                                              return;
+                                            } else {
+                                              errorMessage = null; // Reset error message when user types
+                                            }
+
+                                            double receivedamt = chequeAmtValue - deductionAmtValue;
+                                            receivedAmt.text = receivedamt.toStringAsFixed(2);
+                                          });
+                                        },
+                                        controller: deductionAmt,
+                                        style: TextStyle(fontSize: 13),
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: "Deduction Amount",
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        keyboardType: TextInputType.number, // Use TextInputType.number for numeric keyboard
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(RegExp(r'^[0-9!@#\$%^&*(),.?":{}|<>]*$')),
+                                        ],
+                                      ),
+                                    ), ///deductionAmt working per error message
+*/
 
 
                                   ],
@@ -1196,6 +1441,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                 ),
                               ),
                             ),
+/*
                             TableCell(
                               child: Center(
                                 child: Column(
@@ -1207,6 +1453,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                 ),
                               ),
                             ),
+*/
                           ],
                         ),
 
@@ -1236,6 +1483,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                       ),
                                     ),
                                   ),
+/*
                                 TableCell(
                                   verticalAlignment: TableCellVerticalAlignment.middle,
                                   child: Padding(
@@ -1251,6 +1499,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                     ),
                                   ),
                                 ),
+*/
 
 
 

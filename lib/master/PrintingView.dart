@@ -281,6 +281,13 @@ class _PrintingViewState extends State<PrintingView> {
       "shiftType": dropdownvalue.toString(),
       "fromDate":fromDate.toString(),
       "toDate":toDate.toString(),
+      "AltEmp":"Yes",
+
+
+
+
+
+
 
     };
     /* insertFutures.add(insertDataSup(dataToInsertSup));
@@ -619,7 +626,7 @@ class _PrintingViewState extends State<PrintingView> {
                                                     suggestionsCallback: (pattern) async {
                                                       if (selectedNames.isNotEmpty) {
                                                         List<String> suggestions = persondata
-                                                            .where((item) => item['alterEmpID'] != null) // Filter out null alterEmpID
+                                                            .where((item) => item['alterEmpID'] != null) /// Filter out null alterEmpID
                                                             .map<String>((item) => '${item['alterEmp']} (${item['alterEmpID']})')
                                                             .toSet()
                                                             .toList();

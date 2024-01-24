@@ -274,6 +274,8 @@ class _FinishingViewState extends State<FinishingView> {
       "shiftType": dropdownvalue.toString(),
       "fromDate":fromDate.toString(),
       "toDate":toDate.toString(),
+      "AltEmp":"Yes",
+
 
     };
     /*insertFutures.add(insertDataSup(dataToInsertSup));

@@ -267,7 +267,6 @@ class _WindingViewState extends State<WindingView> {
     }
   }
   Future<void> supDataToDatabase() async {
-    List<Future<void>> insertFutures = [];
     Map<String, dynamic> dataToInsertSup = {
       'createdate':date.toString(),
       'shiftdate':eod.toString(),
@@ -282,6 +281,7 @@ class _WindingViewState extends State<WindingView> {
       "fromDate":fromDate.toString(),
       "toDate":toDate.toString(),
       "status": "Without Printing",
+      "AltEmp":"Yes",
 
     };
     /* insertFutures.add(insertDataSup(dataToInsertSup));
@@ -455,7 +455,7 @@ class _WindingViewState extends State<WindingView> {
                                                         DateTime currentDate = DateTime.now();
                                                         showDatePicker(
                                                           context: context,
-                                                          initialDate: null!,
+                                                          initialDate: fromDate,
                                                           firstDate:currentDate,
                                                           lastDate: currentDate.add(Duration(days: 6)),
 
@@ -609,6 +609,7 @@ class _WindingViewState extends State<WindingView> {
                                                     suggestionsCallback: (pattern) async {
                                                       if (selectedNames.isNotEmpty) {
                                                         List<String> suggestions = persondata
+                                                            .where((item) => item['alterEmpID'] != null) /// Filter out null alterEmpID
                                                             .map<String>((item) => '${item['alterEmp']} (${item['alterEmpID']})')
                                                             .toSet()
                                                             .toList();
@@ -733,6 +734,7 @@ class _WindingViewState extends State<WindingView> {
                                                     suggestionsCallback: (pattern) async {
                                                       if (selectedNames.isNotEmpty) {
                                                         List<String> suggestions = persondata
+                                                            .where((item) => item['alterEmpID'] != null)
                                                             .map<String>((item) => '${item['alterEmp']} (${item['alterEmpID']})')
                                                             .toSet()
                                                             .toList();
@@ -747,8 +749,8 @@ class _WindingViewState extends State<WindingView> {
                                                           .where((item) =>
                                                       (item['alterEmp']?.toString()?.toLowerCase() ?? '')
                                                           .startsWith(pattern.toLowerCase()) &&
-                                                          item['alterEmpID']?.toString()?.toLowerCase() != null?.toLowerCase() &&
-                                                          item['alterEmpID']?.toString()?.toLowerCase() != null?.toLowerCase())
+                                                          item['alterEmpID']?.toString()?.toLowerCase() != null &&
+                                                          item['alterEmpID']?.toString()?.toLowerCase() != null)
                                                           .map<String>((item) => '${item['alterEmp']} (${item['alterEmpID']})')
                                                           .toSet()
                                                           .toList();
@@ -856,6 +858,7 @@ class _WindingViewState extends State<WindingView> {
                                                     suggestionsCallback: (pattern) async {
                                                       if (selectedNames.isNotEmpty) {
                                                         List<String> suggestions = persondata
+                                                            .where((item) => item['alterEmpID'] != null)
                                                             .map<String>((item) => '${item['alterEmp']} (${item['alterEmpID']})')
                                                             .toSet()
                                                             .toList();
@@ -870,8 +873,8 @@ class _WindingViewState extends State<WindingView> {
                                                           .where((item) =>
                                                       (item['alterEmp']?.toString()?.toLowerCase() ?? '')
                                                           .startsWith(pattern.toLowerCase()) &&
-                                                          item['alterEmpID']?.toString()?.toLowerCase() != null?.toLowerCase() &&
-                                                          item['alterEmpID']?.toString()?.toLowerCase() != null?.toLowerCase())
+                                                          item['alterEmpID']?.toString()?.toLowerCase() != null &&
+                                                          item['alterEmpID']?.toString()?.toLowerCase() != null)
                                                           .map<String>((item) => '${item['alterEmp']} (${item['alterEmpID']})')
                                                           .toSet()
                                                           .toList();
@@ -965,15 +968,15 @@ class _WindingViewState extends State<WindingView> {
                                   });
                                 } else if (op1.text.isEmpty) {
                                   setState(() {
-                                    errorMessage = '* Enter a Person 1';
+                                    errorMessage = '* Enter a Operator';
                                   });
                                 } else if (ass1.text.isEmpty) {
                                   setState(() {
-                                    errorMessage = '* Enter a Person 2';
+                                    errorMessage = '* Enter a Assistant 1';
                                   });
                                 } else if (ass2.text.isEmpty) {
                                   setState(() {
-                                    errorMessage = '* Enter a Person 3';
+                                    errorMessage = '* Enter a Assistant 2';
                                   });
                                 }
                                 else if(emp_code3.text.isEmpty){

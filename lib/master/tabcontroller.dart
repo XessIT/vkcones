@@ -2595,7 +2595,7 @@ class _PrintingEntryState extends State<PrintingEntry> {
                                                         ),
                                                       ),
                                                     )
-                                                ),
+                                                ),   /// from date
                                                 SizedBox(width: 50),
                                                 SizedBox(
                                                   width: 200,
@@ -2624,7 +2624,7 @@ class _PrintingEntryState extends State<PrintingEntry> {
                                                       });
                                                     },
 */
-                                                    controller: TextEditingController(text: toDate.toString().split(' ')[0]),
+                                                    controller: TextEditingController(text: DateFormat('dd-MM-yyyy').format(toDate)),
                                                     decoration: InputDecoration(
                                                       filled: true,
                                                       fillColor: Colors.white,
@@ -2634,7 +2634,7 @@ class _PrintingEntryState extends State<PrintingEntry> {
                                                       ),
                                                     ),
                                                   ),
-                                                ),
+                                                ),  /// TO date
                                                 SizedBox(width: 50),
                                                 SizedBox(
                                                   width: 200, height:38 ,
