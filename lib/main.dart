@@ -31,9 +31,6 @@ import 'package:vinayaga_project/purchase/purchase_order_report.dart';
 //import 'package:vinayaga_project/purchase_report.dart';
 import 'package:vinayaga_project/purchase/purchase_return.dart';
 import 'package:vinayaga_project/purchase/purchase_return_report.dart';
-import 'package:vinayaga_project/report/Attendance/Attendance.dart';
-import 'package:vinayaga_project/report/Attendance/Attendance_report.dart';
-import 'package:vinayaga_project/report/Attendance/salary.dart';
 import 'package:vinayaga_project/report/Other_Worker_Report.dart';
 import 'package:vinayaga_project/report/balance_sheet_report.dart';
 import 'package:vinayaga_project/report/customer_report.dart';
@@ -60,7 +57,6 @@ import 'package:vinayaga_project/report/winding_report.dart';
 import 'package:vinayaga_project/sale/dc.dart';
 import 'package:vinayaga_project/sale/dc_report.dart';
 import 'package:vinayaga_project/sale/entry_sales.dart';
-import 'package:vinayaga_project/sale/hand_bill_dc_report.dart';
 import 'package:vinayaga_project/sale/non_order_sale_entry.dart';
 import 'package:vinayaga_project/sale/order_report.dart';
 import 'package:vinayaga_project/sale/pending_report.dart';
@@ -69,17 +65,18 @@ import 'package:vinayaga_project/sale/quation/quotation_report%20(1).dart';
 import 'package:vinayaga_project/sale/sales_order_entry.dart';
 import 'package:vinayaga_project/sale/sales_report.dart';
 import 'package:vinayaga_project/sale/sales_return/sales_return.dart';
-import 'package:vinayaga_project/sale/sample_dc.dart';
 import 'package:vinayaga_project/settings/colour_entry.dart';
 import 'package:vinayaga_project/settings/settings_entry.dart';
 import 'package:vinayaga_project/settings/transport_entry.dart';
 //import 'package:vinayaga_project/settings/unit_entry.dart';
 
+import 'Attendance/Attendance.dart';
+import 'Attendance/Attendance_report.dart';
+import 'Attendance/salary.dart';
 import 'home.dart';
 import 'master/Worker Entry.dart';
 import 'master/employee_id_creation.dart';
 import 'master/itemgroup.dart';
-import 'master/raw_metirial_entry.dart';
 import 'master/tabcontroller.dart';
 import 'master/with_printing.dart';
 import 'non_order_sales_report.dart';
@@ -126,11 +123,17 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'Vinayaga Cones',
       initialRoute: 'loginpage',
-      routes: {'loginpage':(context)=> LoginPAge()},
+      // routes: {'loginpage':(context)=> LoginPAge()},
       theme: ThemeData (
+        primaryColor: Colors.indigo,
+        hintColor: Colors.indigoAccent,
+        fontFamily: GoogleFonts.poppins().fontFamily,
         textTheme: const TextTheme(
           displayLarge: TextStyle(
-              fontSize: 20.0, color: Colors.black, fontWeight: FontWeight.bold),
+              fontSize: 20.0,
+              color: Colors.black,
+              fontWeight: FontWeight.bold
+          ),
           displayMedium: TextStyle(
             fontSize: 18.0,
             color: Colors.black,
@@ -144,7 +147,7 @@ class _MyAppState extends State<MyApp> {
           bodyMedium: TextStyle(fontSize: 13.0, color: Colors.black),
         ),
 
-    /// input size
+        /// input size
         inputDecorationTheme: const InputDecorationTheme(
           isCollapsed: false,
           isDense: true,
@@ -159,29 +162,23 @@ class _MyAppState extends State<MyApp> {
           labelStyle: TextStyle(color: Colors.black),
         ),
 
-
         outlinedButtonTheme: OutlinedButtonThemeData(
-            style: OutlinedButton.styleFrom(
-                elevation: 4,
-                shadowColor: Colors.orange,
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.red,
-                // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)  ),
-                padding:
-                const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                textStyle: const TextStyle(fontSize: 15))),
+          style: OutlinedButton.styleFrom(
+            primary: Colors.white,
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+            textStyle: const TextStyle(fontSize: 15),
+          ),
+        ),
 
         elevatedButtonTheme: ElevatedButtonThemeData(
-            style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.green.shade800,
-                elevation: 4,
-                shadowColor: Colors.pink,
-                // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)  ),
-                padding:
-                const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                textStyle: const TextStyle(fontSize: 15))),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.green.shade800,
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+            textStyle: const TextStyle(fontSize: 15),
+          ),
         ),
+      ),
 
       onGenerateRoute: (settings) {
         final page = _getPageWidget(settings);
@@ -212,13 +209,13 @@ class _MyAppState extends State<MyApp> {
         return const Purchase();
       case '/itempages':
         return ItemGroupPage();
-       // case 'itempages'://itempages
-       //   return "itempages";
+    // case 'itempages'://itempages
+    //   return "itempages";
       case 'entry_sales':
         return const EntrySales();
       case 'non_order_entry_sales':
         return const NonrderSaleEntry();
-        case 'empID_creation':
+      case 'empID_creation':
         return const EmpIDCreation();
       case 'dc':
         return const Dc();
@@ -256,10 +253,10 @@ class _MyAppState extends State<MyApp> {
         return const MachineEntry();
       case 'finger_print_entry':
         return FingerPrint();
-      // case 'winding_entry':
-      //   return WindingEntry();
-      // case 'finishing_entry':
-      //   return FinishingEntry();
+    // case 'winding_entry':
+    //   return WindingEntry();
+    // case 'finishing_entry':
+    //   return FinishingEntry();
       case 'production_entry':
         return const ProductionEntry();
       case 'colour_entry':
@@ -282,11 +279,11 @@ class _MyAppState extends State<MyApp> {
         return const SalesOrderEntry();
       case 'daily_work_status':
         return const DailyWorkStatus();
-      // case '/check_itempages':
-      //   return CheckItemGroupPage();
+    // case '/check_itempages':
+    //   return CheckItemGroupPage();
       case 'fb_device_report':
         return const FPDeviceReport();
-        case 'sales_return_reportss':
+      case 'sales_return_reportss':
         return const SalesReturnsReports();
       case 'damage_stock'://itempages
         return const DamageStockEntries();
@@ -340,22 +337,16 @@ class _MyAppState extends State<MyApp> {
         return const WorkerEntry();
       case 'printwith':
         return const WithPrinting();
-        case 'printing_report':
+      case 'printing_report':
         return const PrintingReport();
       case '/DWSreport':
         return const DailyWorkStatusReport();
-        case '/daily_work_status':
+      case '/daily_work_status':
         return const DailyWorkStatus();
-        case 'non_sales_report':
+      case 'non_sales_report':
         return const NonOrderSalesReport();
       case 'winding_printing_production_report':
         return const Winding_printing_production();
-        case 'raw_material_entry':
-        return const Raw_material();
-      case 'sampledc':
-        return const SampleDC();
-      case 'hand_delivery_challan_report':
-        return const HandbilldcReport();
     }
     return null;
   }
@@ -412,7 +403,7 @@ class MyScaffold extends StatelessWidget {
           title: 'Non Order Sales Entry',
           route: "non_order_entry_sales",
         ),
-       /*AdminMenuItem(
+        /*AdminMenuItem(
           title: 'Non Order Sales Entry',
           route: "non_order_entry_sales",
         ),*//* AdminMenuItem(
@@ -420,12 +411,8 @@ class MyScaffold extends StatelessWidget {
           route: "old_entry_sales",
         ),*/
         AdminMenuItem(
-          title: 'Delivery Challan',
+          title: 'Delivery Challan Entry',
           route: 'dc',
-        ),
-        AdminMenuItem(
-          title: 'Hand Bill DC',
-          route: 'sampledc',
         ),
 
         AdminMenuItem(
@@ -443,10 +430,22 @@ class MyScaffold extends StatelessWidget {
       route: '/master',
       icon: Icons.ac_unit_rounded,
       children: [
-       AdminMenuItem(
+        /* AdminMenuItem(
+          title: 'For Check Item Creation',
+          route: '/check_itempages',
+        ),*/
+        // AdminMenuItem(
+        //   title: 'Employee ID creation',
+        //   route: 'empID_creation',
+        // ),
+        AdminMenuItem(
           title: 'Employee',
           route: 'employee_profile_update',
         ),
+        // AdminMenuItem(
+        //   title: 'BioMetric',
+        //   route: 'finger_print_device_entry',
+        // ),
         AdminMenuItem(
           title: 'Attendance',
           route: 'attendance_entry',
@@ -467,10 +466,18 @@ class MyScaffold extends StatelessWidget {
           title: 'Worker',
           route: 'worker_entry',
         ),
-        AdminMenuItem(
-          title: 'Raw_Material',
-          route: 'raw_material_entry',
+        /* AdminMenuItem(
+          title: 'Winding Entry',
+          route: 'winding_entry',
         ),
+        AdminMenuItem(
+          title: 'Finishing Entry',
+          route: 'finishing_entry',
+        ),*/
+        // AdminMenuItem(
+        //   title: 'Production',
+        //   route: 'production_entry',
+        // ),
         AdminMenuItem(
           title: 'Salary Calculation',
           route: 'salary_payment_entry',
@@ -527,10 +534,6 @@ class MyScaffold extends StatelessWidget {
         AdminMenuItem(
           title: 'Delivery Challan',
           route: 'delivery_challan_report',
-        ),
-        AdminMenuItem(
-          title: 'Hand Bill DC',
-          route: 'hand_delivery_challan_report',
         ),
         AdminMenuItem(
           title: 'Balance Sheet',
@@ -669,24 +672,27 @@ class MyScaffold extends StatelessWidget {
       appBar: AppBar(title:  Text(
         "Vinayaga Cones",
         style: GoogleFonts.marhey(
-            fontSize: 25,
-            color: Colors.black
+          fontSize: 25,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
       ) ,centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: Theme.of(context).primaryColor,
+        elevation: 2,
         iconTheme:  const IconThemeData(color: Colors.white),),
 
 
       sideBar: SideBar(
         width: 250,
-        backgroundColor: Colors.blue,
-        activeBackgroundColor: Colors.blue,
-        borderColor: Colors.blue,
-        iconColor: Colors.black,
-        activeIconColor: Colors.black,
+        backgroundColor: Theme.of(context).primaryColor, // Change sidebar background color
+        activeBackgroundColor: Theme.of(context).colorScheme.secondary,
+        borderColor: Theme.of(context).primaryColor,
+        iconColor: Colors.white,
+        activeIconColor: Colors.white,
         textStyle: const TextStyle(
-            color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold
-          //   fontWeight: FontWeight.bold
+          color: Colors.white,
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
         ),
         activeTextStyle: const TextStyle(
             color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold
@@ -700,7 +706,7 @@ class MyScaffold extends StatelessWidget {
         header: Container(
           height: 130,
           width: double.infinity,
-          color: Colors.blue,
+          color: Colors.indigo,
           // decoration: BoxDecoration(
           //     gradient: LinearGradient(
           //         colors:[Colors.blueAccent,Colors.blueAccent,Colors.blueAccent]

@@ -191,13 +191,12 @@ class _PurchaseState extends State<Purchase> {
       isRowFilled.removeAt(rowIndex);
       setState(() {
         grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-
-        // Update remaining rows without changing their quantities
-        for (int i = rowIndex; i < controllers.length; i++) {
-          int fetchedIndex = i + 1; // Adjust for the removed row
+        for (int i = rowIndex; i < controllers.length; i++)
+        {
+          int fetchedIndex = i + 1;
           controllers[i][10].text = fetchedQuantities[fetchedIndex].toString();
           fetchedQuantities[i] = fetchedQuantities[fetchedIndex]!;
-          rowData[i]['unit'] = controllers[i][2].text; // Ensure rowData unit is correct
+          rowData[i]['prodName'] = controllers[i][1].text;
         }
       });
     } else {
@@ -207,7 +206,6 @@ class _PurchaseState extends State<Purchase> {
 
   int? rowslenth=0;
   int? rowslenth2=0;
-
 /*
   void removeRow(int index) {
     setState(() {
@@ -1269,6 +1267,9 @@ class _PurchaseState extends State<Purchase> {
                                                       .map((item) => item['poNo'].toString())
                                                       .toSet() // Remove duplicates using a Set
                                                       .toList();
+                                                  suggestions.removeWhere((existingInvoiceNo) =>
+                                                  isMachineNameExists(existingInvoiceNo) &&
+                                                      existingInvoiceNo != poNUMber.text);
                                                   suggestions = suggestions.take(5).toList();
                                                 } else {
                                                   suggestions = [];
@@ -1334,6 +1335,9 @@ class _PurchaseState extends State<Purchase> {
                                                       .map((item) => item['pendingOrderNo'].toString())
                                                       .toSet() // Remove duplicates using a Set
                                                       .toList();
+                                                  suggestions.removeWhere((existingInvoiceNo) =>
+                                                  isMachineNameExists(existingInvoiceNo) &&
+                                                      existingInvoiceNo != pendingPoNUMber.text);
                                                   suggestions = suggestions.take(5).toList();
                                                 } else {
                                                   suggestions = [];
@@ -1660,11 +1664,12 @@ class _PurchaseState extends State<Purchase> {
                                             4: FixedColumnWidth(100),
                                             5: FixedColumnWidth(100),
                                             6: FixedColumnWidth(100),
-                                            7: FixedColumnWidth(128),
+                                            7: FixedColumnWidth(80),
                                             8: FixedColumnWidth(115),
                                             9: FixedColumnWidth(115),
                                             10: FixedColumnWidth(0),
                                             11: FixedColumnWidth(0),
+                                            12: FixedColumnWidth(60),
 
                                           },
                                           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -1888,7 +1893,7 @@ class _PurchaseState extends State<Purchase> {
                                                               ),
 
                                                               textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                              enabled: j == 5 || rowData[i]['prodName'].startsWith('GSM')|| j == 3 || j == 7 ,
+                                                              enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
                                                               onChanged: (value) async {
                                                                 final int rowIndex = i;
                                                                 final int colIndex = j;
@@ -1926,7 +1931,7 @@ class _PurchaseState extends State<Purchase> {
 
 
 
-                                                                  if (rowData[i]['prodName'].startsWith('GSM')){
+                                                                  if( !rowData[i]['prodName'].startsWith('GSM')){
                                                                     if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
                                                                       double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
                                                                       double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
@@ -1939,7 +1944,7 @@ class _PurchaseState extends State<Purchase> {
                                                                       if (quantity > fetchedQuantities[rowIndex]!) {
                                                                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                                                           content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: Duration(seconds: 2),
+                                                                          duration: const Duration(seconds: 2),
                                                                         ));
 
                                                                         setState(() {
@@ -2014,10 +2019,7 @@ class _PurchaseState extends State<Purchase> {
                                                                       controllers[rowIndex][11].text = pending.toString();
                                                                       grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
                                                                     }
-
-
                                                                   }
-
                                                                 });
                                                                 setState(() {
                                                                   fetchingQTY = int.parse(controllers[rowIndex][10].text);
@@ -2051,7 +2053,7 @@ class _PurchaseState extends State<Purchase> {
                                                               ),
 
                                                               textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                              enabled:  j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 3 || j == 6 ,
+                                                              enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
                                                               onChanged: (value) async {
                                                                 final int rowIndex = i;
                                                                 final int colIndex = j;
@@ -2089,7 +2091,7 @@ class _PurchaseState extends State<Purchase> {
                                                                   errorMessage = '';
 
 
-                                                                  if (rowData[i]['prodName'].startsWith('GSM')){
+                                                                  if(!rowData[i]['prodName'].startsWith('GSM')){
                                                                     if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
                                                                       double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
                                                                       double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
@@ -2216,7 +2218,7 @@ class _PurchaseState extends State<Purchase> {
                                                             ),
 
                                                             textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                            enabled:  j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 3 || j == 7 ,
+                                                            enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
                                                             onChanged: (value) async {
                                                               final int rowIndex = i;
                                                               final int colIndex = j;
@@ -2254,7 +2256,7 @@ class _PurchaseState extends State<Purchase> {
                                                                 errorMessage = '';
 
 
-                                                                if (!rowData[i]['prodName'].startsWith('GSM')) {
+                                                                if( !rowData[i]['prodName'].startsWith('GSM')){
                                                                   if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
                                                                     double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
                                                                     double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;

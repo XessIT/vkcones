@@ -178,36 +178,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
   List<Map<String, dynamic>> data3 = [];
   List<Map<String, dynamic>> filteredData3 = [];
 
-  Future<void> fetchPono() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:3309/get_invoice_data'));
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonData = jsonDecode(response.body);
-        setState(() {
-          data3 = jsonData.cast<Map<String, dynamic>>();
-        });
-      } else {
-      }
-    } catch (error) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('An error occurred: $error'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
   void filterPoNo(String query) {
     setState(() {
       if (query.isNotEmpty) {
@@ -418,7 +388,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
     reNoFetch();
     // fetchDataByInvoiceNumber(invoiceNo.text);
     setState(() {
-      fetchPono();
       filterPoNo(invoiceNo.text);
     });
   }
@@ -734,7 +703,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: SizedBox(
-                    height: 160,
+                    height: 180,
                     child: Container(
                       width: double.infinity, // Set the width to full page width
                       padding: EdgeInsets.all(16.0), // Add padding for spacing
@@ -837,6 +806,9 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                             .map((item) => item['invoiceNo'].toString())
                                             .toSet() // Remove duplicates using a Set
                                             .toList();
+                                        suggestions.removeWhere((existingInvoiceNo) =>
+                                        isMachineNameExists(existingInvoiceNo) &&
+                                            existingInvoiceNo != invoiceNo.text);
                                       } else {
                                         suggestions = [];
                                       }
@@ -849,7 +821,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                     },
                                     onSuggestionSelected: (suggestion) {
                                       setState(() {
-                                        if (isMachineNameExists(suggestion)) {
+                                        if (isMachineNameExists(invoiceNo.text)) {
                                           errorMessage = '* Invoice Number already exists';
                                         } else {
                                           errorMessage = null;
@@ -1103,9 +1075,9 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                         3: FixedColumnWidth(100),
                                         4: FixedColumnWidth(100),
                                         5: FixedColumnWidth(100),
-                                        6: FixedColumnWidth(100), 7: FixedColumnWidth(120),
+                                        6: FixedColumnWidth(100), 7: FixedColumnWidth(80),
                                         8: FixedColumnWidth(120),9: FixedColumnWidth(120),
-                                        10: FixedColumnWidth(120)
+                                        10: FixedColumnWidth(120),11: FixedColumnWidth(60),
 
                                       },
                                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -1350,7 +1322,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                     )
                                                         :  TextFormField(
                                                       style: TextStyle(fontSize: 13,
-                                                        color: (j == 0 || j == 1 || j == 2 || j == 3 ||rowData[i]['unit'] == 'Kg' || j == 5 || j == 6 || j == 7||j==8) ? Colors.black : Colors.grey, // Set the text color
+                                                        color: (j == 0 || j == 1 || j == 2 || j == 3 ||rowData[i]['prodName'].startsWith('GSM') || j == 5 || j == 6 || j == 7||j==8) ? Colors.black : Colors.grey, // Set the text color
                                                       ),
 
                                                       controller: controllers[i][j],
@@ -1358,12 +1330,12 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                         UpperCaseTextFormatter(),
                                                         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
                                                       ],
-                                                      decoration: InputDecoration(
+                                                      decoration: const InputDecoration(
                                                         filled: true,
                                                         fillColor: Colors.white,
                                                       ),
                                                       textAlign: j >= 5 && j <= 8 ? TextAlign.right : TextAlign.left,
-                                                      enabled: j == 3 || j == 9 || rowData[i]['unit'] == 'Kg',
+                                                      enabled: (j == 3 || j == 9 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 9))),
                                                       onChanged: (value) {
                                                         final int rowIndex = i;
                                                         final int colIndex = j;
