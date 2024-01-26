@@ -673,6 +673,10 @@ class _PurchaseorderState extends State<Purchaseorder> {
     getitemname();
     ordernumfetch();
     filterCodeData(custName.text);
+    saleorderdate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_custNameFocusNode);
+    });
   }
 
   void showOrderNumberExistsDialog() {
@@ -1031,6 +1035,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
     }
   }
 
+  final FocusNode _custNameFocusNode = FocusNode();
   bool isNewOrderEntered = false;
   @override
   Widget build(BuildContext context) {
@@ -1194,13 +1199,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                                 ),
                                               ),
                                             ),
-                                            /* Align(
-                                              alignment: Alignment.topLeft,
-                                              child: Text(
-                                                DateFormat('dd-MM-yyyy').format(selectedDate),
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),*/
                                             SizedBox(height: 3,),
                                             Divider(
                                               color: Colors.grey.shade600,
@@ -1354,6 +1352,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                   child: TypeAheadFormField<String>(
                                     textFieldConfiguration: TextFieldConfiguration(
                                       controller: custName,
+                                      focusNode: _custNameFocusNode,
                                       onChanged: (value) {
                                         String capitalizedValue = capitalizeFirstLetter(value);
                                         custName.value = custName.value.copyWith(
@@ -1361,6 +1360,16 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                           selection: TextSelection.collapsed(offset: capitalizedValue.length),
                                         );
                                         setState(() {
+                                           if (custName.text.isEmpty) {
+                                          setState(() {
+                                          errorMessage = '* Enter a Customer/Company Name';
+                                          });
+                                          }
+                                          else if (custName.text.length < 3) {
+                                          setState(() {
+                                          errorMessage = '* Customer/Company Name should have at least 3 letters';
+                                          });
+                                          }
                                           errorMessage = null; // Reset error message when user types
                                         });
                                       },
@@ -1419,6 +1428,16 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     style: TextStyle(fontSize: 13),
                                     onChanged: (value){
                                       setState(() {
+                                        if (custMobile.text.isEmpty) {
+                                           setState(() {
+                                          errorMessage = '* Enter a Customer Mobile';
+                                        });
+                                        }
+                                        else if (custMobile.text.length != 10) {
+                                          setState(() {
+                                           errorMessage = '* Mobile number should be 10 digits';
+                                          });
+                                        }
                                         errorMessage = null; // Reset error message when user types
                                       });
                                     },
@@ -1479,9 +1498,16 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     readOnly: readOnlyFields,
                                     controller: pincode,
                                     style: TextStyle(fontSize: 13),
-                                    onChanged: (value){
+                                    onChanged: (value) {
                                       setState(() {
-                                        errorMessage = null; // Reset error message when user types
+                                        errorMessage = null;
+                                        if (value.isEmpty) {
+                                          errorMessage = null;
+                                        }
+                                        if (pincode.text.length == 6) {
+                                        } else {
+                                          errorMessage = '* Enter a valid Pincode';
+                                        }
                                       });
                                     },
                                     decoration: InputDecoration(
@@ -1501,7 +1527,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     ],
                                   ),
                                 ),
-
                                 SizedBox(
                                   width: 220,height: 70,
                                   child: TextFormField(
@@ -1509,16 +1534,24 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     controller: GSTIN,
                                     style: TextStyle(fontSize: 13),
                                     inputFormatters: [
+                                      LengthLimitingTextInputFormatter(15),
                                       UpperCaseTextFormatter(), // Apply the formatter
                                     ],
                                     onChanged: (value){
-                                      if (!gstregex2.hasMatch(GSTIN.text)) {
                                         setState(() {
+                                          errorMessage = null;
+                                           if (value.isEmpty) {
+                                             setState(() {
+                                            errorMessage = '* Enter a GSTIN';
+                                           });
+                                           }
+                                          if (!gstregex2.hasMatch(GSTIN.text)) {
+                                          setState(() {
                                           errorMessage = '* Invalid GSTIN';
-                                          //  errorMessage = null;
+                                            });
+                                          }
                                         });
-                                        errorMessage = null;
-                                      }
+
                                       // setState(() {
                                       //   / Reset error message when user types
                                       // });
@@ -2257,7 +2290,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     errorMessage = '* Invalid GSTIN';
                                   });
                                 }
-                                else if (deliveryType == null) {
+                               /* else if (deliveryType == null) {
                                   setState(() {
                                     errorMessage = '* Select a DeliveryType';
                                   });
@@ -2266,7 +2299,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                   setState(() {
                                     errorMessage = '* Select a Expected Delivery Date';
                                   });
-                                }
+                                }*/
                                 else if (rowData[i].itemGroup == null || rowData[i].itemName == null || rowData[i].qtyController.text.isEmpty) {
                                   setState(() {
                                     errorMessage = '* Fill all fields in the table';

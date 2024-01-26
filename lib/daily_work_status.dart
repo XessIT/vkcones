@@ -61,8 +61,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
   DateTime date = DateTime.now();
   String? selectedmachinefinishing;
-
-
   Future<void> fetchData(String shiftType, String machName, DateTime desiredDate) async {
     final response = await http.get(
       Uri.parse('http://localhost:3309/fetch_daily_Work_status?shiftType=$shiftType&machName=$machName&desiredDate=$desiredDate'),
@@ -81,6 +79,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
           person3code.text = data[0]['winding_empcode2'] ?? '';
         } else {
           person1.text = data[0]['winding_asstwo'] ?? '';
+          //person1code.text = data[0]['winding_oPempcode1'] ?? '';
           person2code.text = data[0]['winding_oPempcode1'] ?? '';
           person3code.text = data[0]['winding_empcode1'] ?? '';
           person2.text = data[0]['winding_assOne'] ?? '';
@@ -945,16 +944,14 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                               showDatePicker(
                                                 context: context,
                                                 initialDate: eod,
-
                                                 firstDate: DateTime(2000),
                                                 // Set the range of selectable dates
-                                                lastDate: DateTime(2100),
+                                                lastDate: DateTime(2100) , //eod,
                                               ).then((date) {
                                                 if (date != null) {
                                                   setState(() {
                                                     eod = date; // Update the selected date
                                                     print("$eod: date");
-
                                                     shiftType=null;
                                                     deptType= null;
                                                     selectedmachinefinishing = null;
@@ -963,6 +960,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     kgofreels.clear();
                                                     reelsgsm.clear();
                                                     extraproductionamt.clear();
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
                                                   });
                                                 }
                                               });
@@ -1028,6 +1031,14 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 value: selectedCheckbox == 1,
                                                 onChanged: (bool? value) {
                                                   setState(() {
+                                                    shiftType=null;
+                                                    selectedmachinefinishing = null;
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
                                                     if (value != null && value) {
                                                       selectedCheckbox = 1;
                                                     } else {
@@ -1048,6 +1059,14 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 value: selectedCheckbox == 2,
                                                 onChanged: (bool? value) {
                                                   setState(() {
+                                                    shiftType=null;
+                                                    selectedmachinefinishing = null;
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
                                                     if (value != null && value) {
                                                       selectedCheckbox = 2;
                                                     } else {
@@ -1122,8 +1141,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   }
                                                   shiftType =null;
                                                   person1.clear();
+                                                  person1code.clear();
                                                   person2.clear();
+                                                  person2code.clear();
                                                   person3.clear();
+                                                  person3code.clear();
                                                   productionQuantityController.clear();
                                                   numofreels.clear();
                                                   kgofreels.clear();
@@ -1176,7 +1198,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     shiftType = newValue!;
                                                     //  errormsg =null;
                                                     showProductionQuantity();
-
                                                   });},),),),
                                         if(deptType =="Finishing"|| deptType == "Printing")
                                           SizedBox(
@@ -1210,6 +1231,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 }).toList(),
                                                 onChanged: (String? newValue) {
                                                   setState(() {
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
                                                     shiftType = newValue!;
                                                     //  errormsg =null;
                                                     showProductionQuantity();
@@ -1270,6 +1297,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                         onChanged: (value) {
                                           setState(() {
                                             if (value.isNotEmpty) {
+
                                               int productionQty = int.parse(value);
 
                                               // Check if the selected machine type is "Winding"
@@ -1296,11 +1324,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   : 0))
                                                   : 0;
 
+                                              errormsg = null;
                                               extraproductionamt.text = extraProductionAmount.toString();
                                             } else {
                                               // Reset visibility and clear the text if Production Qty is empty
                                               isExtraProductionVisible = false;
                                               extraproductionamt.text = '';
+                                              errormsg = null;
                                             }
                                           });
                                         },
@@ -1320,8 +1350,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                       ),
                                     ),
                                   ),
-
-
                                   Wrap(
                                     children: [
                                       Visibility(
@@ -1767,7 +1795,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     onChanged: (value) {
                                                       setState(() {
                                                         if(deptType=="Printing")
-
                                                           if(int.parse(Numofcones!) < int.parse(value)){
                                                             _formKey.currentState!.reset();
                                                             setState(() {
@@ -2110,7 +2137,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                               // Show an error message
                                                             }
                                                           }
+
+
+
                                                       )
+
                                                   ),
                                                 ),
                                               ),
@@ -2299,8 +2330,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           if (i > 0 &&
                                                               rowData[i].prodgsm == rowData[i - 1].prodgsm &&
                                                               rowData[i].itemGroup == rowData[i - 1].itemGroup &&
-                                                              rowData[i].itemName == rowData[i - 1].itemName)
-                                                          {
+                                                              rowData[i].itemName == rowData[i - 1].itemName) {
                                                             showDialog(
                                                               context: context,
                                                               builder: (BuildContext context) {
@@ -2320,7 +2350,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                             );
                                                           } else {
                                                             // Check if the quantity is 0
-                                                            if(deptType=="finishing")
                                                             if (rowData[i].numofproduction.text == '0' && rowData[i].totalqty.text == '0')
                                                             {
                                                               showDialog(
@@ -2340,8 +2369,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                                   );
                                                                 },
                                                               );
-                                                            }
-                                                            else {
+                                                            } else {
+                                                              // Quantity is not 0, add the row
                                                               addRow();
                                                               serialnumber++;
                                                               if (i ==  0) {
@@ -2394,8 +2423,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                               fromDate = date;
                               showProductionQuantity();
                               if (_formKey.currentState!.validate()) {
-
-                               if (deptType == null) {
+                                //  for (var i = 0; i < rowData.length; i++) {
+                                if (deptType == null) {
                                   setState(() {
                                     errormsg = "* Select a Machine Type";
                                   });
@@ -2407,6 +2436,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                 else if (selectedmachinefinishing == null) {
                                   setState(() {
                                     errormsg = "* Select a Machine Name";
+                                  });
+                                }
+                                else if (productionQuantityController.text.isEmpty) {
+                                  setState(() {
+                                    errormsg = "* Fill All fields in Table";
                                   });
                                 }
                                 else{

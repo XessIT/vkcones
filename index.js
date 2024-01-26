@@ -5131,7 +5131,7 @@ app.post('/daily_work_status', (req, res) => {
 
 
 
-app.get('/fetch_daily_Work_status', (req, res) => {
+/*app.get('/fetch_daily_Work_status', (req, res) => {
     const { shiftType, machName, desiredDate } = req.query;
 
     const sql = `SELECT
@@ -5220,9 +5220,90 @@ app.get('/fetch_daily_Work_status', (req, res) => {
             res.json(result);
         }
     });
+});*/
+
+app.get('/fetch_daily_Work_status', (req, res) => {
+  const { shiftType, machName, desiredDate } = req.query;
+
+  const sql =  ` SELECT
+                    machName,
+                    shiftType,
+                    assOne AS winding_assOne,
+                    emp_code1 AS winding_oPempcode1,
+                    asstwo AS winding_asstwo,
+                    emp_code2 AS winding_empcode1,
+                    opOneName AS winding_opOneName,
+                    emp_code3 AS winding_empcode2,
+                    NULL AS finishing_assOne,
+                    NULL AS finishing_empcode1,
+                    NULL AS finishing_opOneName,
+                    NULL AS finishing_empcode2,
+                    NULL AS printing_assOne,
+                    NULL AS printing_empcode1,
+                    NULL AS printing_opOneName,
+                    NULL AS printing_empcode2
+                FROM winding_entry
+                WHERE shiftType = '${shiftType}' AND machName = '${machName}'AND '${desiredDate}' BETWEEN fromDate AND DATE_SUB(toDate, INTERVAL 1 SECOND)
+
+                UNION
+
+                SELECT
+                    machName,
+                    shiftType,
+                    assOne AS finishing_assOne,
+                    emp_code1 AS finishing_empcode1,
+                    opOneName AS finishing_opOneName,
+                    emp_code2 AS finishing_empcode2,
+                    NULL AS winding_assOne,
+                    NULL AS winding_empcode1,
+                    NULL AS winding_asstwo,
+                    NULL AS winding_empcode2,
+                    NULL AS winding_opOneName,
+                    NULL AS winding_oPempcode1,
+                    NULL AS printing_assOne,
+                    NULL AS printing_empcode1,
+                    NULL AS printing_opOneName,
+                    NULL AS printing_empcode2
+                FROM finishing_entry
+                WHERE shiftType = '${shiftType}'  AND machName = '${machName}'AND '${desiredDate}' BETWEEN fromDate AND DATE_SUB(toDate, INTERVAL 1 SECOND)
+
+                UNION
+
+                SELECT
+                    machName,
+                    shiftType,
+                    assOne AS printing_assOne,
+                    emp_code1 AS printing_empcode1,
+                    opOneName AS printing_opOneName,
+                    emp_code2 AS printing_empcode2,
+                    NULL AS winding_assOne,
+                    NULL AS winding_empcode1,
+                    NULL AS winding_asstwo,
+                    NULL AS winding_empcode2,
+                    NULL AS winding_opOneName,
+                    NULL AS winding_oPempcode1,
+                    NULL AS finishing_assOne,
+                    NULL AS finishing_empcode1,
+                    NULL AS finishing_opOneName,
+                    NULL AS finishing_empcode2
+                FROM printing_entry
+                WHERE shiftType = '${shiftType}' AND machName = '${machName}'AND '${desiredDate}' BETWEEN fromDate AND DATE_SUB(toDate, INTERVAL 1 SECOND)
+                   `;
+
+  db.query(sql, [shiftType, machName,desiredDate], (err, result) => {
+    if (err) {
+      console.error('Error executing SQL query:', err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+    // Check if the result set is empty
+    if (result.length === 0) {
+      res.json([]);
+    } else {
+      res.json(result);
+    }
+  });
 });
-
-
 //good
 /*app.get('/fetch_daily_Work_status', (req, res) => {
   const { shiftType, machName, desiredDate } = req.query;

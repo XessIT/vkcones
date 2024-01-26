@@ -665,7 +665,8 @@ class _YourDataTableSource extends DataTableSource {
                         amtGST: row["amtGST"],
                         total: row["total"],
                         grandTotal: row["grandTotal"],
-                        payType: row["payType"],
+                        payType: row["payType"], amt: '',
+
                       ),
                     ),
                   );
@@ -690,6 +691,7 @@ class _YourDataTableSource extends DataTableSource {
                         total: row["total"],
                         grandTotal: row["grandTotal"],
                         payType: row["payType"],
+                        amt: '',
                       ),
                     ),
                   );
