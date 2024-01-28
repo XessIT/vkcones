@@ -193,7 +193,7 @@ class _ShiftReportState extends State<ShiftReport> {
     // });
 
     return MyScaffold(
-      route: "shift_report",
+      route: "shift_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

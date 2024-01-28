@@ -20,7 +20,7 @@ class _ColoursEntryState extends State<ColoursEntry> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      route: "color_entry",
+      route: "color_entry",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
           child: Form(

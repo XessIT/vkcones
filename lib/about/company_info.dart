@@ -23,7 +23,7 @@ class _CompanyInfoState extends State<CompanyInfo> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "company_info",
+        route: "company_info",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,

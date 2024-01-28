@@ -464,11 +464,20 @@ class _PoIndividualReportState
                                             // pw.Text(widget.deliveryType.toString(), style: pw.TextStyle(fontSize: 7,)),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
-                                              widget.date != null
-                                                  ? DateFormat("dd-MM-yyyy").format(DateTime.parse("${widget.deliveryDate}").toLocal())
+                                              widget.deliveryDate != null
+                                                  ? () {
+                                                try {
+                                                  DateTime parsedDate = DateTime.parse("${widget.deliveryDate!}");
+                                                  return DateFormat("dd-MM-yyyy").format(parsedDate.toLocal());
+                                                } catch (e) {
+                                                  print("Error parsing date: $e");
+                                                  return " ";
+                                                }
+                                              }()
                                                   : "",
                                               style: pw.TextStyle(fontSize: 9),
                                             ),
+
                                             pw.SizedBox(height:2),
                                           ],
                                         ),

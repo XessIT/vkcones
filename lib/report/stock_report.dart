@@ -166,7 +166,7 @@ class _StockReportState extends State<StockReport> {
       return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
     }*/
     return MyScaffold(
-      route: "stock_report",
+      route: "stock_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

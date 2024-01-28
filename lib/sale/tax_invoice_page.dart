@@ -25,8 +25,8 @@ createInvoicePDF({
   int tglobalItemCounter = 0;
   ///declare end
   ///totals getting declare
-  int? totalConeSum = 0;
-  int? totalqtysum = 0;
+  double? totalConeSum = 0.0;
+  double? totalqtysum = 0.0;
   double totalSum = 0.0;
   double totalamtGST = 0.0;
   String results="";
@@ -161,8 +161,8 @@ createInvoicePDF({
   final pw.TextStyle pdfstyle = pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold);
 
   ///data cal for table
-  totalConeSum =0;
-  totalqtysum =0;
+  totalConeSum =0.0;
+  totalqtysum =0.0;
   totalSum=0.0;
   totalamtGST =0.0;
   cgst = 0.0;
@@ -175,8 +175,8 @@ createInvoicePDF({
     final totalqty = data[i]['qty'];
     double amtGST = double.tryParse(data[i]['amtGST'])??0.0;
     double total = double.tryParse(data[i]['total'])??0.0;
-    totalqtysum = (totalqtysum ?? 0) + (int.tryParse(totalqty.toString()) ?? 0);
-    totalConeSum = (totalConeSum ?? 0) + (int.tryParse(totalCone.toString()) ?? 0);
+    totalqtysum = (totalqtysum ?? 0.0) + (double.tryParse(totalqty.toString()) ?? 0.0);
+    totalConeSum = (totalConeSum ?? 0.0) + (double.tryParse(totalCone.toString()) ?? 0.0);
     totalamtGST += double.tryParse(amtGST.toStringAsFixed(2))!;
     totalSum += double.tryParse(total.toStringAsFixed(2))!;
     print("amtGST value $totalamtGST  & total count - $totalSum");
@@ -567,18 +567,18 @@ createInvoicePDF({
                     top: pw.BorderSide(
                         color: PdfColors.black,width: 1),),),
 
-                padding: const pw.EdgeInsets.all(4.0),
+                padding:  pw.EdgeInsets.all(4.0),
                 child: pw.Center(
-                    child: pw.Text("$totalqtysum",  softWrap: true, textAlign: pw.TextAlign.center,
+                    child: pw.Text("${totalqtysum!.toStringAsFixed(0)}",  softWrap: true, textAlign: pw.TextAlign.center,
                         style: pw.TextStyle(fontSize: 9,)))),
             pw.Container(
                 decoration: pw.BoxDecoration(
                   border: pw.Border(
                     top: pw.BorderSide(
                         color: PdfColors.black,width: 1),),),
-                padding: const pw.EdgeInsets.all(4.0),
+                padding:  pw.EdgeInsets.all(4.0),
                 child: pw.Center(
-                  child: pw.Text("$totalConeSum",  softWrap: true,
+                  child: pw.Text(totalConeSum!.toStringAsFixed(0),  softWrap: true,
                       textAlign: pw.TextAlign.right,
                       style: pw.TextStyle(
                         fontSize: 9,)),)),
@@ -961,7 +961,7 @@ createInvoicePDF({
 
               padding: const pw.EdgeInsets.all(4.0),
               child: pw.Center(
-                  child: pw.Text("$totalqtysum",  softWrap: true, textAlign: pw.TextAlign.center,
+                  child: pw.Text(totalqtysum!.toStringAsFixed(0),  softWrap: true, textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(fontSize: 9,)))),
           pw.Container(
               decoration: pw.BoxDecoration(
@@ -970,7 +970,7 @@ createInvoicePDF({
                       color: PdfColors.black,width: 1),),),
               padding: const pw.EdgeInsets.all(4.0),
               child: pw.Center(
-                child: pw.Text("$totalConeSum",  softWrap: true,
+                child: pw.Text(totalConeSum!.toStringAsFixed(0),  softWrap: true,
                     textAlign: pw.TextAlign.right,
                     style: pw.TextStyle(
                       fontSize: 9,)),)),
@@ -1348,10 +1348,9 @@ createInvoicePDF({
                 border: pw.Border(
                   top: pw.BorderSide(
                       color: PdfColors.black,width: 1),),),
-
               padding: const pw.EdgeInsets.all(4.0),
               child: pw.Center(
-                  child: pw.Text("$totalqtysum",  softWrap: true, textAlign: pw.TextAlign.center,
+                  child: pw.Text(totalqtysum!.toStringAsFixed(0),  softWrap: true, textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(fontSize: 9,)))),
           pw.Container(
               decoration: pw.BoxDecoration(
@@ -1360,7 +1359,7 @@ createInvoicePDF({
                       color: PdfColors.black,width: 1),),),
               padding: const pw.EdgeInsets.all(4.0),
               child: pw.Center(
-                child: pw.Text("$totalConeSum",  softWrap: true,
+                child: pw.Text(totalConeSum!.toStringAsFixed(0),  softWrap: true,
                     textAlign: pw.TextAlign.right,
                     style: pw.TextStyle(
                       fontSize: 9,)),)),
@@ -1593,31 +1592,31 @@ createInvoicePDF({
                                         ])),
                               ],
                             )),
-                       // if (!noNdateString.startsWith('WO'))
-                          pw.Padding(
-                            padding: pw.EdgeInsets.only(top: 7, bottom: 7, left: 2),
-                            child: pw.Row(
+                        // if (!noNdateString.startsWith('WO'))
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(top: 7, bottom: 7, left: 2),
+                          child: pw.Row(
                               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      children: [
+                              children: [
                                 pw.Row(
-                              children: [
-                                if (!noNdateString.startsWith('WO'))
-                                  pw.Text("Ref.No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
-                                if (!noNdateString.startsWith('WO'))
-                                  pw.Text("$noNdateString", style: pw.TextStyle(fontSize: 7)),
-                              ],
-                            ),   pw.Row(
-                              children: [
+                                  children: [
+                                    if (!noNdateString.startsWith('WO'))
+                                      pw.Text("Ref.No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
+                                    if (!noNdateString.startsWith('WO'))
+                                      pw.Text("$noNdateString", style: pw.TextStyle(fontSize: 7)),
+                                  ],
+                                ),   pw.Row(
+                                  children: [
 
-                                  pw.Text("Transport No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
+                                    pw.Text("Transport No       :   ", style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
 
-                                  pw.Text(transportNo, style: pw.TextStyle(fontSize: 7)),
-                                pw.SizedBox(width: 10),
-                              ],
-                            ),
-          ]
-          ),
+                                    pw.Text(transportNo, style: pw.TextStyle(fontSize: 7)),
+                                    pw.SizedBox(width: 10),
+                                  ],
+                                ),
+                              ]
                           ),
+                        ),
 
 
 
@@ -1820,6 +1819,9 @@ createInvoicePDF({
     pdf.addPage(originalPage);
   }
   ///original invoice ends here
+
+
+
 
 
   ///duplicate invoice starts here
@@ -2636,10 +2638,9 @@ createInvoicePDF({
     );
     pdf.addPage(triplicatePage);
   }
-
   ///triplicate invoice ends here
 
-  // Convert the PDF to Uint8List
+//  Convert the PDF to Uint8List
   final Uint8List bytes = await pdf.save();
 
   // Display the PDF and allow the user to print

@@ -5,18 +5,18 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:vinayaga_project/main.dart';
 import 'package:http/http.dart' as http;
-import 'package:vinayaga_project/master/balanacesheet_entry.dart';
-import 'package:vinayaga_project/report/winding_printing_pdf.dart';
-import 'package:vinayaga_project/report/winding_report_pdf.dart';
-import '../home.dart';
-// import 'finishing_report_pdf.dart';
+import 'package:vinayaga_project/report/raw_material_report_pdf.dart';
+import 'package:vinayaga_project/report/raw_matirial_entry_reportpdf.dart';
+import 'package:vinayaga_project/settings/transport_entry.dart';
 
-class Winding_printing_production extends StatefulWidget {
-  const Winding_printing_production({Key? key}) : super(key: key);
+import '../home.dart';
+
+class RawMaterialEntriesReport extends StatefulWidget {
+  const RawMaterialEntriesReport({Key? key}) : super(key: key);
   @override
-  State<Winding_printing_production> createState() => _Winding_printing_productionState();
+  State<RawMaterialEntriesReport> createState() => _RawMaterialEntriesReportState();
 }
-class _Winding_printing_productionState extends State<Winding_printing_production> {
+class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
 
   List<String> supplierSuggestions = [];
   String selectedSupplier = "";
@@ -24,6 +24,7 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
 
   int currentPage = 1;
   int rowsPerPage = 10;
+  String selectedCustomer="";
 
   void updateFilteredData() {
     final startIndex = (currentPage - 1) * rowsPerPage;
@@ -39,19 +40,16 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
     return text.substring(0, 1).toUpperCase() + text.substring(1);
   }
 
-
   bool generatedButton = false;
   DateTime? fromDate;
   DateTime? toDate;
   TextEditingController searchController = TextEditingController();
 
-  // List<String> itemGroupValues = [];
-  // List<String> invoiceNumber = [];
-  String selectedCustomer="";
+  List<String> itemGroupValues = [];
+  List<String> invoiceNumber = [];
   Future<void> fetchData() async {
     try {
-      final url = Uri.parse('http://localhost:3309/winding_printing_production_get_report');
-      // final url = Uri.parse('http://localhost:3309//winding_printing_production_get_report/');
+      final url = Uri.parse('http://localhost:3309/get_Raw_Material_report/');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -62,8 +60,8 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
           data = itemGroups.cast<Map<String, dynamic>>();
           filteredData = List<Map<String, dynamic>>.from(data);
           filteredData.sort((a, b) {
-            DateTime? dateA = DateTime.tryParse(a['fromDate'] ?? '');
-            DateTime? dateB = DateTime.tryParse(b['toDate'] ?? '');
+            DateTime? dateA = DateTime.tryParse(a['date'] ?? '');
+            DateTime? dateB = DateTime.tryParse(b['date'] ?? '');
             if (dateA == null || dateB == null) {
               return 0;
             }
@@ -91,20 +89,20 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
         filteredData = List<Map<String, dynamic>>.from(data);
       } else {
         filteredData = data.where((item) {
-          String gsm  = item['gsm']?.toString()?.toLowerCase() ?? '';
-          String status = item['status']?.toString()?.toLowerCase() ?? ''; // Add this line
-
-
+          String supName = item['prodName']?.toString()?.toLowerCase() ?? '';
+          String prodCode = item['prodCode']?.toString()?.toLowerCase() ?? '';
           String searchTextLowerCase = searchText.toLowerCase();
-          return gsm.contains(searchTextLowerCase) ||
-              status.contains(searchTextLowerCase) ;
+
+          return supName.contains(searchTextLowerCase) ||
+              prodCode.contains(searchTextLowerCase);
 
         }).toList();
       }
+
       // Sort filteredData in descending order based on the "date" field
       filteredData.sort((a, b) {
-        DateTime? dateA = DateTime.tryParse(a['fromDate'] ?? '');
-        DateTime? dateB = DateTime.tryParse(b['toDate'] ?? '');
+        DateTime? dateA = DateTime.tryParse(a['date'] ?? '');
+        DateTime? dateB = DateTime.tryParse(b['date'] ?? '');
 
         if (dateA == null || dateB == null) {
           return 0;
@@ -115,31 +113,43 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
     });
     print("Filtered Data Length: ${filteredData.length}");
   }
-
   void applyDateFilter() {
     setState(() {
-      if (!isDateRangeValid) {
+      if(!isDateRangeValid){
         return;
       }
       filteredData = data.where((item) {
-        String startDateStr = item['fromDate']?.toString() ?? '';
-        String endDateStr = item['toDate']?.toString() ?? '';
-        DateTime? startDate = DateTime.tryParse(startDateStr);
-        DateTime? endDate = DateTime.tryParse(endDateStr);
+        String dateStr = item['date']?.toString() ?? '';
+        DateTime? itemDate = DateTime.tryParse(dateStr);
 
-        if (startDate != null && endDate != null) {
-          bool dateInRange = !startDate.isAfter(_ToDatecontroller!) && !endDate.isBefore(_FromDatecontroller!);
-
-          String status = item['status']?.toString()?.toLowerCase() ?? '';
-          String searchTextLowerCase = searchController.text.toLowerCase();
-          bool matchesstatus = status.contains(searchTextLowerCase);
-
-          return dateInRange && matchesstatus;
+        if (itemDate != null &&
+            !itemDate.isBefore(fromDate!) &&
+            !itemDate.isAfter(toDate!.add(Duration(days: 1)))) {
+          return true;
         }
         return false;
       }).toList();
+      if (searchController.text.isNotEmpty) {
+        String searchTextLowerCase = searchController.text.toLowerCase();
+        filteredData = filteredData.where((item) {
+          String supName = item['prodName']?.toString()?.toLowerCase() ?? '';
+          String prodCode = item['prodCode']?.toString()?.toLowerCase() ?? '';
+
+          return supName.contains(searchTextLowerCase) ||
+              prodCode.contains(searchTextLowerCase);
+        }).toList();
+      }
+      filteredData.sort((a, b) {
+        DateTime? dateA = DateTime.tryParse(a['date'] ?? '');
+        DateTime? dateB = DateTime.tryParse(b['date'] ?? '');
+        if (dateA == null || dateB == null) {
+          return 0;
+        }
+        return dateB.compareTo(dateA); // Compare in descending order
+      });
     });
   }
+
 
   @override
   void initState() {
@@ -152,21 +162,21 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
     filteredData = List<Map<String, dynamic>>.from(data);
   }
   final FocusNode _searchFocus = FocusNode();
-  DateTime? _FromDatecontroller;
-  DateTime? _ToDatecontroller;
 
   @override
   Widget build(BuildContext context) {
 
-    final formattedDate = _FromDatecontroller != null ? DateFormat("dd-MM-yyyy").format(_FromDatecontroller!) : "";
-    final formattedDate2 = _ToDatecontroller != null ? DateFormat("dd-MM-yyyy").format(_ToDatecontroller!) : "";
+    final formattedDate = fromDate != null ? DateFormat("dd-MM-yyyy").format(fromDate!) : "";
+    final formattedDate2 = toDate != null ? DateFormat("dd-MM-yyyy").format(toDate!) : "";
 
     searchController.addListener(() {
       filterData(searchController.text);
     });
-
+    if (data.isEmpty) {
+      return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
+    }
     return MyScaffold(
-      route: "winding_printing_production_report",backgroundColor: Colors.white,
+      route: "raw_Materials_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -190,10 +200,10 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                           children: [
                             const Row(
                               children: [
-                                Icon(Icons.report,),
+                                Icon(Icons.sell,),
                                 SizedBox(width:10,),
                                 Text(
-                                  'Printing & Without Printing Report',
+                                  'Raw Material',
                                   style: TextStyle(
                                     fontSize:20,
                                     fontWeight: FontWeight.bold,
@@ -202,14 +212,14 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                               ],
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(right: 15),
-                              child: Align(
+                              padding: const EdgeInsets.only(right: 0),
+                              child:Align(
                                 alignment: Alignment.topLeft,
                                 child: Wrap(
                                   //mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 37,left: 15),
+                                      padding: const EdgeInsets.only(top: 37,left:20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -217,7 +227,7 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                             width: 220,
                                             height: 70,
                                             child: TextFormField(style: const TextStyle(fontSize: 13),
-                                              readOnly: true,
+                                              readOnly: true, // Set the field as read-only
                                               validator: (value) {
                                                 if (value!.isEmpty) {
                                                   return '* Enter Date';
@@ -227,13 +237,13 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                               onTap: () {
                                                 showDatePicker(
                                                   context: context,
-                                                  initialDate: _FromDatecontroller ?? DateTime.now(),
+                                                  initialDate: fromDate ?? DateTime.now(),
                                                   firstDate: DateTime(2000),
                                                   lastDate: DateTime(2100),
                                                 ).then((date) {
                                                   if (date != null) {
                                                     setState(() {
-                                                      _FromDatecontroller = date;
+                                                      fromDate = date;
                                                       // applyDateFilter();
                                                     });
                                                   }
@@ -274,13 +284,13 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                               onTap: () {
                                                 showDatePicker(
                                                   context: context,
-                                                  initialDate: _ToDatecontroller ?? DateTime.now(),
+                                                  initialDate: toDate ?? DateTime.now(),
                                                   firstDate: DateTime(2000), // Set the range of selectable dates
                                                   lastDate: DateTime(2100),
                                                 ).then((date) {
                                                   if (date != null) {
                                                     setState(() {
-                                                      _ToDatecontroller = date;
+                                                      toDate = date;
                                                       //applyDateFilter();
                                                     });
                                                   }
@@ -303,9 +313,9 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                         ],
                                       ),
                                     ),
-                                    SizedBox(width: 11,),
+                                    //SizedBox(width: 11,),
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 37),
+                                      padding: const EdgeInsets.only(top:37 , left:10),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -315,52 +325,45 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                             child:
                                             TypeAheadFormField<String>(
                                               textFieldConfiguration: TextFieldConfiguration(
-                                                  controller: searchController,
-
-                                                  style: const TextStyle(fontSize: 13),
-                                                  onChanged: (value) {
-                                                    String capitalizedValue = capitalizeFirstLetter(value);
-                                                    searchController.value = searchController.value.copyWith(
-                                                      text: capitalizedValue,
-                                                      selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                                    );
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    suffixIcon: Icon(Icons.search),
-                                                    fillColor: Colors.white,
-                                                    filled: true,
-                                                    labelText: "",
-                                                    labelStyle: TextStyle(fontSize: 13),
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                    ),
+                                                controller: searchController,
+                                                style: const TextStyle(fontSize: 13),
+                                                inputFormatters: [
+                                                  UpperCaseTextFormatter(),
+                                                ],
+                                                decoration: InputDecoration(
+                                                  suffixIcon: Icon(Icons.search),
+                                                  fillColor: Colors.white,
+                                                  filled: true,
+                                                  labelText: "Search",
+                                                  labelStyle: TextStyle(fontSize: 13),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
                                                   ),
-                                                  inputFormatters: [UpperCaseTextFormatter()]
+                                                ),
                                               ),
                                               suggestionsCallback: (pattern) async {
                                                 if (pattern.isEmpty) {
                                                   return [];
                                                 }
-                                                List<String> gsmSuggestions = data
+                                                List<String> prodNamesuggestions =data
                                                     .where((item) =>
-                                                    (item['gsm']?.toString()?.toLowerCase() ?? '')
+                                                    (item['prodName']?.toString()?.toLowerCase() ?? '')
                                                         .startsWith(pattern.toLowerCase()))
-                                                    .map((item) => item['gsm'].toString())
-                                                    .toSet()
+                                                    .map((item) => item['prodName'].toString())
+                                                    .toSet() // Remove duplicates using a Set
                                                     .toList();
-                                                List<String> statusSuggestions = data
+                                                List<String> prodCodesuggestions =data
                                                     .where((item) =>
-                                                    (item['status']?.toString()?.toLowerCase() ?? '')
+                                                    (item['prodCode']?.toString()?.toLowerCase() ?? '')
                                                         .startsWith(pattern.toLowerCase()))
-                                                    .map((item) => item['status'].toString())
-                                                    .toSet()
+                                                    .map((item) => item['prodCode'].toString())
+                                                    .toSet() // Remove duplicates using a Set
                                                     .toList();
-
-                                                // Combine all suggestions and remove duplicates using a Set
-                                                List<String> suggestions = [
-                                                  ...gsmSuggestions,
-                                                  ...statusSuggestions,
-                                                ].toSet().toList();
+                                                List<String>suggestions =[
+                                                  ...prodNamesuggestions,
+                                                  ...prodCodesuggestions
+                                                ].toSet() // Remove duplicates using a Set
+                                                    .toList();
                                                 return suggestions;
                                               },
                                               itemBuilder: (context, suggestion) {
@@ -403,47 +406,30 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                                         selectedSupplier = supplierSuggestions[index];
                                                         searchController.text = selectedSupplier;
                                                         filterData(selectedSupplier);
-                                                      });
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width:20),
+                                                      });},);},),),],),),
                                     Padding(
-                                        padding: const EdgeInsets.only(top:37,left:20,right:20,bottom:20),
+                                        padding: const EdgeInsets.only(left:20,top:37),
                                         child: MaterialButton(
                                           color: Colors.green.shade500,
                                           height: 40,
                                           onPressed: () {
-                                            if (_FromDatecontroller == null || _ToDatecontroller == null) {
+                                            if (fromDate!.isAfter(toDate!)) {
                                               setState(() {
-                                                // Show an error message if either of the dates is not selected
-                                                isDateRangeValid = false;
-                                              });
-                                            } else if (_FromDatecontroller!.isAfter(_ToDatecontroller!)) {
-                                              setState(() {
-                                                // Show an error message if 'From Date' is greater than 'To Date'
                                                 isDateRangeValid = false;
                                               });
                                             } else {
-                                              // If both dates are selected and 'From Date' is not greater than 'To Date', proceed with generating the report.
                                               isDateRangeValid = true;
                                               applyDateFilter();
                                             }
                                           },
                                           child: const Text("Generate", style: TextStyle(color: Colors.white)),
-                                        )
-                                    ),
+                                        )),
                                     Padding(
                                       padding: const EdgeInsets.only(top:37),
                                       child: IconButton(
                                         icon: Icon(Icons.refresh),
                                         onPressed: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>Winding_printing_production()));
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>RawMaterialEntriesReport()));
                                         },
                                       ),
                                     ),
@@ -457,28 +443,17 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                         },
                                       ),
                                     ),
-
                                     if (!isDateRangeValid)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 8.0), // Adjust the top padding as needed
                                         child: Text(
                                           isDateRangeValid == false && (fromDate == null || toDate == null)
-                                              ? "* Enter a 'From and To Date'."
-                                              : "* 'From Date' must be less than\n  or equal to 'To Date'.",
+                                              ? "* Enter a 'From and To Date'." : "* 'From Date' must be less than\n  or equal to 'To Date'.",
                                           style: TextStyle(color: Colors.red, fontSize: 12),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                        ),),],),
+                              ),),
                             SizedBox(height: 15,)
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                          ],),),),),),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: SingleChildScrollView(
@@ -498,37 +473,21 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                                 alignment:Alignment.topLeft,
                                 child: Padding(
                                   padding: EdgeInsets.only(left: 5),
-                                  child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),
-                                )),
+                                  child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),)),
                             const SizedBox(height: 20,),
-                            filteredData.isNotEmpty?
-                            SizedBox(
-                              // width:1000,
-                              child: PaginatedDataTable(
-                                columnSpacing:130.0,
-                                //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                rowsPerPage:25,
-                                columns:   const [
-                                  DataColumn(label: Center(child: Text("     S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("  Gsm",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("No of Cones",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("     Status",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  // DataColumn(label: Center(child: Text("        Person-1",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  // //DataColumn(label: Center(child: Text("Operator Name-2",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  // DataColumn(label: Center(child: Text("        Person-2",style: TextStyle(fontWeight: FontWeight.bold),))),
-
-                                ],
-                                source: _YourDataTableSource(filteredData,context,generatedButton),
-                              ),
-                            ):
-                            Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),)
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                            filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
+                            PaginatedDataTable(
+                              columnSpacing:80.0,
+                              rowsPerPage:25,
+                              columns:   const [
+                                DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("Product Code",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("Product Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("Unit",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
+                              ], source: _YourDataTableSource(filteredData,context,generatedButton),
+                            ),],),),),),),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
@@ -540,16 +499,14 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                           color: Colors.green.shade600,
                           height: 40,
                           onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>Winding_printing_pdf(
-                              customerData : filteredData,
-                            )));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>RawMaterialEntriesReportPDF(customerData: filteredData,)));
                           },child: const Text("PRINT",style: TextStyle(color: Colors.white),),),
-
                       ),
                       SizedBox(height: 20,),
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0,right: 15.0),
-                        child: MaterialButton(
+                        child:filteredData.isEmpty?Text(""):
+                        MaterialButton(
                           color: Colors.red.shade600,
                           height: 40,
                           onPressed: (){
@@ -586,8 +543,6 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
                     ],
                   ),
                 )
-
-
               ],
             ),
           ),
@@ -614,41 +569,27 @@ class _YourDataTableSource extends DataTableSource {
     return DataRow(
       cells: [
         DataCell(Center(child: Text("${index + 1}"))),
-        DataCell(Center(child: Text(row["date"] != null
-            ? DateFormat('dd-MM-yyyy').format(DateTime.parse("${row["date"]}").toLocal())
-            : "",),)),
-        // DataCell(Center(
-        //   child: Text(
-        //     row["fromDate"] != null
-        //         ? DateFormat('dd-MM-yyyy').format(
-        //       DateTime.parse("${row["fromDate"]}").toLocal(),
-        //     )
-        //         : "",
-        //   ),
-        // )),  /// From Date
-        // DataCell(Center(
-        //   child: Text(
-        //     row["toDate"] != null
-        //         ? DateFormat('dd-MM-yyyy').format(
-        //       DateTime.parse("${row["toDate"]}").toLocal(),
-        //     )
-        //         : "",
-        //   ),
-        // )), /// To Date
-        DataCell(Center(child: Text("${row["gsm"]}"))),
-        DataCell(Center(child: Text("${row["numofcones"]}"))),
-        DataCell(Center(child: Text("${row["status"]}"))),
+        DataCell(Center(
+          child: Text(
+            row["date"] != null
+                ? DateFormat('dd-MM-yyyy').format(
+              DateTime.parse("${row["date"]}").toLocal(),
+            )
+                : "",
+          ),
+        )),
+        DataCell(Center(child: Text("${row["prodCode"]}"))),
+        DataCell(Center(child: Text("${row["prodName"]}"))),
+        DataCell(Center(child: Text("${row["unit"]}"))),
+        // DataCell(Center(child: Text("${row["custMobile"]}"))),
+        DataCell(Center(child: Text("${row["qty"]}"))),
       ],
     );
-
   }
-
   @override
   int get rowCount => data.length;
-
   @override
   bool get isRowCountApproximate => false;
-
   @override
   int get selectedRowCount => 0;
 }

@@ -203,7 +203,7 @@ class _SupplierReportState extends State<SupplierReport> {
     // });
 
     return MyScaffold(
-      route: "supplier_report",
+      route: "supplier_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

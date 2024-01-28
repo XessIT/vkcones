@@ -12,7 +12,7 @@ class _ViewState extends State<View> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "view",
+        route: "view",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             child: Column(

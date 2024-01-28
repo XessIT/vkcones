@@ -1,11 +1,4 @@
 
-
-
-
-
-
-
-
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -205,7 +198,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
 
 
     return MyScaffold(
-      route: "purchase_order_report",
+      route: "purchase_order_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -545,10 +538,6 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                   child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),),
                                 ))),
                                 DataColumn(label: Center(child: Padding(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: Text("Expected Delivery Date",style: TextStyle(fontWeight: FontWeight.bold),),
-                                ))),
-                                DataColumn(label: Center(child: Padding(
                                   padding: EdgeInsets.only(left: 20),
                                   child: Text("Action",style: TextStyle(fontWeight: FontWeight.bold),),
                                 ))),
@@ -654,16 +643,6 @@ class _YourDataTableSource extends DataTableSource {
         DataCell(Center(child: Container(
             constraints: const BoxConstraints(maxWidth: 170),
             child: Text("${row["custName"]}")))),
-        DataCell(Center(
-          child:
-          Text(
-            row["date"] != null
-                ? DateFormat('dd-MM-yyyy').format(
-              DateTime.parse("${row["deliveryDate"]}").toLocal(),
-            ) : "",
-          ),
-        )),
-
         DataCell(Center(child:Padding(
           padding: const EdgeInsets.only(right: 10),
           child: Container(
@@ -677,52 +656,60 @@ class _YourDataTableSource extends DataTableSource {
                   icon: const Icon(Icons.remove_red_eye_outlined),
                   color: Colors.blue.shade600,
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>PurchaseView(
-                      orderNo: row["orderNo"].toString(),
-                      GSTIN: row["gstin"].toString(),
-                      date:row["date"].toString(),
-                      deliveryDate:row["deliveryDate"].toString(),
-                      deliveryType:row["deliveryType"].toString(),
-                      customerName:row["custName"].toString(),
-                      customerMobile:row["custMobile"],
-                      customerAddress:row["custAddress"].toString(),
-                      pincode:row["pincode"].toString(),
-                      customercode:row["custCode"].toString(),
-                      itemGroup:row["itemGroup"].toString(),
-                      itemName:row["itemName"].toString(),
-                      qty:row["qty"].toString(),
-                      totQty:row["totQty"].toString(),
-                      //grandTotal:row["grandTotal"].toString(),
-                      customerData:data,
-                    )
-                    ));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PurchaseView(
+                          orderNo: row["orderNo"].toString(),
+                          GSTIN: row["gstin"].toString(),
+                          date: row["date"].toString(),
+                          deliveryDate: row["deliveryDate"]?.toString() ?? '', // Handle null case
+                          deliveryType: row["deliveryType"]?.toString() ?? '', // Handle null case
+                          customerName: row["custName"].toString(),
+                          customerMobile: row["custMobile"],
+                          customerAddress: row["custAddress"].toString(),
+                          pincode: row["pincode"].toString(),
+                          customercode: row["custCode"].toString(),
+                          itemGroup: row["itemGroup"].toString(),
+                          itemName: row["itemName"].toString(),
+                          qty: row["qty"].toString(),
+                          totQty: row["totQty"].toString(),
+                          //grandTotal:row["grandTotal"].toString(),
+                          customerData: data,
+                        ),
+                      ),
+                    );
                   },
                 ),
+
                 SizedBox(width: 10,),
                 //   if(generatedButton == true)
                 IconButton(
                   icon: const Icon(Icons.print),
                   color: Colors.blue.shade600,
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>CustomerOrderIndividualReport(
-                      orderNo: row["orderNo"].toString(),
-                      // GSTIN: row["gstin"].toString(),
-                      date:row["date"],
-                      customerName:row["custName"],
-                      customerMobile:row["custMobile"].toString(),
-                      customerAddress:row["custAddress"].toString(),
-                      customercode:row["custCode"].toString(),
-                      itemGroup:row["itemGroup"].toString(),
-                      deliveryType:row["deliveryType"].toString(),
-                      deliveryDate: row["deliveryDate"].toString(),
-                      itemName:row["itemName"].toString(),
-                      qty:row["qty"].toString(),
-                      GSTIN: row["gstin"].toString(),
-
-                    )
-                    ));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CustomerOrderIndividualReport(
+                          orderNo: row["orderNo"].toString(),
+                          date: row["date"],
+                          customerName: row["custName"],
+                          customerMobile: row["custMobile"].toString(),
+                          customerAddress: row["custAddress"].toString(),
+                          customercode: row["custCode"].toString(),
+                          itemGroup: row["itemGroup"].toString(),
+                          deliveryType: row["deliveryType"]?.toString(),
+                          deliveryDate: row["deliveryDate"],
+                          itemName: row["itemName"].toString(),
+                          qty: row["qty"].toString(),
+                          GSTIN: row["gstin"].toString(),
+                        ),
+                      ),
+                    );
                   },
                 ),
+
               ],
             ),
           ),

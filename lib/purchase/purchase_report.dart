@@ -202,7 +202,7 @@ class _PurchaseReportState extends State<PurchaseReport> {
 
 
     return MyScaffold(
-      route: "purchase_report",
+      route: "purchase_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -491,7 +491,7 @@ class _PurchaseReportState extends State<PurchaseReport> {
                             ),
                             const SizedBox(height: 20,),
                             PaginatedDataTable(
-                              columnSpacing:74.0,
+                              columnSpacing:62.0,
                               //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                               rowsPerPage:25,
                               columns:   const [

@@ -263,11 +263,26 @@ class _PoOverallReportState extends State<PoOverallReport> {
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
-                                      child: pw.Text(data["deliveryDate"] != null
-                                          ? DateFormat('dd-MM-yyyy').format(
-                                        DateTime.parse("${data["deliveryDate"]}").toLocal(),)
-                                          : "",
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                      child:
+                                      pw.
+                                      Text(
+                                            () {
+                                          try {
+                                            if (data["deliveryDate"] != null) {
+                                              DateTime parsedDate = DateTime.parse("${data["deliveryDate"]}");
+                                              return DateFormat('dd-MM-yyyy').format(parsedDate.toLocal());
+                                            } else {
+                                              return ""; // Or another default value
+                                            }
+                                          } catch (e) {
+                                            print("Error parsing date: $e");
+                                            return " ";
+                                          }
+                                        }(),
+                                        style: pw.TextStyle(fontSize: 8),
+                                      ),
+
+                                    ),
                                   ),
                                 ]);
                               }

@@ -22,7 +22,7 @@ class _SizeEntryState extends State<SizeEntry> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return MyScaffold(
-        route: "size_entry",
+        route: "size_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,

@@ -484,11 +484,21 @@ class _PoIndividualReportState
                                                 pw.SizedBox(height: 5),
                                                 // pw.Text(widget.deliveryType.toString(), style: pw.TextStyle(fontSize: 10,)),
                                                 pw.Text(
-                                                  widget.deliveryDate != null
-                                                      ? formatDate(widget.deliveryDate)
-                                                      : "",
+                                                      () {
+                                                    try {
+                                                      if (widget.deliveryDate != null) {
+                                                        DateTime parsedDate = DateFormat("dd-MM-yyyy").parse("${widget.deliveryDate}");
+                                                        return formatDate(parsedDate as String?);
+                                                      }
+                                                    } catch (e) {
+                                                      print("Error formatting date: $e");
+                                                    }
+                                                    return ""; // Default value in case of an error
+                                                  }(),
                                                   style: pw.TextStyle(fontSize: 10),
                                                 ),
+
+
                                                 pw.SizedBox(height:4),
                                                 pw.Text("")
 

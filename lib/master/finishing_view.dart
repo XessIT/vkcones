@@ -295,7 +295,7 @@ class _FinishingViewState extends State<FinishingView> {
     DateTime currentdate = DateTime.now();
     final formattedDate = DateFormat("dd-MM-yyyy").format(currentdate);
     return  MyScaffold(
-        route: "prinitng_view",
+        route: "prinitng_view",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(

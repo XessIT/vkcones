@@ -118,7 +118,7 @@ class _ItemCreationReportState extends State<ItemCreationReport> {
       return CircularProgressIndicator(); // Show a loading indicator while data is fetched.
     }
     return MyScaffold(
-        route: "item_report",
+        route: "item_report",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             child: Center(

@@ -405,7 +405,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "production_entry",
+        route: "production_entry",backgroundColor: Colors.white,
         body: Form(
           key: _formKey,
           child:  SingleChildScrollView(

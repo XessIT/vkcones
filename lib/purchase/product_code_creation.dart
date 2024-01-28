@@ -334,7 +334,7 @@ class _ProductCodeCreationState extends State<ProductCodeCreation> {
       );
     }*/
     return MyScaffold(
-      route: "product_code_creation",
+      route: "product_code_creation",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,

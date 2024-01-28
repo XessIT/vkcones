@@ -132,7 +132,7 @@ class _Other_Worker_ReportState extends State<Other_Worker_Report> {
 
 
     return MyScaffold(
-      route: "other_worker_report",
+      route: "other_worker_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

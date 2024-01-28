@@ -25,7 +25,7 @@ class _GstEntryState extends State<GstEntry> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      route: "gst_entry",
+      route: "gst_entry",backgroundColor: Colors.white,
       body: Center(
         child: Form(
           key: _formKey,

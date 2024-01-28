@@ -282,7 +282,7 @@ class _Other_Worker_viewState extends State<Other_Worker_view> {
     DateTime currentdate = DateTime.now();
     final formattedDate = DateFormat("dd-MM-yyyy").format(currentdate);
     return  MyScaffold(
-        route: "Other_Worker_View",
+        route: "Other_Worker_View",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(

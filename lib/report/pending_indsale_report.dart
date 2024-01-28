@@ -100,7 +100,7 @@ class _PendingSaleViewState extends State<PendingSaleView> {
     DateTime Date = DateTime.now();
     final formattedDate = DateFormat("dd-MM-yyyy").format(Date);
     return  MyScaffold(
-        route: "pending_view",
+        route: "pending_view",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(

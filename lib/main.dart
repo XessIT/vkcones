@@ -46,6 +46,7 @@ import 'package:vinayaga_project/report/mach_production_report.dart';
 import 'package:vinayaga_project/report/po_pending_report.dart';
 import 'package:vinayaga_project/report/printing_report.dart';
 import 'package:vinayaga_project/report/production_report.dart';
+import 'package:vinayaga_project/report/raw_material_entry_report.dart';
 import 'package:vinayaga_project/report/raw_material_stock.dart';
 import 'package:vinayaga_project/report/salary_payment_report.dart';
 import 'package:vinayaga_project/report/sales_return_report/sales_returns_reports.dart';
@@ -57,6 +58,7 @@ import 'package:vinayaga_project/report/winding_report.dart';
 import 'package:vinayaga_project/sale/dc.dart';
 import 'package:vinayaga_project/sale/dc_report.dart';
 import 'package:vinayaga_project/sale/entry_sales.dart';
+import 'package:vinayaga_project/sale/hand_bill_dc_report.dart';
 import 'package:vinayaga_project/sale/non_order_sale_entry.dart';
 import 'package:vinayaga_project/sale/order_report.dart';
 import 'package:vinayaga_project/sale/pending_report.dart';
@@ -65,6 +67,7 @@ import 'package:vinayaga_project/sale/quation/quotation_report%20(1).dart';
 import 'package:vinayaga_project/sale/sales_order_entry.dart';
 import 'package:vinayaga_project/sale/sales_report.dart';
 import 'package:vinayaga_project/sale/sales_return/sales_return.dart';
+import 'package:vinayaga_project/sale/sample_dc.dart';
 import 'package:vinayaga_project/settings/colour_entry.dart';
 import 'package:vinayaga_project/settings/settings_entry.dart';
 import 'package:vinayaga_project/settings/transport_entry.dart';
@@ -77,6 +80,7 @@ import 'home.dart';
 import 'master/Worker Entry.dart';
 import 'master/employee_id_creation.dart';
 import 'master/itemgroup.dart';
+import 'master/raw_metirial_entry.dart';
 import 'master/tabcontroller.dart';
 import 'master/with_printing.dart';
 import 'non_order_sales_report.dart';
@@ -347,6 +351,19 @@ class _MyAppState extends State<MyApp> {
         return const NonOrderSalesReport();
       case 'winding_printing_production_report':
         return const Winding_printing_production();
+      case 'raw_material_entry':
+        return const Raw_material();
+      case 'sampledc':
+        return const SampleDC();
+      case 'hand_delivery_challan_report':
+        return const HandbilldcReport();
+      case 'raw_material_entry':
+        return const Raw_material();
+      case 'sampledc':
+        return const SampleDC();
+      case 'raw_Materials_report':
+        return const RawMaterialEntriesReport();
+
     }
     return null;
   }
@@ -356,7 +373,7 @@ class MyScaffold extends StatelessWidget {
   const MyScaffold({
     Key? key,
     required this.route,
-    required this.body,
+    required this.body, required Color backgroundColor,
   }) : super(key: key);
 
   final Widget body;
@@ -373,7 +390,7 @@ class MyScaffold extends StatelessWidget {
       icon: Icons.shopping_cart,
       children: [
         AdminMenuItem(
-            title: 'Product Creation', route: 'product_code_creation'),
+            title: 'Create Product', route: 'product_code_creation'),
         AdminMenuItem(
             title: 'Purchase Order', route: 'po_creation'),
         AdminMenuItem(
@@ -398,6 +415,9 @@ class MyScaffold extends StatelessWidget {
         AdminMenuItem(
           title: 'Sales Entry',
           route: "entry_sales",
+        ), AdminMenuItem(
+          title: 'Sales Return',
+          route: 'sales_return',
         ),
         AdminMenuItem(
           title: 'Non Order Sales Entry',
@@ -414,11 +434,11 @@ class MyScaffold extends StatelessWidget {
           title: 'Delivery Challan Entry',
           route: 'dc',
         ),
-
         AdminMenuItem(
-          title: 'Sales Return',
-          route: 'sales_return',
+          title: 'Hand Bill DC',
+          route: 'sampledc',
         ),
+
         AdminMenuItem(
           title: 'Quotation',
           route: 'quotation_entry',
@@ -447,17 +467,14 @@ class MyScaffold extends StatelessWidget {
         //   route: 'finger_print_device_entry',
         // ),
         AdminMenuItem(
-          title: 'Attendance',
-          route: 'attendance_entry',
+          title: 'Shift',
+          route: 'shift_entry',
         ),
         AdminMenuItem(
           title: 'Machine',
           route: 'machine_entry',
         ),
-        AdminMenuItem(
-          title: 'Shift',
-          route: 'shift_entry',
-        ),
+
         AdminMenuItem(
           title: 'Balance Sheet',
           route: 'balancesheet_entry',
@@ -465,6 +482,14 @@ class MyScaffold extends StatelessWidget {
         AdminMenuItem(
           title: 'Worker',
           route: 'worker_entry',
+        ),
+        AdminMenuItem(
+          title: 'Raw_Material',
+          route: 'raw_material_entry',
+        ),
+        AdminMenuItem(
+          title: 'Attendance',
+          route: 'attendance_entry',
         ),
         /* AdminMenuItem(
           title: 'Winding Entry',
@@ -478,10 +503,6 @@ class MyScaffold extends StatelessWidget {
         //   title: 'Production',
         //   route: 'production_entry',
         // ),
-        AdminMenuItem(
-          title: 'Salary Calculation',
-          route: 'salary_payment_entry',
-        ),
       ],
     ),
     AdminMenuItem(
@@ -492,6 +513,10 @@ class MyScaffold extends StatelessWidget {
         AdminMenuItem(
           title: 'Item',
           route: '/itempages',
+        ),
+        AdminMenuItem(
+          title: 'Sales Order',
+          route: 'purchase_order_report',
         ),
         AdminMenuItem(
           title: 'Sales',
@@ -511,14 +536,10 @@ class MyScaffold extends StatelessWidget {
           // route: 'sales_return_report',
         ),
         AdminMenuItem(
-          title: 'PO Pending Order',
-          route: 'get_po_pending_report',
+          title: 'Purchase Order',
+          route: 'po_report',
         ),
-        AdminMenuItem(
-          title: 'Damage Report',
-          route: 'damage_stock',
-          // route: 'sales_return_report',
-        ),
+
         AdminMenuItem(
           title: 'Purchase',
           route: 'purchase_report',
@@ -528,21 +549,27 @@ class MyScaffold extends StatelessWidget {
           route: 'purchase_return_report',
         ),
         AdminMenuItem(
-          title: 'Purchase Order',
-          route: 'po_report',
+          title: 'PO Pending Order',
+          route: 'get_po_pending_report',
         ),
         AdminMenuItem(
           title: 'Delivery Challan',
           route: 'delivery_challan_report',
         ),
         AdminMenuItem(
+          title: 'Damage Report',
+          route: 'damage_stock',
+          // route: 'sales_return_report',
+        ),
+        AdminMenuItem(
+          title: 'Hand Bill DC',
+          route: 'hand_delivery_challan_report',
+        ),
+        AdminMenuItem(
           title: 'Balance Sheet',
           route: 'balancesheetreport',
         ),
-        AdminMenuItem(
-          title: 'Sales Order',
-          route: 'purchase_order_report',
-        ),
+
         AdminMenuItem(
           title: 'Quotation',
           route: 'quotation_report',
@@ -587,6 +614,10 @@ class MyScaffold extends StatelessWidget {
           route: 'raw_Materials',
         ),
         AdminMenuItem(
+          title: 'Raw Material Entry',
+          route: 'raw_Materials_report',
+        ),
+        AdminMenuItem(
           title: 'Customer',
           route: 'customer_report',
         ),
@@ -597,10 +628,6 @@ class MyScaffold extends StatelessWidget {
         AdminMenuItem(
           title: 'Attendance',
           route: 'attendance_report',
-        ),
-        AdminMenuItem(
-          title: 'Finger Print Device',
-          route: 'finger_print_device_report',
         ),
         AdminMenuItem(
           title: 'Salary Payment',

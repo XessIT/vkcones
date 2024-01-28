@@ -374,10 +374,14 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
   }
 
 
+  final FocusNode _suppliernameFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_suppliernameFocusNode);
+    });
     //   saveReturnNumber();
     addRow();
     fetchData();
@@ -692,7 +696,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
       filterPoNo(invoiceNo.text);
     });
     return MyScaffold(
-      route: "purchase_return",
+      route: "purchase_return",backgroundColor: Colors.white,
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -761,7 +765,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                   width: 200,height: 50,
                                   child: TypeAheadFormField<String>(
                                     textFieldConfiguration: TextFieldConfiguration(
-                                      controller: invoiceNo,
+                                      controller: invoiceNo,focusNode: _suppliernameFocusNode,
                                       style: const TextStyle(fontSize: 13),
                                       onChanged: (value) {
                                         if (value.isEmpty) {
@@ -1345,7 +1349,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                         setState(() {
                                                           rowData[rowIndex][key] = value;
                                                           isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                          if(rowData[i]['unit'] != 'Kg'){
+                                                          if(!rowData[i]['prodName'].startsWith('GSM')){
                                                             if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
                                                               double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
                                                               double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
@@ -1540,6 +1544,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                         color: Colors.green.shade600,
                         onPressed: () async {
 
+
                           if (isMachineNameExists(invoiceNo.text)) {
                             setState(() {
                               errorMessage = '* Invoice Number already exists';
@@ -1551,14 +1556,23 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                             });
                           }
 
-                          bool hasEmptyFields = false;
                           for (var i = 0; i < controllers.length; i++) {
-                            if (isTableFieldsEmpty(i)) {
-                              hasEmptyFields = true;
-                              break;
+                            bool isGSMProduct = rowData[i]['prodName'].startsWith('GSM');
+                            if (controllers[i][3].text.isEmpty || controllers[i][10].text.isEmpty) {
+                              setState(() {
+                                errorMessage = '* Please fill all fields ';
+                              });
+                              return;
+                            } else if (isGSMProduct && controllers[i][4].text.isEmpty) {
+                              setState(() {
+                                errorMessage = '* Please fill Total Weight';
+                              });
+                              return;
                             }
                           }
-
+                          setState(() {
+                            errorMessage = null;
+                          });
                           if (invoiceNo.text.isNotEmpty) {
                             updateSupplierDetails(
                               invoiceNo.text,
@@ -1579,56 +1593,10 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                               controller[3].text.isEmpty)){
                             errorMessage = '* Invalid Invoice Number';
                           }
-                          /* if (hasEmptyFields) {
-                            setState(() {
-                              errorMessage = '* Please Select the Reason';
-                            });
-                            return;
-                          }*/
-                          // for (var i = 0; i < controllers.length; i++) {
-                          /*if (isTableFieldsEmpty(i)) {
-                              setState(() {
-                                errorMessage =
-                                'Error: Please fill in all fields in row $i';
-                              });
-                              return;
-                            }*/
-                          /*String productCode = controllers[i][0].text;
-                            String productName = controllers[i][1].text;
-                            String unit = controllers[i][2].text;
-                            int quantity = int.parse(controllers[i][3].text);
-                            int availableQuantity = await getAvailableQuantity(
-                                productCode, productName, unit);
-
-                            if (quantity > availableQuantity) {
-                              setState(() {
-                                errorMessage =
-                                'Error: Product code - $productCode, Product Name - $productName, available qty only $availableQuantity. You cannot return $quantity';
-                              });
-                              return;
-                            }
-*/
-                          // else {
                           List<Map<String, dynamic>> rowsDataToInsert = [];
                           rowsDataToInsert.add(dataToInsert);
                           purchaseReturnItemToDatabase();
-                          /*  for (int i = 0; i < controllers.length; i++) {
-
-                              }*/
                           try {
-                            // setState(() {
-                            //   isDataSaved = true;
-                            // });
-                            //    saveReturnNumber();
-                            // clearAllRows();
-                            // invoiceNo.clear();
-                            // supCode.clear();
-                            // supName.clear();
-                            // supMobile.clear();
-                            // supAddress.clear();
-                            // // selectedReason.c;
-                            // grandTotal.clear();
-
                             showDialog(
                               barrierDismissible: false,
                               context: context,
@@ -1661,9 +1629,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                               ),
                             );
                           }
-                          //  }
-                          // }
-                          //Navigator.push(context, MaterialPageRoute(builder: (context)=>PurchaseReturn()));
                         },
                         child: const Text("SAVE", style: TextStyle(color: Colors.white)),
                       ),

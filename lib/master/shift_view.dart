@@ -1507,7 +1507,7 @@ class _ShiftViewState extends State<ShiftView> {
     DateTime currentdate = DateTime.now();
     final formattedDate = DateFormat("yyyy-MM-dd").format(currentdate);
     return  MyScaffold(
-        route: "shift view",
+        route: "shift view",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(
@@ -1643,14 +1643,18 @@ class _ShiftViewState extends State<ShiftView> {
                                                     style: TextStyle(fontSize: 13),
                                                     readOnly: true,
                                                     onTap: () async {
-                                                      DateTime currentDate = DateTime.now();
+                                                      // DateTime currentDate = DateTime.now();
                                                       DateTime? pickedDate = await showDatePicker(
                                                         context: context,
-                                                        initialDate: fromDateController.text.isNotEmpty
-                                                            ? DateFormat('dd-MM-yyyy').parse(fromDateController.text)
-                                                            : currentDate,
-                                                        firstDate: currentDate,
-                                                        lastDate: currentDate.add(Duration(days: 15)),
+                                                        initialDate: widget.fromDate != null
+                                                            ? DateTime.parse(widget.fromDate!).toLocal()
+                                                            : DateTime.now(),
+                                                        firstDate: widget.fromDate != null
+                                                            ? DateTime.parse(widget.fromDate!).toLocal()
+                                                            : DateTime.now(),
+                                                        lastDate: widget.toDate != null
+                                                            ? DateTime.parse(widget.fromDate!).toLocal().add(Duration(days: 6))
+                                                            : DateTime.now().add(Duration(days: 6)),
                                                       );
                                                       if (pickedDate != null) {
                                                         setState(() {
@@ -1670,7 +1674,6 @@ class _ShiftViewState extends State<ShiftView> {
                                                     ),
                                                   ),
                                                 ),
-
                                                 SizedBox(
                                                   width: 220,
                                                   height: 70,
@@ -1678,14 +1681,17 @@ class _ShiftViewState extends State<ShiftView> {
                                                     style: TextStyle(fontSize: 13),
                                                     readOnly: true,
                                                     onTap: () async {
-                                                      DateTime currentDate = DateTime.now();
                                                       DateTime? pickedDate = await showDatePicker(
                                                         context: context,
-                                                        initialDate: toDateController.text.isNotEmpty
-                                                            ? DateFormat('dd-MM-yyyy').parse(toDateController.text)
-                                                            : currentDate,
-                                                        firstDate: currentDate,
-                                                        lastDate: currentDate.add(Duration(days: 15)),
+                                                        initialDate: widget.fromDate != null
+                                                            ? DateTime.parse(widget.fromDate!).toLocal()
+                                                            : DateTime.now(),
+                                                        firstDate: widget.fromDate != null
+                                                            ? DateTime.parse(widget.fromDate!).toLocal()
+                                                            : DateTime.now(),
+                                                        lastDate: widget.toDate != null
+                                                            ? DateTime.parse(widget.fromDate!).toLocal().add(Duration(days: 6))
+                                                            : DateTime.now().add(Duration(days: 6)),
                                                       );
                                                       if (pickedDate != null) {
                                                         setState(() {
@@ -1709,6 +1715,8 @@ class _ShiftViewState extends State<ShiftView> {
                                                     ),
                                                   ),
                                                 ),
+
+
                                                 SizedBox(
                                                   width: 220,height: 70,
                                                   child: TextFormField(
@@ -1733,6 +1741,8 @@ class _ShiftViewState extends State<ShiftView> {
                                                     ),
                                                   ),
                                                 ),
+
+
 
                                                 SizedBox(
                                                   width: 220,

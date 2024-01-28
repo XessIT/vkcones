@@ -321,7 +321,7 @@ class _MachineViewState extends State<MachineView> {
     // String warrantydatecontroller = DateFormat("yyyy-MM-dd").format(warrantyDate);
 
     return  MyScaffold(
-      route: '',
+      route: '',backgroundColor: Colors.white,
       body: Form(key: _formKey,child:
       Column(
         children: [

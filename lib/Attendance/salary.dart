@@ -392,7 +392,7 @@ class _SalaryCalculationState extends State<SalaryCalculation> {
       return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
     }
     return MyScaffold(
-      route: "salary_report",
+      route: "salary_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

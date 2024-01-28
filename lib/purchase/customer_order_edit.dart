@@ -52,7 +52,8 @@ class _CustomerOrderEditState extends State<CustomerOrderEdit> {
   final FocusNode custCodeFocusNode = FocusNode();
   String? selectedCustomer="";
   TextEditingController deliveryDate = TextEditingController();
-  String? deliveryType;
+  String? deliveryType = 'Delivery Type'; // or initialize it based on your requirements
+
   bool dropdownValid1 = true;
   static final RegExp gstregex2 = RegExp(r"^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d{1}[Z]{1}[A-Z\d]{1}$");
   bool isFirstRowRemovalEnabled = false;
@@ -940,7 +941,7 @@ class _CustomerOrderEditState extends State<CustomerOrderEdit> {
     var selectedDate = DateTime.now();
 
     return MyScaffold(
-      route: "purchase_order",
+      route: "purchase_order",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
           child: Form(
@@ -1367,28 +1368,29 @@ class _CustomerOrderEditState extends State<CustomerOrderEdit> {
                                       color: Colors.white70,
                                     ),
                                     child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        // Step 3.
-                                        value: deliveryType,
-                                        hint: Text("Delivery Type",style:TextStyle(fontSize: 13,color: Colors.black)),
-                                        // Step 4.
-                                        items: <String>['Complete','Partial']
+                                      child:DropdownButton<String>(
+                                        value: deliveryType == null || !['Complete', 'Partial'].contains(deliveryType)
+                                            ? 'Delivery Type'
+                                            : deliveryType,
+                                        hint: Text("Delivery Type", style: TextStyle(fontSize: 13, color: Colors.black)),
+                                        items: <String>['Delivery Type','Complete', 'Partial']
                                             .map<DropdownMenuItem<String>>((String value) {
                                           return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(
                                               value,
-                                              style: TextStyle(fontSize: 15,color: Colors.black),
+                                              style: TextStyle(fontSize: 15, color: Colors.black),
                                             ),
                                           );
                                         }).toList(),
-                                        // Step 5.
                                         onChanged: (String? newValue) {
                                           setState(() {
-                                            deliveryType = newValue!;
+                                            deliveryType = newValue;
                                           });
                                         },
                                       ),
+
+
                                     ),
                                   ),
                                 ),

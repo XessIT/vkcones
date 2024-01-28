@@ -23,139 +23,14 @@ class Home extends StatefulWidget {
   @override
   State<Home> createState() => _HomeState();
 }
-
-/*
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
       route: "/",
+      backgroundColor: Colors.white,  // Set the background color here
       body: Container(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              children: [
-                SizedBox(height: 20),
-                Container(
-                  child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Dashboard',
-                      labelStyle:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: Wrap(
-                        children: [
-                          buildDashboardItem(
-                            'Sales',
-                            "sales.JPEG",
-                            [Colors.deepPurple, Colors.deepPurpleAccent],
-                                () => navigateTo(EntrySales()),
-                          ),
-                          buildDashboardItem(
-                            'Purchase Order Creation',
-                            "purchaeorder.JPEG",
-                            [Colors.orange, Colors.orangeAccent],
-                                () => navigateTo(PoCreation()),
-                          ),
-                          buildDashboardItem(
-                            'Shift Entry',
-                            "shiftentry.JPEG",
-                            [Colors.teal, Colors.tealAccent],
-                                () => navigateTo(ShiftCreation()),
-                          ),
-                          buildDashboardItem(
-                            'Delivery Challan',
-                            "deliverycha.JPEG",
-                            [Colors.blue, Colors.blueAccent],
-                                () => navigateTo(Dc()),
-                          ),
-                          buildDashboardItem(
-                            'Production Stock',
-                            "production.JPEG",
-                            [Colors.green, Colors.greenAccent],
-                                () => navigateTo(ProductionEntry()),
-                          ),
-                          buildDashboardItem(
-                            'Employee',
-                            "employee.JPEG",
-                            [Colors.pink, Colors.pinkAccent],
-                                () => navigateTo(EmployeeProfileUpdate()),
-                          ),
-                          buildDashboardItem(
-                            'Sales Order',
-                            "custorder.JPEG",
-                            [Colors.lightBlue, Colors.lightBlueAccent],
-                                () => navigateTo(Purchaseorder()),
-                          ),
-                          buildDashboardItem(
-                            'Finger Print Device',
-                            "fb.JPEG",
-                            [Colors.blue, Colors.blueAccent],
-                                () => navigateTo(FingerPrint()),
-                          ),
-                          buildDashboardItem(
-                            'Raw Material Stock',
-                            "rawmaterial.JPEG",
-                            [Colors.red, Colors.redAccent],
-                                () => navigateTo(RawMaterialStockEntries()),
-                          ),
-                          buildDashboardItem(
-                            'Purchase',
-                            "purchaseentry2.JPEG",
-                            [Colors.cyan, Colors.cyanAccent],
-                                () => navigateTo(Purchase()),
-                          ),
-                          buildDashboardItem(
-                            'Attendance',
-                            "shiftentry.JPEG",
-                            [Colors.pink, Colors.pinkAccent],
-                                () => navigateTo(AttendanceReport()),
-                          ),
-                          buildDashboardItem(
-                            'Daily Work Status',
-                            "dailyworkstatus.JPEG",
-                            [Colors.blueGrey, Colors.greenAccent],
-                                () => navigateTo(DailyWorkStatus()),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildDashboardItem(
-      String title, String iconName, List<Color> colors, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: DashboardComponent(
-        title: title,
-        iconName: iconName,
-        colors: colors,
-      ),
-    );
-  }
-
-  void navigateTo(Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-  }
-}
-*/
-class _HomeState extends State<Home> {
-  @override
-  Widget build(BuildContext context) {
-    return MyScaffold(
-      route: "/",
-      body: Container(
+       color: Colors.white,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(18.0),

@@ -108,7 +108,7 @@ class _SalaryPaymentEntryState extends State<SalaryPaymentEntry> {
       text: DateFormat('yyyy-MM-dd').format(selectedDate),
     );
     return MyScaffold(
-        route: "salary_payment_entry",
+        route: "salary_payment_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,

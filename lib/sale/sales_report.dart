@@ -233,7 +233,7 @@ class _SalesReportState extends State<SalesReport> {
     // });
 
     return MyScaffold(
-      route: "sales_report",
+      route: "sales_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

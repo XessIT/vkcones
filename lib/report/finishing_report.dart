@@ -165,7 +165,7 @@ class _FinishingReportState extends State<FinishingReport> {
     });
 
     return MyScaffold(
-      route: "finishing_report",
+      route: "finishing_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

@@ -223,6 +223,7 @@ class _NonOrderSalesReportState extends State<NonOrderSalesReport> {
     // }
     return MyScaffold(
       route: "non_sales_report",
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

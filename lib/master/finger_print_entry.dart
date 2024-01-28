@@ -24,7 +24,7 @@ class _FingerPrintState extends State<FingerPrint> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      route: "finger_print_entry",
+      route: "finger_print_entry",backgroundColor: Colors.white,
       body: Form(
         key: _formKey,
         child:  Center(

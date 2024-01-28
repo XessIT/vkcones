@@ -76,7 +76,7 @@ String? paymentype;
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      route: 'sales_order_entry',
+      route: 'sales_order_entry',backgroundColor: Colors.white,
       body:  Form(
         key: _formKey,
         child:  Center(

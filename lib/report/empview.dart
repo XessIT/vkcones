@@ -161,7 +161,7 @@ class _employeeViewState extends State<employeeView> {
     // String warrantydatecontroller = DateFormat("yyyy-MM-dd").format(warrantyDate);
 
     return  MyScaffold(
-      route: '',
+      route: '',backgroundColor: Colors.white,
       body: Form(key: _formKey,child:
       Column(
         children: [

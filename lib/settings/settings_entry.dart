@@ -18,7 +18,7 @@ class _SettingsEntryState extends State<SettingsEntry> {
     return DefaultTabController(
       length: 4,
       child: MyScaffold(
-        route: "/settings_entry",
+        route: "/settings_entry",backgroundColor: Colors.white,
         body: Container(
           color: Colors.white,
           child: Padding(

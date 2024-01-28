@@ -12,7 +12,7 @@ class _TransportReportState extends State<TransportReport> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "transport_entry",
+        route: "transport_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             child: Center(

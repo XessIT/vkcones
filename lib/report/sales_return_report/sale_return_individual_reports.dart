@@ -92,7 +92,7 @@ class _SalesReturnIndividualReportState extends State<SalesReturnIndividualRepor
 
   @override
   Widget build(BuildContext context) {
-    return  MyScaffold(route: "dcview",
+    return  MyScaffold(route: "dcview",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(
@@ -260,7 +260,7 @@ class _SalesReturnIndividualReportState extends State<SalesReturnIndividualRepor
                                                                     padding: const EdgeInsets.all(8.0),
                                                                     child: SizedBox(
                                                                       width: 180,
-                                                                     // height: 30,
+                                                                      // height: 30,
                                                                       child: TextFormField(
                                                                         readOnly: true,
                                                                         initialValue: snapshot.data![0]["custAddress"],
@@ -364,85 +364,61 @@ class _SalesReturnIndividualReportState extends State<SalesReturnIndividualRepor
                                                                                       color: Colors.blue.shade100,
                                                                                     ),
                                                                                     children: [
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(// Set the desired height
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(
-                                                                                              child: Text(
-                                                                                                'S.No',
-                                                                                                style: TextStyle(
-                                                                                                  fontWeight: FontWeight.bold,
-                                                                                                  color: Colors.black,
-                                                                                                ),
+                                                                                      TableCell(// Set the desired height
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(
+                                                                                            child: Text(
+                                                                                              'S.No',
+                                                                                              style: TextStyle(
+                                                                                                fontWeight: FontWeight.bold,
+                                                                                                color: Colors.black,
                                                                                               ),
                                                                                             ),
                                                                                           ),
                                                                                         ),
                                                                                       ),
 
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Rate/Cone', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Rate/Cone', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
                                                                                     ],
@@ -576,85 +552,61 @@ class _SalesReturnIndividualReportState extends State<SalesReturnIndividualRepor
                                                                                       color: Colors.blue.shade100,
                                                                                     ),
                                                                                     children: [
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(// Set the desired height
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(
-                                                                                              child: Text(
-                                                                                                'S.No',
-                                                                                                style: TextStyle(
-                                                                                                  fontWeight: FontWeight.bold,
-                                                                                                  color: Colors.black,
-                                                                                                ),
+                                                                                      TableCell(// Set the desired height
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(
+                                                                                            child: Text(
+                                                                                              'S.No',
+                                                                                              style: TextStyle(
+                                                                                                fontWeight: FontWeight.bold,
+                                                                                                color: Colors.black,
                                                                                               ),
                                                                                             ),
                                                                                           ),
                                                                                         ),
                                                                                       ),
 
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Rate per Unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Rate per Unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(8.0),
-                                                                                        child: TableCell(
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                                          ),
+                                                                                      TableCell(
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(8.0),
+                                                                                          child: Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                                         ),
                                                                                       ),
                                                                                     ],

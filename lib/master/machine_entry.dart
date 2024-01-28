@@ -227,7 +227,7 @@ class _MachineEntryState extends State<MachineEntry> {
     DateTime currentDate = DateTime.now();
     DateTime purchasedate = DateTime.now();
     return MyScaffold(
-        route: "machine_entry",
+        route: "machine_entry",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(

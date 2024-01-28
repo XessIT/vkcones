@@ -329,7 +329,7 @@ class _MachineReportState extends State<MachineReport> {
     return Builder(
       builder: (context) =>
           MyScaffold(
-            route: "machine_report",
+            route: "machine_report",backgroundColor: Colors.white,
             body: SingleChildScrollView(
               child: Form(
                 child: Center(

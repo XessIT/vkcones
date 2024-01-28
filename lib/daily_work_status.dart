@@ -61,8 +61,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
   DateTime date = DateTime.now();
   String? selectedmachinefinishing;
-
-
   Future<void> fetchData(String shiftType, String machName, DateTime desiredDate) async {
     final response = await http.get(
       Uri.parse('http://localhost:3309/fetch_daily_Work_status?shiftType=$shiftType&machName=$machName&desiredDate=$desiredDate'),
@@ -81,6 +79,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
           person3code.text = data[0]['winding_empcode2'] ?? '';
         } else {
           person1.text = data[0]['winding_asstwo'] ?? '';
+          //person1code.text = data[0]['winding_oPempcode1'] ?? '';
           person2code.text = data[0]['winding_oPempcode1'] ?? '';
           person3code.text = data[0]['winding_empcode1'] ?? '';
           person2.text = data[0]['winding_assOne'] ?? '';
@@ -893,6 +892,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
     return MyScaffold(
         route: "daily_work_status",
+        backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -945,16 +945,14 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                               showDatePicker(
                                                 context: context,
                                                 initialDate: eod,
-
                                                 firstDate: DateTime(2000),
                                                 // Set the range of selectable dates
-                                                lastDate: DateTime(2100),
+                                                lastDate: DateTime(2100) , //eod,
                                               ).then((date) {
                                                 if (date != null) {
                                                   setState(() {
                                                     eod = date; // Update the selected date
                                                     print("$eod: date");
-
                                                     shiftType=null;
                                                     deptType= null;
                                                     selectedmachinefinishing = null;
@@ -963,6 +961,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     kgofreels.clear();
                                                     reelsgsm.clear();
                                                     extraproductionamt.clear();
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
                                                   });
                                                 }
                                               });
@@ -1028,6 +1032,14 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 value: selectedCheckbox == 1,
                                                 onChanged: (bool? value) {
                                                   setState(() {
+                                                    shiftType=null;
+                                                    selectedmachinefinishing = null;
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
                                                     if (value != null && value) {
                                                       selectedCheckbox = 1;
                                                     } else {
@@ -1048,6 +1060,14 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 value: selectedCheckbox == 2,
                                                 onChanged: (bool? value) {
                                                   setState(() {
+                                                    shiftType=null;
+                                                    selectedmachinefinishing = null;
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
                                                     if (value != null && value) {
                                                       selectedCheckbox = 2;
                                                     } else {
@@ -1122,8 +1142,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   }
                                                   shiftType =null;
                                                   person1.clear();
+                                                  person1code.clear();
                                                   person2.clear();
+                                                  person2code.clear();
                                                   person3.clear();
+                                                  person3code.clear();
                                                   productionQuantityController.clear();
                                                   numofreels.clear();
                                                   kgofreels.clear();
@@ -1176,7 +1199,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     shiftType = newValue!;
                                                     //  errormsg =null;
                                                     showProductionQuantity();
-
                                                   });},),),),
                                         if(deptType =="Finishing"|| deptType == "Printing")
                                           SizedBox(
@@ -1210,6 +1232,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 }).toList(),
                                                 onChanged: (String? newValue) {
                                                   setState(() {
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
                                                     shiftType = newValue!;
                                                     //  errormsg =null;
                                                     showProductionQuantity();
@@ -1270,6 +1298,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                         onChanged: (value) {
                                           setState(() {
                                             if (value.isNotEmpty) {
+
                                               int productionQty = int.parse(value);
 
                                               // Check if the selected machine type is "Winding"
@@ -1296,11 +1325,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   : 0))
                                                   : 0;
 
+                                              errormsg = null;
                                               extraproductionamt.text = extraProductionAmount.toString();
                                             } else {
                                               // Reset visibility and clear the text if Production Qty is empty
                                               isExtraProductionVisible = false;
                                               extraproductionamt.text = '';
+                                              errormsg = null;
                                             }
                                           });
                                         },
@@ -1315,13 +1346,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                         keyboardType: TextInputType.number,
                                         inputFormatters: <TextInputFormatter>[
                                           FilteringTextInputFormatter.digitsOnly,
-                                          LengthLimitingTextInputFormatter(6)
+                                          LengthLimitingTextInputFormatter(5)
                                         ],
                                       ),
                                     ),
                                   ),
-
-
                                   Wrap(
                                     children: [
                                       Visibility(
@@ -1331,7 +1360,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              //const Text("Extra Production"),
+                                              //const Text("Persion 1"),
                                               SizedBox(
                                                 width: 200,
                                                 height: 70,
@@ -1348,9 +1377,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-
-                                            ],
+                                              ),                                            ],
                                           ),
                                         ),
                                       ),
@@ -1462,10 +1489,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
                             const Align(
                                 alignment:Alignment.topLeft,
-                                child: Text("Product Details",
-                                  style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)),
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 20.0),
+                                  child: Text("Product Details",
+                                    style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
+                                )),
                             const SizedBox(height: 20,),
-
                             Visibility(
                               visible: deptType != "Finishing",
                               child: SingleChildScrollView(
@@ -1475,33 +1504,17 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                     padding:  EdgeInsets.only(left: 0),
                                     child: Table(
                                       border: TableBorder.all(color: Colors.black54),
-                                      defaultColumnWidth:  FixedColumnWidth(150.0),
+                                      defaultColumnWidth:  FixedColumnWidth(170.0),
                                       columnWidths:  <int, TableColumnWidth>{
-                                        0: FixedColumnWidth(100),
-                                        1: FixedColumnWidth(200),
+                                        0: FixedColumnWidth(250),
+                                        if(deptType =="Printing")
+                                          1: FixedColumnWidth(0),
                                         if(deptType =="Printing")
                                           2: FixedColumnWidth(0),
-                                        if(deptType =="Printing")
-                                          3: FixedColumnWidth(0),
                                       },
                                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                       children: [
                                         TableRow(children: [
-                                          TableCell(
-                                            child: Container(
-                                              color:Colors.blue.shade100,
-                                              child: Center(
-                                                child: Column(
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(8.0),
-                                                      child: Text('S.No',style: TextStyle(fontWeight: FontWeight.bold,),),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
                                           TableCell(
                                             child: Container(
                                               color: Colors.blue.shade100,
@@ -1576,36 +1589,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
                                         for (var i = 0; i < rowData.length; i++)
                                           TableRow(children: [
-                                            TableCell(
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                                height: 60,
-                                                color: Colors.blue.shade100,
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: TextFormField(
-                                                    initialValue: serialnumber.toString(),
-                                                    keyboardType: TextInputType.number,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        //  rowData[i].quantity = int.tryParse(value) ?? 0;
-                                                      });
-                                                    },
-                                                    inputFormatters: <TextInputFormatter>[
-                                                      FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(10)
-                                                    ],
-                                                    decoration: const InputDecoration(
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      enabledBorder: OutlineInputBorder(
-                                                        borderSide: BorderSide(color: Colors.grey),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
                                             //GSM
                                             TableCell(
                                               child: SizedBox(
@@ -1618,6 +1601,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                       child: TypeAheadFormField<String?>(
                                                           textFieldConfiguration: TextFieldConfiguration(
                                                             onChanged: (value){
+
                                                             },
                                                             controller: TextEditingController(text: rowData[i].prodgsm),
                                                             decoration: InputDecoration(
@@ -1648,10 +1632,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                               rawMaterialValueGet( rowData[i].prodgsm!);
                                                               withoutprintingValueGet( rowData[i].prodgsm!);
                                                               withprintingValueGet( rowData[i].prodgsm!);
-
                                                               // Log to verify the suggestion and prodName
                                                               print('Selected prodName: $suggestion');
-
                                                               try {
                                                                 // Call the fetchweight function with the selected prodName
                                                                 String weight = await fetchweight(suggestion!);
@@ -1693,13 +1675,37 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     keyboardType: TextInputType.number,
 
                                                     onChanged: (value) {
-                                                      if(rawQTY!<int.parse(value)){
+                                                      if (rawQTY! < int.parse(value)) {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (BuildContext context) {
+                                                            Future.delayed(Duration(seconds: 3), () {
+                                                              Navigator.of(context).pop(true); // Close the dialog after 3 seconds
+                                                            });
+                                                            return AlertDialog(
+                                                              title: Text("Invalid Reel Quantity"),
+                                                              content: Column(
+                                                                mainAxisSize: MainAxisSize.min, // Reduce the vertical size
+                                                                children: [
+                                                                  Text("Available Reels is $rawQTY, cannot enter $value"),
+                                                                  SizedBox(height: 10),
+                                                                  Text("Please correct your input."),
+                                                                ],
+                                                              ),
+                                                              contentPadding: EdgeInsets.all(16.0), // Adjust internal padding
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  onPressed: () {
+                                                                    Navigator.of(context).pop();
+                                                                  },
+                                                                  child: Text('OK'),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
                                                         _formKey.currentState!.reset();
-                                                        setState(() {
-                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("available Reels is $rawQTY,not enter $value")));
-                                                        });
                                                       }
-                                                      //rowData[i].quantity = int.tryParse(value) ?? 0;
                                                     },
                                                     inputFormatters: <TextInputFormatter>[
                                                       FilteringTextInputFormatter.digitsOnly,
@@ -1728,16 +1734,43 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     controller: rowData[i].finishwight,
                                                     keyboardType: TextInputType.number,
                                                     onChanged: (value) {
-                                                      if(int.parse(rawWeight!) < int.parse(value)){
+                                                      if (int.parse(rawWeight!) < int.parse(value)) {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (BuildContext context) {
+                                                            Future.delayed(Duration(seconds: 3), () {
+                                                              Navigator.of(context).pop(true); // Close the dialog after 3 seconds
+                                                            });
+                                                            return AlertDialog(
+                                                              title: Text("Invalid Reel Weight"),
+                                                              content: Column(
+                                                                mainAxisSize: MainAxisSize.min,
+                                                                children: [
+                                                                  Text("Available Reels weight is $rawWeight, cannot enter $value"),
+                                                                  SizedBox(height: 10),
+                                                                  Text("Please correct your input."),
+                                                                ],
+                                                              ),
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  onPressed: () {
+                                                                    Navigator.of(context).pop();
+                                                                  },
+                                                                  child: Text('OK'),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
                                                         setState(() {
                                                           _formKey.currentState!.reset();
-                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("available Reels is $rawWeight,not enter $value")));
                                                         });
                                                       }
                                                       setState(() {
-                                                        //  rowData[i].quantity = int.tryParse(value) ?? 0;
+                                                        // rowData[i].quantity = int.tryParse(value) ?? 0;
                                                       });
                                                     },
+
                                                     inputFormatters: <TextInputFormatter>[
                                                       FilteringTextInputFormatter.digitsOnly,
                                                       LengthLimitingTextInputFormatter(10)
@@ -1767,14 +1800,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     onChanged: (value) {
                                                       setState(() {
                                                         if(deptType=="Printing")
-
                                                           if(int.parse(Numofcones!) < int.parse(value)){
                                                             _formKey.currentState!.reset();
                                                             setState(() {
                                                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("available Reels is $Numofcones,not enter $value")));
                                                             });
                                                           }
-
                                                         // Update the productionQuantityController based on the sum of numofproduction for all rows
                                                         int totalProduction = calculateTotalProduction();
                                                         productionQuantityController.text = totalProduction.toString();
@@ -1843,7 +1874,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                             );
                                                           } else {
                                                             // addRow();
-                                                            serialnumber++;
+                                                            // serialnumber++;
                                                             if (i == 0) {
                                                               // Enable the first row removal once a second row is added
                                                               setState(() {
@@ -1899,7 +1930,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                 ),
                               ),
                             ),
-
                             //finishing table
                             SizedBox(height: 20,),
                             Visibility(
@@ -1913,29 +1943,16 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                       border: TableBorder.all(color: Colors.black54),
                                       defaultColumnWidth: const FixedColumnWidth(150.0),
                                       columnWidths: const <int, TableColumnWidth>{
-                                        0: FixedColumnWidth(100),
+                                        0: FixedColumnWidth(200),
                                         1: FixedColumnWidth(150),
                                         2: FixedColumnWidth(200),
-                                        3: FixedColumnWidth(200),
-                                        4: FixedColumnWidth(150),
+                                        3: FixedColumnWidth(100),
+                                        4: FixedColumnWidth(100),
                                       },
                                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                       children: [
                                         TableRow(children: [
-                                          TableCell(
-                                            child: Container(
-                                              color:Colors.blue.shade100,
-                                              child: Center(
-                                                child: Column(
-                                                  children: [
-                                                    SizedBox(height: 10),
-                                                    Text('S.No',style: TextStyle(fontWeight: FontWeight.bold,),),
-                                                    SizedBox(height: 10),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+
                                           TableCell(
                                             child: Container(
                                               color: Colors.blue.shade100,
@@ -2015,36 +2032,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
                                         for (var i = 0; i < rowData.length; i++)
                                           TableRow(children: [
-                                            TableCell(
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                                height: 60,
-                                                color: Colors.blue.shade100,
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: TextFormField(
-                                                    initialValue: serialnumber.toString(),
-                                                    keyboardType: TextInputType.number,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        //  rowData[i].quantity = int.tryParse(value) ?? 0;
-                                                      });
-                                                    },
-                                                    inputFormatters: <TextInputFormatter>[
-                                                      FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(10)
-                                                    ],
-                                                    decoration: const InputDecoration(
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      enabledBorder: OutlineInputBorder(
-                                                        borderSide: BorderSide(color: Colors.grey),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
                                             TableCell(
                                               child: SizedBox(
                                                 height: 60,
@@ -2213,13 +2200,38 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     controller: rowData[i].numofproduction,
                                                     keyboardType: TextInputType.number,
                                                     onChanged: (value) {
-                                                      if(deptType=="Finishing")
-                                                        if(int.parse(printednumofcones!) < int.parse(value)){
+                                                      if (deptType == "Finishing" && int.parse(printednumofcones!) < int.parse(value)) {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (BuildContext context) {
+                                                            Future.delayed(Duration(seconds: 3), () {
+                                                              Navigator.of(context).pop(true); // Close the dialog after 3 seconds
+                                                            });
+                                                            return AlertDialog(
+                                                              title: Text("Invalid Production Quantity"),
+                                                              content: Column(
+                                                                mainAxisSize: MainAxisSize.min,
+                                                                children: [
+                                                                  Text("Available Reels is $printednumofcones, cannot enter $value"),
+                                                                  SizedBox(height: 10),
+                                                                  Text("Please correct your input."),
+                                                                ],
+                                                              ),
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  onPressed: () {
+                                                                    Navigator.of(context).pop();
+                                                                  },
+                                                                  child: Text('OK'),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
+                                                        setState(() {
                                                           _formKey.currentState!.reset();
-                                                          setState(() {
-                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("available Reels is $printednumofcones,not enter $value")));
-                                                          });
-                                                        }
+                                                        });
+                                                      }
                                                       setState(() {
                                                         // Update the productionQuantityController based on the sum of numofproduction for all rows
                                                         int totalProduction = calculateTotalProduction();
@@ -2230,7 +2242,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     },
                                                     inputFormatters: <TextInputFormatter>[
                                                       FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(10)
+                                                      LengthLimitingTextInputFormatter(5)
                                                     ],
                                                     decoration: const InputDecoration(
                                                       filled: true,
@@ -2260,7 +2272,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     },
                                                     inputFormatters: <TextInputFormatter>[
                                                       FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(10)
+                                                      LengthLimitingTextInputFormatter(5)
                                                     ],
                                                     decoration: const InputDecoration(
                                                       filled: true,
@@ -2299,8 +2311,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           if (i > 0 &&
                                                               rowData[i].prodgsm == rowData[i - 1].prodgsm &&
                                                               rowData[i].itemGroup == rowData[i - 1].itemGroup &&
-                                                              rowData[i].itemName == rowData[i - 1].itemName)
-                                                          {
+                                                              rowData[i].itemName == rowData[i - 1].itemName) {
                                                             showDialog(
                                                               context: context,
                                                               builder: (BuildContext context) {
@@ -2320,7 +2331,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                             );
                                                           } else {
                                                             // Check if the quantity is 0
-                                                            if(deptType=="finishing")
                                                             if (rowData[i].numofproduction.text == '0' && rowData[i].totalqty.text == '0')
                                                             {
                                                               showDialog(
@@ -2340,8 +2350,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                                   );
                                                                 },
                                                               );
-                                                            }
-                                                            else {
+                                                            } else {
+                                                              // Quantity is not 0, add the row
                                                               addRow();
                                                               serialnumber++;
                                                               if (i ==  0) {
@@ -2354,8 +2364,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           }
                                                         },
                                                       ),
-
-
                                                     ),
                                                   ],
                                                 ),
@@ -2394,8 +2402,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                               fromDate = date;
                               showProductionQuantity();
                               if (_formKey.currentState!.validate()) {
-
-                               if (deptType == null) {
+                                //  for (var i = 0; i < rowData.length; i++) {
+                                if (deptType == null) {
                                   setState(() {
                                     errormsg = "* Select a Machine Type";
                                   });
@@ -2409,8 +2417,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                     errormsg = "* Select a Machine Name";
                                   });
                                 }
+                                else if (productionQuantityController.text.isEmpty) {
+                                  setState(() {
+                                    errormsg = "* Fill All fields in Table";
+                                  });
+                                }
                                 else{
-                                   await submititemDataToDatabase();
+                                  await submititemDataToDatabase();
                                 }
                               }
                             },

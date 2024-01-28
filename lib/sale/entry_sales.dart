@@ -1,6 +1,5 @@
 
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -640,7 +639,7 @@ class _EntrySalesState extends State<EntrySales> {
               rowControllers.add(dcontroller);
             }
             double quantity = double.tryParse(rowControllers[2].text) ?? 0.0;//qty-4
-            quantities.add(int.parse(quantity.toString())); // Add the quantity to the list
+            //    quantities.add(int.parse(quantity.toString())); // Add the quantity to the list
             double unit = double.tryParse(rowControllers[3].text) ?? 0.0;//unit-3
             double rate = double.tryParse(rowControllers[5].text) ?? 0.0;//rate-2
             double gst = double.tryParse( rowControllers[6].text) ?? 0.0;
@@ -648,11 +647,11 @@ class _EntrySalesState extends State<EntrySales> {
             double amt = temp * rate;
             double gstpersentage = amt * gst/100;
             double totals = amt+gstpersentage;
-            rowControllers[4].text = temp.toString();//amt-5
+            rowControllers[4].text = temp.toStringAsFixed(0);//amt-5
             rowControllers[7].text = amt.toStringAsFixed(2);//amt-5
             rowControllers[8].text = gstpersentage.toStringAsFixed(2);//gstamot-6
             rowControllers[9].text = totals.toStringAsFixed(2);//total-7
-            rowControllers[10].text =int.parse(quantity.toString()).toString();//total-7
+            //     rowControllers[10].text =int.parse(quantity.toString()).toString();//total-7
             dcontrollers.add(rowControllers);
             rowDatadisable.add(row);
           }
@@ -700,7 +699,7 @@ class _EntrySalesState extends State<EntrySales> {
               rowControllers.add(dcontroller);
             }
             double quantity = double.tryParse(rowControllers[2].text) ?? 0.0;//qty-4
-            quantities.add(int.parse(quantity.toString())); // Add the quantity to the list
+            //  quantities.add(int.parse(quantity.toString())); // Add the quantity to the list
             double unit = double.tryParse(rowControllers[3].text) ?? 0.0;//unit-3
             double rate = double.tryParse(rowControllers[5].text) ?? 0.0;//rate-2
             double gst = double.tryParse( rowControllers[6].text) ?? 0.0;
@@ -708,11 +707,12 @@ class _EntrySalesState extends State<EntrySales> {
             double amt = temp * rate;
             double gstpersentage = amt * gst/100;
             double totals = amt+gstpersentage;
-            rowControllers[4].text = temp.toString();//amt-5
+            rowControllers[4].text = temp.toStringAsFixed(0); //amt-5
+
             rowControllers[7].text = amt.toStringAsFixed(2);//amt-5
             rowControllers[8].text = gstpersentage.toStringAsFixed(2);//gstamot-6
             rowControllers[9].text = totals.toStringAsFixed(2);//total-7
-            rowControllers[10].text =int.parse(quantity.toString()).toString();//total-7
+            //   rowControllers[10].text =int.parse(quantity.toString()).toString();//total-7
             dcontrollers.add(rowControllers);
             focusNodes.add(List.generate(9, (i) => FocusNode()));
             rowDatadisable.add(row);
@@ -771,7 +771,7 @@ class _EntrySalesState extends State<EntrySales> {
       print('Raw Response: ${response.body}');
 
       if (response.statusCode == 200) {
-      //  final result = response.body;
+        //  final result = response.body;
         final List<dynamic> responseData = json.decode(response.body);
 
         setState(() {
@@ -845,7 +845,6 @@ class _EntrySalesState extends State<EntrySales> {
 
       final url = Uri.parse('http://localhost:3309/get_sales_product_items?orderNumbers=${orderNumbers.join(',')}');
       final response = await http.get(url);
-
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         final List<dynamic> rows = responseData;
@@ -875,28 +874,31 @@ class _EntrySalesState extends State<EntrySales> {
               TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
               rowControllers.add(controller);
             }
-            double quantity = double.tryParse(rowControllers[2].text) ?? 0.0;//qty-4
-            quantities.add(int.parse(quantity.toString())); // Add the quantity to the list
-            double unit = double.tryParse(rowControllers[3].text) ?? 0.0;//unit-3
-            double rate = double.tryParse(rowControllers[5].text) ?? 0.0;//rate-2
-            double gst = double.tryParse( rowControllers[6].text) ?? 0.0;
-            double temp = quantity * unit;
-            double amt = temp * rate;
-            double gstpersentage = amt * gst/100;
-            double totals = amt+gstpersentage;
-            rowControllers[4].text = temp.toString();//amt-5
-            rowControllers[7].text = amt.toStringAsFixed(2);//amt-5
-            rowControllers[8].text = gstpersentage.toStringAsFixed(2);//gstamot-6
-            rowControllers[9].text = totals.toStringAsFixed(2);//total-7
-            rowControllers[10].text =int.parse(quantity.toString()).toString();//total-7
-            rowControllers[11].text =rowControllers[11].text;//total-7
+            setState(() {
+              double quantity = double.tryParse(rowControllers[2].text) ?? 0.0;
+              double unit = double.tryParse(rowControllers[3].text) ?? 0.0;
+              double rate = double.tryParse(rowControllers[5].text) ?? 0.0;
+              double gst = double.tryParse( rowControllers[6].text) ?? 0.0;
+              double temp = quantity * unit;
+              double amt = temp * rate;
+              double gstpersentage = amt * gst/100;
+              double totals = amt+gstpersentage;
+              setState(() {
+                rowControllers[4].text = temp.toStringAsFixed(0);//amt-5
+                rowControllers[7].text = amt.toStringAsFixed(2);//amt-5
+                rowControllers[8].text = gstpersentage.toStringAsFixed(2);//gstamot-6
+                rowControllers[9].text = totals.toStringAsFixed(2);//total-7
+              });
+
+            });
             controllers.add(rowControllers);
-            focusNodes.add(List.generate(9, (i) => FocusNode()));
+            focusNodes.add(List.generate(14, (i) => FocusNode()));
             rowData.add(row);
             isRowFilled.add(true);
             validQuantity = rowControllers[2].text;
             validRate = rowControllers[5].text;
             validGST = rowControllers[6].text;
+
             setState(() {
               originalDataList = List.from(rowData);
 
@@ -922,7 +924,7 @@ class _EntrySalesState extends State<EntrySales> {
               });
             }
             ///gst validations
-            if(validGST=='0') {
+            else if(validGST=='0') {
               setState(() {
                 errorMessage ="* Enter a valid GST";
               });}
@@ -1122,20 +1124,24 @@ class _EntrySalesState extends State<EntrySales> {
               TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
               rowControllers.add(controller);
             }
-            double quantity = double.tryParse(rowControllers[2].text) ?? 0.0;//qty-4
-            quantities.add(int.parse(quantity.toString())); // Add the quantity to the list
-            double unit = double.tryParse(rowControllers[3].text) ?? 0.0;//unit-3
-            double rate = double.tryParse(rowControllers[5].text) ?? 0.0;//rate-2
-            double gst = double.tryParse( rowControllers[6].text) ?? 0.0;
-            double temp = quantity * unit;
-            double amt = temp * rate;
-            double gstpersentage = amt * gst/100;
-            double totals = amt+gstpersentage;
-            rowControllers[4].text = temp.toString();//amt-5
-            rowControllers[7].text = amt.toStringAsFixed(2);//amt-5
-            rowControllers[8].text = gstpersentage.toStringAsFixed(2);//gstamot-6
-            rowControllers[9].text = totals.toStringAsFixed(2);//total-7
-            rowControllers[10].text =int.parse(quantity.toString()).toString();//total-7
+            setState(() {
+              double quantity = double.tryParse(rowControllers[2].text) ?? 0.0;//qty-4
+              // quantities.add(int.parse(quantity.toString())); // Add the quantity to the list
+              double unit = double.tryParse(rowControllers[3].text) ?? 0.0;//unit-3
+              double rate = double.tryParse(rowControllers[5].text) ?? 0.0;//rate-2
+              double gst = double.tryParse( rowControllers[6].text) ?? 0.0;
+              double temp = quantity * unit;
+              double amt = temp * rate;
+              double gstpersentage = amt * gst/100;
+              double totals = amt+gstpersentage;
+              rowControllers[4].text = temp.toStringAsFixed(0);//amt-5
+              rowControllers[7].text = amt.toStringAsFixed(2);//amt-5
+              rowControllers[8].text = gstpersentage.toStringAsFixed(2);//gstamot-6
+              rowControllers[9].text = totals.toStringAsFixed(2);//total-7
+
+            });
+
+            //  rowControllers[10].text =int.parse(quantity.toString()).toString();//total-7
             controllers.add(rowControllers);
             focusNodes.add(List.generate(9, (i) => FocusNode()));
             rowData.add(row);
@@ -1161,6 +1167,10 @@ class _EntrySalesState extends State<EntrySales> {
             else if(validRate.isEmpty) {
               setState(() {
                 errorMessage ="* Enter a Rate";
+              });
+            }else if(validRate.isNotEmpty) {
+              setState(() {
+                errorMessage ="";
               });
             }
             ///gst validations
@@ -1196,26 +1206,27 @@ class _EntrySalesState extends State<EntrySales> {
       orElse: () => <String, dynamic>{},
     );
 
-  //  if (stockItem != null) {
-      int stockQty = int.parse(stockItem['qty']);
-      return stockQty ==0;
-  //  }
+    //  if (stockItem != null) {
+    int stockQty = int.parse(stockItem['qty']);
+    return stockQty ==0;
+    //  }
 
     // Item not found in stock
     // return false;
   }
 
-  int pendingqty =0;
-  int editPendingQty =0;
-  int dpendingQty =0;
+  double pendingqty =0.0;
+  double editPendingQty =0.0;
+  double dpendingQty =0.0;
   List<Map<String, dynamic>> stockdata = [];
   List totalvaluezerocheck = [];
   List<Map<String, dynamic>> pendingdata = [];
   List<Map<String, dynamic>> suggesstiondata = [];
+  List<Map<String, dynamic>> suggesstiondataForduplicate = [];
   List<Map<String, dynamic>> pendingsuggesstiondata = [];
   String? getitemgGroup;
   String? getitemgName;
-  int? getQty = 0; String? fetchgetitemgGroup="";
+  double? getQty = 0.0; String? fetchgetitemgGroup="";
   String? fetchgetitemgName;
   String validQuantity ="";
   String validRate ="";
@@ -1258,7 +1269,9 @@ class _EntrySalesState extends State<EntrySales> {
     super.initState();
     //addRow();
     fetchData();
+    fetchDataDuplicateCheck();
     fetchPendingData();
+    fetchPendingDataD();
     fetchDataSuggestion(selectedOrderNumbers);
     fetchPendingSuggession(selectedPendingOrderNumbers);
     loadInvoiceNumber();
@@ -1266,8 +1279,8 @@ class _EntrySalesState extends State<EntrySales> {
     ponumfetchsalINv();
     fetchData2();
     getAStock();
-   // fetchStockDataDisableorderNO(selectedOrderNumbers);
-  //  fetchCheckOrderNos(selectedPendingOrderNumbers);
+    // fetchStockDataDisableorderNO(selectedOrderNumbers);
+    //  fetchCheckOrderNos(selectedPendingOrderNumbers);
     // fetchDataByPendingOrderNumber(pendingorderNo.text);
     //  fetchStockDataDisablependingorderNO(pendingorderNo.text);
     setState(() {
@@ -1303,6 +1316,28 @@ class _EntrySalesState extends State<EntrySales> {
       print('Error: $error');
     }
   }
+  Future<void> fetchDataDuplicateCheck() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_sales_name_data/');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> itemGroups = responseData;
+
+        setState(() {
+          suggesstiondataForduplicate = itemGroups.cast<Map<String, dynamic>>();
+        });
+
+        print('get  purchase order Data: $suggesstiondataForduplicate');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle any other errors, e.g., network issues
+      print('Error: $error');
+    }
+  }
   //for customer details fetch for pending orderNo
 
   Future<void> fetchPendingData() async {
@@ -1327,10 +1362,34 @@ class _EntrySalesState extends State<EntrySales> {
       print('Error: $error');
     }
   }
+  List<Map<String, dynamic>> pendingdataDuplicate = [];
+
+  Future<void> fetchPendingDataD() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_pending_name_data/');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> itemGroups = responseData;
+
+        setState(() {
+          pendingdataDuplicate = itemGroups.cast<Map<String, dynamic>>();
+        });
+
+        print('Data: $pendingdataDuplicate');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle any other errors, e.g., network issues
+      print('Error: $error');
+    }
+  }
 
 
   ///for suggesstionlist details fetch
- /* Future<void> fetchDataSuggestion(
+  /* Future<void> fetchDataSuggestion(
       ) async {
     try {
       final Uri url = Uri.parse('http://localhost:3309/get_sales_name_for_suggestion/');
@@ -1453,7 +1512,7 @@ class _EntrySalesState extends State<EntrySales> {
           Map<String, dynamic> order = filteredDataPending.first;
           custCode.text = order['custCode']?.toString() ?? '';
           custName.text = order['custName']?.toString() ?? '';
-          deliveryType = order['deliveryType']?.toString() ?? '';
+          //   deliveryType = order['deliveryType']?.toString() ?? '';
         } else {
           custCode.clear();custName.clear();
         }
@@ -1474,6 +1533,8 @@ class _EntrySalesState extends State<EntrySales> {
         custAddress.clear();
         cpincode.clear();
         gstin.clear();
+        deliveryType =null;
+        transNo.clear();
       } else {
         final existingSupplier = data2.firstWhere(
               (item) => item['custCode']?.toString() == searchText,
@@ -1484,12 +1545,14 @@ class _EntrySalesState extends State<EntrySales> {
           custAddress.text = existingSupplier['custAddress'];
           cpincode.text = existingSupplier['pincode'];
           gstin.text = existingSupplier['gstin'];
-          deliveryType = existingSupplier['deliveryType'];
+          //  deliveryType = existingSupplier['deliveryType'];
         } else {
           custMobile.clear();
           custAddress.clear();
           cpincode.clear();
           gstin.clear();
+          deliveryType=null;
+          transNo.clear();
         }
       }
     });
@@ -1790,6 +1853,7 @@ class _EntrySalesState extends State<EntrySales> {
 
   Map<String, int> originalAvailableQuantities = {};
 
+/*
   void updateUnavailableQuantity(int rowIndex, int newAvailableQuantity) {
     if (rowIndex >= 0 && rowIndex < controllers.length) {
       // Calculate the change in quantity
@@ -1800,6 +1864,7 @@ class _EntrySalesState extends State<EntrySales> {
       dcontrollers[rowIndex][2].text = (int.parse(dcontrollers[rowIndex][2].text) + quantityChange).toString();
     }
   }
+*/
   String? getNameFromJsonDatasalINv(Map<String, dynamic> jsonItem) {
     return jsonItem['pendingOrderNo'];
   }
@@ -1921,7 +1986,7 @@ class _EntrySalesState extends State<EntrySales> {
     double totalQuantity = currentAvailableQty + currentUnavailableQty;
 
     // Check against the total limit
-  //
+    //
     if (totalQuantity + increase > totalLimit) {
       increase = totalLimit - totalQuantity;
       newAvailableQty = currentAvailableQty + increase;
@@ -1938,7 +2003,7 @@ class _EntrySalesState extends State<EntrySales> {
 //total lenth of row
   int? totalRows =0;
   bool checkEnable= false;
-  int? beforeEditQty;
+  double? beforeEditQty;
   int? afterEditQty;
   int selectedCheckbox = 1;
 
@@ -1969,7 +2034,7 @@ class _EntrySalesState extends State<EntrySales> {
       filterDataPendingData2(custCode.text);
     });
     return MyScaffold(
-        route: "entry_sales",
+        route: "entry_sales",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -1977,6 +2042,10 @@ class _EntrySalesState extends State<EntrySales> {
               child: Column(
                   children: [
                     const SizedBox(height: 10,),
+                    // ElevatedButton(onPressed: (){
+                    //   createInvoicePDF(invoiceNo:"IN2401/001",orderNo:"ORD002",custCode:"C025",custName:"Bhuvana",custAddress:"Amman nagar ,KPM",custMobile:"1234567890",date:"2024-01-27", grandtotal:"8053.50",pincode:"123456",gstin:"33BBBp", transportNo: 'ka01Ak0001');
+                    //
+                    // }, child: Text("test")),
                     Padding(
                       padding: const EdgeInsets.only(left:5,right:5,top:5),
                       child: SizedBox(
@@ -2016,15 +2085,30 @@ class _EntrySalesState extends State<EntrySales> {
                                                 custAddress.clear();
                                                 deliveryType==null;
                                                 payType ==null;
-
                                                 errorMessage ="";
-                                                //   checkOrderNo ="";
+                                                selectedOrderNumbers.clear();
+                                                selectedPendingOrderNumbers.clear();
+                                                checkOrderNo ="";
+
+                                                //
+                                                // fetchData();
+                                                // fetchDataSuggestion(selectedOrderNumbers);
+                                                // fetchPendingData();
+                                                // fetchPendingDataD();
+                                                // fetchDataDuplicateCheck();
+
+                                                // fetchDataByPendingOrderNumber(selectedPendingOrderNumbers);
+
+
 
                                                 if (value != null && value) {
+
                                                   selectedCheckbox = 1;
+
                                                 } else {
                                                   // Toggle between 1 and 2
                                                   selectedCheckbox = selectedCheckbox == 1 ? 2 : 1;
+
                                                 }
                                               });
                                             },
@@ -2048,12 +2132,19 @@ class _EntrySalesState extends State<EntrySales> {
                                                 deliveryType==null;
                                                 payType ==null;
                                                 errorMessage ="";
-                                                //  checkOrderNo ="";
+                                                checkOrderNo ="";
+                                                selectedPendingOrderNumbers.clear();
+                                                selectedOrderNumbers.clear();
+                                                checkOrderNo="";
+
+
                                                 if (value != null && value) {
+
                                                   selectedCheckbox = 2;
                                                 } else {
                                                   // Toggle between 2 and 1
                                                   selectedCheckbox = selectedCheckbox == 2 ? 1 : 2;
+
                                                 }
                                               });
                                             },
@@ -2340,6 +2431,20 @@ class _EntrySalesState extends State<EntrySales> {
                                                     removeVisible = false;
                                                     selectedOrderNumbers.clear();
                                                     orderNo.text = '';
+                                                    rowData.clear();
+                                                    focusNodes.clear();
+                                                    controllers.clear();
+                                                    dcontrollers.clear();
+                                                    checkOrderNo="";
+                                                    custAddress.clear();
+                                                    custMobile.clear();
+                                                    cpincode.clear();
+                                                    custName.clear();
+                                                    transNo.clear();
+                                                    custCode.clear();
+                                                    errorMessage ="";
+                                                    deliveryType=null;
+                                                    payType=null;
                                                   });
                                                 },
                                               )
@@ -2353,7 +2458,7 @@ class _EntrySalesState extends State<EntrySales> {
 
                                             List<String> inputParts = pattern.split(',').map((part) => part.trim()).toList();
                                             String currentInput = inputParts.isNotEmpty ? inputParts.last : '';
-                                            List<String> suggestions = data
+                                            List<String> suggestions = suggesstiondataForduplicate
                                                 .where((item) =>
                                             (item['orderNo']?.toString().toLowerCase() ?? '')
                                                 .startsWith(currentInput.toLowerCase()) &&
@@ -2370,6 +2475,7 @@ class _EntrySalesState extends State<EntrySales> {
                                             );
                                           },
                                           onSuggestionSelected: (suggestion) async {
+
                                             if (!selectedOrderNumbers.contains(suggestion)) {
                                               setState(() {
                                                 removeVisible=true;
@@ -2415,6 +2521,21 @@ class _EntrySalesState extends State<EntrySales> {
                                                     removeVisible = false;
                                                     selectedPendingOrderNumbers.clear();
                                                     pendingorderNo.text = '';
+                                                    orderNo.text = '';
+                                                    rowData.clear();
+                                                    focusNodes.clear();
+                                                    controllers.clear();
+                                                    dcontrollers.clear();
+                                                    checkOrderNo="";
+                                                    custAddress.clear();
+                                                    custMobile.clear();
+                                                    cpincode.clear();
+                                                    custName.clear();
+                                                    transNo.clear();
+                                                    custCode.clear();
+                                                    deliveryType=null;
+                                                    errorMessage ="";
+                                                    payType=null;
                                                     // Clear the text in the controller
                                                   });
                                                 },
@@ -2429,7 +2550,7 @@ class _EntrySalesState extends State<EntrySales> {
 
                                             List<String> inputParts = pattern.split(',').map((part) => part.trim()).toList();
                                             String currentInput = inputParts.isNotEmpty ? inputParts.last : '';
-                                            List<String> suggestions =pendingdata
+                                            List<String> suggestions =pendingdataDuplicate
                                                 .where((item) =>
                                             (item['pendingOrderNo']?.toString().toLowerCase() ?? '')
                                                 .startsWith(currentInput.toLowerCase()) &&
@@ -2513,7 +2634,7 @@ class _EntrySalesState extends State<EntrySales> {
                                   ],
                                 ),
                               ),
-                               const Padding(
+                              const Padding(
                                 padding: EdgeInsets.all(5.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -2709,42 +2830,42 @@ class _EntrySalesState extends State<EntrySales> {
                               ),
 
                               Wrap(
-                                   children: [
-                                     const SizedBox(width: 20,),
-                                     Padding(
-                                       padding: const EdgeInsets.all(5.0),
-                                       child: SizedBox(
-                                         width: 220,height: 70,
-                                         child: TextFormField(
-                                           controller: transNo,
-                                           style: TextStyle(
-                                               fontSize: 13),
-                                           onChanged: (value) {
-                                             setState(() {
-                                               errorMessage = null; // Reset error message when user types
-                                             });
-                                           },
-                                           keyboardType: TextInputType.text,
-                                           inputFormatters: [
-                                             UpperCaseTextFormatter(),
-                                             FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
-                                             LengthLimitingTextInputFormatter(10),
-                                           ],
-                                           decoration: InputDecoration(
-                                               filled: true,
-                                               fillColor: Colors.white,
-                                               labelText: "Transport Number",
-                                               border: OutlineInputBorder(
-                                                 borderRadius: BorderRadius.circular(8,),
-                                               )
-                                           ),
-                                         ),
-                                       ),
-                                     ),
-                                   ],
-                               ),
+                                children: [
+                                  const SizedBox(width: 20,),
+                                  Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: SizedBox(
+                                      width: 220,height: 70,
+                                      child: TextFormField(
+                                        controller: transNo,
+                                        style: TextStyle(
+                                            fontSize: 13),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            errorMessage = null; // Reset error message when user types
+                                          });
+                                        },
+                                        keyboardType: TextInputType.text,
+                                        inputFormatters: [
+                                          UpperCaseTextFormatter(),
+                                          FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                          LengthLimitingTextInputFormatter(10),
+                                        ],
+                                        decoration: InputDecoration(
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            labelText: "Transport Number",
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8,),
+                                            )
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
 
-                               const Padding(
+                              const Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -2773,186 +2894,218 @@ class _EntrySalesState extends State<EntrySales> {
                                               11: FixedColumnWidth(0), 12: FixedColumnWidth(0), 13: FixedColumnWidth(0),/*12: FixedColumnWidth(0),*/},
                                             children: [
                                               TableRow(
-                                              decoration: BoxDecoration(color: Colors.blue.shade200),
-                                              children:  const [
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),
-                                                  ],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 3),
-                                                    Text('No.of\npack', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 3),],))),
-                                                TableCell(child: Center(child: Column(children: [Text(''),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('Total Cone', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('Rate/cone', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('GST(%)', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('GST Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [Text('',),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [Text('',),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [Text('',),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [Text('',),],))),
-                                                TableCell(child: Center(child: Column(
-                                                  children: [SizedBox(height: 15),
-                                                    Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    SizedBox(height: 15),],))),],),
+                                                decoration: BoxDecoration(color: Colors.blue.shade200),
+                                                children:  const [
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),
+                                                    ],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 3),
+                                                      Text('No.of\npack', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 3),],))),
+                                                  TableCell(child: Center(child: Column(children: [Text(''),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('Total Cone', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('Rate/cone', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('GST(%)', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('GST Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [Text('',),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [Text('',),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [Text('',),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [Text('',),],))),
+                                                  TableCell(child: Center(child: Column(
+                                                    children: [SizedBox(height: 15),
+                                                      Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 15),],))),],),
                                               for (int i = 0; i < controllers.length; i++)
                                                 TableRow(children: [
-                                                  for (int j = 0; j < 14; j++)j==2?
-                                                  TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
-                                                    child: Padding(padding: const EdgeInsets.all(8.0),
-                                                      child: TextFormField(
-                                                        style: const TextStyle(fontSize: 13,color: Colors.black),
-                                                        textAlign: TextAlign.center, keyboardType: TextInputType.number,
-                                                        onChanged: (value) {
+                                                  for (int j = 0; j < 14; j++)
+                                                    j==2?
+                                                    TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
+                                                      child: Padding(padding: const EdgeInsets.all(8.0),
+                                                        child: TextFormField(
+                                                          style: const TextStyle(fontSize: 13,color: Colors.black),
+                                                          textAlign: TextAlign.center, keyboardType: TextInputType.number,
+                                                          onChanged: (value) {
 
 
+                                                            setState(() {
+
+
+                                                              double quantity =double.tryParse(controllers[i][2].text)??0.0;
+                                                              editPendingQty =quantity;
+                                                              double getqty = quantity;
+                                                              double valuereceived = double.tryParse(controllers[i][10].text)??0.0;
+                                                              pendingqty = valuereceived ;
+                                                              double pendingqtyget = valuereceived-getqty;
+                                                              // Update the corresponding qty in the unavailable table
+                                                              double unit = double.tryParse(controllers[i][3].text) ?? 0.0;
+                                                              double rate = double.tryParse(controllers[i][5].text) ?? 0.0;
+                                                              double gst = double.tryParse(controllers[i][6].text)??0.0;
+                                                              double? temp = (quantity*unit);
+                                                              double amount = (temp * rate);
+                                                              double gstvalue = amount * (gst / 100);
+                                                              double total = amount + gstvalue;
+                                                              controllers[i][4].text = temp.toStringAsFixed(0);
+                                                              controllers[i][7].text = amount.toStringAsFixed(2);
+                                                              controllers[i][8].text = gstvalue.toStringAsFixed(2);
+                                                              controllers[i][9].text = total.toStringAsFixed(2);
+                                                              controllers[i][11].text = pendingqtyget.toStringAsFixed(0);
+                                                              final int rowIndex = i;final int colIndex = j;
+                                                              final String key = _getKeyForColumn(colIndex);
+                                                              rowData[rowIndex][key] = value;
+                                                              if (beforeEditQty == null) {beforeEditQty = double.tryParse(valuereceived.toString()) ?? 0.0;
+                                                              print("$beforeEditQty edities");}
+                                                              double quantities = double.tryParse(value) ?? 0.0;
+                                                              if (valuereceived < quantities) {
+                                                                print("Error: Quantity can only be decreased, not increased");
+                                                                showDialog(context: context,
+                                                                  builder: (BuildContext context) {
+                                                                    return AlertDialog(title: const Text('Alert'),
+                                                                      content: const Text('Quantity can only be decreased, not increased.'),
+                                                                      actions: <Widget>[TextButton(
+                                                                        child: const Text('OK'), onPressed: () {
+                                                                        controllers[i][2].text = valuereceived.toStringAsFixed(0);
+                                                                        double? temp =valuereceived*unit;double amount = (temp * rate);
+                                                                        double gstvalue = amount * (gst / 100);double total = amount + gstvalue;
+                                                                        controllers[i][4].text = temp.toStringAsFixed(0);controllers[i][7].text = amount.toStringAsFixed(2);
+                                                                        controllers[i][8].text = gstvalue.toStringAsFixed(2);controllers[i][9].text = total.toStringAsFixed(2);
+                                                                        double receivedValue = double.tryParse(controllers[i][10].text)??0.0;
+                                                                        double editedValue = double.tryParse(controllers[i][2].text)??0.0;
+                                                                        double pendingqtygets = receivedValue-editedValue;
+                                                                        controllers[i][11].text = pendingqtygets.toStringAsFixed(0);
+                                                                        Navigator.of(context).pop();
+                                                                      },),],);},);
+                                                                controllers[i][2].text = valuereceived.toStringAsFixed(0);
+                                                                //    handleAvailableQtyChange(i, quantity);
+                                                                //     updateUnavailableQuantity(i, getqty);
+                                                                return;}
+                                                              validQuantity = controllers[i][2].text;
+                                                              if(controllers[i][2].text == '0' ) {
+                                                                setState(() {errorMessage ="* Enter a valid Quantity";
+                                                                });}else if(validQuantity.isEmpty){
+                                                                setState(() {errorMessage ="* Enter a Quantity";});
+                                                              }else if(validQuantity.isNotEmpty) {
+                                                                setState(() {errorMessage = "";});}grandTotal.text = calculateGrandTotal().toStringAsFixed(2);});
+                                                            getitemgGroup= controllers[i][0].text;getitemgName=controllers[i][1].text;
+                                                            setState(() {
+                                                              getQty=double.tryParse(controllers[i][2].text);
+                                                              print("$getQty - editqty");
+                                                              setState(() {
+                                                                //   totalvaluezerocheck.add(double.tryParse(controllers[i][9].text.toString()).toString());
+                                                                print("$totalvaluezerocheck -- total value check");
+                                                              });});},
+                                                          enabled:  (j == 5 || j == 6 || j == 2),
+                                                          decoration: const InputDecoration(
+                                                            filled:true, fillColor: Colors.white,), controller: controllers[i][2],
+                                                          inputFormatters: <TextInputFormatter>[
+                                                            FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+$')), LengthLimitingTextInputFormatter(5)
+                                                          ],),),)
+                                                        : j==10?
+                                                    TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
+                                                      child: Visibility(visible: false, child: TextFormField(controller: controllers[i][10],),),)
+                                                        :j==11?
+                                                    Visibility(visible: false, child: TableCell(
+                                                      verticalAlignment: TableCellVerticalAlignment.middle, child: Visibility(visible: false,
+                                                      child: TextFormField(controller: controllers[i][11],
+                                                      ),),),)
+                                                        :j==12?
+                                                    Visibility(visible: false, child: TableCell(
+                                                      verticalAlignment: TableCellVerticalAlignment.middle, child: Visibility(visible: false,
+                                                      child: TextFormField(controller: controllers[i][12],),),),)
+                                                        :j==13?
+                                                    Visibility(visible: false, child: TableCell(
+                                                      verticalAlignment: TableCellVerticalAlignment.middle, child: Visibility(visible: false,
+                                                      child: TextFormField(controller: controllers[i][13],),),),)
+                                                        : TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
+                                                      child: Padding(padding: const EdgeInsets.all(8.0),
+                                                        child: TextFormField(style: const TextStyle(fontSize: 13,color: Colors.black),
+                                                          controller: controllers[i][j],
+                                                          decoration: const InputDecoration(filled:true, fillColor: Colors.white,),
+                                                          inputFormatters: <TextInputFormatter>[
+                                                            FilteringTextInputFormatter.allow(RegExp(r'^[\d.]*')), LengthLimitingTextInputFormatter(5)],
+                                                          textAlign: (j >= 0 && j <= 6) ? TextAlign.center : TextAlign.right,
+                                                          enabled: (j == 5 || j == 6 || j == 2),
+                                                          onChanged: (value) {setState(() {
+                                                            double quantity =double.tryParse(controllers[i][2].text)??0.0;
+                                                            double unit = double.tryParse(controllers[i][3].text) ?? 0.0;
+                                                            double rate = double.tryParse(controllers[i][5].text) ?? 0.0;
+                                                            double gst = double.tryParse(controllers[i][6].text)??0.0;
+                                                            double temp = quantity*unit;
+                                                            double amount = (temp * rate);
+                                                            double gstvalue = amount * (gst / 100);
+                                                            double total = amount + gstvalue;
+                                                            //   double getqty = int.parse(quantity.toString());
+                                                            double valuereceived = double.tryParse(controllers[i][10].text)?? 0.0;
+                                                            double pendingqtyget = valuereceived-quantity;
+                                                            setState(() {
+                                                              controllers[i][4].text = temp.toStringAsFixed(0);
+                                                              controllers[i][7].text = amount.toStringAsFixed(2);
+                                                              controllers[i][8].text = gstvalue.toStringAsFixed(2);controllers[i][9].text = total.toStringAsFixed(2);
+                                                            });
+
+                                                            controllers[i][11].text = pendingqtyget.toStringAsFixed(0);
+                                                            final int rowIndex = i;final int colIndex = j;
+                                                            final String key = _getKeyForColumn(colIndex);
+                                                            rowData[rowIndex][key] = value;
+                                                            /* if (beforeEditQty == null) {
+                                                            beforeEditQty = int.tryParse(value) ?? 0;
+                                                          print("$beforeEditQty edities");
+                                                          }*/
+                                                            grandTotal.text = calculateGrandTotal().toStringAsFixed(2);});
+                                                          getitemgGroup= controllers[i][0].text;
+                                                          getitemgName=controllers[i][1].text;
                                                           setState(() {
-
-
-                                                          double quantity =double.tryParse(controllers[i][2].text)??0.0;editPendingQty = int.parse(quantity.toString()) ;
-                                                          int getqty = int.parse(quantity.toString());int valuereceived = int.parse(controllers[i][10].text);
-                                                          pendingqty = int.parse(valuereceived.toString()) ;
-
-                                                          int pendingqtyget = valuereceived-getqty;
-
-
-
-
-
-                                                          // Update the corresponding qty in the unavailable table
-
-                                                          double unit = double.tryParse(controllers[i][3].text) ?? 0.0;
-                                                          double rate = double.tryParse(controllers[i][5].text) ?? 0.0;
-                                                          double gst = double.tryParse(controllers[i][6].text)??0.0;double? temp = quantity*unit;
-                                                          double amount = (temp * rate);double gstvalue = amount * (gst / 100);
-                                                          double total = amount + gstvalue;int? valuetemp = int.parse(temp.toString());
-                                                          controllers[i][4].text = valuetemp.toString();
-                                                          controllers[i][7].text = amount.toStringAsFixed(2);
-                                                          controllers[i][8].text = gstvalue.toStringAsFixed(2);
-                                                          controllers[i][9].text = total.toStringAsFixed(2);
-                                                          controllers[i][11].text = int.parse(pendingqtyget.toString()).toString();
-                                                          final int rowIndex = i;final int colIndex = j;
-                                                          final String key = _getKeyForColumn(colIndex);
-                                                          rowData[rowIndex][key] = value;
-                                                          if (beforeEditQty == null) {beforeEditQty = int.tryParse(valuereceived.toString()) ?? 0;
-                                                          print("$beforeEditQty edities");}
-                                                          double quantities = double.tryParse(value) ?? 0.0;
-                                                          if (valuereceived < quantities) {
-                                                            print("Error: Quantity can only be decreased, not increased");
-                                                            showDialog(context: context,
-                                                              builder: (BuildContext context) {
-                                                                return AlertDialog(title: const Text('Alert'),
-                                                                  content: const Text('Quantity can only be decreased, not increased.'),
-                                                                  actions: <Widget>[TextButton(
-                                                                    child: const Text('OK'), onPressed: () {
-                                                                    controllers[i][2].text = int.parse(valuereceived.toString()).toString();
-                                                                    double? temp = valuereceived*unit;double amount = (temp * rate);
-                                                                    double gstvalue = amount * (gst / 100);double total = amount + gstvalue;
-                                                                    int valuetemp = int.parse(temp.toString());
-                                                                    controllers[i][4].text = valuetemp.toString();controllers[i][7].text = amount.toStringAsFixed(2);
-                                                                    controllers[i][8].text = gstvalue.toStringAsFixed(2);controllers[i][9].text = total.toStringAsFixed(2);
-                                                                    controllers[i][11].text = int.parse(pendingqtyget.toString()).toString();
-                                                                    Navigator.of(context).pop();},),],);},);
-                                                            controllers[i][2].text = valuereceived.toString();
-                                                        //    handleAvailableQtyChange(i, quantity);
-                                                            updateUnavailableQuantity(i, getqty);
-                                                            return;}
-                                                          validQuantity = controllers[i][2].text;
-                                                          if(controllers[i][2].text == '0' ) {setState(() {errorMessage ="* Enter a valid Quantity";
-                                                          });}else if(validQuantity.isEmpty){setState(() {errorMessage ="* Enter a Quantity";});
-                                                          }else if(validQuantity.isNotEmpty) {
-                                                            setState(() {errorMessage = "";});}grandTotal.text = calculateGrandTotal().toStringAsFixed(2);});
-                                                        getitemgGroup= controllers[i][0].text;getitemgName=controllers[i][1].text;
-                                                        setState(() {getQty=int.parse(controllers[i][2].text);
-                                                        print("$getQty - editqty");
-                                                        setState(() {totalvaluezerocheck.add(double.tryParse(controllers[i][9].text.toString()).toString());
-                                                        print("$totalvaluezerocheck -- total value check");});});},
-                                                        enabled:  (j == 5 || j == 6 || j == 2),
-                                                        decoration: const InputDecoration(
-                                                          filled:true, fillColor: Colors.white,), controller: controllers[i][2],
-                                                        inputFormatters: <TextInputFormatter>[
-                                                          FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+$')), LengthLimitingTextInputFormatter(5)
-                                                        ],),),) : j==10?
-                                                  TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
-                                                    child: Visibility(visible: false, child: TextFormField(controller: controllers[i][10],),),)
-                                                      :j==11? Visibility(visible: false, child: TableCell(
-                                                    verticalAlignment: TableCellVerticalAlignment.middle, child: Visibility(visible: false,
-                                                    child: TextFormField(controller: controllers[i][11],),),),)
-                                                      :j==12? Visibility(visible: false, child: TableCell(
-                                                    verticalAlignment: TableCellVerticalAlignment.middle, child: Visibility(visible: false,
-                                                    child: TextFormField(controller: controllers[i][12],),),),)
-                                                      :j==13? Visibility(visible: false, child: TableCell(
-                                                    verticalAlignment: TableCellVerticalAlignment.middle, child: Visibility(visible: false,
-                                                    child: TextFormField(controller: controllers[i][13],),),),)
-                                                      : TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
-                                                    child: Padding(padding: const EdgeInsets.all(8.0),
-                                                      child: TextFormField(style: const TextStyle(fontSize: 13,color: Colors.black),
-                                                        controller: controllers[i][j],
-                                                        decoration: const InputDecoration(filled:true, fillColor: Colors.white,),
-                                                        inputFormatters: <TextInputFormatter>[
-                                                          FilteringTextInputFormatter.allow(RegExp(r'^[\d.]*')), LengthLimitingTextInputFormatter(5)],
-                                                        textAlign: (j >= 0 && j <= 6) ? TextAlign.center : TextAlign.right,
-                                                        enabled: (j == 5 || j == 6 || j == 2),
-                                                        onChanged: (value) {setState(() {
-
-                                                          double quantity =double.tryParse(controllers[i][2].text)??0.0;
-                                                          double unit = double.tryParse(controllers[i][3].text) ?? 0.0;double rate = double.tryParse(controllers[i][5].text) ?? 0.0;
-                                                          double gst = double.tryParse(controllers[i][6].text)??0.0;double temp = quantity*unit;double amount = (temp * rate);
-                                                          double gstvalue = amount * (gst / 100);double total = amount + gstvalue;
-                                                          int getqty = int.parse(quantity.toString());
-                                                          int valuereceived = int.parse(controllers[i][10].text);int pendingqtyget = valuereceived-getqty;
-                                                          controllers[i][4].text = temp.toString();controllers[i][7].text = amount.toStringAsFixed(2);
-                                                          controllers[i][8].text = gstvalue.toStringAsFixed(2);controllers[i][9].text = total.toStringAsFixed(2);
-                                                          controllers[i][11].text = int.parse(pendingqtyget.toString()).toString();
-                                                          final int rowIndex = i;final int colIndex = j;
-                                                          final String key = _getKeyForColumn(colIndex);
-                                                          rowData[rowIndex][key] = value;
-                                                          if (beforeEditQty == null) {beforeEditQty = int.tryParse(value) ?? 0;
-                                                          print("$beforeEditQty edities");}
-                                                          grandTotal.text = calculateGrandTotal().toStringAsFixed(2);});
-                                                        getitemgGroup= controllers[i][0].text;
-                                                        getitemgName=controllers[i][1].text;
-                                                        setState(() {getQty=int.parse(controllers[i][2].text);
-                                                        print("$getQty - editqty");});
-                                                        validRate = controllers[i][5].text;
-                                                        validGST = controllers[i][6].text;
-                                                        ///rate validation
-                                                        if(validRate== '0') {setState(() {errorMessage ="* Enter a valid Rate";});}
-                                                        else if(validRate.isEmpty) {setState(() {errorMessage ="* Enter a Rate";});}
-                                                        else if(validRate.isNotEmpty) {setState(() {errorMessage ="";});}
-                                                        ///gst validations
-                                                        if(validGST=='0') {setState(() {errorMessage ="* Enter a valid GST";});}
-                                                        else if(validGST.isEmpty) {setState(() {errorMessage ="* Enter a GST(%)";});}},),),),
+                                                            // getQty=int.parse(controllers[i][2].text);
+                                                            print("$getQty - editqty");});
+                                                          validRate = controllers[i][5].text;
+                                                          validGST = controllers[i][6].text;
+                                                          ///rate validation
+                                                          if(controllers[i][3].text== '0') {setState(() {
+                                                            errorMessage ="* Enter a valid Rate";
+                                                          });}
+                                                          else if(controllers[i][3].text.isEmpty) {setState(() {errorMessage ="* Enter a Rate";});}
+                                                          else if(controllers[i][3].text== '0'){
+                                                            setState(() {
+                                                              errorMessage ="* Enter a valid Rate";
+                                                            });
+                                                          }
+                                                          else if(controllers[i][3].text.isNotEmpty) {setState(() {errorMessage ="";});}
+                                                          ///gst validations
+                                                          if(validGST=='0') {setState(() {errorMessage ="* Enter a valid GST";});}
+                                                          else if(validGST.isEmpty) {setState(() {errorMessage ="* Enter a GST(%)";});
+                                                          }},
+                                                        ),
+                                                      ),),
                                                   TableCell(
                                                     verticalAlignment: TableCellVerticalAlignment.middle,
                                                     child: Center(child: Row(
@@ -3130,7 +3283,7 @@ class _EntrySalesState extends State<EntrySales> {
                                                             onChanged: (value){
                                                               setState(() {
                                                                 double quantity =double.tryParse(dcontrollers[i][2].text)??0.0;
-                                                                dpendingQty =int.parse(quantity.toString());
+                                                                //    dpendingQty =int.parse(quantity.toString());
                                                                 pendingrowslenth =dcontrollers.length;
                                                                 // Calculate the changed quantity
 
@@ -3140,16 +3293,17 @@ class _EntrySalesState extends State<EntrySales> {
                                                         ),
                                                       ),
 
-                                                    const TableCell(
+                                                    TableCell(
                                                       verticalAlignment: TableCellVerticalAlignment.middle,
-                                                      child: Center(
+                                                      child:Text(""),
+                                                      /*  child: Center(
                                                         child: Row(
                                                           mainAxisAlignment: MainAxisAlignment.center,
                                                           children: [
 
-                                                            /* IconButton(
+                                                           IconButton(
                                                           icon: Icon(Icons.edit),
-                                                          color: Colors.blue.shade600,
+                                                       //   color: Colors.blue.shade600,
                                                           onPressed: () {
                                                             showDialog(
                                                               context: context,
@@ -3179,9 +3333,9 @@ class _EntrySalesState extends State<EntrySales> {
                                                               },
                                                             );
                                                           },
-                                                        ),*/
-                                /*
-                                                            IconButton(
+                                                        ),
+
+                                                         *//*   IconButton(
                                                               icon: Icon(Icons.remove_circle_outline),
                                                               color: Colors.red.shade600,
                                                               onPressed: () {
@@ -3210,10 +3364,9 @@ class _EntrySalesState extends State<EntrySales> {
                                                                   },
                                                                 );
                                                               },
-                                                            ),
-                                */
-                                                            /*
-                                                           Visibility(
+                                                            ),*//*
+
+                                                         *//*  Visibility(
                                                           visible: i == controllers.length-1 && isRowFilled[i],
                                                           child: Align(
                                                             alignment: Alignment.center,
@@ -3229,11 +3382,11 @@ class _EntrySalesState extends State<EntrySales> {
                                                               ],
                                                             ),
                                                           ),
-                                                        ),
-                                  */
+                                                        ),*//*
+
                                                           ],
                                                         ),
-                                                      ),
+                                                      ),*/
                                                     ),
                                                   ],
                                                 ),
@@ -3241,7 +3394,7 @@ class _EntrySalesState extends State<EntrySales> {
                                           ),
                                         ),
                                       ),
-                                    ),
+                                    )
 
                                   ],
                                 ),
@@ -3278,7 +3431,7 @@ class _EntrySalesState extends State<EntrySales> {
                                           //  mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
                                             const Text("Total Qty : ", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14)),
-                                            Text(calculateTotalItem().toString()),
+                                            Text(calculateTotalItem().toStringAsFixed(0)),
                                           ],
                                         ),
                                         const SizedBox(width: 35,),
@@ -3417,7 +3570,7 @@ class _EntrySalesState extends State<EntrySales> {
                                 }
                                 else if (isMachineNameExists(pendingorderNo.text)) {
                                   setState(() {
-                                    errorMessage = '* This Order Number is Already invoiced';
+                                    errorMessage = '* This Pending Order Number is Already invoiced';
                                   });
                                 }
                                 else if(custName.text.isEmpty){
@@ -3457,7 +3610,7 @@ class _EntrySalesState extends State<EntrySales> {
                                   setState(() {
                                     errorMessage = '* Select the deliveryType';
                                   });}
-                               /* else if (totalvaluezerocheck == "0.0"||totalvaluezerocheck =="0") {
+                                /* else if (totalvaluezerocheck == "0.0"||totalvaluezerocheck =="0") {
                                   setState(() {
                                     errorMessage = '* Enter a Sales items ';
                                   });
@@ -3629,7 +3782,7 @@ String _getKeyForColumn(int columnIndex) {
     case 9:
       return 'total';
     case 10:
-      return 'fetch_qty';
+      return 'qty';
     case 11:
       return 'pending_qty';
     case 12:
@@ -3663,7 +3816,7 @@ String _getKeyForColumnDisable(int columnIndex) {
     case 9:
       return 'total';
     case 10:
-      return 'fetch_qty';
+      return 'qty';
     case 11:
       return 'pending_qty';
     case 12:

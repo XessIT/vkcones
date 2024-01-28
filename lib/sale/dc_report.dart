@@ -221,7 +221,7 @@ class _DcReportState extends State<DcReport> {
     //   filterData(searchController.text);
     // });
     return MyScaffold(
-      route: "delivery_challan_report",
+      route: "delivery_challan_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

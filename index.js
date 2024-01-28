@@ -733,7 +733,42 @@ app.get('/getSales_balanceSheet', (req, res) => {
     }
   });
 });
+app.get('/get_sales_name_data', (req, res) => {
+  const sql =`SELECT DISTINCT po.orderNo
+              FROM purchase_order po
+              LEFT JOIN sales s ON po.orderNo = s.individualOrderNo
+              WHERE s.individualOrderNo IS NULL;
+             `;
 
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+app.get('/get_pending_name_data', (req, res) => {
+  const sql =`SELECT po.pendingOrderNo
+                                      FROM pending_report po
+                                      WHERE NOT EXISTS (
+                                          SELECT 1
+                                          FROM sales s
+                                          WHERE FIND_IN_SET(po.pendingOrderNo, REPLACE(s.orderNo, ' ', '')) > 0
+                                        );`;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
 app.post('/fetchStock_available', (req, res) => {
   const { itemName } = req.body;
   const query = `SELECT itemGroup FROM stock WHERE itemName = ?`;
@@ -1931,6 +1966,35 @@ app.delete('/shift_delete/:id', (req, res) => {
       res.status(500).json({ error: 'Error deleting data' });
     } else {
       res.status(200).json({ message: 'Data deleted successfully' });
+    }
+  });
+});
+
+//27//01
+app.post('/rawmeterial_entry', (req, res) => {
+  const { dataToInsertSupItem1 } = req.body;
+  const sql = 'INSERT INTO raw_meterial_entry SET ?';
+  console.log('SQL Query:', sql);
+  db.query(sql, [dataToInsertSupItem1], (err, result) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).json({ error: 'Error inserting data' });
+    } else {
+      console.log('Data inserted successfully');
+      res.status(200).json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+
+//27//01
+app.get('/get_Raw_Material_report', (req, res) => {
+  const sql = 'SELECT * FROM raw_meterial_entry'; // Select only id and unit fields
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      res.status(200).json(results);
     }
   });
 });
@@ -3879,7 +3943,7 @@ app.get('/fetch_customer_details', (req, res) => {
 app.get('/get_sales_name_for_suggestion', (req, res) => {
  const sql =`SELECT DISTINCT p.orderNo From sales s
                     LEFT JOIN purchase_order p ON s.orderNo <> p.orderNo`;
-  db.query(sql, (err, result) => {
+  db.query(sqmel, (err, result) => {
     if (err) {
       console.error('Error fetching data:', err);
       res.status(500).json({ error: 'Error fetching data' });
@@ -4371,115 +4435,6 @@ app.get('/get_sales_product_items', (req, res) => {
        res.status(200).json(result);
      }
    });
- });
-app.get('/get_pending_items', (req, res) => {
-   try {
-     const pendingOrderNosParam = req.query.pendingOrderNos;
-
-     if (!pendingOrderNosParam) {
-       return res.status(400).json({ error: 'Bad Request', message: 'pendingOrderNo numbers not provided.' });
-     }
-
-     const pendingOrderNos = pendingOrderNosParam.split(',');
-
-     const placeholders = pendingOrderNos.map(() => '?').join(', ');
-
-     const query = `
-      SELECT
-          p.custCode,
-          p.custName,
-          p.deliveryType,
-          p.itemGroup,
-          p.itemName,
-          SUM(CAST(p.qty AS SIGNED)) AS t_qty,
-          p.pincode,
-          CONCAT(DATE_FORMAT(p.orderDate, '%d-%m-'), SUBSTRING(YEAR(p.orderDate), 3)) AS date,
-          p.orderNo,
-          p.custAddress,
-          p.custMobile,
-          p.pendingOrderNo,
-          p.deliveryDate,
-          p.checkOrderNo,
-          p.individualOrderNo,
-          p.orderDate,
-          i.rate,
-          i.unit,
-          i.gst,
-          COALESCE(s.stock_qty, 0) AS stock_qty,
-          CASE
-              WHEN COALESCE(s.stock_qty, 0) < SUM(CAST(p.qty AS SIGNED)) THEN COALESCE(s.stock_qty, 0)
-              ELSE SUM(CAST(p.qty AS SIGNED))
-          END AS qty
-      FROM (
-          SELECT
-              custCode,
-              custName,
-              deliveryType,
-              itemGroup,
-              itemName,
-              qty,
-              pincode,
-              orderNo,
-              custAddress,
-              custMobile,
-              pendingOrderNo,
-              deliveryDate,
-              checkOrderNo,
-              individualOrderNo,
-              orderDate
-          FROM
-              pending_report
-          WHERE
-              pendingOrderNo IN (${placeholders})
-      ) p
-      LEFT JOIN (
-          SELECT
-              itemGroup,
-              itemName,
-              COALESCE(SUM(CAST(qty AS SIGNED)), 0) AS stock_qty
-          FROM
-              stock
-          GROUP BY
-              itemGroup,
-              itemName
-      ) s ON p.itemGroup = s.itemGroup AND p.itemName = s.itemName
-      LEFT JOIN item i ON p.itemGroup = i.itemGroup AND p.itemName = i.itemName
-      GROUP BY
-          p.custCode,
-          p.custName,
-          p.deliveryType,
-          p.itemGroup,
-          p.itemName,
-          p.pincode,
-          p.orderNo,
-          p.custAddress,
-          p.custMobile,
-          p.pendingOrderNo,
-          p.deliveryDate,
-          p.checkOrderNo,
-          p.individualOrderNo,
-          p.orderDate,
-          i.rate,
-          i.unit,
-          i.gst,
-          s.stock_qty
-      HAVING
-          qty > 0 AND stock_qty > 0;
-
-     `;
-
-     db.query(query, [...pendingOrderNos, ...pendingOrderNos], (error, results) => {
-       if (error) {
-         console.error('4312 Error executing query:', error);
-         res.status(500).json({ error: '4312 Internal Server Error', message: error.message });
-       } else {
-         res.json(results);
-       }
-     });
-   } catch (error) {
-     console.error('Error:', error);
-     res.status(500).json({ error: 'Internal Server Error', message: error.message });
-   }
  });
 /*
 app.get('/get_pending_items', (req, res) => {
@@ -4977,7 +4932,8 @@ app.get('/get_stock_items_for_sale_pending', (req, res) => {
       console.error('Error:', error);
       res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
-  });app.post('/nonsales_insert', (req, res) => {
+  });
+   app.post('/nonsales_insert', (req, res) => {
   const { dataToInsertPurchaseReturnItem } = req.body;
     const sql = 'INSERT INTO nonsaleorder SET ?';
   db.query(sql, [dataToInsertPurchaseReturnItem], (err, result) => { // Wrap dataToInsert in an array
@@ -5066,7 +5022,115 @@ app.get('/fetch_checkOrderNo', (req, res) => {
      res.status(500).json({ error: 'Internal Server Error', message: error.message });
    }
  });
+ app.get('/get_pending_items', (req, res) => {
+    try {
+      const pendingOrderNosParam = req.query.pendingOrderNos;
 
+      if (!pendingOrderNosParam) {
+        return res.status(400).json({ error: 'Bad Request', message: 'pendingOrderNo numbers not provided.' });
+      }
+
+      const pendingOrderNos = pendingOrderNosParam.split(',');
+
+      const placeholders = pendingOrderNos.map(() => '?').join(', ');
+
+      const query = `
+       SELECT
+           p.custCode,
+           p.custName,
+           p.deliveryType,
+           p.itemGroup,
+           p.itemName,
+           SUM(CAST(p.qty AS SIGNED)) AS t_qty,
+           p.pincode,
+           CONCAT(DATE_FORMAT(p.orderDate, '%d-%m-'), SUBSTRING(YEAR(p.orderDate), 3)) AS date,
+           p.orderNo,
+           p.custAddress,
+           p.custMobile,
+           p.pendingOrderNo,
+           p.deliveryDate,
+           p.checkOrderNo,
+           p.individualOrderNo,
+           p.orderDate,
+           i.rate,
+           i.unit,
+           i.gst,
+           COALESCE(s.stock_qty, 0) AS stock_qty,
+           CASE
+               WHEN COALESCE(s.stock_qty, 0) < SUM(CAST(p.qty AS SIGNED)) THEN COALESCE(s.stock_qty, 0)
+               ELSE SUM(CAST(p.qty AS SIGNED))
+           END AS qty
+       FROM (
+           SELECT
+               custCode,
+               custName,
+               deliveryType,
+               itemGroup,
+               itemName,
+               qty,
+               pincode,
+               orderNo,
+               custAddress,
+               custMobile,
+               pendingOrderNo,
+               deliveryDate,
+               checkOrderNo,
+               individualOrderNo,
+               orderDate
+           FROM
+               pending_report
+           WHERE
+               pendingOrderNo IN (${placeholders})
+       ) p
+       LEFT JOIN (
+           SELECT
+               itemGroup,
+               itemName,
+               COALESCE(SUM(CAST(qty AS SIGNED)), 0) AS stock_qty
+           FROM
+               stock
+           GROUP BY
+               itemGroup,
+               itemName
+       ) s ON p.itemGroup = s.itemGroup AND p.itemName = s.itemName
+       LEFT JOIN item i ON p.itemGroup = i.itemGroup AND p.itemName = i.itemName
+       GROUP BY
+           p.custCode,
+           p.custName,
+           p.deliveryType,
+           p.itemGroup,
+           p.itemName,
+           p.pincode,
+           p.orderNo,
+           p.custAddress,
+           p.custMobile,
+           p.pendingOrderNo,
+           p.deliveryDate,
+           p.checkOrderNo,
+           p.individualOrderNo,
+           p.orderDate,
+           i.rate,
+           i.unit,
+           i.gst,
+           s.stock_qty
+       HAVING
+           qty > 0 AND stock_qty > 0;
+
+      `;
+
+      db.query(query, [...pendingOrderNos, ...pendingOrderNos], (error, results) => {
+        if (error) {
+          console.error('4312 Error executing query:', error);
+          res.status(500).json({ error: '4312 Internal Server Error', message: error.message });
+        } else {
+          res.json(results);
+        }
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+  });
 app.get('/get_pending_report_orderNo', (req, res) => {
   const orderNo = req.query.orderNo;
 
@@ -5131,100 +5195,11 @@ app.post('/daily_work_status', (req, res) => {
 
 
 
-app.get('/fetch_daily_Work_status', (req, res) => {
-    const { shiftType, machName, desiredDate } = req.query;
 
-    const sql = `SELECT
-                     machName,
-                     shiftType,
-                     CASE WHEN AltEmp = 'Yes' AND assOne IS NOT NULL THEN assOne ELSE NULL END AS winding_assOne,
-                     CASE WHEN AltEmp = 'Yes' AND emp_code1 IS NOT NULL THEN emp_code1 ELSE NULL END AS winding_oPempcode1,
-                     CASE WHEN AltEmp = 'Yes' AND asstwo IS NOT NULL THEN asstwo ELSE NULL END AS winding_asstwo,
-                     CASE WHEN AltEmp = 'Yes' AND emp_code2 IS NOT NULL THEN emp_code2 ELSE NULL END AS winding_empcode1,
-                     CASE WHEN AltEmp = 'Yes' AND opOneName IS NOT NULL THEN opOneName ELSE NULL END AS winding_opOneName,
-                     CASE WHEN AltEmp = 'Yes' AND emp_code3 IS NOT NULL THEN emp_code3 ELSE NULL END AS winding_empcode2,
-                     NULL AS finishing_assOne,
-                     NULL AS finishing_empcode1,
-                     NULL AS finishing_opOneName,
-                     NULL AS finishing_empcode2,
-                     NULL AS printing_assOne,
-                     NULL AS printing_empcode1,
-                     NULL AS printing_opOneName,
-                     NULL AS printing_empcode2
-                 FROM winding_entry
-                 WHERE
-                     (shiftType = '${shiftType}' AND machName = '${machName}' AND '${desiredDate}' BETWEEN fromDate AND toDate AND AltEmp IS NULL)
-                     OR
-                     (shiftType = '${shiftType}' AND machName = '${machName}' AND '${desiredDate}' BETWEEN fromDate AND toDate AND AltEmp = 'Yes' AND (assOne IS NOT NULL OR emp_code1 IS NOT NULL OR asstwo IS NOT NULL OR emp_code2 IS NOT NULL OR opOneName IS NOT NULL OR emp_code3 IS NOT NULL))
-
-                 UNION
-
-                 SELECT
-                     machName,
-                     shiftType,
-                     CASE WHEN AltEmp = 'Yes' AND assOne IS NOT NULL THEN assOne ELSE NULL END AS finishing_assOne,
-                     CASE WHEN AltEmp = 'Yes' AND emp_code1 IS NOT NULL THEN emp_code1 ELSE NULL END AS finishing_empcode1,
-                     CASE WHEN AltEmp = 'Yes' AND opOneName IS NOT NULL THEN opOneName ELSE NULL END AS finishing_opOneName,
-                     CASE WHEN AltEmp = 'Yes' AND emp_code2 IS NOT NULL THEN emp_code2 ELSE NULL END AS finishing_empcode2,
-                     NULL AS winding_assOne,
-                     NULL AS winding_empcode1,
-                     NULL AS winding_asstwo,
-                     NULL AS winding_empcode2,
-                     NULL AS winding_opOneName,
-                     NULL AS winding_oPempcode1,
-                     NULL AS printing_assOne,
-                     NULL AS printing_empcode1,
-                     NULL AS printing_opOneName,
-                     NULL AS printing_empcode2
-                 FROM finishing_entry
-                 WHERE
-                     (shiftType = '${shiftType}' AND machName = '${machName}' AND '${desiredDate}' BETWEEN fromDate AND toDate AND AltEmp IS NULL)
-                     OR
-                     (shiftType = '${shiftType}' AND machName = '${machName}' AND '${desiredDate}' BETWEEN fromDate AND toDate AND AltEmp = 'Yes' AND (assOne IS NOT NULL OR emp_code1 IS NOT NULL OR opOneName IS NOT NULL OR emp_code2 IS NOT NULL))
-
-                 UNION
-
-                 SELECT
-                     machName,
-                     shiftType,
-                     CASE WHEN AltEmp = 'Yes' AND assOne IS NOT NULL THEN assOne ELSE NULL END AS printing_assOne,
-                     CASE WHEN AltEmp = 'Yes' AND emp_code1 IS NOT NULL THEN emp_code1 ELSE NULL END AS printing_empcode1,
-                     CASE WHEN AltEmp = 'Yes' AND opOneName IS NOT NULL THEN opOneName ELSE NULL END AS printing_opOneName,
-                     CASE WHEN AltEmp = 'Yes' AND emp_code2 IS NOT NULL THEN emp_code2 ELSE NULL END AS printing_empcode2,
-                     NULL AS winding_assOne,
-                     NULL AS winding_empcode1,
-                     NULL AS winding_asstwo,
-                     NULL AS winding_empcode2,
-                     NULL AS winding_opOneName,
-                     NULL AS winding_oPempcode1,
-                     NULL AS finishing_assOne,
-                     NULL AS finishing_empcode1,
-                     NULL AS finishing_opOneName,
-                     NULL AS finishing_empcode2
-                 FROM printing_entry
-                 WHERE
-                     (shiftType = '${shiftType}' AND machName = '${machName}' AND '${desiredDate}' BETWEEN fromDate AND toDate AND AltEmp IS NULL)
-                     OR
-                     (shiftType = '${shiftType}' AND machName = '${machName}' AND '${desiredDate}' BETWEEN fromDate AND toDate AND AltEmp = 'Yes' AND (assOne IS NOT NULL OR emp_code1 IS NOT NULL OR opOneName IS NOT NULL OR emp_code2 IS NOT NULL))`;
-
-    db.query(sql, [shiftType, machName, desiredDate], (err, result) => {
-        if (err) {
-            console.error('Error executing SQL query:', err);
-            res.status(500).send('Internal Server Error');
-            return;
-        }
-        // Check if the result set is empty
-        if (result.length === 0) {
-            res.json([]);
-        } else {
-            res.json(result);
-        }
-    });
-});
 
 
 //good
-/*app.get('/fetch_daily_Work_status', (req, res) => {
+app.get('/fetch_daily_Work_status', (req, res) => {
   const { shiftType, machName, desiredDate } = req.query;
 
   const sql =  ` SELECT
@@ -5305,7 +5280,7 @@ app.get('/fetch_daily_Work_status', (req, res) => {
       res.json(result);
     }
   });
-});*/
+});
 //good
 
 
@@ -6629,7 +6604,7 @@ app.post('/other_working_entry_update', (req, res) => {
 
 //07//01//2024
 
-app.post('/updateRawMaterialdailywork', async (req, res) => {
+/*app.post('/updateRawMaterialdailywork', async (req, res) => {
   const { prodName, qty, modifyDate } = req.body;
 
   const sql = 'UPDATE raw_material SET  qty = qty - ?, modifyDate = ? WHERE  prodName = ?';
@@ -6643,7 +6618,7 @@ app.post('/updateRawMaterialdailywork', async (req, res) => {
       res.send('raw_material updated successfully');
     }
   });
-});
+});*/
 
 app.get('/getprodname', (req, res) => {
   const sql = 'SELECT DISTINCT prodName FROM raw_material ORDER BY prodName'; // Modify to your table name

@@ -27,7 +27,7 @@ class _WorkerTabState extends State<WorkerTab> {
       length: 3,
 
       child: MyScaffold(
-        route: 'winding',
+        route: 'winding',backgroundColor: Colors.white,
 
         body: WillPopScope(
           onWillPop: () async {
@@ -1011,10 +1011,12 @@ class _WindingEntryState extends State<WindingEntry> {
                                                         onChanged: (String? newValue) {
                                                           setState(() {
                                                             selectedmachine = newValue;
-                                                            op1.clear();
+                                                            errorMessage = null; // Reset error message when a new value is selected
+
+                                                            /*   op1.clear();
                                                             ass1.clear();
                                                             ass2.clear();
-                                                            ass3.clear();
+                                                            ass3.clear();*/
                                                           });
                                                         },
                                                       ),
@@ -1049,13 +1051,22 @@ class _WindingEntryState extends State<WindingEntry> {
                                                       });
                                                     }
 
-                                                    if (query.isEmpty) {
+                                                    /*  if (query.isEmpty) {
                                                       // Clear emp code when the text field is cleared
                                                       setState(() {
                                                         emp_code1.text = ''; // or whatever initial value you want
                                                       });
+                                                    }*/
+                                                    if (query.isEmpty) {
+                                                      // Clear emp code when the text field is cleared
+                                                      setState(() {
+                                                        emp_code1.text = ''; // or whatever initial value you want
+                                                        if (opName1 != null && opName1!.isNotEmpty) {
+                                                          selectedNames.add(opName1!); // Add the cleared name back to the list
+                                                        }
+                                                        opName1 = null; // Set opName1 to null after clearing the field
+                                                      });
                                                     }
-
 
                                                     String capitalizedValue = capitalizeFirstLetter(query);
                                                     op1.value = op1.value.copyWith(
@@ -1301,7 +1312,7 @@ class _WindingEntryState extends State<WindingEntry> {
                                                   onChanged: (query) {
                                                     if(selectedmachine != null) {
                                                       setState(() {
-                                                        emp_code3.text =query;
+                                                        ass2.text =query;
                                                         errorMessage = null; // Reset error message when the user types
                                                       });
                                                       if (query.isEmpty) {
@@ -2705,8 +2716,9 @@ class _PrintingEntryState extends State<PrintingEntry> {
                                                         onChanged: (String? newValue) {
                                                           setState(() {
                                                             selectedmachine = newValue;
-                                                            op1.clear();
-                                                            ass1.clear();
+                                                            errorMessage = null;
+                                                            /*op1.clear();
+                                                            ass1.clear();*/
                                                           });
                                                         },
                                                       ),
@@ -4126,8 +4138,9 @@ class _FinishingEntryState extends State<FinishingEntry> {
                                                         onChanged: (String? newValue) {
                                                           setState(() {
                                                             selectedmachine = newValue;
-                                                            op1.clear();
-                                                            ass1.clear();
+                                                            errorMessage = null;
+                                                            /*op1.clear();
+                                                            ass1.clear();*/
                                                           });
                                                         },
                                                       ),

@@ -367,7 +367,7 @@ class _QuotationEntryState extends State<QuotationEntry> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "quotation_entry",
+        route: "quotation_entry",backgroundColor: Colors.white,
         body: Form(
           key: _formKey,
           child: Center(

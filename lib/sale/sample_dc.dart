@@ -1962,7 +1962,7 @@ class _PurchaseState extends State<SampleDC> {
 
                   ),
                 ),
-              ),
+              ), backgroundColor: Colors.white,
             )
 
     ) ;

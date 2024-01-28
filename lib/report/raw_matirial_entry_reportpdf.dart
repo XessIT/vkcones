@@ -8,20 +8,21 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-class PurchaseReportPDFView extends StatefulWidget {
-
+class RawMaterialEntriesReportPDF extends StatefulWidget {
   final List<Map<String, dynamic>> customerData;
 
 
-  PurchaseReportPDFView({
+  RawMaterialEntriesReportPDF({
+
     required this.customerData,
+
   });
 
   @override
-  State<PurchaseReportPDFView> createState() => _PurchaseReportPDFViewState();
+  State<RawMaterialEntriesReportPDF> createState() => _RawMaterialEntriesReportPDFState();
 }
-int serialNumber=1;
-class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
+
+class _RawMaterialEntriesReportPDFState extends State<RawMaterialEntriesReportPDF> {
   pw.Widget _buildFooter(pw.Context context, int currentPage, int totalPages) {
     // ... (rest of your code)
     // Get the current date and time
@@ -41,13 +42,13 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
         children: [
           pw.Text(
             '$formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 4),
+            style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 405),
+          pw.SizedBox(width: 375),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
               'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6),
             ),)
         ],
       ),
@@ -56,13 +57,20 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
 
   Future<Uint8List> _generatePdfWithCopies(PdfPageFormat format, int copies) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
-    var font = await PdfGoogleFonts.alegreyaExtraBoldItalic();
     final image = await imageFromAssetBundle("assets/pillaiyar.png");
     final image1 = await imageFromAssetBundle("assets/sarswathi.png");
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
     final List<Map<String, dynamic>> customerData = widget.customerData;
-    int recordsPerPage;
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
+
+
+
+
+    int recordsPerPage ;
+    int serialNumber=1;
+
     pw.Widget createHeader() {
       return pw.Container(
         child: pw.Column(
@@ -102,7 +110,7 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 6),
+                          style: const pw.TextStyle(fontSize: 7),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -122,175 +130,167 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
         ),
       );
     }
+
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 19 : 23;
+        recordsPerPage = (j == 0) ? 18: 21;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
-            build: (context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 290: format.availableHeight +405;
+            build: (pw.Context context) {
+              final double pageHeight = j == 0 ? format.availableHeight + 280: format.availableHeight +395;
               return pw.Column(
                 children: [
                   if (j == 0)
                     createHeader(),
+
                   pw.SizedBox(height: 5),
                   pw.Container(
                     height: pageHeight * 0.6,
                     decoration: pw.BoxDecoration(
                       border: pw.Border.all(width: 1, color: PdfColors.black),
                     ),
-                    child:pw.Column(
+                    child: pw.Column(
                       children: [
-                        pw.Padding(padding:pw.EdgeInsets.only(top:10),
+                        pw.Padding(padding:pw.EdgeInsets.only(top:5),
                           child:pw.Text(
-                            'Sale Order Report',
-                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                            'Raw Material Report',
+                            style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
                           ),),
-                        pw.Padding(padding:pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
+                        pw.Padding(padding:(pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10)),
                           child:pw.Expanded(
-                            child: pw.Table(
+                            child:pw.Table(
                               border: pw.TableBorder.all(),
                               children: [
                                 pw.TableRow(
                                   children: [
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Text('S.No', style: pw.TextStyle(
-                                          fontSize: 8, fontWeight: pw.FontWeight.bold)),
-                                    ),
+                                      child:pw.Center(child: pw.Text('S.No', style: pw.TextStyle(fontSize: 8,font:font,fontWeight: pw.FontWeight.bold)),
+                                      ),),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(child: pw.Text('Date',
-                                          style: pw.TextStyle(fontSize: 8,
+                                          style: pw.TextStyle(fontSize: 8,font:font,
                                               fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
-                                      padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Center(
-                                        child: pw.Text('Order Number',
-                                            style: pw.TextStyle(fontSize: 8,
-                                                fontWeight: pw.FontWeight.bold)),
-                                      ),),
-                                    pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Customer Code',
-                                              style: pw.TextStyle(fontSize: 8,
+                                          child: pw.Text('Product Code',
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Customer/Company Name',
-                                              style: pw.TextStyle(fontSize: 8,
+                                          child: pw.Text('Product Name',
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Expected\nDelivery Date',
-                                              style: pw.TextStyle(fontSize: 8,
+                                          child: pw.Text('Unit',
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
+                                    pw.Container(
+                                        padding: pw.EdgeInsets.all(8.0),
+                                        child: pw.Center(
+                                          child: pw.Text('Quantity', style: pw.TextStyle(
+                                              fontSize: 8,font:font,
+                                              fontWeight: pw.FontWeight.bold)),)
+                                    ),
+
                                     // Add more Text widgets for additional columns if needed
                                   ],
                                 ),
+
                                 ...pageData.asMap().entries.map((entry) {
                                   int sn = entry.key + 1; // Calculate the S.No based on the entry index (starting from 1)
                                   var data = entry.value;
+
                                   return pw.TableRow(children: [
-                                    //  for (var value in data.values)
                                     pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
-                                        child: pw.Center(
-                                          child:
-                                          pw.Text('${serialNumber++}',
-                                              style: pw.TextStyle(fontSize: 8)),
-                                        )
+                                      padding: pw.EdgeInsets.all(8.0),
+                                      child: pw.Center(
+                                        child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8,font:font1)),
+                                      ),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data["date"] != null
                                             ? DateFormat('dd-MM-yyyy').format(
-                                            DateTime.parse("${data["date"]}").toLocal())
+                                          DateTime.parse("${data["date"]}").toLocal(),)
                                             : "",
-                                            style: pw.TextStyle(fontSize: 8)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text(data['orderNo'].toString(),
-                                              style: pw.TextStyle(fontSize: 8)),)
+                                          child: pw.Text(data['prodCode'].toString(),
+                                              style: pw.TextStyle(fontSize: 8,font:font1)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text(data['custCode'],
-                                            style: pw.TextStyle(fontSize: 8)),),
+                                        child: pw.Text(data['prodName'].toString(),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
+                                    ),
+                                    pw.Container(
+                                      padding: pw.EdgeInsets.all(8.0),
+                                      child: pw.Center(
+                                        child: pw.Text(data['unit'].toString(),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
 
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text(data['custName'],
-                                            style: pw.TextStyle(fontSize: 8)),),
+                                        child: pw.Text(data['qty'].toString(),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
-                                    // pw.Container(
-                                    //   padding: pw.EdgeInsets.all(8.0),
-                                    //   child: pw.Center(
-                                    //     child: pw.Text(data['custMobile'].toString(), style: pw.TextStyle(fontSize: 8)),),
-                                    // ),
-
-                                    pw.Container(
-                                      padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Center(
-                                        child: pw.Text(data["deliveryDate"] != null
-                                            ? DateFormat('dd-MM-yyyy').format(
-                                            DateTime.parse("${data["deliveryDate"]}").toLocal())
-                                            : "-",
-                                            style: pw.TextStyle(fontSize: 8)),),
-                                    ),
-
                                   ]);
                                 }
                                 ).toList(),
                               ],
                             ),
-                          ),),
-                      ],
-                    ),
-                  ),
-                  pw.SizedBox(height: 5),
+                          ),),],),),
+                  pw.SizedBox(height:5),
+
                   pw.Align(
                     alignment: pw.Alignment.bottomCenter,
                     child: pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.end,
                       children: [
                         //pw.SizedBox(height: 20),
-                        _buildFooter(context, j ~/ recordsPerPage + 1,
-                            (customerData.length / recordsPerPage).ceil()),
+                        _buildFooter(context, j ~/ recordsPerPage + 1, (customerData.length / recordsPerPage).ceil()),
                       ],
                     ),
                   )
+
+
+
                 ],
               );
             },
           ),
         );
       }
-    }
+      //return pdf.save() ?? Uint8List(0);
 
+    }
     return pdf.save();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Customer Order PDF"), centerTitle: true,),
+      appBar: AppBar(title: Text("Raw Material Report"), centerTitle: true,),
       body: PdfPreview(
         build: (format) => _generatePdfWithCopies(format, 1), // Generate 1 copy
         onPrinted: (context) {},
@@ -298,6 +298,20 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

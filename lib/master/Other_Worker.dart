@@ -497,7 +497,7 @@ class _Other_workerState extends State<Other_worker> {
   Widget build(BuildContext context) {
     prodCode.text= generateId();
     return MyScaffold(
-        route: 'Other',
+        route: 'Other',backgroundColor: Colors.white,
 
         body: Center(
           child: Form(
@@ -729,7 +729,7 @@ class _Other_workerState extends State<Other_worker> {
                                                       child: DropdownButton<String>(
                                                         value: dropdownvalue,
                                                         hint: Text("Shift type"),
-                                                        items: <String>['Shift Type','General','Morning','Night',]
+                                                        items: <String>['Shift Type','General',]
                                                             .map<DropdownMenuItem<String>>((String value) {
                                                           return DropdownMenuItem<String>(
                                                             // enabled: false,

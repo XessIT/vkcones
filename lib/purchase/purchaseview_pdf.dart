@@ -419,6 +419,7 @@ class _CustomerOrderIndividualReportState
                                                 fontSize: 9,
                                               ),
                                             ),
+                                            pw.SizedBox(height: 3),
                                           ],
                                         ),
                                       ),
@@ -454,10 +455,8 @@ class _CustomerOrderIndividualReportState
                                                 maxWidth:105,
                                               ),
                                               child: pw.Text(customerdata[0]["custAddress"].toString(), style: pw.TextStyle(fontSize: 9,)),
-
                                             ),
-                                            pw.SizedBox(height: 3),
-
+                                            pw.SizedBox(height: 12),
                                           ],
                                         ),
                                       ),
@@ -547,17 +546,16 @@ class _CustomerOrderIndividualReportState
                                                 child: pw.Column(
                                                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                                                   children: [
-                                                    pw.Text(customerdata[0]["gstin"].toString(), style: pw.TextStyle(fontSize: 9,)),
+                                                    pw.Text(customerdata[0]["gstin"].toString(), style: pw.TextStyle(fontSize: 9)),
                                                     pw.SizedBox(height: 3),
-                                                    pw.Text(widget.deliveryType.toString(), style: pw.TextStyle(fontSize: 9,)),
+                                                    pw.Text(widget.deliveryType?.toString() ?? "-", style: pw.TextStyle(fontSize: 9)),
                                                     pw.SizedBox(height: 3),
-                                                    pw.Text(  widget.deliveryDate != null
-                                                        ? DateFormat("dd-MM-yyyy")
-                                                        .format(DateTime.parse(
-                                                        "${widget.deliveryDate}").toLocal())
-                                                        : "", style: pw.TextStyle(fontSize: 9,)),
+                                                    pw.Text(
+                                                      widget.deliveryDate != null ? DateFormat('dd-MM-yyyy').format(DateTime.parse(widget.deliveryDate!).toLocal()) : "-",
+                                                      style: pw.TextStyle(fontSize: 9),
+                                                    ),
                                                     pw.SizedBox(height: 3),
-                                                    pw.Text(""),
+                                                    pw.Text(""), // Add your text or handle other cases accordingly
                                                     pw.SizedBox(height: 3),
                                                   ],
                                                 ),

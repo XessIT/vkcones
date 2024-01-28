@@ -12,7 +12,7 @@ class _GstReportState extends State<GstReport> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "gst_entry",
+        route: "gst_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             child: Center(

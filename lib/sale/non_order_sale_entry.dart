@@ -559,7 +559,7 @@ class _NonrderSaleEntryState extends State<NonrderSaleEntry> {
     DateTime Date = DateTime.now();
     final formattedDate = DateFormat("dd/MM/yyyy").format(Date);
     return MyScaffold(
-        route: "non_order_entry_sales",
+        route: "non_order_entry_sales",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(

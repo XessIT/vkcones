@@ -1559,7 +1559,7 @@ class _OldEntrySalesState extends State<OldEntrySales> {
                   ]),
             ),
           ),
-        ) );
+        ), backgroundColor: Colors.white, );
   }
 }
 String _getKeyForColumn(int columnIndex) {

@@ -281,17 +281,17 @@ class _Raw_materialState extends State<Raw_material> {
 
 
   Future<String> fetchqty(String prodCode, String prodName) async {
-  final response = await http.post(
+    final response = await http.post(
       Uri.parse('http://localhost:3309/Raw_materil_Qty'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'prodCode': prodCode, 'prodName': prodName}),
     );
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    return data['qty'].toString(); // Convert to String if needed
-  } else {
-    throw Exception('Failed to fetch QTY from Raw_material');
-  }
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['qty'].toString(); // Convert to String if needed
+    } else {
+      throw Exception('Failed to fetch QTY from Raw_material');
+    }
   }
 
 
@@ -619,7 +619,7 @@ class _Raw_materialState extends State<Raw_material> {
       filterData(searchController.text);
     });
     return MyScaffold(
-        route: "raw_material_entry",
+        route: "raw_material_entry",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -670,9 +670,8 @@ class _Raw_materialState extends State<Raw_material> {
                                                       showDatePicker(
                                                         context: context,
                                                         initialDate: eod,
-                                                        firstDate: DateTime(1950),
-                                                        // Set the range of selectable dates
-                                                        lastDate: DateTime(2100),
+                                                        firstDate: DateTime(2000),
+                                                        lastDate: eod,
                                                       ).then((date) {
                                                         if (date != null) {
                                                           setState(() {
@@ -685,7 +684,6 @@ class _Raw_materialState extends State<Raw_material> {
                                                     controller: TextEditingController(
                                                       text: DateFormat('dd-MM-yyyy').format(eod),
                                                     ),
-                                                    // Set the initial value of the field to the selected date
                                                     decoration: InputDecoration(
                                                       filled: true,
                                                       fillColor: Colors.white,
@@ -872,7 +870,6 @@ class _Raw_materialState extends State<Raw_material> {
                                                                   TextButton(
                                                                     onPressed: () {
                                                                       Navigator.of(context).pop();
-
                                                                       // Update the value in j==3 field with the fetched quantity
                                                                       controllers[rowIndex][j].text = fetchedQty;
                                                                     },
@@ -985,13 +982,11 @@ class _Raw_materialState extends State<Raw_material> {
                                                               // Fetch unit based on prodCode and prodName
                                                               final unit = await fetchUnitInPO(productCode!, productName!);
                                                               final qty = await fetchqty(productCode!, productName!); // Await the result
-
                                                               controllers[rowIndex][2].text = unit;
                                                               controllers[rowIndex][3].text = qty; // Set the qty
                                                             }
                                                           }
                                                         }
-
                                                     ),
                                                   ),
                                                 ),

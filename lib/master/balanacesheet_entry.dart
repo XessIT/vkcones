@@ -63,6 +63,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   late List<FocusNode> focusOrder;
   double? dedamt; /// for dedecution AMt
   double? chequeamt; /// For cheque amt
+  double? receivedamt;
   double? initialAmt; // Initial amount (cheque amount before deductions)
 
   ///For Intialamt
@@ -357,11 +358,11 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
     //   fetchData3();
     fetchDataSuggestion();
     //  fetchData(selectedOrderNumbers);
-    //   updateBalanceAmount();
+    updateBalanceAmount();
     //updateBalanceAmount2();
     // updateDebitAmt();
     // updatecreitAmt();
-    updateReceivedAmt();
+    // updateReceivedAmt();
 
   }
   Map<String, dynamic> dataToInsert = {};
@@ -605,7 +606,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: Text('Error'),
+                    title: Text('Alert'),
                     content: Text('Customer Code/ Company Name does not match the previous selection'),
                     actions: <Widget>[
                       TextButton(
@@ -639,7 +640,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                 custName.clear();
               }
             });
-            for (int j = 0; j < 6; j++) {
+            for (int j = 0; j < 5; j++) {
               TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
               rowControllers.add(controller);
             }
@@ -694,7 +695,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
         }
       },
       child: MyScaffold(
-          route: 'balancesheet_entry',
+          route: 'balancesheet_entry',backgroundColor: Colors.white,
           body:Form(
             key: _formKey,
             child: Column(
@@ -767,7 +768,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                                             chequeAmt.clear();
                                                             receivedAmt.clear();
                                                             deductionAmt.clear();
-
+                                                            grandTotal.clear();
                                                             balance.clear();
 
                                                           }
@@ -951,7 +952,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                           });
                                         },
                                         inputFormatters: [
-                                         // UpperCaseTextFormatter(),
+                                          // UpperCaseTextFormatter(),
                                           FilteringTextInputFormatter.digitsOnly, // Allow only numeric input
                                           LengthLimitingTextInputFormatter(6)
                                         ],
@@ -1022,7 +1023,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
 */
                                   ],
                                 ),
-                              ),  /// Invoice Amount
+                              ),
                               SizedBox(
                                 height: 20,
                               ),
@@ -1041,6 +1042,10 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         onChanged: (value) {
                                           setState(() {
                                             updateBalanceAmount();
+                                          });
+/*
+                                          setState(() {
+                                           // updateBalanceAmount();
                                             chequeamt = double.tryParse(value) ?? 0.0;
                                             print("cheque value : $chequeamt");
 
@@ -1048,24 +1053,17 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                             for (int i = 0; i < controllers.length; i++) {
                                               if (i == 0) {
                                                 controllers[i][2].text = chequeamt.toString();
-                                                // double invoiceAmont= double.tryParse(controllers[i][1].text)??0.0;
-                                                // double dedectionAmount= double.tryParse(controllers[i][3].text)??0.0;
-                                                // double receivedAmount =invoiceAmont-dedectionAmount;
-                                                // controllers[i][4].text = receivedAmount.toString();
-                                                // print(controllers[i][4].text);
+
                                               } else {
                                                 double previousChequeAmt = double.parse(controllers[i - 1][2].text);
                                                 double previousInvoiceAmt = double.parse(controllers[i - 1][1].text);
                                                 double newChequeAmt = previousChequeAmt - previousInvoiceAmt;
                                                 controllers[i][2].text = newChequeAmt.toString();
                                               }
-                                              // double invoiceAmont= double.tryParse(controllers[i][1].text)??0.0;
-                                              // double dedectionAmount= double.tryParse(controllers[i][3].text)??0.0;
-                                              // double receivedAmount =invoiceAmont-dedectionAmount;
-                                              // controllers[i][4].text = receivedAmount.toString();
-                                              // print(controllers[i][4].text);
+
                                             }
                                           });
+*/
                                         },
                                         controller: chequeAmt,
                                         style: TextStyle(fontSize: 13),
@@ -1183,6 +1181,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                           FocusScope.of(context).requestFocus(focusOrder[2]);
                                         },
                                         onChanged: (value) {
+/*
                                           setState(() {
                                             dedamt = deductionAmt.text.isNotEmpty ? double.parse(deductionAmt.text) / controllers.length : null;
                                             print("amt value : $dedamt");
@@ -1190,13 +1189,14 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                               controllers[i][3].text = dedamt!.toStringAsFixed(2);
                                             }
                                           });
+*/
 
-                                          for (int i = 0; i < controllers.length; i++) {
+                                          /* for (int i = 0; i < controllers.length; i++) {
                                             double invoiceAmont = double.tryParse(controllers[i][1].text) ?? 0.0;
                                             double receivedAmount = invoiceAmont - dedamt!;
                                             controllers[i][4].text = receivedAmount.toStringAsFixed(2);
                                             print(controllers[i][4].text);
-                                          }
+                                          }*/
 
                                           // Update receivedAmt based on the deductionAmt and chequeAmt
                                           setState(() {
@@ -1214,7 +1214,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                             }
 
                                             double receivedamt = chequeAmtValue - deductionAmtValue;
-                                            receivedAmt.text = receivedamt.toStringAsFixed(2);
+                                            // receivedAmt.text = receivedamt.toStringAsFixed(2);
                                           });
                                         },
                                         controller: deductionAmt,
@@ -1304,21 +1304,70 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                     child: SizedBox(
                                       width: 220,height: 70,
                                       child: TextFormField(
-                                        controller: receivedAmt,
+                                        // controller: receivedAmt,
                                         onChanged: (value) {
                                           setState(() {
-                                            /* double chequeAmtValue = double.tryParse(chequeAmt.text) ?? 0.0;
-                                            double deductionAmtValue = double.tryParse(deductionAmt.text) ?? 0.0;
-                                            double receivedamt = chequeAmtValue - deductionAmtValue;
-                                            receivedAmt.text = receivedamt.toStringAsFixed(2);*/
+                                            receivedamt = double.tryParse(value) ?? 0.0;
 
-                                            errorMessage = null; // Reset error message when user types
+                                            for (int i = 0; i < controllers.length; i++) {
+                                              if (i == 0) {
+                                                controllers[i][2].text = receivedamt.toString();
+                                                double invoiceAmount = double.tryParse(controllers[i][1].text) ?? 0.0;
+                                                controllers[i][3].text = ((receivedamt ?? 0.0) - invoiceAmount).toString();
+                                              } else {
+                                                double previousChequeAmt = double.tryParse(controllers[i - 1][2].text) ?? 0.0;
+                                                double previousInvoiceAmt = double.tryParse(controllers[i - 1][1].text) ?? 0.0;
+                                                double newChequeAmt = previousChequeAmt - previousInvoiceAmt;
+                                                controllers[i][2].text = newChequeAmt.toString();
+
+                                                double currentInvoiceAmount = double.tryParse(controllers[i][1].text) ?? 0.0;
+                                                double balanceAmount = newChequeAmt - currentInvoiceAmount;
+
+                                                // Check for null before assigning to controllers[i][3].text
+                                                controllers[i][3].text = (balanceAmount ?? 0.0).toString();
+
+                                              }
+                                            }
                                           });
                                         },
-                                        onEditingComplete: () {
-                                          // Move focus to the next controller in the order
-                                          FocusScope.of(context).requestFocus(focusOrder[3]);
+
+
+
+
+
+
+                                        /*
+                                        onChanged: (value) {
+                                          setState(() {
+                                           // receivedAmt = (double.tryParse(value) ?? 0.0) as TextEditingController;
+                                            receivedamt = double.tryParse(value) ?? 0.0;
+
+                                            for (int i=0; i< controllers.length; i++){
+                                              if (i == 0) {
+                                                controllers[i][2].text = receivedamt.toString();
+                                                controllers[i][3].text = (double.tryParse(controllers[i][1].text) ?? 0.0 - receivedamt).toString();
+
+                                              }
+                                              else {
+                                                double previousChequeAmt = double.parse(controllers[i - 1][2].text);
+                                                double previousInvoiceAmt = double.parse(controllers[i - 1][1].text);
+                                                double newChequeAmt = previousChequeAmt - previousInvoiceAmt;
+                                                controllers[i][2].text = newChequeAmt.toString();
+                                                controllers[i][3].text = (double.tryParse(controllers[i][1].text)?? 0.0 - newChequeAmt).toString();
+
+                                                //controllers[i][3].text = newChequeAmt.toString();
+                                              }
+
+                                            }
+
+                                          });
+
+
                                         },
+*/  /// this for recevived check amount working finr
+
+                                        controller: receivedAmt,
+
                                         style: TextStyle(fontSize: 13),
                                         decoration: InputDecoration(
                                           filled: true,
@@ -1334,7 +1383,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         ],
                                       ),
                                     ),
-                                  ), ///
+                                  ), ///Recevived cheque amt
                                   SizedBox(width: 20,),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
@@ -1380,7 +1429,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                     SizedBox(height: 10,),
                     Table(
                       border: TableBorder.all(color: Colors.black),
-                      defaultColumnWidth: const FixedColumnWidth(180.0),
+                      defaultColumnWidth: const FixedColumnWidth(260.0),
                       children: [
 
                         TableRow(
@@ -1413,7 +1462,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                 child: Column(
                                   children: [
                                     SizedBox(height: 15),
-                                    Text('Cheque Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('Recevived Cheque Amount', style: TextStyle(fontWeight: FontWeight.bold)),
                                     SizedBox(height: 15),
                                   ],
                                 ),
@@ -1424,23 +1473,13 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                 child: Column(
                                   children: [
                                     SizedBox(height: 15),
-                                    Text('Deduction Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('Balance Amount', style: TextStyle(fontWeight: FontWeight.bold)),
                                     SizedBox(height: 15),
                                   ],
                                 ),
                               ),
                             ),
-                            TableCell(
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 15),
-                                    Text('Received Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 15),
-                                  ],
-                                ),
-                              ),
-                            ),
+
 /*
                             TableCell(
                               child: Center(
@@ -1461,7 +1500,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                           if(invoiceNo.text.isNotEmpty)
                             TableRow(
                               children: [
-                                for (int j = 0; j < 5; j++)
+                                for (int j = 0; j < 4; j++)
                                   TableCell(
                                     verticalAlignment: TableCellVerticalAlignment.middle,
                                     child: Padding(
@@ -1637,8 +1676,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                       'individual_invoice':controllers[i][0].text,
                                       'individual_Amt':controllers[i][1].text,
                                       'individual_cheque':controllers[i][2].text,
-                                      'individual_Deduction':controllers[i][3].text,
-                                      'individual_Received':controllers[i][4].text,
+                                      'individual_balance':controllers[i][3].text,
 
                                     };
 
@@ -1777,11 +1815,9 @@ String _getKeyForColumn(int columnIndex) {
     case 1:
       return 'grandTotal';
     case 2:
-      return 'Cheque Amount';
-    case 3:
-      return 'Deduction Amount';
-    case 4:
       return 'Received Amount';
+    case 3:
+      return 'Balance Amount';
 
     default:
       return '';

@@ -184,7 +184,7 @@ class _POPendingReportState extends State<POPendingReport> {
       filterData(searchController.text);
     });
     return MyScaffold(
-      route: "get_po_pending_report",
+      route: "get_po_pending_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -504,7 +504,7 @@ class _POPendingReportState extends State<POPendingReport> {
                                 child: SizedBox(
                                   width:1200,
                                   child: PaginatedDataTable(
-                                    columnSpacing:70, rowsPerPage:25,
+                                    columnSpacing:55, rowsPerPage:25,
                                     columns: [
                                       const DataColumn(label: Center(child: Text("  S.No",style: TextStyle(fontWeight: FontWeight.bold,),))),
                                       const DataColumn(label: Center(child: Text("     Date",style: TextStyle(fontWeight: FontWeight.bold),))),

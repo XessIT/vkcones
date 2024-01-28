@@ -188,7 +188,7 @@ class _DailyWorkStatusReportState extends State<DailyWorkStatusReport> {
       filterData(searchController.text);
     });
 
-    return MyScaffold(route: '/DWSreport', body: Center(
+    return MyScaffold(route: '/DWSreport',backgroundColor: Colors.white, body: Center(
       child: Column(
         children: [
           const SizedBox(height: 10,),

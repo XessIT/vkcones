@@ -10,7 +10,7 @@ class _OrderReportState extends State<OrderReport> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "order_report",
+        route: "order_report",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             child: Center(

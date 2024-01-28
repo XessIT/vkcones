@@ -269,6 +269,7 @@ class _PoCreationState extends State<PoCreation> {
   }
   Future<void> submitItem() async {
     String purchaseDateString = deliveryDate.text;
+    String formattedDeliveryDate = deliveryDate.text ?? ''; // Provide a default value if null
 
     // Check if deliveryDate is null, and set a default value if needed
     DateTime purchaseDateTime;
@@ -279,16 +280,9 @@ class _PoCreationState extends State<PoCreation> {
       purchaseDateTime = DateTime.now();
     }
 
-    String formattedDeliveryDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
     DateTime now = DateTime.now();
     String year = (now.year % 100).toString();
     String month = now.month.toString().padLeft(2, '0');
-    // String purchaseDateString = deliveryDate.text;
-    // DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
-    // String formattedDeliveryDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
-    // DateTime now=DateTime.now();
-    // String year=(now.year%100).toString();
-    // String month=now.month.toString().padLeft(2,'0');
 
     List<Future<void>> insertFutures = [];
     if (poNumber.isEmpty) {
@@ -299,7 +293,6 @@ class _PoCreationState extends State<PoCreation> {
         'poNo':poNumber,
         'supName': supName.text,
         'supCode': supCode.text,
-        //'deliveryType': deliveryType,
         'deliveryDate': formattedDeliveryDate,
         'prodCode': controllers[i][0].text,
         'prodName': controllers[i][1].text,
@@ -624,11 +617,14 @@ class _PoCreationState extends State<PoCreation> {
       },
     );
   }
-
+  final FocusNode _suppliernameFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_suppliernameFocusNode);
+    });
     fetchData();
     ponumfetch();
     addRow();
@@ -649,7 +645,7 @@ class _PoCreationState extends State<PoCreation> {
     });
 
     return MyScaffold(
-        route: "po_creation",
+        route: "po_creation",backgroundColor: Colors.black,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -836,6 +832,7 @@ class _PoCreationState extends State<PoCreation> {
                                             child: TypeAheadFormField<String>(
                                               textFieldConfiguration: TextFieldConfiguration(
                                                 controller: supName,
+                                                focusNode: _suppliernameFocusNode,
                                                 onChanged: (value) {
                                                   String capitalizedValue = capitalizeFirstLetter(value);
                                                   supName.value = supName.value.copyWith(
@@ -1077,11 +1074,9 @@ class _PoCreationState extends State<PoCreation> {
                                                 return;
                                               {
                                                 setState(() {
-                                                  deliveryDate.text =
-                                                      DateFormat(
-                                                          'dd-MM-yyyy')
-                                                          .format(
-                                                          pickDate);
+                                                  deliveryDate.text = pickDate != null
+                                                      ? DateFormat('dd-MM-yyyy').format(pickDate)
+                                                      : ''; // Provide a default value if null
                                                 });
                                               }
                                               // setState(() {
@@ -1287,6 +1282,8 @@ class _PoCreationState extends State<PoCreation> {
                                                             title: Text(suggestion),
                                                           );
                                                         },
+                                                        // ...
+
                                                         onSuggestionSelected: (suggestion) async {
                                                           final int rowIndex = i;
                                                           final int colIndex = j;
@@ -1298,14 +1295,28 @@ class _PoCreationState extends State<PoCreation> {
                                                             final productName = match.group(2)?.trim();
                                                             final selectedProductKey = '$productCode-$productName';
 
-
                                                             if (controllers.any((row) => row[0].text == productCode && row != controllers[rowIndex])) {
                                                               showWarningMessage('Product with code $productCode already selected in another row!');
                                                               setState(() {
                                                                 controllers[rowIndex][0].text = ''; // Clear the product code
+                                                                controllers[rowIndex][1].text = ''; // Clear the product code
                                                               });
-                                                            }
-                                                            else {
+                                                            } else {
+                                                              if (selectedProducts.isNotEmpty) {
+                                                                final previousProductName = selectedProducts.last.split('-').last;
+
+                                                                if ((previousProductName.startsWith('GSM') && !productName!.startsWith('GSM')) ||
+                                                                    (!previousProductName.startsWith('GSM') && productName!.startsWith('GSM'))) {
+                                                                  showWarningMessage('Product name mismatched Please check!');
+                                                                  setState(() {
+                                                                    controllers[rowIndex][0].text = '';
+                                                                    controllers[rowIndex][1].text = '';
+                                                                    // Clear the product code
+                                                                  });
+                                                                  return;
+                                                                }
+                                                              }
+
                                                               selectedProducts.add(selectedProductKey);
                                                               setState(() {
                                                                 controllers[rowIndex][0].text = productCode!;
@@ -1316,11 +1327,9 @@ class _PoCreationState extends State<PoCreation> {
                                                               final unit = await fetchUnitInPO(productCode!, productName!);
 
                                                               controllers[rowIndex][2].text = unit;
-
-
                                                             }
-                                                          }}
-
+                                                          }
+                                                        }
                                                     ),
                                                   ),
                                                 ),

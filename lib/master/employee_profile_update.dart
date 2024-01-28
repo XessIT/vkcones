@@ -608,7 +608,7 @@ class _EmployeeProfileUpdateState extends State<EmployeeProfileUpdate> {
     });
     calculateAge();
     return MyScaffold(
-      route: "employee_profile_update",
+      route: "employee_profile_update",backgroundColor: Colors.white,
       body: Form(
         key: _formKey,
         child: Center(

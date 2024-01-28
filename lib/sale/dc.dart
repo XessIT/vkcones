@@ -683,7 +683,7 @@ class _PurchaseState extends State<Dc> {
     return Builder(
         builder: (context) =>
             MyScaffold(
-              route: "dc",
+              route: "dc",backgroundColor: Colors.white,
               body:  Form(
                 key: _formKey,
                 child: SingleChildScrollView(

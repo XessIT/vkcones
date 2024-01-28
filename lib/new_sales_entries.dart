@@ -856,7 +856,7 @@ class _CheckSaleState extends State<CheckSale> {
       filterData2(custCode.text);
     });
     return MyScaffold(
-        route: "entry_sales",
+        route: "entry_sales",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(
