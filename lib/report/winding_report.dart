@@ -18,6 +18,7 @@ class _WindingReportState extends State<WindingReport> {
 
   DateTime selectedDate = DateTime.now();
   DateTime selectedToDate = DateTime.now();
+  final ScrollController _scrollController = ScrollController();
   TextEditingController searchController = TextEditingController();
   String toselecteddate ='' ;
   String fromselecteddate = '';
@@ -442,24 +443,35 @@ class _WindingReportState extends State<WindingReport> {
                                   child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),
                                 )),
                             const SizedBox(height: 20,),
-                            PaginatedDataTable(
-                              columnSpacing:30.0,
-                              //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              rowsPerPage:25,
-                              columns:   const [
-                                DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Shift date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("From Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("To Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Shift Type",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Printing Status",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("     Person 1",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("     Person 2",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("     Person 3",style: TextStyle(fontWeight: FontWeight.bold),))),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width:1200,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:30.0,
+                                    //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    rowsPerPage:25,
+                                    columns:   const [
+                                      DataColumn(label: Center(child: Text("   S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("    Shift date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("   From Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("   To Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("   Shift Type",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("   Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("    Printing Status",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("     Person 1",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("    Person 2",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("     Person 3",style: TextStyle(fontWeight: FontWeight.bold),))),
 
-                              ],
-                              source: _YourDataTableSource(filteredData,context,generatedButton),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),

@@ -36,6 +36,7 @@ class _PurchaseReportState extends State<PurchaseReport> {
   List<Map<String, dynamic>> customerdata = [];
   String selectedSupplier = '';
   bool showSuggestions = false;
+  final ScrollController _scrollController = ScrollController();
 
   String capitalizeFirstLetter(String text) {
     if (text.isEmpty) return text;
@@ -490,20 +491,34 @@ class _PurchaseReportState extends State<PurchaseReport> {
                               ],
                             ),
                             const SizedBox(height: 20,),
-                            PaginatedDataTable(
-                              columnSpacing:74.0,
-                              //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              rowsPerPage:25,
-                              columns:   const [
-                                DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Invoice No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Supplier Code",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Supplier/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("     Action",style: TextStyle(fontWeight: FontWeight.bold),))),
-                              ],
-                              source: _YourDataTableSource(filteredData,context,generatedButton),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width: 1200,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:74.0,
+                                    //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    rowsPerPage:25,
+                                    columns:   const [
+                                      DataColumn(label: Center(child: Text("  S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("      Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("    Invoice No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Supplier Code",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Supplier/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Padding(
+                                        padding: EdgeInsets.only(left:30),
+                                        child: Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ))),
+                                      DataColumn(label: Center(child: Text("     Action",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -613,7 +628,7 @@ class _YourDataTableSource extends DataTableSource {
             child: Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: const EdgeInsets.only(top: 17),
+                padding: const EdgeInsets.only(top: 17,right:25),
                 child: Text(
                   "${(double.parse(row["grandTotal"]) - double.parse(row["returnTotal"])).toStringAsFixed(2)}",
                 ),
@@ -666,7 +681,8 @@ class _YourDataTableSource extends DataTableSource {
                         total: row["total"],
                         grandTotal: row["grandTotal"],
                         payType: row["payType"],
-                        //amt: row["amt"],
+                        amt: row["amt"],
+
                       ),
                     ),
                   );
@@ -691,7 +707,8 @@ class _YourDataTableSource extends DataTableSource {
                         total: row["total"],
                         grandTotal: row["grandTotal"],
                         payType: row["payType"],
-                       // amt: row["amt"],
+                        amt: row["amt"],
+
                       ),
                     ),
                   );

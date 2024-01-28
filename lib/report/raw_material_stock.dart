@@ -23,6 +23,10 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
   int currentPage = 1;
   int rowsPerPage = 10;
   String selectedCustomer="";
+  final ScrollController _scrollController = ScrollController();
+
+
+
 
   void updateFilteredData() {
     final startIndex = (currentPage - 1) * rowsPerPage;
@@ -472,19 +476,30 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
                                   child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),)),
                             const SizedBox(height: 20,),
                             filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
-                            PaginatedDataTable(
-                              columnSpacing:80.0,
-                              rowsPerPage:25,
-                              columns:   const [
-                                DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Product Code",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Product Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Weight",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Total Weight",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Available Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Modify Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                              ], source: _YourDataTableSource(filteredData,context,generatedButton),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width: 1300,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:80.0,
+                                    rowsPerPage:25,
+                                    columns:   const [
+                                      DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Product Code",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("           Product Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("   Weight",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Total Weight",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Available Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Modify Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                    ], source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
+                              ),
                             ),],),),),),),
                 Padding(
                   padding: const EdgeInsets.all(12.0),

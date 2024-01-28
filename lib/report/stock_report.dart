@@ -21,6 +21,7 @@ class _StockReportState extends State<StockReport> {
   bool isDateRangeValid=true;
   int currentPage = 1;
   int rowsPerPage = 10;
+  final ScrollController _scrollController = ScrollController();
   void updateFilteredData() {
     final startIndex = (currentPage - 1) * rowsPerPage;
     final endIndex = currentPage * rowsPerPage;
@@ -309,20 +310,28 @@ class _StockReportState extends State<StockReport> {
                                   child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),
                                 )),
                             const SizedBox(height: 20,),
-                            SizedBox(width: 1000,
-                              child: PaginatedDataTable(
-                                columnSpacing:130.0,
-                                rowsPerPage:25,
-                                columns:   const [
-                                  DataColumn(label: Center(child: Text("     S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("       Item Group",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("       Item Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  // DataColumn(label: Center(child: Text("Size",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  // DataColumn(label: Center(child: Text("Color",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  //    DataColumn(label: Center(child: Text("  Unit",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("Current Stock",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                ],
-                                source: _YourDataTableSource(filteredData,context,generatedButton),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(width: 1000,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:130.0,
+                                    rowsPerPage:25,
+                                    columns:   const [
+                                      DataColumn(label: Center(child: Text("           S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("          Item Group",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("          Item Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      // DataColumn(label: Center(child: Text("Size",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      // DataColumn(label: Center(child: Text("Color",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      //    DataColumn(label: Center(child: Text("  Unit",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("  Current Stock",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
                               ),
                             ),
                             Padding(

@@ -658,6 +658,7 @@ class _PendingReportState extends State<PendingReport> {
   bool isDateRangeValid=true;
   int currentPage = 1;
   int rowsPerPage = 10;
+  final ScrollController _scrollController = ScrollController();
 
   void updateFilteredData() {
     final startIndex = (currentPage - 1) * rowsPerPage;
@@ -1122,27 +1123,41 @@ class _PendingReportState extends State<PendingReport> {
                                 )),
                             const SizedBox(height: 20,),
                             filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
-                            PaginatedDataTable(
-                              columnSpacing:70, rowsPerPage:25,
-                              columns: [
-                                const DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold,),))),
-                                const DataColumn(label: Center(child: Text("Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                const DataColumn(label: Center(child: Text("Pending OrderNo",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                const DataColumn(label: Center(child: Text("Order No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                const DataColumn(label: Center(child: Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                const DataColumn(label: Center(child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-/*
-                                const DataColumn(label: Center(child: Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold),))),
-*/
-                                DataColumn(
-                                  label: const Center(child: Text("   Action", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  onSort: (columnIndex, ascending) {
-                                  },
-                                  tooltip: "Action",
-                                ),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width:1200,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:70, rowsPerPage:25,
+                                    columns: [
+                                      const DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold,),))),
+                                      const DataColumn(label: Center(child: Text("     Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      const DataColumn(label: Center(child: Text("Pending OrderNo",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      const DataColumn(label: Center(child: Padding(
+                                        padding: EdgeInsets.only(left:50),
+                                        child: Text("Order No",style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ))),
+                                      const DataColumn(label: Center(child: Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      const DataColumn(label: Center(child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  /*
+                                      const DataColumn(label: Center(child: Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  */
+                                      DataColumn(
+                                        label: const Center(child: Text("Action", style: TextStyle(fontWeight: FontWeight.bold))),
+                                        onSort: (columnIndex, ascending) {
+                                        },
+                                        tooltip: "Action",
+                                      ),
 
-                              ],
-                              source: _YourDataTableSource(filteredData,context,generatedButton),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
