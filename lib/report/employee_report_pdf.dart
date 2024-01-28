@@ -40,13 +40,13 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
         children: [
           pw.Text(
             '$formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 4),
+            style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 405),
+          pw.SizedBox(width: 375),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
               'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6),
             ),)
         ],
       ),
@@ -59,6 +59,8 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
     final List<Map<String, dynamic>> customerData = widget.customerData;
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
     int recordsPerPage;
     int serialNumber=1;
     pw.Widget createHeader() {
@@ -100,7 +102,7 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 6),
+                          style: const pw.TextStyle(fontSize: 7),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -123,14 +125,14 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 19 : 23;
+        recordsPerPage = (j == 0) ? 18 : 21;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
             build: (context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 290: format.availableHeight +405;
+              final double pageHeight = j == 0 ? format.availableHeight + 280: format.availableHeight +395;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -144,12 +146,12 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
 
                     child: pw.Column(
                       children: [
-                        pw.Padding(padding:pw.EdgeInsets.only(top:10),
+                        pw.Padding(padding:pw.EdgeInsets.only(top:5),
                           child:pw.Text(
                             'Employee Report',
-                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14,font:font,fontWeight: pw.FontWeight.bold),
                           ),),
-                        pw.Padding(padding:pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
+                        pw.Padding(padding:pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10),
                           child:pw.Table(
                             border: pw.TableBorder.all(),
                             children: [
@@ -157,40 +159,41 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                                 children: [
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
-                                    child: pw.Text('S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
-                                  ),
+                                    child:pw.Center(child:
+                                    pw.Text('S.No', style: pw.TextStyle(fontSize: 8,font:font,fontWeight: pw.FontWeight.bold)),
+                                  ),),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(child: pw.Text('Emp ID',
-                                        style: pw.TextStyle(fontSize: 8,
+                                        style: pw.TextStyle(fontSize: 8,font:font,
                                             fontWeight: pw.FontWeight.bold)),
                                     ),),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Employee Name',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Mobile',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Designation',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Salary \n per Day',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                 ],
@@ -204,7 +207,7 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
-                                      child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8)),
+                                      child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8,font:font1,)),
                                     ),
                                   ),
                                   // pw.Container(
@@ -220,31 +223,31 @@ class _EmployeeReportPDFState extends State<EmployeeReportPDF> {
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['emp_code'].toString(),
-                                            style: pw.TextStyle(fontSize: 8)),)
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),)
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['first_name'],
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['empMobile'].toString(),
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['empPosition'],
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['salary'].toString(),
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                   ),
                                 ]);
                               }

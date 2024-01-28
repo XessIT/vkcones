@@ -25,7 +25,7 @@ class PurchaseIndividualReport extends StatefulWidget {
   String? total;
   String? grandTotal;
   String? payType;
-  String? amt;
+ // String? amt;
 
   PurchaseIndividualReport({super.key,
     required this.invoiceNo,
@@ -43,7 +43,7 @@ class PurchaseIndividualReport extends StatefulWidget {
     required this.total,
     required this.grandTotal,
     required this. payType,
-    required this. amt,
+    //required this. amt,
   });
 
   @override

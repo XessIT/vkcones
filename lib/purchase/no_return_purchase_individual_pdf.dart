@@ -91,197 +91,22 @@ class _NoReturnPurchaseIndividualReportState
           pw.Padding(padding:pw.EdgeInsets.only(left: 0),
             child:pw.Text(
               '$formattedDate   $formattedTime',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6,),
             ),),
-          pw.SizedBox(width: 390),
-          pw.Padding(padding:pw.EdgeInsets.only(right: 10),
+          pw.SizedBox(width: 360),
+          pw.Padding(padding:pw.EdgeInsets.only(right: 20),
             child:pw.Text(
               'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6,),
             ),),
 
         ],
       ),
     );
   }
-  int serialNumber = 1;
 
-  pw.Widget _buildDataTable(List<Map<String, dynamic>> data, String? invoiceNo) {
-    return pw.Table(
-      border: pw.TableBorder.all(),
-      children: [
-        pw.TableRow(
-          children: [
-            pw.Padding(
-              padding: pw.EdgeInsets.all(0),
-              child: pw.Center(child:
-              pw.Column(children: [
-                pw.SizedBox(height: 3),
-                pw.Text('S.No',style: pw.TextStyle(fontSize: 9),),
-                pw.SizedBox(height: 3),
-              ])),
-            ),
-            pw.Center(child:
-            pw.Column(children: [
-              pw.SizedBox(height: 3),
-              pw.Text('Product Code',style: pw.TextStyle(fontSize: 9)),
-              pw.SizedBox(height: 3),
 
-            ])),
-            pw.Center(child:
-            pw.Column(children: [
-              pw.SizedBox(height: 3),
-              pw.Text('Product Name',style: pw.TextStyle(fontSize: 9)),
-              pw.SizedBox(height: 3),
-            ])),
-            pw.Center(child:
-            pw.Column(children: [
-              pw.SizedBox(height: 3),
-              pw.Text('Unit',style: pw.TextStyle(fontSize: 9)),
-              pw.SizedBox(height: 3),
-            ])),
-            pw.Padding(
-              padding: pw.EdgeInsets.only(right: 0),
-              child: pw.Center(child:
-              pw.Column(children: [
-                pw.SizedBox(height: 3),
-                pw.Text('Rate',style: pw.TextStyle(fontSize:9 ),),
-                pw.SizedBox(height: 3),
-              ])),
-            ),
-            pw.Padding(
-              padding: pw.EdgeInsets.only(right: 0),
-              child: pw.Center(child:
-              pw.Column(children: [
-                pw.SizedBox(height: 3),
-                pw.Text('Quantity\n(pack)',style: pw.TextStyle(fontSize:9 ),),
-                pw.SizedBox(height: 3),
-              ])),
-            ),
-            pw.Padding(
-              padding: pw.EdgeInsets.only(right: 0),
-              child: pw.Center(child:
-              pw.Column(children: [
-                pw.SizedBox(height: 3),
-                pw.Text('Amount',style: pw.TextStyle(fontSize:9 ),),
-                pw.SizedBox(height: 3),
-              ])),
-            ),
-            pw.Padding(
-              padding: pw.EdgeInsets.only(right: 0),
-              child: pw.Center(child:
-              pw.Column(children: [
-                pw.SizedBox(height: 3),
-                pw.Text('GST',style: pw.TextStyle(fontSize: 9),),
-                pw.SizedBox(height: 3),
-              ])),
-            ),
-            pw.Padding(
-              padding: pw.EdgeInsets.only(right: 0),
-              child: pw.Center(child:
-              pw.Column(children: [
-                pw.SizedBox(height: 3),
-                pw.Text('Total',style: pw.TextStyle(fontSize: 9),),
-                pw.SizedBox(height: 3),
-              ])),
-            ),
-          ],
-        ),
-        for (int i = 0; i < data.length; i++)
-          pw.TableRow(
-            children: [
-              pw.Center(
-                child: pw.Padding(
-                  padding: pw.EdgeInsets.only(left: 0),
 
-                  child: pw.Column(
-                      children: [
-                        pw.SizedBox(height: 3),
-                        pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 9)),
-                        pw.SizedBox(height: 3),
-                      ]
-                  ),
-                ),
-              ),
-              pw.Center(
-                  child: pw.Column(
-                      children: [
-                        pw.SizedBox(height: 3),
-                        pw.Text(data[i]['prodCode'],style: pw.TextStyle(fontSize: 9),),
-                        pw.SizedBox(height: 3),
-                      ])),
-              pw.Center(child: pw.Column(
-                  children: [
-                    pw.SizedBox(height: 3),
-                    pw.Text(data[i]['prodName'],style: pw.TextStyle(fontSize: 9)),
-                    pw.SizedBox(height: 3),
-                  ])),
-              pw.Center(child: pw.Column(
-                  children: [
-                    pw.SizedBox(height: 3),
-                    pw.Text(data[i]['unit'],style: pw.TextStyle(fontSize: 9)),
-                    pw.SizedBox(height: 3),
-                  ])),
-              pw.Padding(
-                padding: pw.EdgeInsets.only(right: 0),
-                child: pw.Center( child: pw.Column(
-                    children: [
-                      pw.SizedBox(height: 3),
-                      pw.Text(data[i]['rate'],style: pw.TextStyle(fontSize: 9)),
-                      pw.SizedBox(height: 3),
-                    ])),
-              ),
-              pw.Padding(
-                padding: pw.EdgeInsets.only(right: 5),
-                child: pw.Center( child: pw.Column(
-                    children: [
-                      pw.SizedBox(height: 3),
-                      pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize: 9)),
-                      pw.SizedBox(height: 3),
-                    ])),
-              ),
-              pw.Padding(
-                padding: pw.EdgeInsets.only(right: 5),
-                child: pw.Center( child: pw.Column(
-                    children: [
-                      pw.SizedBox(height: 3),
-                      pw.Align(
-                        alignment: pw.Alignment.topRight,
-                        child: pw.Text(data[i]['amt'],style: pw.TextStyle(fontSize: 9)),
-                      ),
-                      pw.SizedBox(height: 3),
-                    ])),
-              ),
-              pw.Padding(
-                padding: pw.EdgeInsets.only(right: 5),
-                child: pw.Center( child: pw.Column(
-                    children: [
-                      pw.SizedBox(height: 3),
-                      pw.Align(
-                        alignment: pw.Alignment.topRight,
-                        child:pw.Text(data[i]['amtGST'],style: pw.TextStyle(fontSize: 9)),
-                      ),
-                      pw.SizedBox(height: 3),
-                    ])),
-              ),
-              pw.Padding(
-                padding: pw.EdgeInsets.only(right:5),
-                child: pw.Center( child: pw.Column(
-                    children: [
-                      pw.SizedBox(height: 3),
-                      pw.Align(
-                        alignment:pw.Alignment.topRight,
-                        child: pw.Text(data[i]['total'],style: pw.TextStyle(fontSize: 9)),
-                      ),
-                      pw.SizedBox(height: 3),
-                    ])),
-              ),
-
-            ],
-          ),
-      ],
-    );
-  }
 
 
   Future<Uint8List> _generatePdfWithCopies(
@@ -291,6 +116,192 @@ class _NoReturnPurchaseIndividualReportState
     final image1 = await imageFromAssetBundle("assets/sarswathi.png");
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
+
+    int serialNumber = 1;
+
+
+    pw.Widget _buildDataTable(List<Map<String, dynamic>> data, String? invoiceNo,) {
+      return pw.Table(
+        border: pw.TableBorder.all(),
+        children: [
+          pw.TableRow(
+            children: [
+              pw.Padding(
+                padding: pw.EdgeInsets.all(0),
+                child: pw.Center(child:
+                pw.Column(children: [
+                  pw.SizedBox(height: 2),
+                  pw.Text('S.No',style: pw.TextStyle(fontSize: 9,font: font),),
+                  pw.SizedBox(height: 2),
+                ])),
+              ),
+              pw.Center(child:
+              pw.Column(children: [
+                pw.SizedBox(height: 3),
+                pw.Text('Product Code',style: pw.TextStyle(fontSize: 9,font: font)),
+                pw.SizedBox(height: 3),
+
+              ])),
+              pw.Center(child:
+              pw.Column(children: [
+                pw.SizedBox(height: 3),
+                pw.Text('Product Name',style: pw.TextStyle(fontSize: 9,font: font)),
+                pw.SizedBox(height: 3),
+              ])),
+              pw.Center(child:
+              pw.Column(children: [
+                pw.SizedBox(height: 3),
+                pw.Text('Unit',style: pw.TextStyle(fontSize: 9,font: font)),
+                pw.SizedBox(height: 3),
+              ])),
+              pw.Padding(
+                padding: pw.EdgeInsets.only(right: 0),
+                child: pw.Center(child:
+                pw.Column(children: [
+                  pw.SizedBox(height: 3),
+                  pw.Text('Rate',style: pw.TextStyle(fontSize:9,font: font ),),
+                  pw.SizedBox(height: 3),
+                ])),
+              ),
+              pw.Padding(
+                padding: pw.EdgeInsets.only(right: 0),
+                child: pw.Center(child:
+                pw.Column(children: [
+                  pw.SizedBox(height: 3),
+                  pw.Text('Quantity\n(pack)',style: pw.TextStyle(fontSize:9,font: font ),),
+                  pw.SizedBox(height: 3),
+                ])),
+              ),
+              pw.Padding(
+                padding: pw.EdgeInsets.only(right: 0),
+                child: pw.Center(child:
+                pw.Column(children: [
+                  pw.SizedBox(height: 3),
+                  pw.Text('Amount',style: pw.TextStyle(fontSize:9,font: font ),),
+                  pw.SizedBox(height: 3),
+                ])),
+              ),
+              pw.Padding(
+                padding: pw.EdgeInsets.only(right: 0),
+                child: pw.Center(child:
+                pw.Column(children: [
+                  pw.SizedBox(height: 3),
+                  pw.Text('GST',style: pw.TextStyle(fontSize: 9,font: font),),
+                  pw.SizedBox(height: 3),
+                ])),
+              ),
+              pw.Padding(
+                padding: pw.EdgeInsets.only(right: 0),
+                child: pw.Center(child:
+                pw.Column(children: [
+                  pw.SizedBox(height: 3),
+                  pw.Text('Total',style: pw.TextStyle(fontSize: 9,font: font),),
+                  pw.SizedBox(height: 3),
+                ])),
+              ),
+            ],
+          ),
+          for (int i = 0; i < data.length; i++)
+            pw.TableRow(
+              children: [
+                pw.Center(
+                  child: pw.Padding(
+                    padding: pw.EdgeInsets.only(left: 0),
+
+                    child: pw.Column(
+                        children: [
+                          pw.SizedBox(height: 3),
+                          pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 9,font: font1)),
+                          pw.SizedBox(height: 3),
+                        ]
+                    ),
+                  ),
+                ),
+                pw.Center(
+                    child: pw.Column(
+                        children: [
+                          pw.SizedBox(height: 3),
+                          pw.Text(data[i]['prodCode'],style: pw.TextStyle(fontSize: 9,font: font1),),
+                          pw.SizedBox(height: 3),
+                        ])),
+                pw.Center(child: pw.Column(
+                    children: [
+                      pw.SizedBox(height: 3),
+                      pw.Text(data[i]['prodName'],style: pw.TextStyle(fontSize: 9,font: font1)),
+                      pw.SizedBox(height: 3),
+                    ])),
+                pw.Center(child: pw.Column(
+                    children: [
+                      pw.SizedBox(height: 3),
+                      pw.Text(data[i]['unit'],style: pw.TextStyle(fontSize: 9,font: font1)),
+                      pw.SizedBox(height: 3),
+                    ])),
+                pw.Padding(
+                  padding: pw.EdgeInsets.only(right: 0),
+                  child: pw.Center( child: pw.Column(
+                      children: [
+                        pw.SizedBox(height: 3),
+                        pw.Text(data[i]['rate'],style: pw.TextStyle(fontSize: 9,font: font1)),
+                        pw.SizedBox(height: 3),
+                      ])),
+                ),
+                pw.Padding(
+                  padding: pw.EdgeInsets.only(right: 5),
+                  child: pw.Center( child: pw.Column(
+                      children: [
+                        pw.SizedBox(height: 3),
+                        pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize: 9,font: font1)),
+                        pw.SizedBox(height: 3),
+                      ])),
+                ),
+                pw.Padding(
+                  padding: pw.EdgeInsets.only(right: 5),
+                  child: pw.Center( child: pw.Column(
+                      children: [
+                        pw.SizedBox(height: 3),
+                        pw.Align(
+                          alignment: pw.Alignment.topRight,
+                          child: pw.Text(data[i]['amt'],style: pw.TextStyle(fontSize: 9,font: font1)),
+                        ),
+                        pw.SizedBox(height: 3),
+                      ])),
+                ),
+                pw.Padding(
+                  padding: pw.EdgeInsets.only(right: 5),
+                  child: pw.Center( child: pw.Column(
+                      children: [
+                        pw.SizedBox(height: 3),
+                        pw.Align(
+                          alignment: pw.Alignment.topRight,
+                          child:pw.Text(data[i]['amtGST'],style: pw.TextStyle(fontSize: 9,font: font1)),
+                        ),
+                        pw.SizedBox(height: 3),
+                      ])),
+                ),
+                pw.Padding(
+                  padding: pw.EdgeInsets.only(right:5),
+                  child: pw.Center( child: pw.Column(
+                      children: [
+                        pw.SizedBox(height: 3),
+                        pw.Align(
+                          alignment:pw.Alignment.topRight,
+                          child: pw.Text(data[i]['total'],style: pw.TextStyle(fontSize: 9,font: font1)),
+                        ),
+                        pw.SizedBox(height: 3),
+                      ])),
+                ),
+
+              ],
+            ),
+        ],
+      );
+    }
+
+
+
+
 
     final List<Map<String, dynamic>> data = await fetchUnitEntries(invNo);
     totalGST = 0.0;
@@ -339,7 +350,7 @@ class _NoReturnPurchaseIndividualReportState
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 6),
+                          style: const pw.TextStyle(fontSize: 7),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -382,14 +393,19 @@ class _NoReturnPurchaseIndividualReportState
               return pw.Column(
                 children: [
                   if (j == 0)
-                    createHeader(),
+                    pw.Align(
+                      alignment: pw.Alignment.topRight,
+                      child: createHeader(),
+                    ),
+
+
                   pw.Divider(),
 
                   //pw.SizedBox(height: 5),
                   //pw.Divider(),
                   pw.Text(
                     'Purchase Report',
-                    style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                    style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
                   ),
 
 
@@ -409,24 +425,25 @@ class _NoReturnPurchaseIndividualReportState
                         child: pw.Column(
                           children: [
                             pw.Padding(
-                              padding: pw.EdgeInsets.only(left:20,top: 10),
+                              padding: pw.EdgeInsets.only(left:20,top: 7),
                               child: pw.Row(
                                 children: [
                                   pw.Text(
                                     "Supplier Details",
                                     style: pw.TextStyle(
                                       fontWeight: pw.FontWeight.bold,
-                                      fontSize: 12,
+                                      fontSize: 11,
+                                      font: font1
                                     ),
                                   ),
                                   pw.Padding(
-                                    padding: pw.EdgeInsets.only(left:305),
+                                    padding:const pw.EdgeInsets.only(left:280),
                                     child: pw.Align(
                                       alignment: pw.Alignment.topRight,
                                       child: pw.SizedBox(
-                                        width: 50,
+                                        width: 60,
                                         child: pw.Container(
-                                          width: 50,
+                                          width: 60,
                                           child: pw.Column(
                                             crossAxisAlignment: pw.CrossAxisAlignment.start,
                                             children: [
@@ -434,20 +451,29 @@ class _NoReturnPurchaseIndividualReportState
                                                 widget.date != null
                                                     ? DateFormat("dd-MM-yyyy").format(DateTime.parse("${widget.date}").toLocal())
                                                     : "",
-                                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 7),
+
+                                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold,font:font1, fontSize: 7),
                                               ),
-                                              pw.Divider(
-                                                color: PdfColors.grey,
-                                              ),
-                                              pw.Text(
-                                                "Invoice Number",
-                                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 7),
-                                              ),
-                                              pw.SizedBox(height: 2),
-                                              pw.Text(
-                                                widget.invoiceNo.toString(),
-                                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 7),
-                                              ),
+                                              // pw.Divider(
+                                              //   color: PdfColors.grey,
+                                              // ),
+                                              pw.SizedBox(height:5),
+                                              pw.Row(
+                                                children: [
+
+                                                  pw.Text(
+                                                    "Invoice Number :",
+                                                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold,font:font1, fontSize: 7),
+                                                  ),
+                                                  pw.SizedBox(height: 0),
+                                                  pw.Text(
+                                                    widget.invoiceNo.toString(),
+                                                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold,font:font1, fontSize: 7),
+                                                  ),
+
+                                                ]
+                                              )
+
                                             ],
                                           ),
                                         ),
@@ -474,6 +500,8 @@ class _NoReturnPurchaseIndividualReportState
                                               "Supplier Code",
                                               style: pw.TextStyle(
                                                 fontSize: 9,
+                                                font:font1,
+
                                               ),
                                             ),
                                             pw.SizedBox(height: 5),
@@ -481,6 +509,8 @@ class _NoReturnPurchaseIndividualReportState
                                               "Supplier Name",
                                               style: pw.TextStyle(
                                                 fontSize: 9,
+                                                font:font1,
+
                                               ),
                                             ),
                                             pw.SizedBox(height: 5),
@@ -488,6 +518,8 @@ class _NoReturnPurchaseIndividualReportState
                                               "Supplier Address",
                                               style: pw.TextStyle(
                                                 fontSize: 9,
+                                                font:font1,
+
                                               ),
                                             ),
                                             pw.SizedBox(height: 5),
@@ -495,6 +527,8 @@ class _NoReturnPurchaseIndividualReportState
                                               "Pincode",
                                               style: pw.TextStyle(
                                                 fontSize: 9,
+                                                font:font1,
+
                                               ),
                                             ),
                                             pw.SizedBox(height: 5),
@@ -502,6 +536,8 @@ class _NoReturnPurchaseIndividualReportState
                                               "Payment Type",
                                               style: pw.TextStyle(
                                                 fontSize: 9,
+                                                font:font1,
+
                                               ),
                                             ),
                                             pw.SizedBox(height: 5),
@@ -509,6 +545,7 @@ class _NoReturnPurchaseIndividualReportState
                                               "Supplier Mobile",
                                               style: pw.TextStyle(
                                                 fontSize: 9,
+                                                font:font1,
                                               ),
                                             ),
                                             pw.SizedBox(height: 5),
@@ -520,17 +557,17 @@ class _NoReturnPurchaseIndividualReportState
                                         child: pw.Column(
                                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                                           children: [
-                                            pw.Text(":", style: pw.TextStyle(fontSize:9,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize:9,font:font1)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(":", style: pw.TextStyle(fontSize:9,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize:9,font:font1)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(":", style: pw.TextStyle(fontSize:9)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize:9,font:font1)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,font:font1)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,font:font1)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,)),
+                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,font:font1)),
                                             pw.SizedBox(height: 5),
                                           ],
                                         ),
@@ -540,17 +577,17 @@ class _NoReturnPurchaseIndividualReportState
                                         child: pw.Column(
                                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                                           children: [
-                                            pw.Text(widget.supCode.toString(), style: pw.TextStyle(fontSize: 9,)),
+                                            pw.Text(widget.supCode.toString(), style: pw.TextStyle(fontSize: 9,font:font1,)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(widget.supName.toString(), style: pw.TextStyle(fontSize: 9,fontWeight: pw.FontWeight.bold, )),
+                                            pw.Text(widget.supName.toString(), style: pw.TextStyle(fontSize: 9,fontWeight: pw.FontWeight.bold,font:font1, )),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(widget.supAddress.toString(), style: pw.TextStyle(fontSize: 9,)),
+                                            pw.Text(widget.supAddress.toString(), style: pw.TextStyle(fontSize: 9,font:font1,)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(widget.pincode.toString(), style: pw.TextStyle(fontSize: 9,)),
+                                            pw.Text(widget.pincode.toString(), style: pw.TextStyle(fontSize: 9,font:font1,)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text(widget.payType.toString(), style: pw.TextStyle(fontSize: 9,)),
+                                            pw.Text(widget.payType.toString(), style: pw.TextStyle(fontSize: 9,font:font1,)),
                                             pw.SizedBox(height: 5),
-                                            pw.Text("+91 "+widget.supMobile.toString(), style: pw.TextStyle(fontSize: 9,)),
+                                            pw.Text("+91 "+widget.supMobile.toString(), style: pw.TextStyle(fontSize: 9,font:font1,)),
                                             pw.SizedBox(height: 5),
                                           ],
                                         ),
@@ -563,10 +600,10 @@ class _NoReturnPurchaseIndividualReportState
                             pw.Align(
                               alignment: pw.Alignment.topLeft,
                               child: pw.Padding(
-                                padding: pw.EdgeInsets.only(left:20,bottom: 10,top: 10),
+                                padding: pw.EdgeInsets.only(left:20,bottom: 7,top: 7),
                                 child: pw.Text(
                                   "Product Details",
-                                  style: pw.TextStyle(fontSize: 12,fontWeight: pw.FontWeight.bold),
+                                  style: pw.TextStyle(fontSize: 11,fontWeight: pw.FontWeight.bold,font:font1,),
                                 ),
                               ),
                             ),
@@ -575,7 +612,8 @@ class _NoReturnPurchaseIndividualReportState
                               padding: pw.EdgeInsets.all(8),
                               child:   pw.Container(
                                 width: 425,
-                                child:_buildDataTable(pageData, widget.invoiceNo),
+                                child:_buildDataTable(pageData, widget.invoiceNo,),
+
                               ),
                             ),
                             pw.Padding(
@@ -584,7 +622,7 @@ class _NoReturnPurchaseIndividualReportState
                                 child: pw.Row(
                                   mainAxisAlignment: pw.MainAxisAlignment.end,
                                   children: [
-                                    pw.Text("Grand Total", style: pw.TextStyle(fontSize: 9)),
+                                    pw.Text("Grand Total", style: pw.TextStyle(fontSize: 9,font:font1,)),
                                     pw.SizedBox(width: 10),
 
                                     pw.Container(
@@ -596,66 +634,54 @@ class _NoReturnPurchaseIndividualReportState
                                         border: pw.Border.all(color: PdfColors.black),
                                         borderRadius: pw.BorderRadius.circular(1.0),
                                       ),
-                                      child: pw.FittedBox(
-                                        fit: pw.BoxFit.scaleDown,
-                                        child:
-                                        pw.Text(totalqty.toString(),
-                                            style: pw.TextStyle(fontSize: 9)),
+                                      child: pw.Container(
+                                          child:pw.Text(totalqty.toString(),
+                                              style: pw.TextStyle(fontSize: 9,font:font1,)),
                                         alignment: pw.Alignment.center,
                                       ),
                                     ),
                                     pw.Container(
                                       height: 13,
-                                      width: 40,
+                                      width: 45,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
                                         border: pw.Border.all(color: PdfColors.black),
                                         borderRadius: pw.BorderRadius.circular(1.0),
                                       ),
-                                      child: pw.FittedBox(
-                                        fit: pw.BoxFit.scaleDown,
-                                        child:
-                                        pw.Text(totalamt.toString(),
-                                            style: pw.TextStyle(fontSize: 9)),
-                                        alignment: pw.Alignment.topRight,
-                                      ),
+                                      child: pw.Text(totalamt.toString(),
+                                          style: pw.TextStyle(fontSize: 9,font:font1,)),
+                                      alignment: pw.Alignment.topRight,
                                     ),
 
                                     pw.Container(
                                       height: 13,
-                                      width: 38,
-                                      //color: PdfColors.pink
+                                      width: 34,
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
                                         border: pw.Border.all(color: PdfColors.black),
                                         borderRadius: pw.BorderRadius.circular(1.0),
                                       ),
-                                      child: pw.FittedBox(
-                                        fit: pw.BoxFit.scaleDown,
-                                        child:
-                                        pw.Text(totalGST.toStringAsFixed(2),
-                                            style: pw.TextStyle(fontSize: 9)),
-                                        alignment: pw.Alignment.topRight,
+                                      child: pw.Text(
+                                        totalGST.toStringAsFixed(2),
+                                        style: pw.TextStyle(fontSize: 9, font: font1),
                                       ),
+                                      alignment: pw.Alignment.topRight,
                                     ),
+
 
 
                                     pw.Container(
                                       height: 13,
-                                      width: 43,
+                                      width: 41,
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
                                         border: pw.Border.all(color: PdfColors.black),
                                         borderRadius: pw.BorderRadius.circular(1.0),
                                       ),
-                                      child: pw.FittedBox(
-                                        fit: pw.BoxFit.scaleDown,
-                                        child:
-                                        pw.Text(widget.grandTotal.toString(),
-                                            style: pw.TextStyle(fontSize: 9)),
-                                        alignment: pw.Alignment.topRight,
-                                      ),
+                                      child: pw.Text(widget.grandTotal.toString(),
+                                          style: pw.TextStyle(fontSize: 9,font:font1,)),
+                                      alignment: pw.Alignment.topRight,
 
                                     ),
 

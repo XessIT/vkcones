@@ -38,13 +38,13 @@ class _PendingReportPDFState extends State<PendingReportPDF> {
         children: [
           pw.Text(
             '$formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 4),
+            style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 405),
+          pw.SizedBox(width: 375),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
               'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6),
             ),)
         ],
       ),
@@ -60,6 +60,8 @@ class _PendingReportPDFState extends State<PendingReportPDF> {
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
     final List<Map<String, dynamic>> customerData = widget.customerData;
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
     int recordsPerPage ;
 
     pw.Widget createHeader() {
@@ -101,7 +103,7 @@ class _PendingReportPDFState extends State<PendingReportPDF> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 6),
+                          style: const pw.TextStyle(fontSize: 7),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -124,14 +126,14 @@ class _PendingReportPDFState extends State<PendingReportPDF> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 19 : 23;
+        recordsPerPage = (j == 0) ? 18 : 22;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
             build: (context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 290: format.availableHeight +405;
+              final double pageHeight = j == 0 ? format.availableHeight + 280: format.availableHeight +395;
               return pw.Column(
                 children: [
                   if(j==0)
@@ -144,12 +146,12 @@ class _PendingReportPDFState extends State<PendingReportPDF> {
                     ),
                     child: pw.Column(
                       children: [
-                        pw.Padding(padding:pw.EdgeInsets.only(top:10),
+                        pw.Padding(padding:pw.EdgeInsets.only(top:5),
                           child:pw.Text(
                             'Pending Report',
-                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14,font: font, fontWeight: pw.FontWeight.bold),
                           ),),
-                        pw.Padding(padding:(pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10)),
+                        pw.Padding(padding:(pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10)),
                           child:pw.Expanded(
                             child:pw.Table(
                               border: pw.TableBorder.all(),
@@ -159,26 +161,26 @@ class _PendingReportPDFState extends State<PendingReportPDF> {
 
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Center(child:pw.Text('S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold))),
+                                      child: pw.Center(child:pw.Text('S.No', style: pw.TextStyle(fontSize: 8,font:font1,fontWeight: pw.FontWeight.bold))),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Center(child: pw.Text('Date', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
+                                      child: pw.Center(child: pw.Text('Date', style: pw.TextStyle(fontSize:  8,font:font1,fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text('Pending Number', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
+                                        child: pw.Text('Pending Number', style: pw.TextStyle(fontSize:  8,font:font1,fontWeight: pw.FontWeight.bold)),
                                       ), ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Customer Code', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),)
+                                          child: pw.Text('Customer Code', style: pw.TextStyle(fontSize:  8,font:font1,fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Customer/Company Name', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),)
+                                          child: pw.Text('Customer/Company Name', style: pw.TextStyle(fontSize:  8,font:font1,fontWeight: pw.FontWeight.bold)),)
                                     ),
 
 
@@ -191,7 +193,7 @@ class _PendingReportPDFState extends State<PendingReportPDF> {
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8)),)
+                                          child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize:  8,font:font1,)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
@@ -199,22 +201,22 @@ class _PendingReportPDFState extends State<PendingReportPDF> {
                                         child: pw.Text( data["date"] != null
                                             ? DateFormat('dd-MM-yyyy').format(DateTime.parse("${data["date"]}").toLocal())
                                             : "",
-                                            style: const pw.TextStyle(fontSize: 8)),),
+                                            style: pw.TextStyle(fontSize:  8,font:font1)),),
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text(data['pendingOrderNo'], style: pw.TextStyle(fontSize: 8)),)
+                                          child: pw.Text(data['pendingOrderNo'], style: pw.TextStyle(fontSize:  8,font:font1,)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text(data['custCode'].toString(), style: pw.TextStyle(fontSize: 8)),),
+                                        child: pw.Text(data['custCode'].toString(), style: pw.TextStyle(fontSize:  8,font:font1,)),),
                                     ),
                                     pw.Container(
                                       padding: const pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text(data['custName'], style: pw.TextStyle(fontSize: 8)),),
+                                        child: pw.Text(data['custName'], style: pw.TextStyle(fontSize:  8,font:font1,)),),
                                     ),
 
 
