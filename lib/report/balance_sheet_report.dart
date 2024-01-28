@@ -1577,24 +1577,9 @@ class _BalanceSheetReportState extends State<BalanceSheetReport> {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         final List<dynamic> itemGroups = responseData;
-
-        // Use a Set to filter out duplicate custName values
-        Set<String> uniqueCustNames = Set();
-
-        // Filter out duplicate values based on 'custName'
-        final List uniqueData = itemGroups
-            .where((item) {
-          String custName = item['invoiceNo']?.toString() ?? '';
-          if (!uniqueCustNames.contains(custName)) {
-            uniqueCustNames.add(custName);
-            return true;
-          }
-          return false;
-        })
-            .toList();
-
+        
         setState(() {
-          data = uniqueData.cast<Map<String, dynamic>>();
+          data = itemGroups.cast<Map<String, dynamic>>();
           filteredData = List<Map<String, dynamic>>.from(data);
           filteredData.sort((a, b) {
             DateTime? dateA = DateTime.tryParse(a['date'] ?? '');
@@ -1825,7 +1810,8 @@ class _BalanceSheetReportState extends State<BalanceSheetReport> {
         // toselectedDate.text,
       );
     });
-    return  MyScaffold(route: 'balancesheetreport',backgroundColor: Colors.white, body: Form( key: _formKey,
+
+    return  MyScaffold(route: 'balancesheetreport', body: Form( key: _formKey,
         child: SingleChildScrollView(
           child: Column(
               children: [
@@ -2770,7 +2756,7 @@ class _BalanceSheetReportState extends State<BalanceSheetReport> {
                     ],
                   ),
                 )
-              ]), )));
+              ]), )), backgroundColor: Colors.white,);
   }
 }
 

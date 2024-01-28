@@ -42,27 +42,30 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
         children: [
           pw.Text(
             '$formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 4),
+            style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 405),
+          pw.SizedBox(width: 375),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
               'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6),
             ),)
         ],
       ),
     );
   }
-  int serialNumber=1;
+
   Future<Uint8List> _generatePdfWithCopies(PdfPageFormat format, int copies) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final image = await imageFromAssetBundle("assets/pillaiyar.png");
     final image1 = await imageFromAssetBundle("assets/sarswathi.png");
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
     final List<Map<String, dynamic>> customerData = widget.customerData;
     int recordsPerPage ;
+    int serialNumber=1;
 
     pw.Widget createHeader() {
       return pw.Container(
@@ -103,7 +106,7 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 6),
+                          style: const pw.TextStyle(fontSize: 7),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -126,14 +129,14 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 19 : 23;
+        recordsPerPage = (j == 0) ? 18 : 21;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
             build: (context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 290: format.availableHeight +405;
+              final double pageHeight = j == 0 ? format.availableHeight + 280: format.availableHeight +395;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -146,13 +149,13 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                     ),
                     child: pw.Column(
                       children: [
-                        pw.Padding(padding:pw.EdgeInsets.only(top:10),
+                        pw.Padding(padding:pw.EdgeInsets.only(top:5),
                           child:pw.Text(
                             'Machine Production Report',
-                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14, font:font,fontWeight: pw.FontWeight.bold),
                           ),),
                         pw.Padding(
-                          padding:pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
+                          padding:pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10),
                           child:
                           pw.Table(
                             border: pw.TableBorder.all(),
@@ -161,39 +164,40 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                                 children: [
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
-                                    child: pw.Text('   S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
-                                  ),
+                                    child:pw.Center(child:
+                                    pw.Text('S.No', style: pw.TextStyle(fontSize: 8,font:font,fontWeight: pw.FontWeight.bold)),
+                                  ),),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(child: pw.Text('Date',
-                                        style: pw.TextStyle(fontSize: 8,
+                                        style: pw.TextStyle(fontSize: 8,font:font,
                                             fontWeight: pw.FontWeight.bold)),
                                     ),),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Machine Name',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Item Group',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Item  Name',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text('Quantity',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),)
                                   ),
                                   // Add more Text widgets for additional columns if needed
@@ -208,7 +212,7 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
-                                      child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8)),
+                                      child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8,font:font1)),
                                     ),
                                   ),
                                   pw.Container(
@@ -218,31 +222,31 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                                           ? DateFormat('dd-MM-yyyy').format(
                                         DateTime.parse("${data["createDate"]}").toLocal(),)
                                           : "",
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1)),),
                                   ),
                                   pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['machineName'].toString(),
-                                            style: pw.TextStyle(fontSize: 8)),)
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),)
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['itemGroup'],
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['itemName'],
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1)),),
                                   ),
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
                                       child: pw.Text(data['qty'],
-                                          style: pw.TextStyle(fontSize: 8)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1)),),
                                   ),
 
                                 ]);

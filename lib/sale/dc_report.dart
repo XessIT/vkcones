@@ -32,6 +32,10 @@ class _DcReportState extends State<DcReport> {
 
   int currentPage = 1;
   int rowsPerPage = 10;
+  final ScrollController _scrollController = ScrollController();
+
+
+
 
   void updateFilteredData() {
     final startIndex = (currentPage - 1) * rowsPerPage;
@@ -589,25 +593,36 @@ class _DcReportState extends State<DcReport> {
                               ],
                             ),
                             const SizedBox(height: 20,),
-                            PaginatedDataTable(
-                              columnSpacing:40.0,
-                              //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              rowsPerPage:25,
-                              columns:   const [
-                                DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("   Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("   DC No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text(" Invoice No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("  Customer Code",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Place Of Supply",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                // DataColumn(label: Center(child: Text("Total Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                //DataColumn(label: Center(child: Text("Amount",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                //DataColumn(label: Center(child: Text("GST",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("   Total",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("     Action",style: TextStyle(fontWeight: FontWeight.bold),))),
-                              ],
-                              source: _YourDataTableSource(filteredData,context,generatedButton),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width:1200,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:40.0,
+                                    //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                      rowsPerPage:25,
+                                    columns:   const [
+                                      DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("   Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("   DC No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text(" Invoice No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("  Customer Code",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Place Of Supply",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      // DataColumn(label: Center(child: Text("Total Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      //DataColumn(label: Center(child: Text("Amount",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      //DataColumn(label: Center(child: Text("GST",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("     Total",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("     Action",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),

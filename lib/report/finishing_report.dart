@@ -20,6 +20,10 @@ class _FinishingReportState extends State<FinishingReport> {
   List<String> supplierSuggestions = [];
   String selectedSupplier = "";
   bool isDateRangeValid=true;
+  final ScrollController _scrollController = ScrollController();
+
+
+
 
   int currentPage = 1;
   int rowsPerPage = 10;
@@ -499,24 +503,32 @@ class _FinishingReportState extends State<FinishingReport> {
                                 )),
                             const SizedBox(height: 20,),
                             filteredData.isNotEmpty?
-                            SizedBox(
-                              // width:1000,
-                              child: PaginatedDataTable(
-                                columnSpacing:130.0,
-                                //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                rowsPerPage:25,
-                                columns:   const [
-                                  DataColumn(label: Center(child: Text("     S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("Shift date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("From date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("To date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("   Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("        Person-1",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  //DataColumn(label: Center(child: Text("Operator Name-2",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("        Person-2",style: TextStyle(fontWeight: FontWeight.bold),))),
-
-                                ],
-                                source: _YourDataTableSource(filteredData,context,generatedButton),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width:1200,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:130.0,
+                                    //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    rowsPerPage:25,
+                                    columns:   const [
+                                      DataColumn(label: Center(child: Text("     S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Shift date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("From date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("To date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("   Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("        Person-1",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      //DataColumn(label: Center(child: Text("Operator Name-2",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("        Person-2",style: TextStyle(fontWeight: FontWeight.bold),))),
+                              
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
                               ),
                             ):
                             Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),)

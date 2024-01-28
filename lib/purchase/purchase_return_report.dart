@@ -1150,7 +1150,7 @@ class _PurchaseReturnReportState extends State<PurchaseReturnReport> {
                                     rowsPerPage:25,
                                     columns:   const [
                                       DataColumn(label: Center(child: Text("    S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("       Date",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("    Return Number",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("   Supplier Code",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("  Supplier/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),

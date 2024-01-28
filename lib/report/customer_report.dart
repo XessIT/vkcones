@@ -605,6 +605,10 @@ class _CustomerReportState extends State<CustomerReport> {
   List<String> supplierSuggestions = [];
   String selectedSupplier = "";
   bool isDateRangeValid=true;
+  final ScrollController _scrollController = ScrollController();
+
+
+
 
   int currentPage = 1;
   int rowsPerPage = 10;
@@ -999,20 +1003,34 @@ class _CustomerReportState extends State<CustomerReport> {
                                 )),
                             const SizedBox(height: 20,),
                             filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
-                            PaginatedDataTable(
-                              columnSpacing:68.0,
-                              //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              rowsPerPage:25,
-                              columns:   const [
-                                DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("Address",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("   Mobile",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Text("     Action",style: TextStyle(fontWeight: FontWeight.bold),))),
-                              ],
-                              source: _YourDataTableSource(filteredData,context,generatedButton,onDelete),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width:1200,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:50.0,
+                                    //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    rowsPerPage:25,
+                                    columns:   const [
+                                      DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("        Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Padding(
+                                        padding: EdgeInsets.only(left:100),
+                                        child: Text("Address",style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ))),
+                                      DataColumn(label: Center(child: Text("   Mobile",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("     Action",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton,onDelete),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),

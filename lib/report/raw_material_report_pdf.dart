@@ -21,7 +21,7 @@ class RawMaterialReportPdf extends StatefulWidget {
   @override
   State<RawMaterialReportPdf> createState() => _RawMaterialReportPdfState();
 }
-int serialNumber=1;
+
 class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
   pw.Widget _buildFooter(pw.Context context, int currentPage, int totalPages) {
     // ... (rest of your code)
@@ -42,19 +42,19 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
         children: [
           pw.Text(
             '$formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 4),
+            style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 405),
+          pw.SizedBox(width: 375),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 0,),
             child:  pw.Text(
               'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6),
             ),)
         ],
       ),
     );
   }
-  int serialNumber=1;
+
   Future<Uint8List> _generatePdfWithCopies(PdfPageFormat format, int copies) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final image = await imageFromAssetBundle("assets/pillaiyar.png");
@@ -62,7 +62,14 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
     final List<Map<String, dynamic>> customerData = widget.customerData;
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
+
+
+
+
     int recordsPerPage ;
+    int serialNumber=1;
 
     pw.Widget createHeader() {
       return pw.Container(
@@ -103,7 +110,7 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 6),
+                          style: const pw.TextStyle(fontSize: 7),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -126,14 +133,14 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 19 : 23;
+        recordsPerPage = (j == 0) ? 18: 21;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
             build: (pw.Context context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 290: format.availableHeight +405;
+              final double pageHeight = j == 0 ? format.availableHeight + 280: format.availableHeight +395;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -147,12 +154,12 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
                     ),
                     child: pw.Column(
                       children: [
-                        pw.Padding(padding:pw.EdgeInsets.only(top:10),
+                        pw.Padding(padding:pw.EdgeInsets.only(top:5),
                           child:pw.Text(
                             'Raw Material Report',
-                            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
                           ),),
-                        pw.Padding(padding:(pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10)),
+                        pw.Padding(padding:(pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10)),
                           child:pw.Expanded(
                             child:pw.Table(
                               border: pw.TableBorder.all(),
@@ -161,33 +168,40 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
                                   children: [
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
-                                      child:pw.Center(child: pw.Text('S.No', style: pw.TextStyle(fontSize: 8,fontWeight: pw.FontWeight.bold)),
+                                      child:pw.Center(child: pw.Text('S.No', style: pw.TextStyle(fontSize: 8,font:font,fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(child: pw.Text('Date',
-                                          style: pw.TextStyle(fontSize: 8,
+                                          style: pw.TextStyle(fontSize: 8,font:font,
                                               fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Product Code',
-                                              style: pw.TextStyle(fontSize: 8,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Product Name',
-                                              style: pw.TextStyle(fontSize: 8,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Stock quantity', style: pw.TextStyle(
-                                              fontSize: 8,
+                                          child: pw.Text('Unit',
+                                              style: pw.TextStyle(fontSize: 8,font:font,
+                                                  fontWeight: pw.FontWeight.bold)),)
+                                    ),
+                                    pw.Container(
+                                        padding: pw.EdgeInsets.all(8.0),
+                                        child: pw.Center(
+                                          child: pw.Text('Stock Quantity', style: pw.TextStyle(
+                                              fontSize: 8,font:font,
                                               fontWeight: pw.FontWeight.bold)),)
                                     ),
 
@@ -203,7 +217,7 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8)),
+                                        child: pw.Text('${serialNumber++}', style: pw.TextStyle(fontSize: 8,font:font1)),
                                       ),
                                     ),
                                     pw.Container(
@@ -213,25 +227,32 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
                                             ? DateFormat('dd-MM-yyyy').format(
                                           DateTime.parse("${data["date"]}").toLocal(),)
                                             : "",
-                                            style: pw.TextStyle(fontSize: 8)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['prodCode'].toString(),
-                                              style: pw.TextStyle(fontSize: 8)),)
+                                              style: pw.TextStyle(fontSize: 8,font:font1)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['prodName'].toString(),
-                                            style: pw.TextStyle(fontSize: 8)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
+                                        child: pw.Text(data['unit'].toString(),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
+                                    ),
+
+                                    pw.Container(
+                                      padding: pw.EdgeInsets.all(8.0),
+                                      child: pw.Center(
                                         child: pw.Text(data['qty'].toString(),
-                                            style: pw.TextStyle(fontSize: 8)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
                                   ]);
                                 }

@@ -82,32 +82,36 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
 
 
     return pw.Container(
+
       child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: pw.MainAxisAlignment.start,
         children: [
           pw.Text(
             '$formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 4),
+            style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 665),
+          pw.SizedBox(width: 635),
           pw.Padding(padding: const pw.EdgeInsets.only(right: 20,),
             child:  pw.Text(
-              'Page $currentPage of $totalPages',
-              style: pw.TextStyle(fontSize: 4),
+              'Page ${context.pageNumber} of ${context.pagesCount}',
+              style: pw.TextStyle(fontSize: 6),
             ),)
         ],
       ),
     );
   }
-  int serialNumber=1;
+
   Future<Uint8List> _generatePdfWithCopies(PdfPageFormat format, int copies) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final image = await imageFromAssetBundle("assets/pillaiyar.png");
     final image1 = await imageFromAssetBundle("assets/sarswathi.png");
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
     final List<Map<String, dynamic>> customerData = widget.customerData;
     int recordsPerPage ;
+    int serialNumber=1;
 
     pw.Widget createHeader() {
       return pw.Container(
@@ -148,7 +152,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 6),
+                          style: const pw.TextStyle(fontSize: 7),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -172,14 +176,14 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 19 : 23;
+        recordsPerPage = (j == 0) ? 10  : 12;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
             build: (context) {
-              final double pageHeight = j == 0 ? format.availableHeight + 310: format.availableHeight +300;
+              final double pageHeight = j == 0 ? format.availableHeight + 300: format.availableHeight +440;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -193,12 +197,12 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                       ),
                       child: pw.Column(
                           children: [
-                            pw.Padding(padding:pw.EdgeInsets.only(top:10),
+                            pw.Padding(padding:pw.EdgeInsets.only(top:5),
                               child:pw.Text(
                                 'Balance Sheet Report',
-                                style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
                               ),),
-                            pw.Padding(padding: pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10),
+                            pw.Padding(padding: pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10),
                               child:
                               pw.Table(
                                 border: pw.TableBorder.all(),
@@ -208,76 +212,76 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(child: pw.Text('S.No',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),
                                         ),),
                                       pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(child: pw.Text('Date',
-                                            style: pw.TextStyle(fontSize: 8,
+                                            style: pw.TextStyle(fontSize: 8,font:font,
                                                 fontWeight: pw.FontWeight.bold)),
                                         ),),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Invoice No',
-                                                style: pw.TextStyle(fontSize: 8,
+                                                style: pw.TextStyle(fontSize: 8,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Cheque No',
-                                                style: pw.TextStyle(fontSize: 8,
+                                                style: pw.TextStyle(fontSize: 8,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Customer Details',
-                                                style: pw.TextStyle(fontSize: 8,
+                                                style: pw.TextStyle(fontSize: 8,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Invoice\nAmount',
-                                                style: pw.TextStyle(fontSize: 8,
+                                                style: pw.TextStyle(fontSize: 8,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Cheque\nAmount',
-                                                style: pw.TextStyle(fontSize:8 ,
+                                                style: pw.TextStyle(fontSize:8 ,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Deduction\nAmount',
-                                                style: pw.TextStyle(fontSize: 8,
+                                                style: pw.TextStyle(fontSize: 8,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Received\nAmount',
-                                                style: pw.TextStyle(fontSize: 8,
+                                                style: pw.TextStyle(fontSize: 8,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Debit',
-                                                style: pw.TextStyle(fontSize: 8,
+                                                style: pw.TextStyle(fontSize: 8,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text('Credit',
-                                                style: pw.TextStyle(fontSize: 8,
+                                                style: pw.TextStyle(fontSize: 8,font:font,
                                                     fontWeight: pw.FontWeight.bold)),)
                                       ),
                                       // Add more Text widgets for additional columns if needed
@@ -292,7 +296,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                           padding: pw.EdgeInsets.only(right:3.0,top: 11,bottom: 8),
                                           child: pw.Center(
                                             child:
-                                            pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8)),
+                                            pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8,font:font1,)),
                                           )
                                       ),
                                       pw.Container(
@@ -302,63 +306,63 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                               ? DateFormat('dd-MM-yyyy').format(
                                               DateTime.parse("${data["date"]}"))
                                               : "",
-                                              style: pw.TextStyle(fontSize: 8)),),
+                                              style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                       ),
                                       pw.Container(
                                           padding: pw.EdgeInsets.only(right:3.0,top: 11,bottom: 8),
                                           child: pw.Center(
                                             child: pw.Text(data['invoiceNo'].toString(),
-                                                style: pw.TextStyle(fontSize: 8)),)
+                                                style: pw.TextStyle(fontSize: 8,font:font1,)),)
                                       ),
 
                                       pw.Container(
                                           padding: pw.EdgeInsets.only(right:3.0,top: 11,bottom: 8),
                                           child: pw.Center(
                                             child: pw.Text(data['chequeNo'].toString(),
-                                                style: pw.TextStyle(fontSize: 8)),)
+                                                style: pw.TextStyle(fontSize: 8,font:font1,)),)
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.only(right:5.0,top:11,left:5,bottom:8),
                                         child: pw.Text(
                                           '${data['custName']} - (${data['custCode']})',
-                                          style: pw.TextStyle(fontSize: 8,),textAlign:pw.TextAlign.center
+                                          style: pw.TextStyle(fontSize: 8,font:font1,),textAlign:pw.TextAlign.center
                                         ),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.only(right:3.0,top: 11,bottom: 8),
                                         child: pw.Text(data['grandTotal'],
                                             textAlign: pw.TextAlign.right,
-                                            style: pw.TextStyle(fontSize: 8)),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.only(right:3.0,top: 11,bottom: 8),
                                         child: pw.Text(data['chequeAmt'],
                                             textAlign: pw.TextAlign.right,
-                                            style: pw.TextStyle(fontSize: 8)),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.only(right:3.0,top:11,bottom: 8),
                                         child: pw.Text(data['deductionAmt'].toString(),
                                             textAlign: pw.TextAlign.right,
-                                            style: pw.TextStyle(fontSize: 8)),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.only(right:3.0,top: 11,bottom: 8),
                                         child: pw.Text(data['receivedAmt'].toString(),
                                             textAlign: pw.TextAlign.right,
-                                            style: pw.TextStyle(fontSize:8)),
+                                            style: pw.TextStyle(fontSize:8,font:font1,)),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.only(right:3.0,top: 11,bottom: 8),
                                         child: pw.Text(data['debit'].toString(),
                                             textAlign: pw.TextAlign.right,
-                                            style: pw.TextStyle(fontSize: 8)),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),
                                       ),
                                       pw.Container(
                                         padding: pw.EdgeInsets.only(right:3.0,top: 11,bottom: 8),
                                         child: pw.Text(data['credit'].toString(),
                                             textAlign: pw.TextAlign.right,
-                                            style: pw.TextStyle(fontSize: 8)),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),
                                       ),
                                     ]);
                                   }
@@ -374,7 +378,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
 
 
 
-                                  pw.Text("Grand Total", style: pw.TextStyle(fontSize: 8, color: PdfColors.black)),
+                                  pw.Text("Grand Total", style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black)),
 
                                   pw.SizedBox(width: 10),
                                   pw.Container(
@@ -391,7 +395,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                       child: pw.Text(
                                         widget.TotalgrandTotal,
                                         textAlign: pw.TextAlign.right,
-                                        style: pw.TextStyle(fontSize: 8, color: PdfColors.black),
+                                        style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black),
                                       ),
                                     ),
                                   ),
@@ -409,7 +413,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                       child: pw.Text(
                                         widget.TotalchequeAmnt,
                                         textAlign: pw.TextAlign.right,
-                                        style: pw.TextStyle(fontSize: 8, color: PdfColors.black),
+                                        style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black),
                                       ),
                                     ),
                                   ),
@@ -428,7 +432,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                       child: pw.Text(
                                         widget.TotaldeductionAmnt,
                                         textAlign: pw.TextAlign.right,
-                                        style: pw.TextStyle(fontSize: 8, color: PdfColors.black),
+                                        style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black),
                                       ),
                                     ),
                                   ),
@@ -447,7 +451,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                       child: pw.Text(
                                         widget.TotalreceivedAmnt,
                                         textAlign: pw.TextAlign.right,
-                                        style: pw.TextStyle(fontSize: 8, color: PdfColors.black),
+                                        style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black),
                                       ),
                                     ),
                                   ),
@@ -466,7 +470,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                       child: pw.Text(
                                         widget.TotaldebitAmnt,
                                         textAlign: pw.TextAlign.right,
-                                        style: pw.TextStyle(fontSize: 8, color: PdfColors.black),
+                                        style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black),
                                       ),
                                     ),
                                   ),
@@ -485,7 +489,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                       child: pw.Text(
                                         widget.TotalcreditdAmnt,
                                         textAlign: pw.TextAlign.right,
-                                        style: pw.TextStyle(fontSize: 8, color: PdfColors.black),
+                                        style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black),
                                       ),
                                     ),
                                   ),
@@ -512,12 +516,12 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                             pw.Text(
                                               '(${widget.creditBalance})',
                                               textAlign: pw.TextAlign.left,
-                                              style: pw.TextStyle(fontSize: 8, color: PdfColors.black),
+                                              style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black),
                                             ),
                                             pw.Text(
                                               '${widget.balance}',
                                               textAlign: pw.TextAlign.right,
-                                              style: pw.TextStyle(fontSize: 8, color: PdfColors.black),
+                                              style: pw.TextStyle(fontSize: 8, font:font1,color: PdfColors.black),
                                             ),
                                           ],
                                         ),

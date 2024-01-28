@@ -26,6 +26,10 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
   List<String> supplierSuggestions = [];
   String selectedSupplier = "";
   bool isDateRangeValid=true;
+  final ScrollController _scrollController = ScrollController();
+
+
+
 
   int currentPage = 1;
   int rowsPerPage = 10;
@@ -518,31 +522,46 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                   child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),
                                 )),
                             const SizedBox(height: 20,),
-                            PaginatedDataTable(
-                              columnSpacing:40.0,
-                              //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              rowsPerPage:25,
-                              columns:   const [
-                                DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Padding(
-                                  padding: EdgeInsets.only(left: 15),
-                                  child: Text("Date",style: TextStyle(fontWeight: FontWeight.bold),),
-                                ))),
-                                DataColumn(label: Center(child: Text("Order No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                DataColumn(label: Center(child: Padding(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold),),
-                                ))),
-                                DataColumn(label: Center(child: Padding(
-                                  padding: EdgeInsets.only(left: 8),
-                                  child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),),
-                                ))),
-                                DataColumn(label: Center(child: Padding(
-                                  padding: EdgeInsets.only(left: 20),
-                                  child: Text("Action",style: TextStyle(fontWeight: FontWeight.bold),),
-                                ))),
-                              ],
-                              source: _YourDataTableSource(filteredData,context,generatedButton),
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _scrollController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController,
+                                child: SizedBox(
+                                  width:1200,
+                                  child: PaginatedDataTable(
+                                    columnSpacing:40.0,
+                                    //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    rowsPerPage:25,
+                                    columns:   const [
+                                      DataColumn(label: Center(child: Text("   S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Padding(
+                                        padding: EdgeInsets.only(left: 15),
+                                        child: Text("   Date",style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ))),
+                                      DataColumn(label: Center(child: Text("        Order No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Padding(
+                                        padding: EdgeInsets.only(left: 10),
+                                        child: Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ))),
+                                      DataColumn(label: Center(child: Padding(
+                                        padding: EdgeInsets.only(left: 8),
+                                        child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ))),
+                                      DataColumn(label: Center(child: Padding(
+                                        padding: EdgeInsets.only(left: 10),
+                                        child: Text("Expected Delivery Date",style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ))),
+                                      DataColumn(label: Center(child: Padding(
+                                        padding: EdgeInsets.only(left: 20),
+                                        child: Text("   Action",style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ))),
+                                    ],
+                                    source: _YourDataTableSource(filteredData,context,generatedButton),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),

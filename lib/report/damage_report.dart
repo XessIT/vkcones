@@ -455,11 +455,14 @@ class _DamageStockEntriesState extends State<DamageStockEntries> {
                                 columnSpacing:120.0,
                                 rowsPerPage:25,
                                 columns:   const [
-                                  DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  DataColumn(label: Center(child: Text("  S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
                                   //  DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("Item Group",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("Item Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("Available\nQuantity",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  DataColumn(label: Center(child: Text("       Item Group",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  DataColumn(label: Center(child: Text("     Item Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  DataColumn(label: Center(child: Padding(
+                                    padding: EdgeInsets.only(left:30),
+                                    child: Text("Available\nQuantity",style: TextStyle(fontWeight: FontWeight.bold),),
+                                  ))),
                                   //  DataColumn(label: Center(child: Text("Modify Date",style: TextStyle(fontWeight: FontWeight.bold),))),
                                 ], source: _YourDataTableSource(filteredData,context,generatedButton),
                               ),
