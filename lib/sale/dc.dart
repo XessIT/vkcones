@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vinayaga_project/main.dart';
 import '../home.dart';
 import 'package:http/http.dart' as http;
 
 import 'dc_entry_pdf.dart';
-import 'dc_individual_pdf.dart';
 
 
 
@@ -134,7 +132,11 @@ class _PurchaseState extends State<Dc> {
     fetchData2();
     fetchData3();
     // quotfetch();
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_invoiceFocusNode);
+    });
   }
+  final FocusNode _invoiceFocusNode = FocusNode();
 
 
   //int currentInvoiceNumber = 1;
@@ -211,20 +213,19 @@ class _PurchaseState extends State<Dc> {
           custCode.text = order['custCode']?.toString() ?? '';
           orderNo.text = order['orderNo']?.toString() ?? '';
           custName.text = order['custName']?.toString() ?? '';
+          transNo.text = order['transportNo']?.toString() ?? '';
           deliveryType = order['deliveryType']?.toString() ?? '';
-          transNo.text = order['transNo']?.toString() ?? '';
           grandTotal.text = order['grandTotal']?.toString() ?? '';
         } else {
           custCode.clear();
           orderNo.clear();
           custName.clear();
-          transNo.clear();
           grandTotal.clear();
+          transNo.clear();
         }
       }
       for (var i = 0; i < controllers.length; i++) {
         List<TextEditingController> rowControllers = controllers[i];
-        List<FocusNode> rowFocusNodes = focusNodes[i];
         Map<String, dynamic> row = rowData[i];
         for (var j = 0; j < 7; j++) {
           rowControllers[j].text = row[_getKeyForColumn(j)] ?? '';
@@ -236,70 +237,6 @@ class _PurchaseState extends State<Dc> {
       }
     });
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  Future<void> getitem() async {
-    try {
-      final url = Uri.parse('http://localhost:3309/getGroup');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final List<dynamic> units = responseData;
-
-        itemGroups = units.map((item) => item['itemGroup'] as String).toList();
-
-        setState(() {
-          // Print itemGroupValues to check if it's populated correctly.
-          print('Item Groups: $itemGroups');
-        });
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle any other errors, e.g., network issues
-      print('Error: $error');
-    }
-  }
-
-
-  Future<void> getitemname() async {
-    try {
-      final url = Uri.parse('http://localhost:3309/getName');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final List<dynamic> units = responseData;
-
-        itemNames = units.map((item) => item['itemName'] as String).toList();
-
-        setState(() {
-          // Print itemGroupValues to check if it's populated correctly.
-          print('Item Groups: $itemNames');
-        });
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle any other errors, e.g., network issues
-      print('Error: $error');
-    }
-  }
-
-
 
   String? getItemFromJsonData(Map<String, dynamic> jsonItem) {
     return jsonItem['itemGroup'];
@@ -317,6 +254,7 @@ class _PurchaseState extends State<Dc> {
   List<String?> selectedItemNames = [];
   List<String?> selectedItemGroups = [];
   DateTime eod = DateTime.now();
+  final FocusNode invoiceFocusNode = FocusNode();
 
 
 
@@ -369,7 +307,7 @@ class _PurchaseState extends State<Dc> {
     super.dispose();
   }
 
-  void _resetForm() {
+/*  void _resetForm() {
     _formKey.currentState!.reset();
     rowData.clear();
     custName.clear();
@@ -382,10 +320,10 @@ class _PurchaseState extends State<Dc> {
     supplyPlace.clear();
     setState(() {
     });
-  }
-  void _cancelForm() {
+  }*/
+/*  void _cancelForm() {
     print('Form cancelled!');
-  }
+  }*/
 
 
 
@@ -421,7 +359,6 @@ class _PurchaseState extends State<Dc> {
                     },
                     child: Text('OK'),
                   ),
-
                   TextButton(
                     onPressed: () {
                       Navigator.push(context,
@@ -647,8 +584,6 @@ class _PurchaseState extends State<Dc> {
       );
     }
   }
-
-
   void filterData3(String query) {
     setState(() {
       if (query.isNotEmpty) {
@@ -663,16 +598,12 @@ class _PurchaseState extends State<Dc> {
       }
     });
   }
-
-
   bool invoicenumberexiest(String name) {
     return data3.any((item) => item['invoiceNo'].toString().toLowerCase() == name.toLowerCase());
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
     invoiceNo.addListener(() {
       filterData(invoiceNo.text);
     });
@@ -798,6 +729,7 @@ class _PurchaseState extends State<Dc> {
                                                               child: TypeAheadFormField<String>(
                                                                 textFieldConfiguration: TextFieldConfiguration(
                                                                   controller: invoiceNo,
+                                                                  focusNode: _invoiceFocusNode,
                                                                   style: const TextStyle(fontSize: 13),
                                                                   onChanged: (value) {
                                                                     if (invoicenumberexiest(invoiceNo.text)) {
@@ -1434,7 +1366,6 @@ class _PurchaseState extends State<Dc> {
                                   color: Colors.green.shade600,
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
-                                      final date = selectedDate.toIso8601String();
                                       List<Map<String, dynamic>> rowsDataToInsert = [];
                                       // if (invoicenumberexiest(invoiceNo.text)) {
                                       //   setState(() {
@@ -1502,30 +1433,6 @@ class _PurchaseState extends State<Dc> {
                                             currentDcNumber++;
                                             isDataSaved = true;
                                           });
-
-                                          // Show success message in an alert dialog
-                                          // showDialog(
-                                          //   barrierDismissible: false,
-                                          //   context: context,
-                                          //   builder: (BuildContext context) {
-                                          //     return AlertDialog(
-                                          //       title: Text("Delivery Challan"),
-                                          //       content: Padding(
-                                          //         padding: const EdgeInsets.only(top:20.0),
-                                          //         child: Text('Saved Successfully'),
-                                          //       ),
-                                          //       actions: <Widget>[
-                                          //         TextButton(
-                                          //           child: const Text('OK'),
-                                          //           onPressed: () {
-                                          //             Navigator.push(context,
-                                          //                 MaterialPageRoute(builder: (context) =>Dc()));// Close the alert box
-                                          //           },
-                                          //         ),
-                                          //       ],
-                                          //     );
-                                          //   },
-                                          // );
                                         } catch (e) {
                                           print('Error inserting data: $e');
                                           ScaffoldMessenger.of(context).showSnackBar(

@@ -192,7 +192,11 @@ class _PurchaseState extends State<SampleDC> {
     fetchcustData();
     fetchData3();
     filterCodeData(custName.text);
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_invoiceFocusNode);
+    });
   }
+  final FocusNode _invoiceFocusNode = FocusNode();
 
   Future<void> fetchData() async {
     try {
@@ -522,7 +526,7 @@ class _PurchaseState extends State<SampleDC> {
     setState(() {
       if (searchText.isEmpty) {
         filteredData = codedata;
-       // readOnlyFields = false;
+        // readOnlyFields = false;
         custCode.clear();
         custAddress.clear();
         custMobile.clear();
@@ -542,7 +546,7 @@ class _PurchaseState extends State<SampleDC> {
           pincode.text = existingSupplier['custMobile']?.toString() ?? '';
           GSTIN.text = existingSupplier['gstin']?.toString() ?? '';
         } else {
-         // readOnlyFields = false;
+          // readOnlyFields = false;
           int maxCodeNumber = 0;
           for (var item in codedata) {
             final supCodeStr = item['custCode']?.toString() ?? '';
@@ -709,6 +713,7 @@ class _PurchaseState extends State<SampleDC> {
       throw Exception('Error: $e');
     }
   }
+
   Future<void> submititemDataToDatabase() async {
     List<Future<void>> insertFutures = [];
     for (var i = 0; i < rowData.length; i++) {
@@ -742,6 +747,7 @@ class _PurchaseState extends State<SampleDC> {
       print('Error inserting data: $e');
     }
   }
+
   void updateTotalAmount(int i) {
     double amount = double.tryParse(rowData[i].amount.text) ?? 0;
     double gstamnt = double.tryParse(rowData[i].gstamnt.text) ?? 0;
@@ -766,6 +772,7 @@ class _PurchaseState extends State<SampleDC> {
     // Update the grandTotalController with the new value
     grandTotal.text = grandTotalvalue.toString();
   }
+
 
   Future<void> updatefinishingprodution( String qty, String itemGroup,String itemName) async {
     final Uri url = Uri.parse('http://localhost:3309/sc_to_update_Stock'); // Replace with your actual backend URL
@@ -805,7 +812,7 @@ class _PurchaseState extends State<SampleDC> {
     return Builder(
         builder: (context) =>
             MyScaffold(
-              route: "sampledc",
+              route: "sampledc",backgroundColor: Colors.white,
               body:  Form(
                 key: _formKey,
                 child: SingleChildScrollView(
@@ -900,6 +907,7 @@ class _PurchaseState extends State<SampleDC> {
                                                               width: 220,
                                                               child: TextFormField(
                                                                 controller: invoiceNo,
+                                                                focusNode: _invoiceFocusNode,
                                                                 style: TextStyle(fontSize: 13),
                                                                 onChanged: (value) {
                                                                   setState(() {
@@ -908,6 +916,7 @@ class _PurchaseState extends State<SampleDC> {
                                                                 },
                                                                 inputFormatters: [
                                                                   UpperCaseTextFormatter(),
+                                                                  LengthLimitingTextInputFormatter(10)
                                                                 ],
                                                                 decoration: InputDecoration(
                                                                   filled: true,
@@ -919,83 +928,6 @@ class _PurchaseState extends State<SampleDC> {
                                                                 ),
                                                               ),
                                                             ),
-                                                            /*SizedBox(
-                                                              width: 150,
-                                                              child: TypeAheadFormField<String>(
-                                                                textFieldConfiguration: TextFieldConfiguration(
-                                                                  controller: invoiceNo,
-                                                                  style: const TextStyle(fontSize: 13),
-                                                                  onChanged: (value) {
-                                                                    if (invoicenumberexiest(invoiceNo.text)) {
-                                                                      setState(() {
-                                                                        errorMessage = '* This Invoice Already Saved';
-                                                                      });
-                                                                      //showErrorMessage(errorMessage!);
-                                                                      return;
-                                                                    }
-                                                                    setState(() {
-                                                                      errorMessage = null; // Reset error message when the user types
-                                                                    });
-                                                                  },
-                                                                  inputFormatters: [
-                                                                    UpperCaseTextFormatter()
-                                                                  ],
-                                                                  decoration: InputDecoration(
-                                                                    fillColor: Colors.white,
-                                                                    filled: true,
-                                                                    labelText: "Invoice Number",
-                                                                    labelStyle: TextStyle(fontSize: 13),
-                                                                    border: OutlineInputBorder(
-                                                                      borderRadius: BorderRadius.circular(10),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                suggestionsCallback: (pattern) async {
-                                                                  List<String> suggestions;
-                                                                  if (pattern.isNotEmpty) {
-                                                                    suggestions = data
-                                                                        .where((item) =>
-                                                                        (item['invoiceNo']?.toString()?.toLowerCase() ?? '')
-                                                                            .startsWith(pattern.toLowerCase()))
-                                                                        .map((item) => item['invoiceNo'].toString())
-                                                                        .toSet() // Remove duplicates using a Set
-                                                                        .toList();
-
-                                                                    // Exclude existing invoice numbers from suggestions
-                                                                    suggestions.removeWhere((existingInvoiceNo) =>
-                                                                    invoicenumberexiest(existingInvoiceNo) &&
-                                                                        existingInvoiceNo != invoiceNo.text);
-                                                                  } else {
-                                                                    if (invoicenumberexiest(invoiceNo.text)) {
-                                                                      setState(() {
-                                                                        errorMessage = '* This Invoice Already Saved';
-                                                                      });
-                                                                      suggestions = [];
-                                                                    } else {
-                                                                      suggestions = [];
-                                                                    }
-                                                                  }
-                                                                  return suggestions;
-                                                                },
-                                                                itemBuilder: (context, suggestion) {
-                                                                  return ListTile(
-                                                                    title: Text(suggestion,style:TextStyle(fontSize: 12)),
-                                                                  );
-                                                                },
-                                                                onSuggestionSelected: (suggestion) {
-                                                                  setState(() {
-                                                                    selectedInvoiceNo = suggestion;
-                                                                    invoiceNo.text = suggestion;
-                                                                    if (invoicenumberexiest(suggestion)) {
-                                                                      errorMessage = '* This Invoice Already Saved';
-                                                                    } else {
-                                                                      errorMessage = null;
-                                                                    }
-                                                                  });
-                                                                  print('Selected Invoice Number: $selectedInvoiceNo');
-                                                                },
-                                                              ),
-                                                            ),*/
                                                           ]
                                                       ),
                                                       Divider(
@@ -1077,6 +1009,10 @@ class _PurchaseState extends State<SampleDC> {
                                                           errorMessage = null; // Reset error message when user types
                                                         });
                                                       },
+                                                      inputFormatters: [
+                                                        UpperCaseTextFormatter(),
+                                                        LengthLimitingTextInputFormatter(10)
+                                                      ],
                                                       decoration: InputDecoration(
                                                         filled: true,
                                                         fillColor: Colors.white,
@@ -1868,15 +1804,15 @@ class _PurchaseState extends State<SampleDC> {
                                         });
                                       }
                                       else {
-                                          DateTime now=DateTime.now();
-                                          String year=(now.year%100).toString();
-                                          String month=now.month.toString().padLeft(2,'0');
-                                          if (dcnumber.isEmpty) {
-                                            dcnumber = 'DC$year$month/001';
-                                          }
-                                          submititemDataToDatabase();
+                                        DateTime now=DateTime.now();
+                                        String year=(now.year%100).toString();
+                                        String month=now.month.toString().padLeft(2,'0');
+                                        if (dcnumber.isEmpty) {
+                                          dcnumber = 'DC$year$month/001';
+                                        }
+                                        submititemDataToDatabase();
                                         try {
-                                         // await insertData(rowsDataToInsert);
+                                          // await insertData(rowsDataToInsert);
                                           setState(() {
                                             currentSampleDCNumber++;
                                             isDataSaved = true;
@@ -1890,7 +1826,7 @@ class _PurchaseState extends State<SampleDC> {
                                           );
                                         }
                                       }
-                                   //   }
+                                      //   }
                                     }
                                   },
                                   child: Text("SAVE", style: TextStyle(color: Colors.white)),
@@ -1962,7 +1898,7 @@ class _PurchaseState extends State<SampleDC> {
 
                   ),
                 ),
-              ), backgroundColor: Colors.white,
+              ),
             )
 
     ) ;

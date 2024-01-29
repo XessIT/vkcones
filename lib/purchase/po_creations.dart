@@ -1165,11 +1165,11 @@ class _PoCreationState extends State<PoCreation> {
                                             TableCell(
                                               child: Container(
                                                 color: Colors.blue.shade100,
-                                                child: Column(
+                                                child: const Column(
                                                   children: [
-                                                    const SizedBox(height: 8),
-                                                    Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    const SizedBox(height: 8),
+                                                    SizedBox(height: 8),
+                                                    Text('Quantity/Reel', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                    SizedBox(height: 8),
                                                   ],
                                                 ),
                                               ),

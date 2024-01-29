@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
             padding: const EdgeInsets.all(18.0),
             child: Column(
               children: [
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 Container(
                   width: 850,
                   child: InputDecorator(
@@ -49,10 +49,10 @@ class _HomeState extends State<Home> {
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(2.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: Wrap(
                         children: [
-                          SizedBox(width: 60),
+                          SizedBox(width: 45),
                           buildDashboardItem(
                             title: ' Sales order',
                             icon: Icons.add_shopping_cart,
@@ -109,7 +109,7 @@ class _HomeState extends State<Home> {
                             },
                           ),SizedBox(width: 30),
                           buildDashboardItem(
-                            title: '  Purchase  ',
+                            title: '   Purchase   ',
                             icon: Icons.shopping_cart,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -134,17 +134,17 @@ class _HomeState extends State<Home> {
                 Container(width: 850,
                   child: InputDecorator(
                     decoration: const InputDecoration(
-                      labelText: 'Masters',
+                      labelText: 'Master',
                       labelStyle:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(2.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: Wrap(
                         children: [
-
+                          SizedBox(width: 45),
                           buildDashboardItem(
-                            title: 'Employee',
+                            title: ' Employee  ',
                             icon: Icons.person,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -155,9 +155,10 @@ class _HomeState extends State<Home> {
                                 ),
                               );
                             },
-                          ),
+                          ),                          SizedBox(width: 30),
+
                           buildDashboardItem(
-                            title: '     Shift    ',
+                            title: '      Shift        ',
                             icon: Icons.filter_tilt_shift,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -169,10 +170,11 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
 
 
                           buildDashboardItem(
-                            title: 'Daily work',
+                            title: ' Daily work ',
                             icon: Icons.calendar_today,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -184,8 +186,10 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
+
                           buildDashboardItem(
-                            title: '     Stock    ',
+                            title: '      Stock     ',
                             icon: Icons.inventory,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -197,6 +201,8 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
+
                           buildDashboardItem(
                             title: 'Raw material',
                             icon: Icons.category,
@@ -210,7 +216,7 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
-                          // Add more dashboard items similarly
+                          SizedBox(width: 30),
                         ],
                       ),
                     ),
@@ -225,9 +231,10 @@ class _HomeState extends State<Home> {
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(2.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: Wrap(
                         children: [
+                          SizedBox(width: 45),
 
                           buildDashboardItem(
                             title: 'Attendance',
@@ -242,8 +249,9 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
                           buildDashboardItem(
-                            title: 'Punches',
+                            title: '  Punches   ',
                             icon: Icons.punch_clock,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -255,8 +263,10 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
+
                           buildDashboardItem(
-                            title: ' Salary ',
+                            title: '    Salary    ',
                             icon: Icons.access_time,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -268,14 +278,15 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
-
-                          // Add more dashboard items similarly
-                        ],
+                          SizedBox(width: 30),
+                    ],
                       ),
                     ),
                   ),
                 ),
-              ],
+          SizedBox(height: 200,),
+
+          ],
             ),
           ),
         ),

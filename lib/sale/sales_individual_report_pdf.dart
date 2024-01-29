@@ -631,7 +631,7 @@ class _SalesIndividualReportPDFViewState
                                                 children: [
                                                   //pw.Text("Total qty", style: pw.TextStyle(fontSize: 8)),
                                                   pw.SizedBox(width: 10),
-                                                  pw.Text(totalqty.toStringAsFixed(2), style: pw.TextStyle(fontSize: 9,font:font1)),
+                                                  pw.Text("${totalqty.toStringAsFixed(0)}  ", style: pw.TextStyle(fontSize: 9,font:font1)),
                                                 ],
                                               ),),
                                           ),

@@ -266,7 +266,6 @@ class _HandbilldcIndividualPDFViewState
                         pw.SizedBox(height: 3),
                       ])),
                 ),
-
                 pw.Padding(
                   padding: pw.EdgeInsets.only(right: 3),
                   child: pw.Center( child: pw.Column(
@@ -316,9 +315,7 @@ class _HandbilldcIndividualPDFViewState
                                 height: 70,
                                 width: 70,
                                 child: pw.Image(image)
-
                             ),),
-
                           pw.Padding(padding:pw.EdgeInsets.only(right: 10),
                             child:    pw.Column(children: [
                               pw.Text("VINAYAGA CONES",
@@ -421,10 +418,8 @@ class _HandbilldcIndividualPDFViewState
                                                           ),
                                                         ),
                                                         pw.SizedBox(height:5),
-
                                                         pw.Row(
                                                             children: [
-
                                                               pw.Align(
                                                                 alignment: pw.Alignment.topLeft,
                                                                 child: pw.Text(
@@ -473,9 +468,7 @@ class _HandbilldcIndividualPDFViewState
                                                                   fontSize: 7,font:font1),
                                                             ),
                                                           ),
-
                                                         ])
-
                                                       ],
                                                     ),
                                                   ),
@@ -615,7 +608,7 @@ class _HandbilldcIndividualPDFViewState
                                     pw.SizedBox(width: 10),
                                     pw.Container(
                                       height: 13,
-                                      width: 100,
+                                      width: 50,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -627,7 +620,7 @@ class _HandbilldcIndividualPDFViewState
                                     ),
                                     pw.Container(
                                       height: 13,
-                                      width: 55,
+                                      width: 50,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -651,7 +644,7 @@ class _HandbilldcIndividualPDFViewState
                                     ),
                                     pw.Container(
                                       height: 13,
-                                      width: 35,
+                                      width: 50,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -661,17 +654,16 @@ class _HandbilldcIndividualPDFViewState
                                       child: pw.Text(totalGST.toStringAsFixed(2),
                                           style: pw.TextStyle(fontSize: 9,font:font1)),
                                     ),
-
                                     pw.Container(
                                       height: 13,
-                                      width: 35,
+                                      width: 50,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
                                         border: pw.Border.all(color: PdfColors.black),
                                         borderRadius: pw.BorderRadius.circular(1.0),
                                       ),
-                                      child: pw.Text(widget.grandTotal.toString(), style: pw.TextStyle(fontSize: 9,font:font1)),
+                                      child: pw.Text(data[i]['grandTotal'].toString(), style: pw.TextStyle(fontSize: 9,font:font1)),
                                     ),],
 
                                 ),

@@ -976,7 +976,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                     ),
                                   ),
                                 ),*/
-                                SizedBox(width: 55,),
+                                SizedBox(width: 20,),
                                 SizedBox(
                                   width: 220, height: 70,
                                   child: TextFormField(
@@ -993,7 +993,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                       ),
                                     ),
                                   ),
-                                ),SizedBox(width: 55,),
+                                ),SizedBox(width: 20,),
                                 SizedBox(
                                   width: 220,height: 70,
                                   child: TextFormField(
@@ -1010,7 +1010,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                       ),
                                     ),
                                   ),
-                                ),SizedBox(width: 55,),
+                                ),SizedBox(width: 20,),
                                 SizedBox(
                                   width: 220,height: 70,
                                   child: TextFormField(
@@ -1027,7 +1027,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 55,),
+                                SizedBox(width: 20,),
                                 SizedBox(
                                   width: 220,height: 70,
                                   child: TextFormField(
