@@ -419,6 +419,7 @@ class _HandbilldcIndividualPDFViewState
                                                         ),
                                                         pw.SizedBox(height:5),
                                                         pw.Row(
+
                                                             children: [
                                                               pw.Align(
                                                                 alignment: pw.Alignment.topLeft,
@@ -442,6 +443,7 @@ class _HandbilldcIndividualPDFViewState
                                                               ),
 
                                                             ]
+
                                                         ),
                                                         pw.SizedBox(height:5),
 
@@ -497,8 +499,9 @@ class _HandbilldcIndividualPDFViewState
                                             pw.Text(
                                               "Customer/Company Name",
                                               style: pw.TextStyle(
-                                                  fontSize: 9,
+                                         fontSize: 9,
                                                   font:font1
+
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
@@ -529,7 +532,7 @@ class _HandbilldcIndividualPDFViewState
                                             pw.Text(
                                               "Customer Mobile",
                                               style: pw.TextStyle(
-                                                  fontSize: 9,
+                                               fontSize: 9,
                                                   font:font1
                                               ),
                                             ),

@@ -463,9 +463,9 @@ class _WindingReportState extends State<WindingReport> {
                                       DataColumn(label: Center(child: Text("   Shift Type",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("   Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("    Printing Status",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Text("     Person 1",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Text("    Person 2",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Text("     Person 3",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("     Operator",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("    Assistant 1",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("     Assistant 2",style: TextStyle(fontWeight: FontWeight.bold),))),
 
                                     ],
                                     source: _YourDataTableSource(filteredData,context,generatedButton),
