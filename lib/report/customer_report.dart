@@ -1163,10 +1163,10 @@ class _YourDataTableSource extends DataTableSource {
                 gstin:row["gstin"],
               )));
             },),
-            IconButton(icon: Icon(Icons.delete,color:Colors. red,),
+           /* IconButton(icon: Icon(Icons.delete,color:Colors. red,),
               onPressed: (){
                 showDeleteConfirmationDialog(context, id);
-              },),
+              },),*/
           ],
         ),
         )),

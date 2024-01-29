@@ -1453,6 +1453,9 @@ class _BalanceSheetReportState extends State<BalanceSheetReport> {
   final TextEditingController  _ToDatecontroller = TextEditingController();
   TextEditingController totalvalue = TextEditingController();
   TextEditingController totalbalance = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+
 
 
   String? errorMessage;
@@ -1577,9 +1580,24 @@ class _BalanceSheetReportState extends State<BalanceSheetReport> {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         final List<dynamic> itemGroups = responseData;
-        
+
+        // Use a Set to filter out duplicate custName values
+        Set<String> uniqueCustNames = Set();
+
+        // Filter out duplicate values based on 'custName'
+        final List uniqueData = itemGroups
+            .where((item) {
+          String custName = item['invoiceNo']?.toString() ?? '';
+          if (!uniqueCustNames.contains(custName)) {
+            uniqueCustNames.add(custName);
+            return true;
+          }
+          return false;
+        })
+            .toList();
+
         setState(() {
-          data = itemGroups.cast<Map<String, dynamic>>();
+          data = uniqueData.cast<Map<String, dynamic>>();
           filteredData = List<Map<String, dynamic>>.from(data);
           filteredData.sort((a, b) {
             DateTime? dateA = DateTime.tryParse(a['date'] ?? '');
@@ -1810,7 +1828,6 @@ class _BalanceSheetReportState extends State<BalanceSheetReport> {
         // toselectedDate.text,
       );
     });
-
     return  MyScaffold(route: 'balancesheetreport', body: Form( key: _formKey,
         child: SingleChildScrollView(
           child: Column(
@@ -2110,387 +2127,531 @@ class _BalanceSheetReportState extends State<BalanceSheetReport> {
                                         calculatereceivedTotal(filteredData);
                                         calculatedebitTotal(filteredData);
                                         calculatecreditTotal(filteredData);
-                                        return Table(
-                                            border: TableBorder.all(
-                                                color: Colors.black54
-                                            ),
-                                            defaultColumnWidth: const FixedColumnWidth(605.0),
-                                            columnWidths: const <int, TableColumnWidth>{
-                                              0: FixedColumnWidth(52),
-                                              1: FixedColumnWidth(110),
-                                              2: FixedColumnWidth(115),
-                                              3: FixedColumnWidth(115),
-                                              4: FixedColumnWidth(115),
-                                              5: FixedColumnWidth(140),
-                                              6: FixedColumnWidth(80),
-                                              7: FixedColumnWidth(80),
-                                              8: FixedColumnWidth(80),
-                                              9: FixedColumnWidth(80),
-                                              10: FixedColumnWidth(80),
-                                              11: FixedColumnWidth(80),
-                                            },
-                                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                            children:[
-                                              //Table row starting
-                                              TableRow(children: [
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 15,),
-                                                          Text('S.No',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 15,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
+                                        return Scrollbar(
+                                          thumbVisibility: true,
+                                          controller: _scrollController,
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            controller: _scrollController,
+                                            child: Table(
+                                                border: TableBorder.all(
+                                                    color: Colors.black54
                                                 ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 15,),
-                                                          Text('Date',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 15,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Invoice\n'
-                                                              'Number',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Cheque\n Number',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Customer \n Code',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Customer/\nCompany Name',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Invoice \nAmount',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Cheque \nAmount',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Deduction\n Amount',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Received \n Amount',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Debit \n Amount',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 8,),
-                                                          Text('Credit \nAmount',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 8,)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ]),
-                                              if (generatedButton)
-                                                for (var i = 0; i < filteredData.length; i++) ...[
-                                                  TableRow(
-                                                    children: [
-                                                      // 1 s.no
-                                                      TableCell(
+                                                defaultColumnWidth: const FixedColumnWidth(605.0),
+                                                columnWidths: const <int, TableColumnWidth>{
+                                                  0: FixedColumnWidth(52),
+                                                  1: FixedColumnWidth(110),
+                                                  2: FixedColumnWidth(120),
+                                                  3: FixedColumnWidth(100),
+                                                  4: FixedColumnWidth(100),
+                                                  5: FixedColumnWidth(140),
+                                                  6: FixedColumnWidth(110),
+                                                  7: FixedColumnWidth(110),
+                                                  8: FixedColumnWidth(110),
+                                                  9: FixedColumnWidth(110),
+                                                  10: FixedColumnWidth(110),
+                                                  11: FixedColumnWidth(110),
+                                                },
+                                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                                children:[
+                                                  //Table row starting
+                                                  TableRow(children: [
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
                                                         child: Center(
                                                           child: Column(
                                                             children: [
-                                                              const SizedBox(height: 10,),
-                                                              Text("${i + 1}"),
-                                                              const SizedBox(height: 10,),
+                                                              const SizedBox(height: 15,),
+                                                              Text('S.No',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 15,)
                                                             ],
                                                           ),
                                                         ),
                                                       ),
-                                                      TableCell(
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
                                                         child: Center(
                                                           child: Column(
                                                             children: [
-                                                              const SizedBox(height: 10,),
-                                                              Text(
-                                                                DateFormat('dd-MM-yyyy').format(DateTime.parse(filteredData[i]["date"])),
-                                                                style: TextStyle(),
+                                                              const SizedBox(height: 15,),
+                                                              Text('Date',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 15,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Invoice\n'
+                                                                  'Number',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Cheque\n Number',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Customer \n Code',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Customer/\nCompany Name',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Invoice \nAmount',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Cheque \nAmount',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Deduction\n Amount',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Received \n Amount',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Debit \n Amount',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TableCell(
+                                                      child: Container(
+                                                        color: Colors.blue.shade200,
+                                                        child: Center(
+                                                          child: Column(
+                                                            children: [
+                                                              const SizedBox(height: 8,),
+                                                              Text('Credit \nAmount',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              const SizedBox(height: 8,)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ]),
+                                                  if (generatedButton)
+                                                    for (var i = 0; i < filteredData.length; i++) ...[
+                                                      TableRow(
+                                                        children: [
+                                                          // 1 s.no
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Text("${i + 1}"),
+                                                                  const SizedBox(height: 10,),
+                                                                ],
                                                               ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Text("${filteredData[i]["invoiceNo"]}"),
-                                                              const SizedBox(height: 10,)
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Text("${filteredData[i]["chequeNo"]}"),
-                                                              const SizedBox(height: 10,)
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Text("${filteredData[i]["custCode"]}",
-                                                              ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Text("${filteredData[i]["custName"]}",
-                                                              ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Padding(
-                                                                padding: const EdgeInsets.all(8.0),
-                                                                child: Align(
-                                                                  alignment:Alignment.topRight,
-                                                                  child: Text("${filteredData[i]["grandTotal"] ?? ""}",
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Text(
+                                                                    DateFormat('dd-MM-yyyy').format(DateTime.parse(filteredData[i]["date"])),
+                                                                    style: TextStyle(),
                                                                   ),
-                                                                ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
                                                               ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Align(
-                                                                alignment:Alignment.topRight,
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets.all(8.0),
-                                                                  child: Text("${filteredData[i]["chequeAmt"] ?? ""}",
+                                                          TableCell(
+                                                            child: Padding(
+                                                              padding: const EdgeInsets.only(left: 20,right: 10),
+                                                              child: Column(
+                                                                //crossAxisAlignment: CrossAxisAlignment.center, // Center children vertically
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Text("${filteredData[i]["invoiceNo"]}"),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Text("${filteredData[i]["chequeNo"]}"),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Text("${filteredData[i]["custCode"]}",
                                                                   ),
-                                                                ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
                                                               ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Align(
-                                                                alignment:Alignment.topRight,
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets.all(8.0),
-                                                                  child: Text("${filteredData[i]["deductionAmt"] ?? ""}",
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Text("${filteredData[i]["custName"]}",
                                                                   ),
-                                                                ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
                                                               ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Align(
-                                                                alignment:Alignment.topRight,
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets.all(8.0),
-                                                                  child: Text("${filteredData[i]["receivedAmt"] ?? ""}",
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Padding(
+                                                                    padding: const EdgeInsets.all(8.0),
+                                                                    child: Align(
+                                                                      alignment:Alignment.topRight,
+                                                                      child: Text("${filteredData[i]["grandTotal"] ?? ""}",
+                                                                      ),
+                                                                    ),
                                                                   ),
-                                                                ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
                                                               ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Align(
-                                                                alignment:Alignment.topRight,
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets.all(8.0),
-                                                                  child: Text("${filteredData[i]["debit"] ?? ""}",
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Align(
+                                                                    alignment:Alignment.topRight,
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      child: Text("${filteredData[i]["chequeAmt"] ?? ""}",
+                                                                      ),
+                                                                    ),
                                                                   ),
-                                                                ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
                                                               ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      TableCell(
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 10,),
-                                                              Align(
-                                                                alignment:Alignment.topRight,
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets.all(8.0),
-                                                                  child: Text("${filteredData[i]["credit"] ?? ""}",
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Align(
+                                                                    alignment:Alignment.topRight,
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      child: Text("${filteredData[i]["deductionAmt"] ?? ""}",
+                                                                      ),
+                                                                    ),
                                                                   ),
-                                                                ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
                                                               ),
-                                                              const SizedBox(height: 10,)
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Align(
+                                                                    alignment:Alignment.topRight,
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      child: Text("${filteredData[i]["receivedAmt"] ?? ""}",
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Align(
+                                                                    alignment:Alignment.topRight,
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      child: Text("${filteredData[i]["debit"] ?? ""}",
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  const SizedBox(height: 10,),
+                                                                  Align(
+                                                                    alignment:Alignment.topRight,
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      child: Text("${filteredData[i]["credit"] ?? ""}",
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(height: 10,)
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ],
-                                                  ),
-                                                ],
-                                            ]
+
+                                                  if(generatedButton)
+                                                    TableRow(
+
+                                                        children: [
+                                                          TableCell(
+                                                            child: Text(""),
+                                                          ),  /// s.no
+                                                          TableCell(
+                                                            child: Text(""),
+                                                          ), ///date
+                                                          TableCell(
+                                                            child: Text(""),
+                                                          ), /// invoice no
+                                                          TableCell(
+                                                            child: Text(""),
+                                                          ), /// cheque No
+                                                          TableCell(
+                                                            child: Text(""),
+                                                          ), /// customer code
+                                                          TableCell(
+                                                            child: Row(
+                                                              children: [
+                                                                IconButton(
+                                                                  icon: Icon(Icons.calculate),
+                                                                  onPressed: () {
+                                                                    _showCalculator();
+                                                                  },
+                                                                ),
+                                                                Text("GrandTotal", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                                                //Icon(Icons.currency_rupee, size: 12),
+                                                              ],
+                                                            ),
+                                                          ),  /// grand total & company name
+                                                          TableCell(
+                                                              child:  Padding (
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.end, // Align the content to the end of the row
+                                                                  children: [
+                                                                    Icon(Icons.currency_rupee, size: 12),
+                                                                    Text(
+                                                                      grandTotalController.text, // Display the value from grandTotalController
+                                                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                                                      textAlign: TextAlign.right,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ) ),///invoice amt
+                                                          TableCell(
+                                                              child:  Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.end, // Align the content to the end of the row
+                                                                  children: [
+                                                                    Icon(Icons.currency_rupee, size: 12),
+
+                                                                    Text(
+                                                                      chequeAmntcontroller.text, // Display the value from grandTotalController
+                                                                      style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                                                                      textAlign: TextAlign.right,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ) ), ///chequ amt
+                                                          TableCell(
+                                                              child:  Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.end, // Align the content to the end of the row
+                                                                  children: [
+                                                                    Icon(Icons.currency_rupee, size: 12),
+                                                                    Text(
+                                                                      deductionAmntcontroller.text, // Display the value from grandTotalController
+                                                                      style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                                                                      textAlign: TextAlign.right,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ) ), /// ded amt
+                                                          TableCell(
+                                                              child:  Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.end, // Align the content to the end of the row
+                                                                  children: [
+                                                                    Icon(Icons.currency_rupee, size: 12),
+
+                                                                    Text(
+                                                                      receivedAmntcontroller.text, // Display the value from grandTotalController
+                                                                      style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                                                                      textAlign: TextAlign.right,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ) ), ///recevived amt
+                                                          TableCell(
+                                                              child:  Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.end, // Align the content to the end of the row
+
+                                                                  children: [
+                                                                    Icon(Icons.currency_rupee, size: 12),
+
+                                                                    Text(
+                                                                      debitAmntcontroller.text, // Display the value from grandTotalController
+                                                                      style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                                                                      textAlign: TextAlign.right,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ) ), /// debit amt
+                                                          TableCell(
+                                                              child:  Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.end, // Align the content to the end of the row
+                                                                  children: [
+                                                                    Icon(Icons.currency_rupee, size: 12),
+
+                                                                    Text(
+                                                                      creditAmntcontroller.text, // Display the value from grandTotalController
+                                                                      style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                                                                      textAlign: TextAlign.right,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ) ), /// credit amt
+
+
+                                                        ]
+
+                                                    ),
+                                                ]
+                                            ),
+                                          ),
                                         );}
                                       return Container();
                                     }
@@ -2498,155 +2659,154 @@ class _BalanceSheetReportState extends State<BalanceSheetReport> {
                               ),
                             ),
 
-                            if(generatedButton)
-                              Padding(
-                                padding: const EdgeInsets.only(right:0.0),
-                                child: Wrap(
-                                    children:[
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(Icons.calculate),
-                                            onPressed: () {
-                                              _showCalculator();
-                                            },
-                                          ),
-                                          Text("GrandTotal",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                                          Icon(Icons.currency_rupee,size: 15,),
-                                          SizedBox(width: 10,),
-                                          Column(
-                                            children: [
-                                              SizedBox(
-                                                width: 80,
-                                                child: TextFormField(
-                                                  style: TextStyle(fontSize: 12),
-                                                  readOnly: true,
-                                                  controller:  grandTotalController,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    semanticCounterText: AutofillHints.streetAddressLevel1,
-                                                    // labelText: "Grand Total of invoice Amount",
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                    ),
+                            /* if(generatedButton)
+                               Wrap(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(Icons.calculate),
+                                          onPressed: () {
+                                            _showCalculator();
+                                          },
+                                        ),
+                                        Text("GrandTotal",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                                        Icon(Icons.currency_rupee,size: 15,),
+                                        SizedBox(width: 10,),
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              width: 80,
+                                              child: TextFormField(
+                                                style: TextStyle(fontSize: 12),
+                                                readOnly: true,
+                                                controller:  grandTotalController,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  semanticCounterText: AutofillHints.streetAddressLevel1,
+                                                  // labelText: "Grand Total of invoice Amount",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
                                                   ),
-                                                  textAlign: TextAlign.right,
                                                 ),
+                                                textAlign: TextAlign.right,
                                               ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              SizedBox(
-                                                width: 80,
-                                                child: TextFormField(
-                                                  style: TextStyle(fontSize: 12),
-                                                  readOnly: true,
-                                                  controller: chequeAmntcontroller,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    // labelText: "Total",
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              width: 80,
+                                              child: TextFormField(
+                                                style: TextStyle(fontSize: 12),
+                                                readOnly: true,
+                                                controller: chequeAmntcontroller,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  // labelText: "Total",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
                                                   ),
-                                                  textAlign: TextAlign.right,
                                                 ),
+                                                textAlign: TextAlign.right,
                                               ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              SizedBox(
-                                                width: 80,
-                                                child: TextFormField(
-                                                  style: TextStyle(fontSize: 12),
-                                                  readOnly: true,
-                                                  controller: deductionAmntcontroller,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    // labelText: "Total",
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              width: 80,
+                                              child: TextFormField(
+                                                style: TextStyle(fontSize: 12),
+                                                readOnly: true,
+                                                controller: deductionAmntcontroller,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  // labelText: "Total",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
                                                   ),
-                                                  textAlign: TextAlign.right,
                                                 ),
+                                                textAlign: TextAlign.right,
                                               ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              SizedBox(
-                                                width: 80,
-                                                child: TextFormField(
-                                                  style: TextStyle(fontSize: 12),
-                                                  readOnly: true,
-                                                  controller: receivedAmntcontroller,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    // labelText: "Total",
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              width: 80,
+                                              child: TextFormField(
+                                                style: TextStyle(fontSize: 12),
+                                                readOnly: true,
+                                                controller: receivedAmntcontroller,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  // labelText: "Total",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
                                                   ),
-                                                  textAlign: TextAlign.right,
                                                 ),
+                                                textAlign: TextAlign.right,
                                               ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              SizedBox(
-                                                width: 80,
-                                                child: TextFormField(
-                                                  style: TextStyle(fontSize: 12),
-                                                  readOnly: true,
-                                                  controller: debitAmntcontroller,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    // labelText: "Total",
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              width: 80,
+                                              child: TextFormField(
+                                                style: TextStyle(fontSize: 12),
+                                                readOnly: true,
+                                                controller: debitAmntcontroller,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  // labelText: "Total",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
                                                   ),
-                                                  textAlign: TextAlign.right,
                                                 ),
+                                                textAlign: TextAlign.right,
                                               ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              SizedBox(
-                                                width: 80,
-                                                child: TextFormField(
-                                                  style: TextStyle(fontSize: 12),
-                                                  readOnly: true,
-                                                  controller: creditAmntcontroller,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    // labelText: "Total",
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              width: 80,
+                                              child: TextFormField(
+                                                style: TextStyle(fontSize: 12),
+                                                readOnly: true,
+                                                controller: creditAmntcontroller,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  // labelText: "Total",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
                                                   ),
-                                                  textAlign: TextAlign.right,
                                                 ),
+                                                textAlign: TextAlign.right,
                                               ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ]
-                                ),
-                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),*/
+
                             if(generatedButton)
                               Row(children: [
                                 Padding(

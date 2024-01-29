@@ -43,7 +43,7 @@ class dcIndividualReportPDFView extends StatefulWidget {
 class _dcIndividualReportPDFViewState
     extends State<dcIndividualReportPDFView> {
   double totalGST = 0.0;
-  double totalqty = 0.0;
+  int totalqty = 0;
   double total = 0.0;
 
   Future<List<Map<String, dynamic>>> fetchUnitEntries(String invoiceNo) async {
@@ -113,7 +113,7 @@ class _dcIndividualReportPDFViewState
 
     final List<Map<String, dynamic>> data = await fetchUnitEntries(invoiceNo);
     totalGST = 0.0;
-    totalqty = 0.0;
+    totalqty = 0;
     total=0.0;
 
     int recordsPerPage ;
@@ -187,7 +187,7 @@ class _dcIndividualReportPDFViewState
 
         for (var item in pageData) {
           totalGST += double.parse(item['amtGST']);
-          totalqty += double.parse(item['qty']);
+          totalqty += int.parse(item['qty']);
           total += double.parse(item['rate']);
         }
 

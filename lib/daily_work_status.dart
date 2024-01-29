@@ -1,4 +1,7 @@
 
+
+
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +31,7 @@ class RowData {
   TextEditingController qtyController = TextEditingController();
 
   RowData({this.itemGroup,this.itemName,this.quantity});
+
 }
 class DailyWorkStatus extends StatefulWidget {
   const DailyWorkStatus({Key? key}) : super(key: key);
@@ -56,6 +60,18 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     } catch (e) {
       throw Exception('Failed to load unit entries: $e');
     }
+  }
+
+  Future<bool> checkDuplicateEntry(Map<String, dynamic> dataToInsertorditem) async {
+    // Your logic to check for duplicate entry
+    List<Map<String, dynamic>> unitEntries = await fetchDuplicateEntry();
+    return unitEntries.any((entry) =>
+    entry['machineType'] == dataToInsertorditem['machineType'] &&
+        entry['shiftType'] == dataToInsertorditem['shiftType'] &&
+        entry['machineName'] == dataToInsertorditem['machineName'] &&
+        entry['person1'] == dataToInsertorditem['person1'] &&
+        entry['person2'] == dataToInsertorditem['person2'] &&
+        entry['createDate'] == dataToInsertorditem['createDate']);
   }
 
 
@@ -182,7 +198,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
 
   Future<void> updateRawMaterial( String prodName,int qty,int totalweight,String modifyDate) async {
-    final Uri url = Uri.parse('http://localhost:3309/updateRawMaterialdailywork'); // Replace with your actual backend URL
+    final Uri url = Uri.parse('http://localhost:3309/RawMaterialupdatedailywork'); // Replace with your actual backend URL
 
     final response = await http.post(
       url,
@@ -471,8 +487,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   }
 
   //printing update
-  Future<void> updateprinitingprodution( String gsm, String numofproduction,String status,String date) async {
-    final Uri url = Uri.parse('http://localhost:3309/updateprinting_production'); // Replace with your actual backend URL
+  Future<void> updatePrintingProduction(String gsm, String numofproduction, String status, String date) async {
+    final Uri url = Uri.parse('http://localhost:3309/updateprinting_production');
 
     final response = await http.post(
       url,
@@ -482,17 +498,22 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       body: jsonEncode(<String, dynamic>{
         'gsm': gsm,
         'numofcones': numofproduction,
-        'status':status,
-        'date':date,
+        'status': status,
+        'date': date,
       }),
     );
+
     if (response.statusCode == 200) {
       print('Printing Update successful');
+    } else if (response.statusCode == 400) {
+      // Handle the case where the gsm already exists
+      print('Failed to update. Status code: ${response.statusCode}. ${response.body}');
     } else {
+      // Handle other status codes
       print('Failed to update. Status code: ${response.statusCode}');
-      throw Exception('Failed to update');
     }
   }
+
   //without printing update
   Future<void> updatewithoupriniting( String gsm, String numofproduction,String status,String date) async {
     final Uri url = Uri.parse('http://localhost:3309/updatewithoutprinting_production'); // Replace with your actual backend URL
@@ -568,6 +589,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
   Map<String, dynamic> dataToInsertorditem = {};
 
+  bool isDuplicate= false;
 
   Future<void> insertDataorderitem(Map<String, dynamic> dataToInsertorditem) async {
     const String apiUrl = 'http://localhost:3309/daily_work_status_entry'; // Replace with your server details
@@ -616,8 +638,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
         body: jsonEncode({'dataToInsertorditem': dataToInsertorditem}),
       );
       if (response.statusCode == 200) {
-
-
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -633,58 +653,9 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                 ),
               ],
             );
-
           },
-
         );
         print('daily work status data insert successfully');
-        if(isDuplicate == false){
-          for (var i = 0; i < rowData.length; i++) {
-            if (deptType == "Winding" ) {
-              await updateprodution(
-                rowData[i].prodgsm ?? "",
-                rowData[i].numofproduction.text,
-                selectedCheckbox == 1 ? "without printing" : "with printing",
-                DateTime.now().toString(),
-              );
-              await updateRawMaterial(
-                rowData[i].prodgsm ?? "",
-                int.parse(rowData[i].finishreel.text),
-                int.parse(rowData[i].finishwight.text),
-                DateTime.now().toString(),
-              );
-            }
-            else if (deptType == "Printing")
-            {
-              await updateprinitingprodution(
-                rowData[i].prodgsm ?? "",
-                rowData[i].numofproduction.text,
-                "with printing",
-                DateTime.now().toString(),
-              );
-              await updatewithoupriniting(
-                rowData[i].prodgsm ?? "",
-                rowData[i].numofproduction.text,
-                "without printing",
-                DateTime.now().toString(),
-              );
-            }
-            else if (deptType == "Finishing") {
-              await updatefinishingprodution(
-                rowData[i].totalqty.text,
-                rowData[i].itemGroup ?? "",
-                rowData[i].itemName ?? "",
-                DateTime.now().toString(),
-              );
-              await updatewithprintingtofinishing(
-                rowData[i].prodgsm ?? "",
-                rowData[i].numofproduction.text,
-                "with printing",
-                DateTime.now().toString(),
-              );
-            }
-          }}
-
       } else {
         print('Failed to insert data');
         throw Exception('Failed to insert data');
@@ -695,6 +666,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     }
   }
   DateTime eod = DateTime.now();
+
   Future<void> submititemDataToDatabase() async {
     List<Future<void>> insertFutures = [];
 
@@ -726,8 +698,54 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       };
       insertFutures.add(insertDataorderitem(dataToInsertorditem));
     }
+    for (var i = 0; i < rowData.length; i++) {
+      if (isDuplicate==false){
+        if (deptType == "Winding" ) {
+          await updateprodution(
+            rowData[i].prodgsm ?? "",
+            rowData[i].numofproduction.text,
+            selectedCheckbox == 1 ? "without printing" : "with printing",
+            DateTime.now().toString(),
+          );
+          await updateRawMaterial(
+            rowData[i].prodgsm ?? "",
+            int.parse(rowData[i].finishreel.text),
+            int.parse(rowData[i].finishwight.text),
+            DateTime.now().toString(),
+          );
+        }
+        else if (deptType == "Printing")
+        {
+          await updatePrintingProduction(
+            rowData[i].prodgsm ?? "",
+            rowData[i].numofproduction.text,
+            "with printing",
+            DateTime.now().toString(),
+          );
+          await updatewithoupriniting(
+            rowData[i].prodgsm ?? "",
+            rowData[i].numofproduction.text,
+            "without printing",
+            DateTime.now().toString(),
+          );
+        }
+        else if (deptType == "Finishing") {
+          await updatefinishingprodution(
+            rowData[i].totalqty.text,
+            rowData[i].itemGroup ?? "",
+            rowData[i].itemName ?? "",
+            DateTime.now().toString(),
+          );
+          await updatewithprintingtofinishing(
+            rowData[i].prodgsm ?? "",
+            rowData[i].numofproduction.text,
+            "with printing",
+            DateTime.now().toString(),
+          );
+        }
+      }
+    }
     try {
-
       await Future.wait(insertFutures);
       print('All data inserted successfully');
     } catch (e) {
@@ -735,20 +753,92 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     }
   }
 
+/*  Future<void> submititemDataToDatabase() async {
+    List<Future<void>> insertFutures = [];
 
-  // check duplication
-  Future<bool> checkDuplicateEntry(Map<String, dynamic> dataToInsertorditem) async {
-    // Your logic to check for duplicate entry
-    List<Map<String, dynamic>> unitEntries = await fetchDuplicateEntry();
+    for (var i = 0; i < rowData.length; i++) {
+      DateTime selectedDateWithoutTime = DateTime(eod.year, eod.month, eod.day);
+      setState(() {
+        controller.text = DateFormat('yyyy-MM-dd').format(selectedDateWithoutTime);
+        print(controller.text);
+      });
+      Map<String, dynamic> dataToInsertorditem = {
+        "machineType": deptType.toString(),
+        "shiftType": shiftType.toString(),
+        "person1": person1.text,
+        "person2": person2.text,
+        "person3": person3.text,
+        "op_code": person1code.text,
+        "ass_code1": person2code.text,
+        "ass_code2": person3code.text,
+        "machineName": selectedmachinefinishing.toString(),
+        "productionQty": productionQuantityController.text,
+        "extraproduction": extraproductionamt.text,
+        "createDate": DateFormat('yyyy-MM-dd').format(selectedDateWithoutTime),
+        "fromDate": fromDate.toString(),
+        "toDate": DateTime.now().toString(),
+        "gsm": rowData[i].prodgsm,
+        "finish_reel": rowData[i].finishreel.text,
+        "finish_weight": rowData[i].finishwight.text,
+        "num_of_production": rowData[i].numofproduction.text,
+      };
 
-    return unitEntries.any((entry) =>
-    entry['machineType'] == dataToInsertorditem['machineType'] &&
-        entry['shiftType'] == dataToInsertorditem['shiftType'] &&
-        entry['machineName'] == dataToInsertorditem['machineName'] &&
-        entry['person1'] == dataToInsertorditem['person1'] &&
-        entry['person2'] == dataToInsertorditem['person2'] &&
-        entry['createDate'] == dataToInsertorditem['createDate']);
-  }
+      insertFutures.add(insertDataorderitem(dataToInsertorditem));
+
+      if (!isDuplicate) {
+        if (deptType == "Winding") {
+          await updateprodution(
+            rowData[i].prodgsm ?? "",
+            rowData[i].numofproduction.text,
+            selectedCheckbox == 1 ? "without printing" : "with printing",
+            DateTime.now().toString(),
+          );
+          await updateRawMaterial(
+            rowData[i].prodgsm ?? "",
+            int.parse(rowData[i].finishreel.text),
+            int.parse(rowData[i].finishwight.text),
+            DateTime.now().toString(),
+          );
+        } else if (deptType == "Printing") {
+          await updatePrintingProduction(
+            rowData[i].prodgsm ?? "",
+            rowData[i].numofproduction.text,
+            "with printing",
+            DateTime.now().toString(),
+          );
+          await updatewithoupriniting(
+            rowData[i].prodgsm ?? "",
+            rowData[i].numofproduction.text,
+            "without printing",
+            DateTime.now().toString(),
+          );
+        } else if (deptType == "Finishing") {
+          await updatefinishingprodution(
+            rowData[i].totalqty.text,
+            rowData[i].itemGroup ?? "",
+            rowData[i].itemName ?? "",
+            DateTime.now().toString(),
+          );
+          await updatewithprintingtofinishing(
+            rowData[i].prodgsm ?? "",
+            rowData[i].numofproduction.text,
+            "with printing",
+            DateTime.now().toString(),
+          );
+        }
+      }
+    }
+
+    try {
+      await Future.wait(insertFutures);
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }*/
+
+
+
 
   int totalProductionQuantity = 0;
 
@@ -802,7 +892,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   // int? rawQTY=0;
   // int? rawWeight =0;
   int? rawQTY;
-  String? rawWeight;
+  int? rawWeight;
 
   Future<void> rawMaterialValueGet(String selectedGSM) async {
     final response = await http.post(
@@ -839,20 +929,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'gsm': selectedGSM}),
     );
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
       print("data of raw material- $data");
-
       setState(() {
-
         Numofcones = data['numofcones'];
         print("{{{{$Numofcones}}}");
-
       });
-
-      // Use the fetched data (rawQTY and rawWeight)
     } else {
       // Handle errors
       print('Error fetching data from server: ${response.statusCode}');
@@ -891,8 +974,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   Widget build(BuildContext context) {
 
     return MyScaffold(
-        route: "daily_work_status",
-        backgroundColor: Colors.white,
+        route: "daily_work_status",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -901,8 +983,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
               child: Center(
                 child: Column(
                     children: [
-                      // Text("rawqty-$rawQTY"),
-                      // Text("rawqty-$rawWeight"),
                       SizedBox(
                         child:  Padding(
                           padding: const EdgeInsets.all(2.0),
@@ -1272,12 +1352,47 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   ),
                                                 );
                                               }).toList(),
-                                              onChanged: (String? newValue) {
+                                              onChanged: (String? newValue) async {
                                                 setState(() {
+                                                  person1.clear();
+                                                  person1code.clear();
+                                                  person2.clear();
+                                                  person2code.clear();
+                                                  person3.clear();
+                                                  person3code.clear();
                                                   selectedmachinefinishing = newValue;
-                                                  //    errormsg =null;
                                                 });
-                                                fetchData(shiftType.toString(), selectedmachinefinishing.toString(),fromDate);
+                                                // Check for duplicate entry
+                                                bool isDuplicate = await checkDuplicateEntry({
+                                                  'machineType': deptType,
+                                                  'shiftType': shiftType,
+                                                  'machineName': selectedmachinefinishing,
+                                                  'createDate': DateFormat('yyyy-MM-dd').format(eod),
+                                                });
+
+                                                if (isDuplicate) {
+                                                  // Show alert for duplicate entry
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (BuildContext context) {
+                                                      return AlertDialog(
+                                                        title: Text('Duplicate Entry'),
+                                                        content: Text('An entry with the same date, machineType, shiftType, and machineName already exists.'),
+                                                        actions: <Widget>[
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.of(context).pop();
+                                                            },
+                                                            child: Text('OK'),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                } else {
+                                                  // No duplicate entry, proceed to fetch data
+                                                  fetchData(shiftType.toString(), selectedmachinefinishing.toString(), fromDate);
+                                                }
                                               },
                                             ),
                                           ),
@@ -1586,7 +1701,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                             ),
                                           ),
                                         ]),
-
                                         for (var i = 0; i < rowData.length; i++)
                                           TableRow(children: [
                                             //GSM
@@ -1673,26 +1787,21 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   child: TextFormField(
                                                     controller: rowData[i].finishreel,
                                                     keyboardType: TextInputType.number,
-
                                                     onChanged: (value) {
-                                                      if (rawQTY! < int.parse(value)) {
+                                                      /*  if (rawQTY! < int.parse(value)) {
                                                         showDialog(
                                                           context: context,
                                                           builder: (BuildContext context) {
-                                                            Future.delayed(Duration(seconds: 3), () {
-                                                              Navigator.of(context).pop(true); // Close the dialog after 3 seconds
-                                                            });
                                                             return AlertDialog(
-                                                              title: Text("Invalid Reel Quantity"),
+                                                              title: Text("Invalid Reel"),
                                                               content: Column(
-                                                                mainAxisSize: MainAxisSize.min, // Reduce the vertical size
+                                                                mainAxisSize: MainAxisSize.min,
                                                                 children: [
                                                                   Text("Available Reels is $rawQTY, cannot enter $value"),
                                                                   SizedBox(height: 10),
                                                                   Text("Please correct your input."),
                                                                 ],
                                                               ),
-                                                              contentPadding: EdgeInsets.all(16.0), // Adjust internal padding
                                                               actions: <Widget>[
                                                                 TextButton(
                                                                   onPressed: () {
@@ -1704,9 +1813,15 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                             );
                                                           },
                                                         );
-                                                        _formKey.currentState!.reset();
-                                                      }
+                                                        setState(() {
+                                                          _formKey.currentState!.reset();
+                                                        });
+                                                      }*/
+                                                      setState(() {
+                                                        // rowData[i].quantity = int.tryParse(value) ?? 0;
+                                                      });
                                                     },
+
                                                     inputFormatters: <TextInputFormatter>[
                                                       FilteringTextInputFormatter.digitsOnly,
                                                       LengthLimitingTextInputFormatter(5)
@@ -1734,46 +1849,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     controller: rowData[i].finishwight,
                                                     keyboardType: TextInputType.number,
                                                     onChanged: (value) {
-                                                      if (int.parse(rawWeight!) < int.parse(value)) {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext context) {
-                                                            Future.delayed(Duration(seconds: 3), () {
-                                                              Navigator.of(context).pop(true); // Close the dialog after 3 seconds
-                                                            });
-                                                            return AlertDialog(
-                                                              title: Text("Invalid Reel Weight"),
-                                                              content: Column(
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: [
-                                                                  Text("Available Reels weight is $rawWeight, cannot enter $value"),
-                                                                  SizedBox(height: 10),
-                                                                  Text("Please correct your input."),
-                                                                ],
-                                                              ),
-                                                              actions: <Widget>[
-                                                                TextButton(
-                                                                  onPressed: () {
-                                                                    Navigator.of(context).pop();
-                                                                  },
-                                                                  child: Text('OK'),
-                                                                ),
-                                                              ],
-                                                            );
-                                                          },
-                                                        );
-                                                        setState(() {
-                                                          _formKey.currentState!.reset();
-                                                        });
-                                                      }
                                                       setState(() {
                                                         // rowData[i].quantity = int.tryParse(value) ?? 0;
                                                       });
                                                     },
-
                                                     inputFormatters: <TextInputFormatter>[
                                                       FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(10)
+                                                      LengthLimitingTextInputFormatter(5)
                                                     ],
                                                     decoration: const InputDecoration(
                                                       filled: true,
@@ -1803,7 +1885,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           if(int.parse(Numofcones!) < int.parse(value)){
                                                             _formKey.currentState!.reset();
                                                             setState(() {
-                                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("available Reels is $Numofcones,not enter $value")));
+                                                              //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("available Reels is $Numofcones,not enter $value")));
                                                             });
                                                           }
                                                         // Update the productionQuantityController based on the sum of numofproduction for all rows
@@ -1816,7 +1898,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     },
                                                     inputFormatters: <TextInputFormatter>[
                                                       FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(10)
+                                                      LengthLimitingTextInputFormatter(5)
                                                     ],
                                                     decoration: const InputDecoration(
                                                       filled: true,
@@ -2200,44 +2282,20 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     controller: rowData[i].numofproduction,
                                                     keyboardType: TextInputType.number,
                                                     onChanged: (value) {
-                                                      if (deptType == "Finishing" && int.parse(printednumofcones!) < int.parse(value)) {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext context) {
-                                                            Future.delayed(Duration(seconds: 3), () {
-                                                              Navigator.of(context).pop(true); // Close the dialog after 3 seconds
-                                                            });
-                                                            return AlertDialog(
-                                                              title: Text("Invalid Production Quantity"),
-                                                              content: Column(
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: [
-                                                                  Text("Available Reels is $printednumofcones, cannot enter $value"),
-                                                                  SizedBox(height: 10),
-                                                                  Text("Please correct your input."),
-                                                                ],
-                                                              ),
-                                                              actions: <Widget>[
-                                                                TextButton(
-                                                                  onPressed: () {
-                                                                    Navigator.of(context).pop();
-                                                                  },
-                                                                  child: Text('OK'),
-                                                                ),
-                                                              ],
-                                                            );
-                                                          },
-                                                        );
-                                                        setState(() {
-                                                          _formKey.currentState!.reset();
-                                                        });
-                                                      }
                                                       setState(() {
                                                         // Update the productionQuantityController based on the sum of numofproduction for all rows
                                                         int totalProduction = calculateTotalProduction();
                                                         productionQuantityController.text = totalProduction.toString();
+
                                                         // Update the extraproductionamt based on the productionQty and conditions
                                                         updateExtraProductionAmount();
+
+                                                        // Convert numofproduction to int
+                                                        int numofproductionValue = int.tryParse(value) ?? 0;
+
+                                                        // Calculate totalqty only if numofproduction is a multiple of 500
+                                                        int totalQty = numofproductionValue ~/ 500;
+                                                        rowData[i].totalqty.text = totalQty.toString();
                                                       });
                                                     },
                                                     inputFormatters: <TextInputFormatter>[
@@ -2263,6 +2321,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 child: Padding(
                                                   padding: EdgeInsets.all(5.0),
                                                   child: TextFormField(
+                                                    readOnly: true,
                                                     controller: rowData[i].totalqty,
                                                     keyboardType: TextInputType.number,
                                                     onChanged: (value) {
@@ -2364,6 +2423,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           }
                                                         },
                                                       ),
+
+
                                                     ),
                                                   ],
                                                 ),
@@ -2402,7 +2463,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                               fromDate = date;
                               showProductionQuantity();
                               if (_formKey.currentState!.validate()) {
-                                //  for (var i = 0; i < rowData.length; i++) {
                                 if (deptType == null) {
                                   setState(() {
                                     errormsg = "* Select a Machine Type";
@@ -2500,4 +2560,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
         ) );
   }
 }
+
+
 

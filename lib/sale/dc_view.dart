@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -457,7 +458,7 @@ class _dcViweState extends State<dcViwe> {
                                                 if (snapshot.data!.isNotEmpty ||
                                                     snapshot.data!.isEmpty){
                                                   return Table(
-                                                    columnWidths: {
+                                                    columnWidths: const {
                                                       0: FixedColumnWidth(70), // Adjust the width of the first column
                                                       1: FixedColumnWidth(180), // Adjust the width of the second column
                                                       2: FixedColumnWidth(180),
@@ -475,72 +476,47 @@ class _dcViweState extends State<dcViwe> {
                                                           color: Colors.blue.shade100,
                                                         ),
                                                         children: const [
-                                                          TableCell(// Set the desired height
+                                                          TableCell(
                                                             child: Padding(
                                                               padding: EdgeInsets.all(8.0),
-                                                              child: Center(
-                                                                child: Text(
-                                                                  'S.No',
-                                                                  style: TextStyle(
-                                                                    fontWeight: FontWeight.bold,
-                                                                    color: Colors.black,
-                                                                  ),
-                                                                ),
-                                                              ),
+                                                              child: Text('S.No', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
                                                             ),
                                                           ),
-
                                                           TableCell(
-                                                            child: Center(child: Column(
-                                                              children: [
-                                                                SizedBox(height: 10,),
-                                                                Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
-                                                                SizedBox(height: 10,),
-                                                              ],
-                                                            )),
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
                                                           ),
                                                           TableCell(
-                                                            child: Center(child: Column(
-                                                              children: [
-                                                                SizedBox(height: 10,),
-                                                                Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
-                                                                SizedBox(height: 10,),
-                                                              ],
-                                                            )),
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
                                                           ),
                                                           TableCell(
-                                                            child: Center(child: Column(
-                                                              children: [
-                                                                SizedBox(height: 10,),
-                                                                Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
-                                                                SizedBox(height: 10,),
-                                                              ],
-                                                            )),
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
                                                           ),
                                                           TableCell(
-                                                            child: Center(child: Column(
-                                                              children: [
-                                                                SizedBox(height: 10,),
-                                                                Text('Rate per Unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
-                                                                SizedBox(height: 10,), ],
-                                                            )),
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Rate per unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
                                                           ),
                                                           TableCell(
-                                                            child: Center(child: Column(
-                                                              children: [
-                                                                SizedBox(height: 10,),
-                                                                Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
-                                                                SizedBox(height: 10,),
-                                                              ],
-                                                            )),
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
                                                           ),
                                                           TableCell(
-                                                            child: Center(child: Column(
-                                                              children: [
-                                                                SizedBox(height: 10,),
-                                                                Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
-                                                                SizedBox(height: 10,),   ],
-                                                            )),
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -548,12 +524,10 @@ class _dcViweState extends State<dcViwe> {
                                                         TableRow(
                                                           children: [
                                                             TableCell(
-                                                              child: Center(child: Column(
-                                                                children: [
-                                                                  const SizedBox(height: 10,),
-                                                                  Text((entry.key + 1).toString()),
-                                                                  const SizedBox(height: 10,), ],
-                                                              )),
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text((entry.key + 1).toString()),
+                                                              ),
                                                             ),
                                                             TableCell(
                                                               child: Padding(
@@ -562,51 +536,34 @@ class _dcViweState extends State<dcViwe> {
                                                               ),
                                                             ),
                                                             TableCell(
-                                                              child: Center(child: Column(
-                                                                children: [
-                                                                  const SizedBox(height: 10,),
-                                                                  Text(entry.value['itemName']),
-                                                                  const SizedBox(height: 10,),    ],
-                                                              )),
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['itemName'].toString()),
+                                                              ),
                                                             ),
                                                             TableCell(
-                                                              child: Center(child: Column(
-                                                                children: [
-                                                                  const SizedBox(height: 10,),
-                                                                  Text(entry.value['qty'].toString()),
-                                                                  const SizedBox(height: 10,),   ],
-                                                              )),
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['qty'].toString()),
+                                                              ),
                                                             ),
                                                             TableCell(
-                                                              child: Center(child: Align(
-                                                                  alignment:Alignment.topRight,
-                                                                  child: Column(
-                                                                    children: [
-                                                                      const SizedBox(height: 10,),
-                                                                      Text(entry.value['rate'].toString()),
-                                                                      const SizedBox(height: 10,), ],
-                                                                  ))),
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['rate'].toString()),
+                                                              ),
                                                             ),
                                                             TableCell(
-                                                              child: Center(child: Align(
-                                                                  alignment:Alignment.topRight,
-                                                                  child: Column(
-                                                                    children: [
-                                                                      const SizedBox(height: 10,),
-                                                                      Text(entry.value['amtGST'].toString()),
-                                                                      const SizedBox(height: 10,),
-                                                                    ],
-                                                                  ))),
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['amtGST'].toString()),
+                                                              ),
                                                             ),
                                                             TableCell(
-                                                              child: Center(child: Align(
-                                                                  alignment:Alignment.topRight,
-                                                                  child: Column(
-                                                                    children: [
-                                                                      const SizedBox(height: 10,),
-                                                                      Text(entry.value['total'].toString()),
-                                                                      const SizedBox(height: 10,),],
-                                                                  ))),
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['total'].toString()),
+                                                              ),
                                                             ),
                                                           ],
                                                         ),
@@ -641,9 +598,11 @@ class _dcViweState extends State<dcViwe> {
                                             } else if (snapshot.hasError) {
                                               return Center(child: Text('Error: ${snapshot.error}'));
                                             }
-                                            /*   else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                            */
+/*   else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                                               return Center(child: Text('No data available.'));
-                                            } */
+                                            } *//*
+
                                             else {
                                               final grandTotal = snapshot.data![0]["grandTotal"]; // Assuming "grandTotal" is a key in the map
 
@@ -714,3 +673,4 @@ class _dcViweState extends State<dcViwe> {
         ));
   }
 }
+*/

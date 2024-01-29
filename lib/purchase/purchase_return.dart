@@ -37,7 +37,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
     selectedReason = List.generate(controllers.length, (i) => 'Reason');
   }*/
 
-/*
   double calculateTotal(int rowIndex) {
     double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
     double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
@@ -54,7 +53,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
 
     return total;
   }
-*/
   double calculateGrandTotal() {
     double grandTotalValue = 0.0;
     for (var i = 0; i < controllers.length; i++) {
@@ -561,6 +559,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
     }
   }
 
+
   Future<void> saveReturnNumber() async {
     try {
       for (int i = 0; i < controllers.length; i++) {
@@ -805,8 +804,9 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                       if (pattern.isNotEmpty) {
                                         suggestions = data
                                             .where((item) =>
-                                            (item['invoiceNo']?.toString()?.toLowerCase() ?? '')
-                                                .startsWith(pattern.toLowerCase()))
+                                        (item['invoiceNo']?.toString()?.toLowerCase() ?? '')
+                                            .startsWith(pattern.toLowerCase()) &&
+                                            !(item['prodName']?.toString()?.toLowerCase() ?? '').startsWith('gsm'))
                                             .map((item) => item['invoiceNo'].toString())
                                             .toSet() // Remove duplicates using a Set
                                             .toList();
@@ -1563,12 +1563,13 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                 errorMessage = '* Please fill all fields ';
                               });
                               return;
-                            } else if (isGSMProduct && controllers[i][4].text.isEmpty) {
+                            }
+                           /* else if (isGSMProduct && controllers[i][4].text.isEmpty) {
                               setState(() {
                                 errorMessage = '* Please fill Total Weight';
                               });
                               return;
-                            }
+                            }*/
                           }
                           setState(() {
                             errorMessage = null;

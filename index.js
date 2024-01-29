@@ -2504,6 +2504,37 @@ app.get('/fetch_supplier_data_pretuen', (req, res) => {
 });
 
 //sales return
+app.get('/get_sales_return_name_for_suggestion', (req, res) => {
+ const sql =`SELECT DISTINCT s.invoiceNo From sales_returns sr
+                    LEFT JOIN sales s ON sr.invoiceNo <> s.invoiceNo`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+app.get('/get_sales_return_name_data', (req, res) => {
+  const sql =`SELECT DISTINCT s.invoiceNo
+              FROM sales s
+              LEFT JOIN sales_returns sr ON s.invoiceNo = sr.invoiceNo
+              WHERE sr.invoiceNo IS NULL
+              ORDER BY s.invoiceNo DESC;
+             `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
 app.get('/sales_return_item_view', (req, res) => {
   const invoiceNo = req.query.invoiceNo;
 
@@ -3188,6 +3219,18 @@ app.post('/fetchSuggestions', (req, res) => {
 
 
 //attendance
+app.get('/get_punch', (req, res) => {
+  const sql = 'SELECT * FROM iclock_transaction'; // Modify to your table name
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+
 app.post('/updateAttendance', (req, res) => {
   const { emp_code, inDate, first_name, shiftType, check_in, lunch_out, lunch_in, check_out, latecheck_in, late_lunch, earlycheck_out, req_time, act_time, remark } = req.body;
 
@@ -5159,7 +5202,21 @@ app.get('/pending_sale_item_view', (req, res) => {
     res.json(result);
   });
 });
+app.post('/RawMaterialupdatedailywork', async (req, res) => {
+  const { prodName, qty, totalweight, modifyDate } = req.body;
 
+  const sql = 'UPDATE raw_material SET  qty = qty - ?, totalweight = totalweight - ?, modifyDate = ? WHERE  prodName = ?';
+  const values = [ qty, totalweight, modifyDate, prodName];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error updating raw_material entry:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.send('raw_material updated successfully');
+    }
+  });
+});
 app.get('/get_daily_work_status', (req, res) => {
  const sql = 'SELECT * FROM daily_work_status';
   db.query(sql, (err, result) => {
@@ -6840,19 +6897,48 @@ app.post('/daily_work_status_entry', (req, res) => {
 app.post('/updateprinting_production', async (req, res) => {
   const { gsm, numofcones, status, date } = req.body;
 
-  const sql = 'UPDATE winding_printing_production SET  numofcones = numofcones + ? , date = ? WHERE  gsm = ? AND status = "with printing"';
-  const values = [ numofcones, date, gsm, status,];
+  // Check if the gsm value with status "with printing" already exists
+  const checkIfExistsSQL = 'SELECT COUNT(*) AS count FROM winding_printing_production WHERE gsm = ? AND status = "with printing"';
+  const checkIfExistsValues = [gsm];
 
-  db.query(sql, values, (err, result) => {
-    if (err) {
-      console.error('Error updating raw_material entry:', err);
+  db.query(checkIfExistsSQL, checkIfExistsValues, (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error('Error checking if gsm exists:', checkErr);
       res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    const gsmCount = checkResult[0].count;
+
+    if (gsmCount === 0) {
+      // gsm with status "with printing" does not exist, insert a new entry
+      const insertSQL = 'INSERT INTO winding_printing_production (gsm, numofcones, status, date) VALUES (?, ?, ?, ?)';
+      const insertValues = [gsm, numofcones, status, date];
+
+      db.query(insertSQL, insertValues, (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error('Error inserting winding_printing_production entry:', insertErr);
+          res.status(500).send('Internal Server Error');
+        } else {
+          res.send('winding_printing_production entry inserted successfully');
+        }
+      });
     } else {
-      res.send('raw_material updated successfully');
+      // gsm with status "with printing" already exists, update the numofcones
+      const updateSQL = 'UPDATE winding_printing_production SET numofcones =  numofcones + ? , date = ? WHERE gsm = ? AND status = "with printing"';
+      const updateValues = [numofcones, date, gsm];
+
+      db.query(updateSQL, updateValues, (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error('Error updating winding_printing_production entry:', updateErr);
+          res.status(500).send('Internal Server Error');
+        } else {
+          res.send('winding_printing_production entry updated successfully');
+        }
+      });
     }
   });
 });
-
 app.post('/updatewithoutprinting_production', async (req, res) => {
   const { gsm, numofcones, status, date } = req.body;
 
@@ -7070,6 +7156,7 @@ app.get('/winding_printing_production_get_report', (req, res) => {
 });
 
 //22/01/2024
+/*
 app.post('/updateRawMaterialdailywork', async (req, res) => {
   const { prodName, qty, totalweight, modifyDate } = req.body;
 
@@ -7085,6 +7172,7 @@ app.post('/updateRawMaterialdailywork', async (req, res) => {
     }
   });
 });
+*/
 
 
 app.post('/fetch_Raw_materil_Suggestions', (req, res) => {

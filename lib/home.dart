@@ -8,11 +8,14 @@ import 'package:vinayaga_project/purchase/po_creations.dart';
 import 'package:vinayaga_project/purchase/purchase_entry.dart';
 import 'package:vinayaga_project/purchase/purchase_order.dart';
 import 'package:vinayaga_project/report/raw_material_stock.dart';
+import 'package:vinayaga_project/report/salary_payment_report.dart';
 import 'package:vinayaga_project/sale/dc.dart';
 import 'package:vinayaga_project/sale/entry_sales.dart';
 import 'package:vinayaga_project/sale/sales_order_entry.dart';
 //import 'package:vinayaga_project/sample_dummy_pdf.dart';
 import 'Attendance/Attendance_report.dart';
+import 'Attendance/Punch.dart';
+import 'Attendance/salary.dart';
 import 'main.dart';
 import 'dashboard_component.dart';
 import 'master/shift_entry.dart';
@@ -36,18 +39,20 @@ class _HomeState extends State<Home> {
             padding: const EdgeInsets.all(18.0),
             child: Column(
               children: [
-                SizedBox(height: 20),
+                SizedBox(height: 50),
                 Container(
+                  width: 850,
                   child: InputDecorator(
                     decoration: const InputDecoration(
-                      labelText: 'Dashboard',
+                      labelText: 'Sale/Purchase',
                       labelStyle:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: Wrap(
                         children: [
+                          SizedBox(width: 60),
                           buildDashboardItem(
                             title: ' Sales order',
                             icon: Icons.add_shopping_cart,
@@ -61,8 +66,9 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
                           buildDashboardItem(
-                            title: '     Sales     ',
+                            title: '      Sales      ',
                             icon: Icons.shopping_cart,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -74,8 +80,10 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
+
                           buildDashboardItem(
-                            title: '      Dc     ',
+                            title: '        Dc       ',
                             icon: Icons.delivery_dining,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -86,9 +94,9 @@ class _HomeState extends State<Home> {
                                 ),
                               );
                             },
-                          ),
+                          ), SizedBox(width: 30),
                           buildDashboardItem(
-                            title: '      Po      ',
+                            title: '        Po        ',
                             icon: Icons.add_shopping_cart,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -99,9 +107,9 @@ class _HomeState extends State<Home> {
                                 ),
                               );
                             },
-                          ),
+                          ),SizedBox(width: 30),
                           buildDashboardItem(
-                            title: ' Purchase ',
+                            title: '  Purchase  ',
                             icon: Icons.shopping_cart,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -113,6 +121,28 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+
+                          SizedBox(width: 30),
+
+                          // Add more dashboard items similarly
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(width: 850,
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Masters',
+                      labelStyle:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Wrap(
+                        children: [
+
                           buildDashboardItem(
                             title: 'Employee',
                             icon: Icons.person,
@@ -140,19 +170,7 @@ class _HomeState extends State<Home> {
                             },
                           ),
 
-                          buildDashboardItem(
-                            title: 'Attendance',
-                            icon: Icons.access_time,
-                            colors: [Colors.black26, Colors.blue],
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AttendanceReport(),
-                                ),
-                              );
-                            },
-                          ),
+
                           buildDashboardItem(
                             title: 'Daily work',
                             icon: Icons.calendar_today,
@@ -192,6 +210,65 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          // Add more dashboard items similarly
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(width: 850,
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Attendance',
+                      labelStyle:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Wrap(
+                        children: [
+
+                          buildDashboardItem(
+                            title: 'Attendance',
+                            icon: Icons.access_time,
+                            colors: [Colors.black26, Colors.blue],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AttendanceReport(),
+                                ),
+                              );
+                            },
+                          ),
+                          buildDashboardItem(
+                            title: 'Punches',
+                            icon: Icons.punch_clock,
+                            colors: [Colors.black26, Colors.blue],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Punch(),
+                                ),
+                              );
+                            },
+                          ),
+                          buildDashboardItem(
+                            title: ' Salary ',
+                            icon: Icons.access_time,
+                            colors: [Colors.black26, Colors.blue],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SalaryCalculation(),
+                                ),
+                              );
+                            },
+                          ),
+
                           // Add more dashboard items similarly
                         ],
                       ),

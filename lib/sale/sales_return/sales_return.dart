@@ -210,7 +210,7 @@ class _SalesReturnState extends State<SalesReturn> {
             rowControllers[6].text = amt.toStringAsFixed(2);//amt-5
             rowControllers[7].text = gstpersentage.toStringAsFixed(2);//gstamot-6
             rowControllers[8].text = totals.toStringAsFixed(2);//total-7
-            //rowControllers[9].text = int.parse(quantity.toString()).toString();//total-7
+            // rowControllers[9].text = int.parse(quantity.toString()).toString();//total-7
             controllers.add(rowControllers);
             focusNodes.add(List.generate(10, (i) => FocusNode()));
             rowData.add(row);
@@ -460,6 +460,8 @@ class _SalesReturnState extends State<SalesReturn> {
   void initState() {
     super.initState();
     //addRow();
+    fetchDataDuplicateCheck();
+    fetchDataSuggestion(selectedOrderNumbers);
     ponumfetch();
     fetchData();
     fetchItemGroups();
@@ -799,6 +801,35 @@ class _SalesReturnState extends State<SalesReturn> {
 
     return filteredSuggestions;
   }
+  List<Map<String, dynamic>> suggesstiondata = [];
+  List<Map<String, dynamic>> suggesstiondataForduplicate = [];
+
+  Future<void> fetchDataSuggestion(List<String>? orderNoList,) async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_sales_return_name_for_suggestion/');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> itemGroups = responseData;
+
+        setState(() {
+          suggesstiondata = itemGroups.cast<Map<String, dynamic>>();
+        });
+        setState(() {
+
+        });
+        print('Pending Data: $suggesstiondata');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle any other errors, e.g., network issues
+      print('Error: $error');
+    }
+  }
+
+  List<String> selectedOrderNumbers = [];
 
 
   bool isDataSaved = false;
@@ -820,7 +851,28 @@ class _SalesReturnState extends State<SalesReturn> {
 
   ///damage table insert starts
 
+  Future<void> fetchDataDuplicateCheck() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_sales_return_name_data/');
+      final response = await http.get(url);
 
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> itemGroups = responseData;
+
+        setState(() {
+          suggesstiondataForduplicate = itemGroups.cast<Map<String, dynamic>>();
+        });
+
+        print('get  purchase order Data: $suggesstiondataForduplicate');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle any other errors, e.g., network issues
+      print('Error: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -897,6 +949,64 @@ class _SalesReturnState extends State<SalesReturn> {
                                                     textFieldConfiguration: TextFieldConfiguration(
                                                       controller: invoiceNo,
                                                       style: const TextStyle(fontSize: 13),
+                                                      inputFormatters: [UpperCaseTextFormatter()],
+                                                      decoration: InputDecoration(
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        labelText: "Invoice Number",
+                                                        labelStyle: const TextStyle(fontSize: 13),
+                                                        suffixIcon: invoiceNo.text.isNotEmpty
+                                                            ? IconButton(
+                                                          icon: const Icon(Icons.clear),
+                                                          onPressed: () {
+                                                            setState(() {
+
+                                                              selectedOrderNumbers.clear();
+                                                              invoiceNo.text = '';
+                                                            });
+                                                          },
+                                                        )
+                                                            : null,
+                                                        border: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(10),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    suggestionsCallback: (pattern) async {
+
+                                                      List<String> inputParts = pattern.split(',').map((part) => part.trim()).toList();
+                                                      String currentInput = inputParts.isNotEmpty ? inputParts.last : '';
+                                                      List<String> suggestions = suggesstiondataForduplicate
+                                                          .where((item) =>
+                                                      (item['invoiceNo']?.toString().toLowerCase() ?? '')
+                                                          .startsWith(currentInput.toLowerCase()) &&
+                                                          !selectedOrderNumbers.contains(item['invoiceNo'].toString()))
+                                                          .map((item) => item['invoiceNo'].toString())
+                                                          .toSet()
+                                                          .toList();
+                                                      suggestions.sort((a, b) => b.compareTo(a));
+                                                      return suggestions;
+                                                    },
+                                                    itemBuilder: (context, suggestion) {
+                                                      return ListTile(
+                                                        title: Text(suggestion),
+                                                      );
+                                                    },
+                                                    onSuggestionSelected: (suggestion) async {
+                                                      if (!selectedOrderNumbers.contains(suggestion)) {
+                                                        setState(() {
+                                                          selectedOrderNumbers.add(suggestion);
+                                                          invoiceNo.text = selectedOrderNumbers.join(', ');
+                                                          suggesstiondata.removeWhere((item) => item['invoiceNo'].toString() == suggestion,
+                                                          );
+                                                        });
+                                                      }
+                                                      print('Selected Order Numbers: $selectedOrderNumbers');
+                                                    },
+                                                  ), /*TypeAheadFormField<String>(
+                                                    textFieldConfiguration: TextFieldConfiguration(
+                                                      controller: invoiceNo,
+                                                      style: const TextStyle(fontSize: 13),
                                                       onChanged: (value) {
                                                         setState(() {
                                                           errorMessage = null; // Reset error message when the user types
@@ -918,7 +1028,7 @@ class _SalesReturnState extends State<SalesReturn> {
                                                     suggestionsCallback: (pattern) async {
                                                       List<String> suggestions;
                                                       if (pattern.isNotEmpty) {
-                                                        suggestions = data
+                                                        suggestions = suggesstiondata
                                                             .where((item) =>
                                                             (item['invoiceNo']?.toString()?.toLowerCase() ?? '')
                                                                 .startsWith(pattern.toLowerCase()))
@@ -952,7 +1062,7 @@ class _SalesReturnState extends State<SalesReturn> {
                                                       });
                                                       print('Selected Invoice Number: $selectedInvoiceNo');
                                                     },
-                                                  ),
+                                                  ),*/
                                                 ),
                                               ],
                                             ),
@@ -1869,7 +1979,7 @@ class _SalesReturnState extends State<SalesReturn> {
                                           style: TextStyle(color: Colors.red , fontSize: 15),
                                         ),
                                       ),
-                                      
+
                                     ],
                                   )
                                 ],

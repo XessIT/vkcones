@@ -17,7 +17,13 @@ class RawMaterialEntriesReport extends StatefulWidget {
   State<RawMaterialEntriesReport> createState() => _RawMaterialEntriesReportState();
 }
 class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
-
+  double calculateTotal(List<Map<String, dynamic>> filteredData) {
+    double totalSalary = 0;
+    for (var row in filteredData) {
+      totalSalary += double.parse(row['qty'] ?? '0');
+    }
+    return totalSalary;
+  }
   List<String> supplierSuggestions = [];
   String selectedSupplier = "";
   bool isDateRangeValid=true;
@@ -112,7 +118,8 @@ class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
       });
     });
     print("Filtered Data Length: ${filteredData.length}");
-  }
+  }  double Grandtotal = 0;
+
   void applyDateFilter() {
     setState(() {
       if(!isDateRangeValid){
@@ -147,6 +154,8 @@ class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
         }
         return dateB.compareTo(dateA); // Compare in descending order
       });
+      Grandtotal = calculateTotal(filteredData);
+
     });
   }
 
@@ -443,6 +452,7 @@ class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
                                         },
                                       ),
                                     ),
+
                                     if (!isDateRangeValid)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 8.0), // Adjust the top padding as needed
@@ -469,11 +479,33 @@ class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            const Align(
+                             Align(
                                 alignment:Alignment.topLeft,
                                 child: Padding(
                                   padding: EdgeInsets.only(left: 5),
-                                  child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),)),
+                                  child: Row(
+                                    children: [
+                                      Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),
+                                      if (generatedButton || searchController.text.isNotEmpty)
+                                        Padding(
+                                        padding: const EdgeInsets.only(left: 600),
+                                        child: SizedBox(
+                                          width:150,
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                                hintText:"Total : ${calculateTotal(filteredData)}",
+                                                hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                                                border:OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                )
+                                            ),
+                                            /* */
+                                            //
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),)),
                             const SizedBox(height: 20,),
                             filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
                             PaginatedDataTable(
@@ -495,7 +527,7 @@ class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0,right: 15.0),
-                        child: MaterialButton(
+                        child:filteredData.isEmpty?Text(""): MaterialButton(
                           color: Colors.green.shade600,
                           height: 40,
                           onPressed: (){
@@ -505,7 +537,7 @@ class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
                       SizedBox(height: 20,),
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0,right: 15.0),
-                        child:filteredData.isEmpty?Text(""):
+                        child:
                         MaterialButton(
                           color: Colors.red.shade600,
                           height: 40,

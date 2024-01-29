@@ -2576,8 +2576,20 @@ class _PurchaseState extends State<Purchase> {
                                         controller[8].text.isEmpty ||
                                         controller[9].text.isEmpty
 
-                                    )
+                                    ) || selectedCheckbox == 3 &&
+                                      !controllers.any((controller) =>
+                                      controller[0].text.isEmpty ||
+                                          controller[1].text.isEmpty ||
+                                          controller[2].text.isEmpty ||
+                                          controller[3].text.isEmpty ||
+                                          controller[4].text.isEmpty ||
+                                          controller[5].text.isEmpty ||
+                                          controller[6].text.isEmpty ||
+                                          controller[7].text.isEmpty ||
+                                          controller[8].text.isEmpty ||
+                                          controller[9].text.isEmpty
                                 )
+                                  )
 
                                   {
                                   for (var i = 0; i < controllers.length; i++) {

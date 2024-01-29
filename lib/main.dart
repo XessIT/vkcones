@@ -75,6 +75,7 @@ import 'package:vinayaga_project/settings/transport_entry.dart';
 
 import 'Attendance/Attendance.dart';
 import 'Attendance/Attendance_report.dart';
+import 'Attendance/Punch.dart';
 import 'Attendance/salary.dart';
 import 'home.dart';
 import 'master/Worker Entry.dart';
@@ -363,6 +364,8 @@ class _MyAppState extends State<MyApp> {
         return const SampleDC();
       case 'raw_Materials_report':
         return const RawMaterialEntriesReport();
+      case 'punch_report':
+        return const Punch();
 
     }
     return null;

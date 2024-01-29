@@ -46,19 +46,19 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
         children: [
           pw.Text(
             '$formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 4),
+            style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 405),
-          pw.Padding(padding: const pw.EdgeInsets.only(right:5,),
+          pw.SizedBox(width: 635),
+          pw.Padding(padding: const pw.EdgeInsets.only(right:20,),
             child:  pw.Text(
               'Page $currentPage of $totalPages',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6),
             ),)
         ],
       ),
     );
   }
-  int serialNumber=1;
+
   double getTotal() {
     return calculateTotal(widget.customerData);
   }
@@ -68,9 +68,12 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
     final image1 = await imageFromAssetBundle("assets/sarswathi.png");
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
     final List<Map<String, dynamic>> customerData = widget.customerData;
     int recordsPerPage;
     double total = getTotal();
+    int serialNumber=1;
 
     pw.Widget createHeader() {
       return pw.Container(
@@ -93,7 +96,7 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
                         "VINAYAGA CONES",
                         style: pw.TextStyle(
                           font: ttf,
-                          fontSize: 15,
+                          fontSize: 20,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
@@ -111,7 +114,7 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
                           "5/624-I5,SOWDESWARI \n"
                               "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                               "NAMAKKAL-638008 ",
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 7),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -134,32 +137,32 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 15 : 18;
+        recordsPerPage = (j == 0) ? 10: 12;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
             build: (Context ) {
-              final double pageHeight = j == 0 ? format.availableHeight + 290: format.availableHeight +405;
+              final double pageHeight = j == 0 ? format.availableHeight + 300: format.availableHeight +440;
               return pw.Column(
                 children: [
                   if (j == 0)
                     createHeader(),
                   pw.SizedBox(height: 5),
                   pw.Container(
-                    height: pageHeight * 0.6,
+                    height: pageHeight * 0.5,
                     decoration: pw.BoxDecoration(
                       border: pw.Border.all(width: 1, color: PdfColors.black),
                     ),
                     child: pw.Column(
                       children: [
-                        pw.Padding(padding:pw.EdgeInsets.only(top:10),
+                        pw.Padding(padding:pw.EdgeInsets.only(top:5),
                           child:pw.Text(
                             'Delivery Challan Report',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
                           ),),
-                        pw.Padding(padding:(pw.EdgeInsets.only(top:10,left: 16,right:16,bottom:10)),
+                        pw.Padding(padding:(pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10)),
 
                           child:pw.Expanded(
                             child:  pw.Table(
@@ -169,60 +172,61 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
                                   children: [
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Text('S.No', style: pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold)),
-                                    ),
+                                      child:pw.Center(child:
+                                      pw.Text('S.No', style: pw.TextStyle(fontSize: 8,font:font,fontWeight: pw.FontWeight.bold)),
+                                      ),),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(10.0),
                                       child: pw.Center(child: pw.Text('Date   ',
-                                          style: pw.TextStyle(fontSize: 6,
+                                          style: pw.TextStyle(fontSize: 8,font:font,
                                               fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('DC No',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Invoice No',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Customer Code',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Customer/ \n Company Name',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Place of supply',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),  pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Transport No',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text('Total',
-                                              style: pw.TextStyle(fontSize: 6,
+                                              style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     // Add more Text widgets for additional columns if needed
@@ -239,7 +243,7 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
                                         child: pw.Center(
                                           child:
 
-                                          pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 6)),
+                                          pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8,font:font1,)),
                                         )
                                     ),
                                     pw.Container(
@@ -249,48 +253,48 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
                                             ? DateFormat('dd-MM-yyyy').format(
                                             DateTime.parse("${data["date"]}"))
                                             : "",
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['dcNo'].toString(),
-                                              style: pw.TextStyle(fontSize: 6)),)
+                                              style: pw.TextStyle(fontSize: 8,font:font1,)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
                                           child: pw.Text(data['invoiceNo'].toString(),
-                                              style: pw.TextStyle(fontSize: 6)),)
+                                              style: pw.TextStyle(fontSize: 8,font:font1,)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['custCode'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['custName'],
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['supplyPlace'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                     ),pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
                                         child: pw.Text(data['transNo'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.only(left:10.0,top: 8,bottom: 8),
                                       child: pw.Center(
                                         child: pw.Text(data['grandTotal'].toString(),
-                                            style: pw.TextStyle(fontSize: 6)),),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
                                   ]);
                                 }
@@ -303,10 +307,10 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
                             child: pw.Row(
                                 mainAxisAlignment: pw.MainAxisAlignment.end,
                                 children: [
-                                  pw.Text("Total :",style:  pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold),),
+                                  pw.Text("Total :",style:  pw.TextStyle(fontSize: 8,font:font1,fontWeight: pw.FontWeight.bold),),
                                   pw.SizedBox(width: 10),
                                   pw.Container(
-                                    width: 40,
+                                    width: 55,
                                     decoration: pw.BoxDecoration(
                                       border: pw.Border.all(
                                         color: const PdfColor.fromInt(0xFF000000),
@@ -319,7 +323,7 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
                                       alignment:pw.Alignment.topRight,
                                       child:pw.Text(
                                         '${total.toStringAsFixed(2)}',
-                                        style:  pw.TextStyle(fontSize: 6,fontWeight: pw.FontWeight.bold),
+                                        style:  pw.TextStyle(fontSize: 8,font:font1,fontWeight: pw.FontWeight.bold),
                                       ),
 
 
@@ -360,8 +364,14 @@ class _HandbilldcReportPDFState extends State<HandbilldcReportPDF> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Delivery Challan PDF"), centerTitle: true,),
-      body: PdfPreview(
-        build: (format) => _generatePdfWithCopies(format, 1), // Generate 1 copy
+      body:
+      PdfPreview(
+        build: (format) => _generatePdfWithCopies(
+            PdfPageFormat.a4.copyWith(
+              width: PdfPageFormat.a4.height,
+              height: PdfPageFormat.a4.width,
+            ),1
+        ), // Generate 1 copy
         onPrinted: (context) {},
       ),
     );

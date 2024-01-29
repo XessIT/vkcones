@@ -14,14 +14,15 @@ import 'package:vinayaga_project/purchase/purchaseview_pdf.dart';
 import 'package:vinayaga_project/report/winding_report_pdf.dart';
 
 import '../home.dart';
+import 'PunchPdf.dart';
 
 
-class PurchaseOrderReport extends StatefulWidget {
-  const PurchaseOrderReport({Key? key}) : super(key: key);
+class Punch extends StatefulWidget {
+  const Punch({Key? key}) : super(key: key);
   @override
-  State<PurchaseOrderReport> createState() => _PurchaseOrderReportState();
+  State<Punch> createState() => _PunchState();
 }
-class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
+class _PunchState extends State<Punch> {
 
   List<String> supplierSuggestions = [];
   String selectedSupplier = "";
@@ -60,7 +61,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
 
   Future<void> fetchData() async {
     try {
-      final url = Uri.parse('http://localhost:3309/getpurchaseorder/');
+      final url = Uri.parse('http://localhost:3309/get_punch/');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -73,7 +74,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
         // Filter out duplicate values based on 'custName'
         final List uniqueData = itemGroups
             .where((item) {
-          String custName = item['orderNo']?.toString() ?? '';
+          String custName = item['id']?.toString() ?? '';
           if (!uniqueCustNames.contains(custName)) {
             uniqueCustNames.add(custName);
             return true;
@@ -113,22 +114,17 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
     print("Search Text: $searchText");
     setState(() {
       if (searchText.isEmpty) {
-        // If the search text is empty, show all data without filtering by supplier name
         filteredData = List<Map<String, dynamic>>.from(data);
       } else {
         filteredData = data.where((item) {
-          String custName = item['custName']?.toString()?.toLowerCase() ?? '';
-          String custCode = item['custCode']?.toString()?.toLowerCase() ?? '';
-          String orderNo = item['orderNo']?.toString()?.toLowerCase() ?? '';
+          String custName = item['emp_code']?.toString()?.toLowerCase() ?? '';
 
           String searchTextLowerCase = searchText.toLowerCase();
-          return custName.contains(searchTextLowerCase) ||
-              custCode.contains(searchTextLowerCase) ||
-              orderNo.contains(searchTextLowerCase);
+          return custName.contains(searchTextLowerCase);
+
         }).toList();
       }
 
-      // Sort filteredData in descending order based on the "date" field
       filteredData.sort((a, b) {
         DateTime? dateA = DateTime.tryParse(a['date'] ?? '');
         DateTime? dateB = DateTime.tryParse(b['date'] ?? '');
@@ -161,13 +157,10 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
       if (searchController.text.isNotEmpty) {
         String searchTextLowerCase = searchController.text.toLowerCase();
         filteredData = filteredData.where((item) {
-          String custName = item['custName']?.toString()?.toLowerCase() ?? '';
-          String custCode = item['custCode']?.toString()?.toLowerCase() ?? '';
-          String orderNo = item['orderNo']?.toString()?.toLowerCase() ?? '';
+          String custName = item['emp_code']?.toString()?.toLowerCase() ?? '';
 
-          return custName.contains(searchTextLowerCase) ||
-              custCode.contains(searchTextLowerCase) ||
-              orderNo.contains(searchTextLowerCase);
+
+          return custName.contains(searchTextLowerCase);
         }).toList();
       }
       filteredData.sort((a, b) {
@@ -186,9 +179,6 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
   void initState() {
     super.initState();
     fetchData();
-    // searchController.addListener(() {
-    //   filterData(searchController.text);
-    // });
     _searchFocus.requestFocus();
     filteredData = List<Map<String, dynamic>>.from(data);
   }
@@ -202,7 +192,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
 
 
     return MyScaffold(
-      route: "purchase_order_report",backgroundColor: Colors.white,
+      route: "punch_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -229,7 +219,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                 Icon(Icons.report,),
                                 SizedBox(width:10,),
                                 Text(
-                                  'Sales Order Report',
+                                  'Punch Report',
                                   style: TextStyle(
                                     fontSize:20,
                                     fontWeight: FontWeight.bold,
@@ -377,29 +367,21 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                                 }
                                                 List<String> custNamesuggestions =data
                                                     .where((item) =>
-                                                    (item['custName']?.toString()?.toLowerCase() ?? '')
+                                                    (item['first_name']?.toString()?.toLowerCase() ?? '')
                                                         .startsWith(pattern.toLowerCase()))
-                                                    .map((item) => item['custName'].toString())
+                                                    .map((item) => item['first_name'].toString())
                                                     .toSet() // Remove duplicates using a Set
                                                     .toList();
                                                 List<String> custCodesuggestions =data
                                                     .where((item) =>
-                                                    (item['custCode']?.toString()?.toLowerCase() ?? '')
+                                                    (item['emp_code']?.toString()?.toLowerCase() ?? '')
                                                         .startsWith(pattern.toLowerCase()))
-                                                    .map((item) => item['custCode'].toString())
-                                                    .toSet() // Remove duplicates using a Set
-                                                    .toList();
-                                                List<String> orderNosuggestions =data
-                                                    .where((item) =>
-                                                    (item['orderNo']?.toString()?.toLowerCase() ?? '')
-                                                        .startsWith(pattern.toLowerCase()))
-                                                    .map((item) => item['orderNo'].toString())
+                                                    .map((item) => item['emp_code'].toString())
                                                     .toSet() // Remove duplicates using a Set
                                                     .toList();
                                                 List<String> suggestions = [
                                                   ...custNamesuggestions,
                                                   ...custCodesuggestions,
-                                                  ...orderNosuggestions,
 
                                                 ].toSet().toList();
                                                 return suggestions;
@@ -478,7 +460,18 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                           child: const Text("Generate", style: TextStyle(color: Colors.white)),
                                         )
                                     ),
-
+                                    IconButton(
+                                      icon: Icon(Icons.refresh),
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>const Punch()));
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.arrow_back),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
                                     if (!isDateRangeValid)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 8.0), // Adjust the top padding as needed
@@ -535,25 +528,10 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                     //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                     rowsPerPage:25,
                                     columns:   const [
-                                      DataColumn(label: Center(child: Text("   S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Padding(
-                                        padding: EdgeInsets.only(left: 15),
-                                        child: Text("   Date",style: TextStyle(fontWeight: FontWeight.bold),),
-                                      ))),
-                                      DataColumn(label: Center(child: Text("        Order No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Padding(
-                                        padding: EdgeInsets.only(left: 10),
-                                        child: Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold),),
-                                      ))),
-                                      DataColumn(label: Center(child: Padding(
-                                        padding: EdgeInsets.only(left: 8),
-                                        child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),),
-                                      ))),
-                                      DataColumn(label: Center(child: Padding(
-                                        padding: EdgeInsets.only(left: 20),
-                                        child: Text("   Action",style: TextStyle(fontWeight: FontWeight.bold),),
-                                      ))),
-                                    ],
+                                      DataColumn(label: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),)),
+                                      DataColumn(label: Text("Employee code",style: TextStyle(fontWeight: FontWeight.bold),)),
+                                      DataColumn(label: Text("Date",style: TextStyle(fontWeight: FontWeight.bold),)),
+                                      DataColumn(label: Text("Time",style: TextStyle(fontWeight: FontWeight.bold),)),                                    ],
                                     source: _YourDataTableSource(filteredData,context,generatedButton),
                                   ),
                                 ),
@@ -574,7 +552,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                         color: Colors.green.shade600,
 
                         onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PurchaseReportPDFView(
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PunchPdf(
                             customerData : filteredData,// customerName: '', customerMobile: '', customerAddress: '', orderNo: '', date: '', itemGroup: '', itemName: '', qty: '', totQty: '',
                           )));
                         },child: const Text("PRINT",style: TextStyle(color: Colors.white),),),
@@ -640,95 +618,16 @@ class _YourDataTableSource extends DataTableSource {
     }
 
     final row = data[index];
-
+    final DateTime punchTime = DateTime.tryParse(row["punch_time"] ?? '') ?? DateTime.now();
+    final String date = DateFormat("yyyy-MM-dd").format(punchTime);
+    final String time = DateFormat("HH:mm:ss").format(punchTime);
     return DataRow(
       cells: [
         //DataCell(Center(child: Text("${index + 1 + (currentPage * rowsPerPage)}"))),
-        DataCell(Center(child: Text("${index + 1}"))),
-        DataCell(Center(
-          child: Text(
-            row["date"] != null
-                ? DateFormat('dd-MM-yyyy').format(
-              DateTime.parse("${row["date"]}").toLocal(),
-            ) : "",
-          ),
-        )),
-        DataCell(Center(child: Text("${row["orderNo"]}"))),
-        DataCell(Center(child: Text("${row["custCode"]}",))),
-        DataCell(Center(child: Container(
-            constraints: const BoxConstraints(maxWidth: 170),
-            child: Text("${row["custName"]}")))),
-        DataCell(Center(child:Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child: Container(
-            height:50,
-
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                //  if(generatedButton == true)
-                IconButton(
-                  icon: const Icon(Icons.remove_red_eye_outlined),
-                  color: Colors.blue.shade600,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PurchaseView(
-                          orderNo: row["orderNo"].toString(),
-                          GSTIN: row["gstin"].toString(),
-                          date: row["date"].toString(),
-                          deliveryDate: row["deliveryDate"]?.toString() ?? '', // Handle null case
-                          deliveryType: row["deliveryType"]?.toString() ?? '', // Handle null case
-                          customerName: row["custName"].toString(),
-                          customerMobile: row["custMobile"],
-                          customerAddress: row["custAddress"].toString(),
-                          pincode: row["pincode"].toString(),
-                          customercode: row["custCode"].toString(),
-                          itemGroup: row["itemGroup"].toString(),
-                          itemName: row["itemName"].toString(),
-                          qty: row["qty"].toString(),
-                          totQty: row["totQty"].toString(),
-                          //grandTotal:row["grandTotal"].toString(),
-                          customerData: data,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-                SizedBox(width: 10,),
-                //   if(generatedButton == true)
-                IconButton(
-                  icon: const Icon(Icons.print),
-                  color: Colors.blue.shade600,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CustomerOrderIndividualReport(
-                          orderNo: row["orderNo"].toString(),
-                          date: row["date"],
-                          customerName: row["custName"],
-                          customerMobile: row["custMobile"].toString(),
-                          customerAddress: row["custAddress"].toString(),
-                          customercode: row["custCode"].toString(),
-                          itemGroup: row["itemGroup"].toString(),
-                          deliveryType: row["deliveryType"]?.toString(),
-                          deliveryDate: row["deliveryDate"],
-                          itemName: row["itemName"].toString(),
-                          qty: row["qty"].toString(),
-                          GSTIN: row["gstin"].toString(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-              ],
-            ),
-          ),
-        ),)),
+        DataCell(Text("${index + 1}")),
+        DataCell(Text("${row["emp_code"]}")),
+        DataCell(Text(date)), // Display date separately
+        DataCell(Text(time)),
       ],
     );
 
