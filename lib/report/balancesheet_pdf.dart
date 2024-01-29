@@ -380,9 +380,9 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
 
                                   pw.Text("Grand Total", style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColors.black)),
 
-                                  pw.SizedBox(width: 10),
+                                  pw.SizedBox(width: 15),
                                   pw.Container(
-                                    width: 50,
+                                    width: 55,
                                     height: 15,
                                     decoration: pw.BoxDecoration(
                                       border: pw.Border.all(
@@ -419,7 +419,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                   ),
 
                                   pw.Container(
-                                    width: 60,
+                                    width: 61,
                                     height: 15,
                                     decoration: pw.BoxDecoration(
                                       border: pw.Border.all(
@@ -457,7 +457,7 @@ class _BalanaceSheetPDFState extends State<BalanaceSheetPDF> {
                                   ),
 
                                   pw.Container(
-                                    width: 40,
+                                    width: 44,
                                     height: 15,
                                     decoration: pw.BoxDecoration(
                                       border: pw.Border.all(

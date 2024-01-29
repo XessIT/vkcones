@@ -3889,6 +3889,37 @@ app.get('/get_sales_name_for_suggestion', (req, res) => {
     }
   });
 });
+app.get('/get_sales_return_name_for_suggestion', (req, res) => {
+ const sql =`SELECT DISTINCT s.invoiceNo From sales_returns sr
+                    LEFT JOIN sales s ON sr.invoiceNo <> s.invoiceNo`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+app.get('/get_sales_return_name_data', (req, res) => {
+  const sql =`SELECT DISTINCT s.invoiceNo
+              FROM sales s
+              LEFT JOIN sales_returns sr ON s.invoiceNo = sr.invoiceNo
+              WHERE sr.invoiceNo IS NULL
+              ORDER BY s.invoiceNo DESC;
+             `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
 
 /*
 app.get('/get_sales_name', (req, res) => {

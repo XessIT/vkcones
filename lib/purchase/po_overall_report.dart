@@ -60,7 +60,7 @@ class _PoOverallReportState extends State<PoOverallReport> {
       ),
     );
   }
-  int serialNumber = 1;
+
   Future<Uint8List> _generatePdfWithCopies(PdfPageFormat format, int copies) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final image = await imageFromAssetBundle("assets/pillaiyar.png");
@@ -71,6 +71,7 @@ class _PoOverallReportState extends State<PoOverallReport> {
     var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
     final List<Map<String, dynamic>> customerData = widget.customerData;
     int recordsPerPage ;
+    int serialNumber = 1;
     pw.Widget createHeader() {
       return pw.Container(
         child: pw.Column(

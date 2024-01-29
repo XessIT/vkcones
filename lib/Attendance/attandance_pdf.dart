@@ -108,38 +108,44 @@ class _AttendancePdfState extends State<AttendancePdf> {
         children: [
           pw.Text(
             '$formattedDate   $formattedTime',
-            style: pw.TextStyle(fontSize: 4),
+            style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 665),
-          pw.Padding(padding: const pw.EdgeInsets.only(right: 20,),
+          pw.SizedBox(width: 635),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 15,),
             child:  pw.Text(
               'Page $currentPage of $totalPages',
-              style: pw.TextStyle(fontSize: 4),
+              style: pw.TextStyle(fontSize: 6),
             ),)
         ],
       ),
     );
   }
 
-  int serialNumber=1;
+
   Future<Uint8List> _generatePdfWithCopies(PdfPageFormat format, int copies) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final image = await imageFromAssetBundle("assets/pillaiyar.png");
     final image1 = await imageFromAssetBundle("assets/sarswathi.png");
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
+
+    int serialNumber=1;
 
     final List<Map<String, dynamic>> customerData = widget.customerData;
-    const int recordsPerPage = 11;
+    int recordsPerPage ;
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
+        recordsPerPage = (j == 0) ? 10 : 12;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
             build: (context) {
+              final double pageHeight = j == 0 ? format.availableHeight + 290: format.availableHeight +440;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -148,7 +154,7 @@ class _AttendancePdfState extends State<AttendancePdf> {
                       pw.Row(
                         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                         children: [
-                          pw.Padding(padding: const pw.EdgeInsets.only(top: 20,),
+                          pw.Padding(padding: const pw.EdgeInsets.only(top: 0,),
                             child:
                             pw.Container(
                                 height: 70,
@@ -178,12 +184,12 @@ class _AttendancePdfState extends State<AttendancePdf> {
                                       "5/624-I5,SOWDESWARI \n"
                                           "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                                           "NAMAKKAL-638008 ",
-                                      style: const pw.TextStyle(fontSize: 8),
+                                      style: const pw.TextStyle(fontSize: 7),
                                       textAlign: pw.TextAlign.center))
                             ]), ),
 
                           pw.Padding(
-                              padding: const pw.EdgeInsets.only(top:20),
+                              padding: const pw.EdgeInsets.only(top:0),
                               child: pw.Container(
                                 height: 70,
                                 width: 70,
@@ -194,228 +200,241 @@ class _AttendancePdfState extends State<AttendancePdf> {
                               )),
                         ],
                       ),),
-                  pw.SizedBox(height: 1),
-                  pw.Divider(),
-                  pw.Text(
-                    'Attendance Report',
-                    style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
-                  ),
-                  pw.SizedBox(height: 8),
-                  pw.Expanded(
-                    child: pw.Table(
-                      border: pw.TableBorder.all(),
-                      children: [
-                        pw.TableRow(
+
+                  pw.Container(
+                      height: pageHeight * 0.5,
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border.all(width: 1, color: PdfColors.black),
+                      ),
+                      child:pw.Column(
+
                           children: [
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Text('      S.No', style: defaultTextStyle.merge(pw.TextStyle(fontWeight: pw.FontWeight.bold))),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(child: pw.Text('Date',
-                                  style: pw.TextStyle(fontSize: 8,
-                                      fontWeight: pw.FontWeight.bold)),
+                            pw.Padding(padding:pw.EdgeInsets.only(top:5),
+                              child:pw.Text(
+                                'Attendance Report',
+                                style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
                               ),),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('Emp code',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('Name',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('shift',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('check-in',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),  pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('lunch_out',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ), pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('lunch_in',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ), pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('check_out',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('late check-in',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('Lunch late',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('Early check_out',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text('remark',
-                                      style: pw.TextStyle(fontSize: 8,
-                                          fontWeight: pw.FontWeight.bold)),)
-                            ),
-                            // Add more Text widgets for additional columns if needed
-                          ],
-                        ),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10),
+                              child:pw.Expanded(
+                                child: pw.Table(
+                                  border: pw.TableBorder.all(),
+                                  children: [
+                                    pw.TableRow(
+                                      children: [
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Text('      S.No', style: defaultTextStyle.merge(pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 8,font:font,))),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(child: pw.Text('Date',
+                                              style: pw.TextStyle(fontSize: 8,font:font,
+                                                  fontWeight: pw.FontWeight.bold)),
+                                          ),),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('Emp code',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('Name',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('shift',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('check-in',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),  pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('lunch_out',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ), pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('lunch_in',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ), pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('check_out',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('late check-in',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('Lunch late',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('Early check_out',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text('remark',
+                                                  style: pw.TextStyle(fontSize: 8,font:font,
+                                                      fontWeight: pw.FontWeight.bold)),)
+                                        ),
+                                        // Add more Text widgets for additional columns if needed
+                                      ],
+                                    ),
 
 
-                        ...pageData.asMap().entries.map((entry) {
-                          int sn = entry.key + 1; // Calculate the S.No based on the entry index (starting from 1)
-                          var data = entry.value;
-                          return pw.TableRow(children: [
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child:
-                                pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8)),
-                              ),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(data["inDate"] != null
-                                    ? DateFormat('yyyy-MM-dd').format(
-                                  DateTime.parse("${data["inDate"]}").toLocal(),)
-                                    : "",
-                                    style: pw.TextStyle(fontSize: 8)),),
-                            ),
-                            pw.Container(
-                                padding: pw.EdgeInsets.all(8.0),
-                                child: pw.Center(
-                                  child: pw.Text(data['emp_code'].toString(),
-                                      style: pw.TextStyle(fontSize: 8)),)
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(data['first_name'].toString(),
-                                    style: pw.TextStyle(fontSize: 8)),),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(data['shiftType'].toString(),
-                                    style: pw.TextStyle(fontSize: 8)),),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(
-                                  formatTime(data['check_in']),
-                                  style: pw.TextStyle(fontSize: 8),
+                                    ...pageData.asMap().entries.map((entry) {
+                                      int sn = entry.key + 1; // Calculate the S.No based on the entry index (starting from 1)
+                                      var data = entry.value;
+                                      return pw.TableRow(children: [
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child:
+                                            pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8,font:font1)),
+                                          ),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(data["inDate"] != null
+                                                ? DateFormat('yyyy-MM-dd').format(
+                                              DateTime.parse("${data["inDate"]}").toLocal(),)
+                                                : "",
+                                                style: pw.TextStyle(fontSize: 8,font:font1)),),
+                                        ),
+                                        pw.Container(
+                                            padding: pw.EdgeInsets.all(8.0),
+                                            child: pw.Center(
+                                              child: pw.Text(data['emp_code'].toString(),
+                                                  style: pw.TextStyle(fontSize: 8,font:font1)),)
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(data['first_name'].toString(),
+                                                style: pw.TextStyle(fontSize: 8,font:font1)),),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(data['shiftType'].toString(),
+                                                style: pw.TextStyle(fontSize: 8,font:font1)),),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              formatTime(data['check_in']),
+                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                            ),
+                                          ),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              formatTimeOrZero(data['lunch_out']),
+                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                            ),
+                                          ),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              formatTimeOrZero(data['lunch_in']),
+                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                            ),
+                                          ),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              formatTime(data['check_out']),
+                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                            ),
+                                          ),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              formatDuration(data['latecheck_in']),
+                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                            ),
+                                          ),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              formatDuration(data['late_lunch'].toString()),
+                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                            ),
+                                          ),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              formatDuration(data['earlycheck_out']),
+                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                            ),
+                                          ),
+                                        ),
+                                        pw.Container(
+                                          padding: pw.EdgeInsets.all(8.0),
+                                          child: pw.Center(
+                                            child: pw.Text(data['remark'].toString(),
+                                                style: pw.TextStyle(fontSize: 8,font:font1)),),
+                                        ),
+                                      ]);
+                                    }
+                                    ).toList(),
+                                  ],
                                 ),
-                              ),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(
-                                  formatTimeOrZero(data['lunch_out']),
-                                  style: pw.TextStyle(fontSize: 8),
-                                ),
-                              ),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(
-                                  formatTimeOrZero(data['lunch_in']),
-                                  style: pw.TextStyle(fontSize: 8),
-                                ),
-                              ),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(
-                                  formatTime(data['check_out']),
-                                  style: pw.TextStyle(fontSize: 8),
-                                ),
-                              ),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(
-                                  formatDuration(data['latecheck_in']),
-                                  style: pw.TextStyle(fontSize: 8),
-                                ),
-                              ),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(
-                                  formatDuration(data['late_lunch'].toString()),
-                                  style: pw.TextStyle(fontSize: 8),
-                                ),
-                              ),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(
-                                  formatDuration(data['earlycheck_out']),
-                                  style: pw.TextStyle(fontSize: 8),
-                                ),
-                              ),
-                            ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Center(
-                                child: pw.Text(data['remark'].toString(),
-                                    style: pw.TextStyle(fontSize: 8)),),
-                            ),
-                          ]);
-                        }
-                        ).toList(),
-                      ],
-                    ),
+                              ),    )
+                          ]
+                      )
                   ),
+                  pw.SizedBox(height:5),
 
                   pw.Align(
                     alignment: pw.Alignment.bottomCenter,
                     child: pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.end,
                       children: [
-                        pw.SizedBox(height: 20),
+
                         _buildFooter(context, j ~/ recordsPerPage + 1, (customerData.length / recordsPerPage).ceil()),
                       ],
                     ),

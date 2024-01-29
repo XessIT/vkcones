@@ -292,7 +292,7 @@ class _SalesIndividualReportPDFViewState
     int recordsPerPage ;
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < data.length; j += recordsPerPage) {
-        recordsPerPage = (j == 0) ? 18 : 21;
+        recordsPerPage = (j == 0) ? 10 : 15;
         final List<Map<String, dynamic>> pageData =
         data.skip(j).take(recordsPerPage).toList();
 

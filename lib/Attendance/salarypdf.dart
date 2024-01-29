@@ -156,60 +156,50 @@ class _SalaryPdfState extends State<SalaryPdf> {
 
 
   pw.Widget _buildFooter(pw.Context context, int currentPage, int totalPages) {
+    // ... (rest of your code)
+    // Get the current date and time
     DateTime now = DateTime.now();
-    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+
+    // Format the date
+    String formattedDate = DateFormat('dd-MM-yyyy').format(now);
+
+    // Format the time in AM/PM
     String formattedTime = DateFormat('hh.mm a').format(now);
 
-    return pw.Row(
-      children: [
-        pw.Text(
-          '$formattedDate   $formattedTime',
-          style: pw.TextStyle(fontSize: 4),
-        ),
-        pw.SizedBox(width: 665),
-        pw.Padding(padding: const pw.EdgeInsets.only(right: 150,),
-          child: pw.Padding(padding: const pw.EdgeInsets.only(right:0),
-            /* child: pw.Container(
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(s
-                  color: const PdfColor.fromInt(0xFF000000),
-                  width: 0.5,
-                ),
-                borderRadius: pw.BorderRadius.circular(2),
-              ),
-              padding: const pw.EdgeInsets.all(5),
-              child: pw.Text(
-                'Total Salary: ${totalWorkingSalary.toStringAsFixed(2)}',
-                style: const pw.TextStyle(fontSize: 10),
-              ),
 
+    return pw.Container(
 
-            ),*/
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.end,
-              children: [
-                pw.Text(
-                  'Page $currentPage of $totalPages',
-                  style: pw.TextStyle(fontSize: 4),
-                ),
-              ],
-            ),
-
-          ),)
-      ],
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.start,
+        children: [
+          pw.Text(
+            '$formattedDate   $formattedTime',
+            style: pw.TextStyle(fontSize: 6),
+          ),
+          pw.SizedBox(width: 635),
+          pw.Padding(padding: const pw.EdgeInsets.only(right: 20,),
+            child:  pw.Text(
+              'Page ${context.pageNumber} of ${context.pagesCount}',
+              style: pw.TextStyle(fontSize: 6),
+            ),)
+        ],
+      ),
     );
   }
-  int serialNumber=1;
+
   Future<Uint8List> _generatePdfWithCopies(PdfPageFormat format, int copies) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final image = await imageFromAssetBundle("assets/pillaiyar.png");
     final image1 = await imageFromAssetBundle("assets/sarswathi.png");
     final fontData = await rootBundle.load('assets/fonts/Algerian_Regular.ttf');
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
+    var font = await PdfGoogleFonts.crimsonTextBold();
+    var font1 = await PdfGoogleFonts.crimsonTextSemiBold();
+    int serialNumber=1;
 
 
     final List<Map<String, dynamic>> customerData = widget.customerData;
-    final int recordsPerPage = 7;
+    int recordsPerPage ;
     double totalWorkTime = calculateTotalWorkTime(widget.customerData);
     double totalReqWorkTime = calculateTotalReqWorkTime(widget.customerData);
     double totalLate = calculateTotalLate(widget.customerData);
@@ -218,12 +208,14 @@ class _SalaryPdfState extends State<SalaryPdf> {
 
     for (var i = 0; i < copies; i++) {
       for (var j = 0; j < customerData.length; j += recordsPerPage) {
+        recordsPerPage = (j == 0) ? 12  : 15;
         final List<Map<String, dynamic>> pageData =
         customerData.skip(j).take(recordsPerPage).toList();
         pdf.addPage(
           pw.Page(
             pageFormat: format,
             build: (context) {
+              final double pageHeight = j == 0 ? format.availableHeight + 300: format.availableHeight +440;
               return pw.Column(
                 children: [
                   if (j == 0)
@@ -232,7 +224,7 @@ class _SalaryPdfState extends State<SalaryPdf> {
                       pw.Row(
                         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                         children: [
-                          pw.Padding(padding: const pw.EdgeInsets.only(top: 20,),
+                          pw.Padding(padding: const pw.EdgeInsets.only(top: 0,),
                             child:
                             pw.Container(
                                 height: 70,
@@ -262,12 +254,12 @@ class _SalaryPdfState extends State<SalaryPdf> {
                                       "5/624-I5,SOWDESWARI \n"
                                           "NAGAR,VEPPADAI,ELANTHAKUTTAI(PO)TIRUCHENGODE(T.K)\n"
                                           "NAMAKKAL-638008 ",
-                                      style: const pw.TextStyle(fontSize: 8),
+                                      style: const pw.TextStyle(fontSize: 7),
                                       textAlign: pw.TextAlign.center))
                             ]), ),
 
                           pw.Padding(
-                              padding: const pw.EdgeInsets.only(top:20),
+                              padding: const pw.EdgeInsets.only(top:0),
                               child: pw.Container(
                                 height: 70,
                                 width: 70,
@@ -278,71 +270,21 @@ class _SalaryPdfState extends State<SalaryPdf> {
                               )),
                         ],
                       ),),
-                  pw.SizedBox(height: 1),
-                  pw.Divider(),
-                  pw.Text(
-                    'Salary Report',
-                    style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
-                  ),
-                  pw.Align(
-                    alignment: pw.Alignment.topRight,
-                    child:pw.Container(
-                      width: 110,
+                  pw.Container(
+                      height: pageHeight * 0.5,
                       decoration: pw.BoxDecoration(
-                        color:PdfColors.white,
-                        border: pw.Border.all(color:PdfColors.black), // Add a border for the box
-                        borderRadius: pw.BorderRadius.circular(10.0), // Add border radius for rounded corners
+                        border: pw.Border.all(width: 1, color: PdfColors.black),
                       ),
-                      child:pw.Padding(
-                        padding: pw.EdgeInsets.only(left: 13,top:8,right: 8,bottom: 8),
-                        child:
-                        pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            pw.Text(
-                              'Total Days: ${calculateTotalDays(widget.customerData)}',
-                              style: pw.TextStyle(fontSize: 8, color: PdfColor.fromInt(0xFF000000), fontWeight: pw.FontWeight.bold),
-                            ),
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Req Time: ${formatDuration(totalReqWorkTime.toStringAsFixed(0))}',
-                              style: const pw.TextStyle(fontSize: 8),
-                            ),
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Act Time: ${formatDuration(totalWorkTime.toStringAsFixed(0))}',
-                              style: const pw.TextStyle(fontSize: 8),
-                            ),
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Late: ${formatDuration(totalLate.toStringAsFixed(0))}',
-                              style: const pw.TextStyle(fontSize: 8, color: PdfColor.fromInt(0xFFff0000)),
-                            ),
-                            pw.SizedBox(height: 5),
-                            if (totalWorkTime > 5)  // Display only if work time is greater than 5 hours
-                              pw.Text(
-                                'Extra Production: ${(totalExtraProduction.toStringAsFixed(0))}',
-                                style: const pw.TextStyle(fontSize: 8),
-                              ),
-                            pw.SizedBox(height: 5),
-                            if (totalWorkTime > 5)  // Display only if work time is greater than 5 hours
-                              pw.Row(
-                                children: [
-                                  pw.Text(
-                                    'Salary: ',
-                                    style: const pw.TextStyle(fontSize: 8),
-                                  ),
-                                  pw.Text(
-                                    totalSalary.toStringAsFixed(2),
-                                    style: const pw.TextStyle(fontSize: 10),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
-                      ),),),
-                  pw.SizedBox(height: 15),
-                  pw.Expanded(
+                    child: pw.Column(
+                      children: [
+                        pw.Padding(padding:pw.EdgeInsets.only(top:5),
+                          child:pw.Text(
+                            'Salary Payment',
+                            style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
+                          ),),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10),
+                            child: pw.Expanded(
                     child: pw.Table(
                       border: pw.TableBorder.all(),
                       children: [
@@ -350,54 +292,54 @@ class _SalaryPdfState extends State<SalaryPdf> {
                           children: [
                             pw.Container(
                               padding: pw.EdgeInsets.all(8.0),
-                              child: pw.Text('      S.No', style: defaultTextStyle.merge(pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                              child: pw.Text('      S.No', style: defaultTextStyle.merge(pw.TextStyle(fontWeight: pw.FontWeight.bold,font:font , fontSize: 8))),
                             ),
                             pw.Container(
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(child: pw.Text('Date',
-                                  style: pw.TextStyle(fontSize: 8,
+                                  style: pw.TextStyle(fontSize: 8,font:font,
                                       fontWeight: pw.FontWeight.bold)),
                               ),),
                             pw.Container(
                                 padding: pw.EdgeInsets.all(8.0),
                                 child: pw.Center(
                                   child: pw.Text('Emp code',
-                                      style: pw.TextStyle(fontSize: 8,
+                                      style: pw.TextStyle(fontSize: 8,font:font,
                                           fontWeight: pw.FontWeight.bold)),)
                             ),
                             pw.Container(
                                 padding: pw.EdgeInsets.all(8.0),
                                 child: pw.Center(
                                   child: pw.Text('Name',
-                                      style: pw.TextStyle(fontSize: 8,
+                                      style: pw.TextStyle(fontSize: 8,font:font,
                                           fontWeight: pw.FontWeight.bold)),)
                             ),
                             pw.Container(
                                 padding: pw.EdgeInsets.all(8.0),
                                 child: pw.Center(
                                   child: pw.Text('shift',
-                                      style: pw.TextStyle(fontSize: 8,
+                                      style: pw.TextStyle(fontSize: 8,font:font,
                                           fontWeight: pw.FontWeight.bold)),)
                             ),
                             pw.Container(
                                 padding: pw.EdgeInsets.all(8.0),
                                 child: pw.Center(
                                   child: pw.Text('work time',
-                                      style: pw.TextStyle(fontSize: 8,
+                                      style: pw.TextStyle(fontSize: 8,font:font,
                                           fontWeight: pw.FontWeight.bold)),)
                             ),
                             pw.Container(
                                 padding: pw.EdgeInsets.all(8.0),
                                 child: pw.Center(
                                   child: pw.Text('Salary',
-                                      style: pw.TextStyle(fontSize: 8,
+                                      style: pw.TextStyle(fontSize: 8,font:font,
                                           fontWeight: pw.FontWeight.bold)),)
                             ),
                             pw.Container(
                                 padding: pw.EdgeInsets.all(8.0),
                                 child: pw.Center(
                                   child: pw.Text('Extra Production',
-                                      style: pw.TextStyle(fontSize: 8,
+                                      style: pw.TextStyle(fontSize: 8,font:font,
                                           fontWeight: pw.FontWeight.bold)),)
                             ),
                           ],
@@ -412,7 +354,7 @@ class _SalaryPdfState extends State<SalaryPdf> {
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(
                                 child:
-                                pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8)),
+                                pw.Text('${serialNumber++}',style: pw.TextStyle(fontSize: 8,font:font1,)),
                               ),
                             ),
                             pw.Container(
@@ -422,42 +364,42 @@ class _SalaryPdfState extends State<SalaryPdf> {
                                     ? DateFormat('yyyy-MM-dd').format(
                                   DateTime.parse("${data["inDate"]}").toLocal(),)
                                     : "",
-                                    style: pw.TextStyle(fontSize: 8)),),
+                                    style: pw.TextStyle(fontSize:8, font:font1,)),),
                             ),
                             pw.Container(
                                 padding: pw.EdgeInsets.all(8.0),
                                 child: pw.Center(
                                   child: pw.Text(data['emp_code'].toString(),
-                                      style: pw.TextStyle(fontSize: 8)),)
+                                      style: pw.TextStyle(fontSize: 8,font:font1,)),)
                             ),
                             pw.Container(
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(
                                 child: pw.Text(data['first_name'].toString(),
-                                    style: pw.TextStyle(fontSize: 8)),),
+                                    style: pw.TextStyle(fontSize: 8,font:font1,)),),
                             ),
                             pw.Container(
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(
                                 child: pw.Text(data['shiftType'].toString(),
-                                    style: pw.TextStyle(fontSize: 8)),),
+                                    style: pw.TextStyle(fontSize: 8,font:font1,)),),
                             ),
                             pw.Container(
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(
                                 child: pw.Text(formatDuration(data['act_time']),
-                                    style: pw.TextStyle(fontSize: 8)),),
+                                    style: pw.TextStyle(fontSize: 8,font:font1,)),),
                             ),
                             pw.Container(
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(
                                 child: pw.Text(data['salary'].toString(),
-                                    style: pw.TextStyle(fontSize: 8)),),
+                                    style: pw.TextStyle(fontSize: 8,font:font1,)),),
                             ),
                             pw.Container(
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(
-                                child: pw.Text((data["calculated_extraproduction"] ?? 0).toString().replaceAll(RegExp(r'(\.0+|(?<=\.\d)0+)$'), ''),style: const pw.TextStyle(fontSize: 8) ),),
+                                child: pw.Text((data["calculated_extraproduction"] ?? 0).toString().replaceAll(RegExp(r'(\.0+|(?<=\.\d)0+)$'), ''),style: pw.TextStyle(fontSize: 8,font:font1,) ),),
                             ),
                           ]);
                         }
@@ -465,13 +407,80 @@ class _SalaryPdfState extends State<SalaryPdf> {
                       ],
                     ),
                   ),
+                        ),
+                        pw.SizedBox(height:10),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(right:16),child:
+                           pw.Align(
+                          alignment: pw.Alignment.topRight,
+                          child:pw.Container(
+                            width: 110,
+                            decoration: pw.BoxDecoration(
+                              color:PdfColors.white,
+                              border: pw.Border.all(color:PdfColors.black), // Add a border for the box
+                              borderRadius: pw.BorderRadius.circular(10.0), // Add border radius for rounded corners
+                            ),
+                            child:pw.Padding(
+                              padding: pw.EdgeInsets.only(left: 13,top:8,right: 8,bottom: 8),
+                              child:
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Text(
+                                    'Total Days: ${calculateTotalDays(widget.customerData)}',
+                                    style: pw.TextStyle(fontSize: 8,font:font1, color: PdfColor.fromInt(0xFF000000), fontWeight: pw.FontWeight.bold),
+                                  ),
+                                  pw.SizedBox(height: 5),
+                                  pw.Text(
+                                    'Req Time: ${formatDuration(totalReqWorkTime.toStringAsFixed(0))}',
+                                    style:  pw.TextStyle(fontSize: 8,font:font1,),
+                                  ),
+                                  pw.SizedBox(height: 5),
+                                  pw.Text(
+                                    'Act Time: ${formatDuration(totalWorkTime.toStringAsFixed(0))}',
+                                    style:  pw.TextStyle(fontSize: 8,font:font1,),
+                                  ),
+                                  pw.SizedBox(height: 5),
+                                  pw.Text(
+                                    'Late: ${formatDuration(totalLate.toStringAsFixed(0))}',
+                                    style: const pw.TextStyle(fontSize: 8, color: PdfColor.fromInt(0xFFff0000)),
+                                  ),
+                                  pw.SizedBox(height: 5),
+                                  if (totalWorkTime > 5)  // Display only if work time is greater than 5 hours
+                                    pw.Text(
+                                      'Extra Production: ${(totalExtraProduction.toStringAsFixed(0))}',
+                                      style: pw.TextStyle(fontSize: 8,font:font1,),
+                                    ),
+                                  pw.SizedBox(height: 5),
+                                  if (totalWorkTime > 5)  // Display only if work time is greater than 5 hours
+                                    pw.Row(
+                                      children: [
+                                        pw.Text(
+                                          'Salary: ',
+                                          style: pw.TextStyle(fontSize: 9,font:font,),
+                                        ),
+                                        pw.Text(
+                                          totalSalary.toStringAsFixed(2),
+                                          style: pw.TextStyle(fontSize: 9,font:font,),
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
+                            ),),),),
+
+
+                      ]
+                    )
+                  ),
+                  pw.SizedBox(height:5),
 
                   pw.Align(
                     alignment: pw.Alignment.bottomCenter,
                     child: pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.end,
                       children: [
-                        pw.SizedBox(height: 20),
+                        //pw.SizedBox(height: 20),
                         _buildFooter(context, j ~/ recordsPerPage + 1, (customerData.length / recordsPerPage).ceil()),
                       ],
                     ),
