@@ -330,7 +330,7 @@ class _SupplierEntryState extends State<SupplierEntry> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "supplier_entry",
+        route: "supplier_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,

@@ -140,7 +140,7 @@ class _EmployeeReportState extends State<EmployeeReport> {
     });
 
     return MyScaffold(
-      route: "employee_report",
+      route: "employee_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

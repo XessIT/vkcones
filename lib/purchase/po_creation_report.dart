@@ -208,7 +208,7 @@ class _PoReportState extends State<PoReport> {
     });*/
 
     return MyScaffold(
-      route: "po_report",
+      route: "po_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -654,12 +654,19 @@ class _YourDataTableSource extends DataTableSource {
         DataCell(Center(
           child: Text(
             row["deliveryDate"] != null
-                ? DateFormat('dd-MM-yyyy').format(
-              DateTime.parse("${row["deliveryDate"]}").toLocal(),
-            )
+                ? () {
+              try {
+                DateTime parsedDate = DateTime.parse("${row["deliveryDate"]}");
+                return DateFormat('dd-MM-yyyy').format(parsedDate.toLocal());
+              } catch (e) {
+                print("Error parsing date: $e");
+                return "";
+              }
+            }()
                 : "",
           ),
         )),
+
         DataCell(Center(child:
         Row(
           children: [

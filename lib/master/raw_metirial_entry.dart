@@ -193,28 +193,6 @@ class _Raw_materialState extends State<Raw_material> {
 
 
 
-  Future<void> insertDataSupItem1(Map<String, dynamic> dataToInsertSupItem1) async {
-    const String apiUrl = 'http://localhost:3309/po_items'; // Replace with your server details
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({'dataToInsertSupItem1': dataToInsertSupItem1}),
-      );
-      if (response.statusCode == 200) {
-        print('TableData inserted successfully');
-      } else {
-        print('Failed to insert data into the table');
-        throw Exception('Failed to insert data into the table');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Error: $e');
-    }
-  }
-
 
 
   bool isDuplicateProductCode(String productCode, int currentRowIndex) {
@@ -281,17 +259,17 @@ class _Raw_materialState extends State<Raw_material> {
 
 
   Future<String> fetchqty(String prodCode, String prodName) async {
-  final response = await http.post(
+    final response = await http.post(
       Uri.parse('http://localhost:3309/Raw_materil_Qty'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'prodCode': prodCode, 'prodName': prodName}),
     );
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    return data['qty'].toString(); // Convert to String if needed
-  } else {
-    throw Exception('Failed to fetch QTY from Raw_material');
-  }
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['qty'].toString(); // Convert to String if needed
+    } else {
+      throw Exception('Failed to fetch QTY from Raw_material');
+    }
   }
 
 
@@ -609,6 +587,48 @@ class _Raw_materialState extends State<Raw_material> {
   }
 
 
+  Future<void> insertDataSupItem1(Map<String, dynamic> dataToInsertSupItem1) async {
+    const String apiUrl = 'http://localhost:3309/rawmeterial_entry'; // Replace with your server details
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertSupItem1': dataToInsertSupItem1}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+      } else {
+        print('Failed to insert data into the table');
+        throw Exception('Failed to insert data into the table');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<void> submitItem() async {
+    List<Future<void>> insertFutures = [];
+    for (var i = 0; i < controllers.length; i++) {
+      Map<String, dynamic> dataToInsertSupItem1 = {
+        "date":eod.toString(),
+        'prodCode': controllers[i][0].text,
+        'prodName': controllers[i][1].text,
+        'unit':controllers[i][2].text,
+        'qty': controllers[i][3].text,
+      };
+      insertFutures.add(insertDataSupItem1(dataToInsertSupItem1)); // Await here
+    }
+    try {
+      await Future.wait(insertFutures); // Await for all insertions to complete
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
+
 
 
   @override
@@ -619,7 +639,7 @@ class _Raw_materialState extends State<Raw_material> {
       filterData(searchController.text);
     });
     return MyScaffold(
-        route: "raw_material_entry",
+        route: "raw_material_entry",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -670,9 +690,8 @@ class _Raw_materialState extends State<Raw_material> {
                                                       showDatePicker(
                                                         context: context,
                                                         initialDate: eod,
-                                                        firstDate: DateTime(1950),
-                                                        // Set the range of selectable dates
-                                                        lastDate: DateTime(2100),
+                                                        firstDate: DateTime(2000),
+                                                        lastDate: eod,
                                                       ).then((date) {
                                                         if (date != null) {
                                                           setState(() {
@@ -685,7 +704,6 @@ class _Raw_materialState extends State<Raw_material> {
                                                     controller: TextEditingController(
                                                       text: DateFormat('dd-MM-yyyy').format(eod),
                                                     ),
-                                                    // Set the initial value of the field to the selected date
                                                     decoration: InputDecoration(
                                                       filled: true,
                                                       fillColor: Colors.white,
@@ -846,7 +864,6 @@ class _Raw_materialState extends State<Raw_material> {
                                                         final int rowIndex = i;
                                                         final int colIndex = j;
                                                         final String key = _getKeyForColumn(colIndex);
-
                                                         updateFieldValidation();
                                                         setState(() {
                                                           rowData[rowIndex][key] = value;
@@ -872,7 +889,6 @@ class _Raw_materialState extends State<Raw_material> {
                                                                   TextButton(
                                                                     onPressed: () {
                                                                       Navigator.of(context).pop();
-
                                                                       // Update the value in j==3 field with the fetched quantity
                                                                       controllers[rowIndex][j].text = fetchedQty;
                                                                     },
@@ -887,7 +903,6 @@ class _Raw_materialState extends State<Raw_material> {
                                                     ) : j == 2
                                                         ? TextFormField(
                                                       enabled: false, // Set this to false to make it read-only
-
                                                       style: TextStyle(fontSize: 13),
                                                       controller: controllers[i][j],
                                                       decoration: const InputDecoration(
@@ -914,15 +929,12 @@ class _Raw_materialState extends State<Raw_material> {
                                                             filled: true,
                                                             fillColor: Colors.white,
                                                           ),
-
                                                           onChanged: (value) async {
                                                             final int rowIndex = i;
                                                             final int colIndex = j;
                                                             final String key = _getKeyForColumn(colIndex);
-
                                                             updateFieldValidation();
                                                             setState(() {
-
                                                               rowData[rowIndex][key] = value;
                                                             });
                                                             // Fetch unit based on prodCode and prodName
@@ -931,9 +943,7 @@ class _Raw_materialState extends State<Raw_material> {
                                                             final unit = await fetchUnitInPO(prodCode, prodName);
                                                             final qty = await fetchqty(prodCode!, prodName!);
                                                             print(qty);
-
                                                             // Update the unit controller
-
                                                             controllers[rowIndex][2].text = unit;
                                                             controllers[rowIndex][2].text = qty;
                                                             setState(() {
@@ -944,7 +954,6 @@ class _Raw_materialState extends State<Raw_material> {
                                                         ),
                                                         suggestionsCallback: (pattern) async {
                                                           List<String> suggestions = await fetchSuggestions(pattern);
-
                                                           // Filter out suggestions that start with "GSM" in prodCode or prodName
                                                           suggestions = suggestions.where((suggestion) {
                                                             final match = RegExp(r'^(.+?) - (.+)$').firstMatch(suggestion);
@@ -952,10 +961,8 @@ class _Raw_materialState extends State<Raw_material> {
                                                             final productName = match?.group(2)?.trim() ?? '';
                                                             return !productCode.startsWith('GSM') && !productName.startsWith('GSM');
                                                           }).toList();
-
                                                           return suggestions;
                                                         },
-
                                                         itemBuilder: (context, suggestion) {
                                                           return ListTile(
                                                             title: Text(suggestion),
@@ -981,17 +988,14 @@ class _Raw_materialState extends State<Raw_material> {
                                                                 controllers[rowIndex][0].text = productCode!;
                                                                 controllers[rowIndex][1].text = productName!;
                                                               });
-
                                                               // Fetch unit based on prodCode and prodName
                                                               final unit = await fetchUnitInPO(productCode!, productName!);
                                                               final qty = await fetchqty(productCode!, productName!); // Await the result
-
                                                               controllers[rowIndex][2].text = unit;
                                                               controllers[rowIndex][3].text = qty; // Set the qty
                                                             }
                                                           }
                                                         }
-
                                                     ),
                                                   ),
                                                 ),
@@ -1127,6 +1131,7 @@ class _Raw_materialState extends State<Raw_material> {
                                       );
                                     }
                                     setState(() {
+                                      submitItem();
                                     });
                                     setState(() {
                                       //  deliveryType = null;

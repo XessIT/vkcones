@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,33 +5,32 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:vinayaga_project/main.dart';
 import 'package:http/http.dart' as http;
-import 'package:vinayaga_project/purchase/purchase_individual_report.dart';
-import 'package:vinayaga_project/purchase/purchase_orderin_pdf.dart';
-import 'package:vinayaga_project/purchase/purchase_view.dart';
-import 'package:vinayaga_project/purchase/purchaseorder_reportpdf.dart';
-import 'package:vinayaga_project/purchase/purchaseview_pdf.dart';
-import 'package:vinayaga_project/report/winding_report_pdf.dart';
+import 'package:vinayaga_project/report/raw_material_report_pdf.dart';
+import 'package:vinayaga_project/report/raw_matirial_entry_reportpdf.dart';
+import 'package:vinayaga_project/settings/transport_entry.dart';
 
 import '../home.dart';
 
-
-class PurchaseOrderReport extends StatefulWidget {
-  const PurchaseOrderReport({Key? key}) : super(key: key);
+class RawMaterialEntriesReport extends StatefulWidget {
+  const RawMaterialEntriesReport({Key? key}) : super(key: key);
   @override
-  State<PurchaseOrderReport> createState() => _PurchaseOrderReportState();
+  State<RawMaterialEntriesReport> createState() => _RawMaterialEntriesReportState();
 }
-class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
-
+class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
+  double calculateTotal(List<Map<String, dynamic>> filteredData) {
+    double totalSalary = 0;
+    for (var row in filteredData) {
+      totalSalary += double.parse(row['qty'] ?? '0');
+    }
+    return totalSalary;
+  }
   List<String> supplierSuggestions = [];
   String selectedSupplier = "";
   bool isDateRangeValid=true;
-  final ScrollController _scrollController = ScrollController();
-
-
-
 
   int currentPage = 1;
   int rowsPerPage = 10;
+  String selectedCustomer="";
 
   void updateFilteredData() {
     final startIndex = (currentPage - 1) * rowsPerPage;
@@ -55,35 +53,17 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
 
   List<String> itemGroupValues = [];
   List<String> invoiceNumber = [];
-  String selectedCustomer="";
-
-
   Future<void> fetchData() async {
     try {
-      final url = Uri.parse('http://localhost:3309/getpurchaseorder/');
+      final url = Uri.parse('http://localhost:3309/get_Raw_Material_report/');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         final List<dynamic> itemGroups = responseData;
 
-        // Use a Set to filter out duplicate custName values
-        Set<String> uniqueCustNames = Set();
-
-        // Filter out duplicate values based on 'custName'
-        final List uniqueData = itemGroups
-            .where((item) {
-          String custName = item['orderNo']?.toString() ?? '';
-          if (!uniqueCustNames.contains(custName)) {
-            uniqueCustNames.add(custName);
-            return true;
-          }
-          return false;
-        })
-            .toList();
-
         setState(() {
-          data = uniqueData.cast<Map<String, dynamic>>();
+          data = itemGroups.cast<Map<String, dynamic>>();
           filteredData = List<Map<String, dynamic>>.from(data);
           filteredData.sort((a, b) {
             DateTime? dateA = DateTime.tryParse(a['date'] ?? '');
@@ -104,8 +84,6 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
     }
   }
 
-
-
   List<Map<String, dynamic>> data = [];
   List<Map<String, dynamic>> filteredData = [];
 
@@ -117,14 +95,13 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
         filteredData = List<Map<String, dynamic>>.from(data);
       } else {
         filteredData = data.where((item) {
-          String custName = item['custName']?.toString()?.toLowerCase() ?? '';
-          String custCode = item['custCode']?.toString()?.toLowerCase() ?? '';
-          String orderNo = item['orderNo']?.toString()?.toLowerCase() ?? '';
-
+          String supName = item['prodName']?.toString()?.toLowerCase() ?? '';
+          String prodCode = item['prodCode']?.toString()?.toLowerCase() ?? '';
           String searchTextLowerCase = searchText.toLowerCase();
-          return custName.contains(searchTextLowerCase) ||
-              custCode.contains(searchTextLowerCase) ||
-              orderNo.contains(searchTextLowerCase);
+
+          return supName.contains(searchTextLowerCase) ||
+              prodCode.contains(searchTextLowerCase);
+
         }).toList();
       }
 
@@ -141,7 +118,8 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
       });
     });
     print("Filtered Data Length: ${filteredData.length}");
-  }
+  }  double Grandtotal = 0;
+
   void applyDateFilter() {
     setState(() {
       if(!isDateRangeValid){
@@ -161,13 +139,11 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
       if (searchController.text.isNotEmpty) {
         String searchTextLowerCase = searchController.text.toLowerCase();
         filteredData = filteredData.where((item) {
-          String custName = item['custName']?.toString()?.toLowerCase() ?? '';
-          String custCode = item['custCode']?.toString()?.toLowerCase() ?? '';
-          String orderNo = item['orderNo']?.toString()?.toLowerCase() ?? '';
+          String supName = item['prodName']?.toString()?.toLowerCase() ?? '';
+          String prodCode = item['prodCode']?.toString()?.toLowerCase() ?? '';
 
-          return custName.contains(searchTextLowerCase) ||
-              custCode.contains(searchTextLowerCase) ||
-              orderNo.contains(searchTextLowerCase);
+          return supName.contains(searchTextLowerCase) ||
+              prodCode.contains(searchTextLowerCase);
         }).toList();
       }
       filteredData.sort((a, b) {
@@ -178,6 +154,8 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
         }
         return dateB.compareTo(dateA); // Compare in descending order
       });
+      Grandtotal = calculateTotal(filteredData);
+
     });
   }
 
@@ -186,9 +164,9 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
   void initState() {
     super.initState();
     fetchData();
-    // searchController.addListener(() {
-    //   filterData(searchController.text);
-    // });
+    searchController.addListener(() {
+      filterData(searchController.text);
+    });
     _searchFocus.requestFocus();
     filteredData = List<Map<String, dynamic>>.from(data);
   }
@@ -200,9 +178,14 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
     final formattedDate = fromDate != null ? DateFormat("dd-MM-yyyy").format(fromDate!) : "";
     final formattedDate2 = toDate != null ? DateFormat("dd-MM-yyyy").format(toDate!) : "";
 
-
+    searchController.addListener(() {
+      filterData(searchController.text);
+    });
+    if (data.isEmpty) {
+      return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
+    }
     return MyScaffold(
-      route: "purchase_order_report",backgroundColor: Colors.white,
+      route: "raw_Materials_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -226,10 +209,10 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                           children: [
                             const Row(
                               children: [
-                                Icon(Icons.report,),
+                                Icon(Icons.sell,),
                                 SizedBox(width:10,),
                                 Text(
-                                  'Sales Order Report',
+                                  'Raw Material',
                                   style: TextStyle(
                                     fontSize:20,
                                     fontWeight: FontWeight.bold,
@@ -238,14 +221,14 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                               ],
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(left:20),
-                              child: Align(
+                              padding: const EdgeInsets.only(right: 0),
+                              child:Align(
                                 alignment: Alignment.topLeft,
                                 child: Wrap(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
+                                  //mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 37,left: 0),
+                                      padding: const EdgeInsets.only(top: 37,left:20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -253,7 +236,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                             width: 220,
                                             height: 70,
                                             child: TextFormField(style: const TextStyle(fontSize: 13),
-                                              readOnly: true,
+                                              readOnly: true, // Set the field as read-only
                                               validator: (value) {
                                                 if (value!.isEmpty) {
                                                   return '* Enter Date';
@@ -265,7 +248,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                                   context: context,
                                                   initialDate: fromDate ?? DateTime.now(),
                                                   firstDate: DateTime(2000),
-                                                  lastDate: DateTime.now(),
+                                                  lastDate: DateTime(2100),
                                                 ).then((date) {
                                                   if (date != null) {
                                                     setState(() {
@@ -312,7 +295,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                                   context: context,
                                                   initialDate: toDate ?? DateTime.now(),
                                                   firstDate: DateTime(2000), // Set the range of selectable dates
-                                                  lastDate: DateTime.now(),
+                                                  lastDate: DateTime(2100),
                                                 ).then((date) {
                                                   if (date != null) {
                                                     setState(() {
@@ -341,7 +324,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                     ),
                                     //SizedBox(width: 11,),
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 37,left:10),
+                                      padding: const EdgeInsets.only(top:37 , left:10),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -352,14 +335,10 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                             TypeAheadFormField<String>(
                                               textFieldConfiguration: TextFieldConfiguration(
                                                 controller: searchController,
-                                                onChanged: (value) {
-                                                  String capitalizedValue = capitalizeFirstLetter(value);
-                                                  searchController.value = searchController.value.copyWith(
-                                                    text: capitalizedValue,
-                                                    selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                                  );
-                                                },
                                                 style: const TextStyle(fontSize: 13),
+                                                inputFormatters: [
+                                                  UpperCaseTextFormatter(),
+                                                ],
                                                 decoration: InputDecoration(
                                                   suffixIcon: Icon(Icons.search),
                                                   fillColor: Colors.white,
@@ -375,33 +354,25 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                                 if (pattern.isEmpty) {
                                                   return [];
                                                 }
-                                                List<String> custNamesuggestions =data
+                                                List<String> prodNamesuggestions =data
                                                     .where((item) =>
-                                                    (item['custName']?.toString()?.toLowerCase() ?? '')
+                                                    (item['prodName']?.toString()?.toLowerCase() ?? '')
                                                         .startsWith(pattern.toLowerCase()))
-                                                    .map((item) => item['custName'].toString())
+                                                    .map((item) => item['prodName'].toString())
                                                     .toSet() // Remove duplicates using a Set
                                                     .toList();
-                                                List<String> custCodesuggestions =data
+                                                List<String> prodCodesuggestions =data
                                                     .where((item) =>
-                                                    (item['custCode']?.toString()?.toLowerCase() ?? '')
+                                                    (item['prodCode']?.toString()?.toLowerCase() ?? '')
                                                         .startsWith(pattern.toLowerCase()))
-                                                    .map((item) => item['custCode'].toString())
+                                                    .map((item) => item['prodCode'].toString())
                                                     .toSet() // Remove duplicates using a Set
                                                     .toList();
-                                                List<String> orderNosuggestions =data
-                                                    .where((item) =>
-                                                    (item['orderNo']?.toString()?.toLowerCase() ?? '')
-                                                        .startsWith(pattern.toLowerCase()))
-                                                    .map((item) => item['orderNo'].toString())
-                                                    .toSet() // Remove duplicates using a Set
+                                                List<String>suggestions =[
+                                                  ...prodNamesuggestions,
+                                                  ...prodCodesuggestions
+                                                ].toSet() // Remove duplicates using a Set
                                                     .toList();
-                                                List<String> suggestions = [
-                                                  ...custNamesuggestions,
-                                                  ...custCodesuggestions,
-                                                  ...orderNosuggestions,
-
-                                                ].toSet().toList();
                                                 return suggestions;
                                               },
                                               itemBuilder: (context, suggestion) {
@@ -444,39 +415,42 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                                         selectedSupplier = supplierSuggestions[index];
                                                         searchController.text = selectedSupplier;
                                                         filterData(selectedSupplier);
-                                                      });
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
+                                                      });},);},),),],),),
                                     Padding(
-                                        padding: const EdgeInsets.only(top:37,left:20),
+                                        padding: const EdgeInsets.only(left:20,top:37),
                                         child: MaterialButton(
                                           color: Colors.green.shade500,
                                           height: 40,
                                           onPressed: () {
-                                            filterData(searchController.text);
-                                            searchController.addListener(() {
-                                              filterData(searchController.text);
-                                            });
-
                                             if (fromDate!.isAfter(toDate!)) {
                                               setState(() {
-                                                // Show an error message if 'From Date' is greater than 'To Date'
                                                 isDateRangeValid = false;
                                               });
                                             } else {
-                                              // If both dates are selected and 'From Date' is not greater than 'To Date', proceed with generating the report.
                                               isDateRangeValid = true;
                                               applyDateFilter();
                                             }
                                           },
                                           child: const Text("Generate", style: TextStyle(color: Colors.white)),
-                                        )
+                                        )),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top:37),
+                                      child: IconButton(
+                                        icon: Icon(Icons.refresh),
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>RawMaterialEntriesReport()));
+                                        },
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top:37),
+                                      child: IconButton(
+                                        icon: Icon(Icons.arrow_back),
+                                        onPressed: () {
+                                          // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                          Navigator.pop(context);
+                                        },
+                                      ),
                                     ),
 
                                     if (!isDateRangeValid)
@@ -484,22 +458,12 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                         padding: const EdgeInsets.only(top: 8.0), // Adjust the top padding as needed
                                         child: Text(
                                           isDateRangeValid == false && (fromDate == null || toDate == null)
-                                              ? "* Enter a 'From and To Date'."
-                                              : "* 'From Date' must be less than\n  or equal to 'To Date'.",
-                                          style: TextStyle(color: Colors.red, fontSize: 11),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                              ? "* Enter a 'From and To Date'." : "* 'From Date' must be less than\n  or equal to 'To Date'.",
+                                          style: TextStyle(color: Colors.red, fontSize: 12),
+                                        ),),],),
+                              ),),
                             SizedBox(height: 15,)
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                          ],),),),),),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: SingleChildScrollView(
@@ -515,75 +479,68 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            const Align(
+                             Align(
                                 alignment:Alignment.topLeft,
                                 child: Padding(
                                   padding: EdgeInsets.only(left: 5),
-                                  child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),
-                                )),
-                            const SizedBox(height: 20,),
-                            Scrollbar(
-                              thumbVisibility: true,
-                              controller: _scrollController,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                controller: _scrollController,
-                                child: SizedBox(
-                                  width:1200,
-                                  child: PaginatedDataTable(
-                                    columnSpacing:40.0,
-                                    //  header: const Text("Report Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                    rowsPerPage:25,
-                                    columns:   const [
-                                      DataColumn(label: Center(child: Text("   S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Padding(
-                                        padding: EdgeInsets.only(left: 15),
-                                        child: Text("   Date",style: TextStyle(fontWeight: FontWeight.bold),),
-                                      ))),
-                                      DataColumn(label: Center(child: Text("        Order No",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Padding(
-                                        padding: EdgeInsets.only(left: 10),
-                                        child: Text("Customer Code",style: TextStyle(fontWeight: FontWeight.bold),),
-                                      ))),
-                                      DataColumn(label: Center(child: Padding(
-                                        padding: EdgeInsets.only(left: 8),
-                                        child: Text("Customer/Company Name",style: TextStyle(fontWeight: FontWeight.bold),),
-                                      ))),
-                                      DataColumn(label: Center(child: Padding(
-                                        padding: EdgeInsets.only(left: 20),
-                                        child: Text("   Action",style: TextStyle(fontWeight: FontWeight.bold),),
-                                      ))),
+                                  child: Row(
+                                    children: [
+                                      Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),
+                                      if (generatedButton || searchController.text.isNotEmpty)
+                                        Padding(
+                                        padding: const EdgeInsets.only(left: 600),
+                                        child: SizedBox(
+                                          width:150,
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                                hintText:"Total : ${calculateTotal(filteredData)}",
+                                                hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                                                border:OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                )
+                                            ),
+                                            /* */
+                                            //
+                                          ),
+                                        ),
+                                      ),
                                     ],
-                                    source: _YourDataTableSource(filteredData,context,generatedButton),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                                  ),)),
+                            const SizedBox(height: 20,),
+                            filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
+                            PaginatedDataTable(
+                              columnSpacing:80.0,
+                              rowsPerPage:25,
+                              columns:   const [
+                                DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("Product Code",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("Product Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("Unit",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                DataColumn(label: Center(child: Text("Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
+                              ], source: _YourDataTableSource(filteredData,context,generatedButton),
+                            ),],),),),),),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      MaterialButton(
-                        color: Colors.green.shade600,
-
-                        onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PurchaseReportPDFView(
-                            customerData : filteredData,// customerName: '', customerMobile: '', customerAddress: '', orderNo: '', date: '', itemGroup: '', itemName: '', qty: '', totQty: '',
-                          )));
-                        },child: const Text("PRINT",style: TextStyle(color: Colors.white),),),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15.0,right: 15.0),
+                        child:filteredData.isEmpty?Text(""): MaterialButton(
+                          color: Colors.green.shade600,
+                          height: 40,
+                          onPressed: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>RawMaterialEntriesReportPDF(customerData: filteredData,)));
+                          },child: const Text("PRINT",style: TextStyle(color: Colors.white),),),
+                      ),
                       SizedBox(height: 20,),
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0,right: 15.0),
-                        child: MaterialButton(
+                        child:
+                        MaterialButton(
                           color: Colors.red.shade600,
-
+                          height: 40,
                           onPressed: (){
                             /*  Navigator.push(context,
                                   MaterialPageRoute(builder: (context) =>const Home()));*/// Close the alert box
@@ -643,105 +600,29 @@ class _YourDataTableSource extends DataTableSource {
 
     return DataRow(
       cells: [
-        //DataCell(Center(child: Text("${index + 1 + (currentPage * rowsPerPage)}"))),
         DataCell(Center(child: Text("${index + 1}"))),
         DataCell(Center(
           child: Text(
             row["date"] != null
                 ? DateFormat('dd-MM-yyyy').format(
               DateTime.parse("${row["date"]}").toLocal(),
-            ) : "",
+            )
+                : "",
           ),
         )),
-        DataCell(Center(child: Text("${row["orderNo"]}"))),
-        DataCell(Center(child: Text("${row["custCode"]}",))),
-        DataCell(Center(child: Container(
-            constraints: const BoxConstraints(maxWidth: 170),
-            child: Text("${row["custName"]}")))),
-        DataCell(Center(child:Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child: Container(
-            height:50,
-
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                //  if(generatedButton == true)
-                IconButton(
-                  icon: const Icon(Icons.remove_red_eye_outlined),
-                  color: Colors.blue.shade600,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PurchaseView(
-                          orderNo: row["orderNo"].toString(),
-                          GSTIN: row["gstin"].toString(),
-                          date: row["date"].toString(),
-                          deliveryDate: row["deliveryDate"]?.toString() ?? '', // Handle null case
-                          deliveryType: row["deliveryType"]?.toString() ?? '', // Handle null case
-                          customerName: row["custName"].toString(),
-                          customerMobile: row["custMobile"],
-                          customerAddress: row["custAddress"].toString(),
-                          pincode: row["pincode"].toString(),
-                          customercode: row["custCode"].toString(),
-                          itemGroup: row["itemGroup"].toString(),
-                          itemName: row["itemName"].toString(),
-                          qty: row["qty"].toString(),
-                          totQty: row["totQty"].toString(),
-                          //grandTotal:row["grandTotal"].toString(),
-                          customerData: data,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-                SizedBox(width: 10,),
-                //   if(generatedButton == true)
-                IconButton(
-                  icon: const Icon(Icons.print),
-                  color: Colors.blue.shade600,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CustomerOrderIndividualReport(
-                          orderNo: row["orderNo"].toString(),
-                          date: row["date"],
-                          customerName: row["custName"],
-                          customerMobile: row["custMobile"].toString(),
-                          customerAddress: row["custAddress"].toString(),
-                          customercode: row["custCode"].toString(),
-                          itemGroup: row["itemGroup"].toString(),
-                          deliveryType: row["deliveryType"]?.toString(),
-                          deliveryDate: row["deliveryDate"],
-                          itemName: row["itemName"].toString(),
-                          qty: row["qty"].toString(),
-                          GSTIN: row["gstin"].toString(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-              ],
-            ),
-          ),
-        ),)),
+        DataCell(Center(child: Text("${row["prodCode"]}"))),
+        DataCell(Center(child: Text("${row["prodName"]}"))),
+        DataCell(Center(child: Text("${row["unit"]}"))),
+        // DataCell(Center(child: Text("${row["custMobile"]}"))),
+        DataCell(Center(child: Text("${row["qty"]}"))),
       ],
     );
-
   }
-
   @override
   int get rowCount => data.length;
-
   @override
   bool get isRowCountApproximate => false;
-
   @override
   int get selectedRowCount => 0;
 }
-
 

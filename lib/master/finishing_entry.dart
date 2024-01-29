@@ -180,7 +180,7 @@ class _FinishingEntryState extends State<FinishingEntry> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "finishing_entry",
+        route: "finishing_entry",backgroundColor: Colors.white,
         body: Form(
           key: _formKey,
           child: SingleChildScrollView(

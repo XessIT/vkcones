@@ -486,7 +486,7 @@ class _ShiftCreationState extends State<ShiftCreation> {
       filterData(empName.text);
     });
     return MyScaffold(
-        route: "shift_entry",
+        route: "shift_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,

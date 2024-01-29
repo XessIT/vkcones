@@ -302,7 +302,7 @@ class _WindingView2State extends State<WindingView2> {
     DateTime currentdate = DateTime.now();
     final formattedDate = DateFormat("dd-MM-yyyy").format(currentdate);
     return  MyScaffold(
-        route: "Winding_view",
+        route: "Winding_view",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(

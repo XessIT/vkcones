@@ -791,7 +791,7 @@ class _CustomerReportState extends State<CustomerReport> {
     // });
 
     return MyScaffold(
-      route: "supplier_report",
+      route: "supplier_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -1163,10 +1163,10 @@ class _YourDataTableSource extends DataTableSource {
                 gstin:row["gstin"],
               )));
             },),
-            IconButton(icon: Icon(Icons.delete,color:Colors. red,),
+           /* IconButton(icon: Icon(Icons.delete,color:Colors. red,),
               onPressed: (){
                 showDeleteConfirmationDialog(context, id);
-              },),
+              },),*/
           ],
         ),
         )),

@@ -14,7 +14,7 @@ class _CheckItemGroupPageState extends State<CheckItemGroupPage> {
     return DefaultTabController(
       length: 2,
       child: MyScaffold(
-        route: "/check_itempages",
+        route: "/check_itempages",backgroundColor: Colors.white,
         body: Container(
           color: Colors.white,
           child: Center(

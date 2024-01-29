@@ -138,7 +138,7 @@ class _PoViewState extends State<PoView> {
     supCode.addListener(() {
       filterSupData(supCode.text);
     });
-    return  MyScaffold(route: "Po view",
+    return  MyScaffold(route: "Po view",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(
@@ -447,17 +447,26 @@ class _PoViewState extends State<PoView> {
                                                       // height: 30,
                                                       child: TextFormField(
                                                         readOnly: true,
-                                                        initialValue: widget.deliveryDate.toString() != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse("${widget.deliveryDate}")):"",
-                                                        style: TextStyle(
-                                                            fontSize: 13),
+                                                        initialValue: () {
+                                                          try {
+                                                            if (widget.deliveryDate != null) {
+                                                              DateTime parsedDate = DateTime.parse("${widget.deliveryDate}");
+                                                              return DateFormat("dd-MM-yyyy").format(parsedDate);
+                                                            }
+                                                          } catch (e) {
+                                                            print("Error parsing date: $e");
+                                                          }
+                                                          return ""; // Default value in case of an error
+                                                        }(),
+                                                        style: TextStyle(fontSize: 13),
                                                         keyboardType: TextInputType.text,
                                                         decoration: InputDecoration(
-                                                            filled: true,
-                                                            fillColor: Colors.white,
-                                                            labelText: "Expected Delivery Date",
-                                                            border: OutlineInputBorder(
-                                                              borderRadius: BorderRadius.circular(8,),
-                                                            )
+                                                          filled: true,
+                                                          fillColor: Colors.white,
+                                                          labelText: "Expected Delivery Date",
+                                                          border: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(8),
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
@@ -527,57 +536,42 @@ class _PoViewState extends State<PoView> {
                                                                     color: Colors.blue.shade300,
                                                                   ),
                                                                   children: [
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(// Set the desired height
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(
-                                                                            child: Text(
-                                                                              'S.No',
-                                                                              style: TextStyle(
-                                                                                fontWeight: FontWeight.bold,
-                                                                                color: Colors.black,
-                                                                              ),
+                                                                    TableCell(// Set the desired height
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(
+                                                                          child: Text(
+                                                                            'S.No',
+                                                                            style: TextStyle(
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.black,
                                                                             ),
                                                                           ),
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(child: Text('Product Code', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                        ),
+                                                                    TableCell(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(child: Text('Product Code', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                       ),
                                                                     ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(child: Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                        ),
+                                                                    TableCell(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(child: Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                       ),
                                                                     ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(child: Text('Unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                        ),
+                                                                    TableCell(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(child: Text('Unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                       ),
                                                                     ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                        ),
+                                                                    TableCell(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                       ),
                                                                     ),
                                                                   ],

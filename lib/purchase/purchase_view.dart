@@ -155,7 +155,7 @@ class _PurchaseViewState extends State<PurchaseView> {
     custCode.addListener(() {
       filtercustData(custCode.text);
     });
-    return  MyScaffold(route: "dcview",
+    return  MyScaffold(route: "dcview",backgroundColor: Colors.white,
 
         body: Form(
             key: _formKey,
@@ -481,49 +481,44 @@ class _PurchaseViewState extends State<PurchaseView> {
                                       },
                                     ),
                                   ),
-
                                   SizedBox(
                                     width: 220,
                                     height: 30,
                                     child: TextFormField(
                                       readOnly: true,
-                                      initialValue: widget.deliveryType,
-                                      style: TextStyle(
-                                          fontSize: 13),
+                                      initialValue: widget.deliveryType ?? '',
+                                      style: TextStyle(fontSize: 13),
                                       keyboardType: TextInputType.text,
                                       decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          labelText: "Delivery Type",
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8,),
-                                          )
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: "Delivery Type",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
                                       ),
                                     ),
                                   ),
-
                                   SizedBox(
                                     width: 220,
                                     height: 30,
                                     child: TextFormField(
                                       readOnly: true,
-                                      //                                                                        Text(widget.deliveryDate.toString() != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse("${widget.deliveryDate}")):"",),
-                                      initialValue: widget.deliveryDate.toString() != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse("${widget.deliveryDate}").toLocal()):"",
-                                      style: TextStyle(
-                                          fontSize: 13),
+                                      initialValue: widget.deliveryDate != null && widget.deliveryDate!.isNotEmpty
+                                          ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.deliveryDate!).toLocal())
+                                          : null,
+                                      style: TextStyle(fontSize: 13),
                                       keyboardType: TextInputType.text,
                                       decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          labelText: "Expected Delivery Date",
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8,),
-                                          )
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: "Expected Delivery Date",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
                                       ),
                                     ),
                                   ),
-
-
                                 ],
                               ),
                             ),

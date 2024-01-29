@@ -360,7 +360,7 @@ class _ItemGroupPageState extends State<ItemGroupPage> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      route: "/itempages",
+      route: "/itempages",backgroundColor: Colors.white,
       body:Form(
         key: _formkey,
         child: SingleChildScrollView(

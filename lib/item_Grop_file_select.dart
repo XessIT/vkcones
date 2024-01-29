@@ -106,6 +106,7 @@ class _CSVfileSelecterState extends State<CSVfileSelecter> {
   Widget build(BuildContext context) {
     return MyScaffold(
       route: "/csv_file_select",
+      backgroundColor: Colors.white,
         body: Column(
           children: [
             SizedBox(width: 400,height: 70,

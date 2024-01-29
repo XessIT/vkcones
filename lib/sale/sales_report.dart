@@ -11,6 +11,7 @@ import 'package:vinayaga_project/report/winding_report_pdf.dart';
 import 'package:vinayaga_project/sale/sales_individual_report_pdf.dart';
 import 'package:vinayaga_project/sale/sales_individual_view.dart';
 import 'package:vinayaga_project/sale/sales_report_pdf.dart';
+import 'package:vinayaga_project/sale/tax_invoice_page.dart';
 
 import '../home.dart';
 
@@ -237,7 +238,7 @@ class _SalesReportState extends State<SalesReport> {
     // });
 
     return MyScaffold(
-      route: "sales_report",
+      route: "sales_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -802,6 +803,24 @@ class _YourDataTableSource extends DataTableSource {
 
                 },
                 icon: const Icon(Icons.print, color: Colors.blue),
+              ),
+              IconButton(
+                onPressed: () {
+                  createInvoicePDF(invoiceNo:row["invoiceNo"],
+                    orderNo:row["checkOrderNo"]=="" ?row["orderNo"]:row["checkOrderNo"],
+                    custCode:row["custCode"],
+                    custName: row["custName"],
+                    custAddress:row["custAddress"],
+                    custMobile: row["custMobile"].toString(),
+                    date:row["date"],
+                    grandtotal:row["grandTotal"],
+                    pincode: row["pincode"],
+                    gstin:row["gstin"],
+                    transportNo:row["transportNo"],
+                  );
+
+                },
+                icon: const Icon(Icons.restore_page, color: Colors.green),
               ),
             ],
           ),

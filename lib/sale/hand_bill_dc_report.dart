@@ -214,7 +214,7 @@ class _HandbilldcReportState extends State<HandbilldcReport> {
     //   filterData(searchController.text);
     // });
     return MyScaffold(
-      route: "hand_delivery_challan_report",
+      route: "hand_delivery_challan_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

@@ -210,7 +210,7 @@ class _SalesReturnState extends State<SalesReturn> {
             rowControllers[6].text = amt.toStringAsFixed(2);//amt-5
             rowControllers[7].text = gstpersentage.toStringAsFixed(2);//gstamot-6
             rowControllers[8].text = totals.toStringAsFixed(2);//total-7
-           // rowControllers[9].text = int.parse(quantity.toString()).toString();//total-7
+            // rowControllers[9].text = int.parse(quantity.toString()).toString();//total-7
             controllers.add(rowControllers);
             focusNodes.add(List.generate(10, (i) => FocusNode()));
             rowData.add(row);
@@ -883,7 +883,7 @@ class _SalesReturnState extends State<SalesReturn> {
       fetchDataByOrderNumber(invoiceNo.text);
     });
     return MyScaffold(
-        route: "sales_return",
+        route: "sales_return",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -1979,7 +1979,7 @@ class _SalesReturnState extends State<SalesReturn> {
                                           style: TextStyle(color: Colors.red , fontSize: 15),
                                         ),
                                       ),
-                                      
+
                                     ],
                                   )
                                 ],

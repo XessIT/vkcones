@@ -266,11 +266,12 @@ class _PoOverallReportState extends State<PoOverallReport> {
                                   pw.Container(
                                     padding: pw.EdgeInsets.all(8.0),
                                     child: pw.Center(
+
                                       child: pw.Text(data["deliveryDate"] != null
                                           ? DateFormat('dd-MM-yyyy').format(
                                         DateTime.parse("${data["deliveryDate"]}").toLocal(),)
                                           : "",
-                                          style: pw.TextStyle(fontSize: 8,font:font1,)),),
+                                          style: pw.TextStyle(fontSize: 8,font:font1,)),)
                                   ),
                                 ]);
                               }

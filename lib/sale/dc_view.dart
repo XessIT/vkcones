@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -114,7 +115,7 @@ class _dcViweState extends State<dcViwe> {
     invoiceNo.addListener(() {
       filterData(invoiceNo.text);
     });
-    return  MyScaffold(route: "dcview",
+    return  MyScaffold(route: "dcview",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(
@@ -443,175 +444,130 @@ class _dcViweState extends State<dcViwe> {
                                         const SizedBox(height: 10,),
                                         Center(
                                           child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
                                             child: FutureBuilder<List<Map<String, dynamic>>>(
                                               future: fetchUnitEntries(widget.invNo.toString()),
                                               builder: (context, snapshot) {
-                                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                                  return Center(child: CircularProgressIndicator());
+                                                if (snapshot.hasData) {
+                                                  // Your table-building logic
                                                 } else if (snapshot.hasError) {
-                                                  return Center(child: Text('Error: ${snapshot.error}'));
-                                                } else if (snapshot.data != null &&
-                                                    snapshot.data!.isNotEmpty) {
-                                                  return SingleChildScrollView(
-                                                    scrollDirection: Axis.horizontal,
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(5.0),
-                                                      child: Table(
-                                                        columnWidths: {
-                                                          0: FixedColumnWidth(70), // Adjust the width of the first column
-                                                          1: FixedColumnWidth(180), // Adjust the width of the second column
-                                                          2: FixedColumnWidth(180),
-                                                          3: FixedColumnWidth(150), // Adjust the width of the second column
-                                                          4: FixedColumnWidth(135),
-                                                          5: FixedColumnWidth(135),
-                                                          6: FixedColumnWidth(130),
-                                                          // Adjust the width of the second column
-                                                          // Adjust the width of the third column
-                                                        },
-                                                        border: TableBorder.all(color: Colors.black),
-                                                        children: [
-                                                          TableRow(
-                                                            decoration: BoxDecoration(
-                                                              color: Colors.blue.shade100,
+                                                  return Text('Error: ${snapshot.error}');
+                                                } else {
+                                                  return CircularProgressIndicator(); // or some loading indicator
+                                                }
+                                                if (snapshot.data!.isNotEmpty ||
+                                                    snapshot.data!.isEmpty){
+                                                  return Table(
+                                                    columnWidths: const {
+                                                      0: FixedColumnWidth(70), // Adjust the width of the first column
+                                                      1: FixedColumnWidth(180), // Adjust the width of the second column
+                                                      2: FixedColumnWidth(180),
+                                                      3: FixedColumnWidth(150), // Adjust the width of the second column
+                                                      4: FixedColumnWidth(135),
+                                                      5: FixedColumnWidth(135),
+                                                      6: FixedColumnWidth(130),
+                                                      // Adjust the width of the second column
+                                                      // Adjust the width of the third column
+                                                    },
+                                                    border: TableBorder.all(color: Colors.black),
+                                                    children: [
+                                                      TableRow(
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.blue.shade100,
+                                                        ),
+                                                        children: const [
+                                                          TableCell(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('S.No', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
                                                             ),
-                                                            children: [
-                                                              Padding(
-                                                                padding: const EdgeInsets.all(8.0),
-                                                                child: TableCell(// Set the desired height
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(
-                                                                      child: Text(
-                                                                        'S.No',
-                                                                        style: TextStyle(
-                                                                          fontWeight: FontWeight.bold,
-                                                                          color: Colors.black,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                    
-                                                              Padding(
-                                                                padding: const EdgeInsets.all(8.0),
-                                                                child: TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding: const EdgeInsets.all(8.0),
-                                                                child: TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                    
-                                                              Padding(
-                                                                padding: const EdgeInsets.all(8.0),
-                                                                child: TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding: const EdgeInsets.all(8.0),
-                                                                child: TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text('Rate per Unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding: const EdgeInsets.all(8.0),
-                                                                child: TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding: const EdgeInsets.all(8.0),
-                                                                child: TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
                                                           ),
-                                                          for (var entry in snapshot.data!.asMap().entries)
-                                                            TableRow(
-                                                              children: [
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text((entry.key + 1).toString())),
-                                                                  ),
-                                                                ),
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text(entry.value['itemGroup'])),
-                                                                  ),
-                                                                ),
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text(entry.value['itemName'])),
-                                                                  ),
-                                                                ),
-                                                                // TableCell(
-                                                                //   child: Padding(
-                                                                //     padding: const EdgeInsets.all(8.0),
-                                                                //     child: Center(child:Text(widget.supplyPlace.toString(), )),
-                                                                //   ),
-                                                                // ),
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Text(entry.value['qty'].toString())),
-                                                                  ),
-                                                                ),
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Align(
-                                                                        alignment:Alignment.topRight,
-                                                                        child: Text(entry.value['rate'].toString()))),
-                                                                  ),
-                                                                ),
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Align(
-                                                                        alignment:Alignment.topRight,
-                                                                        child: Text(entry.value['amtGST'].toString()))),
-                                                                  ),
-                                                                ),
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(8.0),
-                                                                    child: Center(child: Align(
-                                                                        alignment:Alignment.topRight,
-                                                                        child: Text(entry.value['total'].toString()))),
-                                                                  ),
-                                                                ),
-                                                              ],
+                                                          TableCell(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
                                                             ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Rate per unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.all(8.0),
+                                                              child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            ),
+                                                          ),
                                                         ],
                                                       ),
-                                                    ),
+                                                      for (var entry in snapshot.data!.asMap().entries)
+                                                        TableRow(
+                                                          children: [
+                                                            TableCell(
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text((entry.key + 1).toString()),
+                                                              ),
+                                                            ),
+                                                            TableCell(
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Center(child: Text(entry.value['itemGroup'])),
+                                                              ),
+                                                            ),
+                                                            TableCell(
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['itemName'].toString()),
+                                                              ),
+                                                            ),
+                                                            TableCell(
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['qty'].toString()),
+                                                              ),
+                                                            ),
+                                                            TableCell(
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['rate'].toString()),
+                                                              ),
+                                                            ),
+                                                            TableCell(
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['amtGST'].toString()),
+                                                              ),
+                                                            ),
+                                                            TableCell(
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Text(entry.value['total'].toString()),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                    ],
                                                   );
                                                 }else {
                                                   return Center(
@@ -642,9 +598,11 @@ class _dcViweState extends State<dcViwe> {
                                             } else if (snapshot.hasError) {
                                               return Center(child: Text('Error: ${snapshot.error}'));
                                             }
-                                         /*   else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                            */
+/*   else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                                               return Center(child: Text('No data available.'));
-                                            } */
+                                            } *//*
+
                                             else {
                                               final grandTotal = snapshot.data![0]["grandTotal"]; // Assuming "grandTotal" is a key in the map
 
@@ -715,3 +673,4 @@ class _dcViweState extends State<dcViwe> {
         ));
   }
 }
+*/

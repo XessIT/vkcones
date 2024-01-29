@@ -12,7 +12,7 @@ class _SizeReportState extends State<Unit_Report> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "unit_entry",
+        route: "unit_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             child: Center(

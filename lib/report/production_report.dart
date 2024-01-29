@@ -176,7 +176,7 @@ class _OverallProductionState extends State<OverallProduction> {
     // });
 
     return MyScaffold(
-      route: "production_overall_stocks_",
+      route: "production_overall_stocks_",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

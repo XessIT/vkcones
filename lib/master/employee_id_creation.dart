@@ -394,7 +394,7 @@ class _EmpIDCreationState extends State<EmpIDCreation> {
     empID.text= generateId();
     DateTime currentDate = DateTime.now();
     return MyScaffold(
-      route: "empID_creation",
+      route: "empID_creation",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,

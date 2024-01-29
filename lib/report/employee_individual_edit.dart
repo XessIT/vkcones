@@ -2190,7 +2190,7 @@ class _EmployeeEdiTState extends State<EmployeeEdiT> {
   }  @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "employee_edit",
+        route: "employee_edit",backgroundColor: Colors.white,
         body: Form(
           key: _formKey,
           child: SingleChildScrollView(

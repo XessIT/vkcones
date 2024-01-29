@@ -178,7 +178,7 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
       return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
     }
     return MyScaffold(
-      route: "raw_Materials",
+      route: "raw_Materials",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

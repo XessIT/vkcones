@@ -809,7 +809,7 @@ class _PurchaseReturnReportState extends State<PurchaseReturnReport> {
     });
 
     return MyScaffold(
-      route: "purchase_return_report",
+      route: "purchase_return_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

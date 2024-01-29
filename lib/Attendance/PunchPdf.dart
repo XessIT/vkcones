@@ -8,29 +8,25 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-class PurchaseReportPDFView extends StatefulWidget {
+class PunchPdf extends StatefulWidget {
 
   final List<Map<String, dynamic>> customerData;
 
 
-  PurchaseReportPDFView({
+  PunchPdf({
     required this.customerData,
   });
 
   @override
-  State<PurchaseReportPDFView> createState() => _PurchaseReportPDFViewState();
+  State<PunchPdf> createState() => _PunchPdfState();
 }
 int serialNumber=1;
-class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
+class _PunchPdfState extends State<PunchPdf> {
   pw.Widget _buildFooter(pw.Context context, int currentPage, int totalPages) {
     // ... (rest of your code)
     // Get the current date and time
     DateTime now = DateTime.now();
-
-    // Format the date
     String formattedDate = DateFormat('dd-MM-yyyy').format(now);
-
-    // Format the time in AM/PM
     String formattedTime = DateFormat('hh.mm a').format(now);
 
 
@@ -148,7 +144,7 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                       children: [
                         pw.Padding(padding:pw.EdgeInsets.only(top:5),
                           child:pw.Text(
-                            'Sale Order Report',
+                            'Punch Report',
                             style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
                           ),),
                         pw.Padding(padding:pw.EdgeInsets.only(top:5,left: 16,right:16,bottom:10),
@@ -163,46 +159,36 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                                       child: pw.Text('S.No', style: pw.TextStyle(
                                           fontSize: 8,font:font1, fontWeight: pw.FontWeight.bold)),
                                     ),
-                                    pw.Container(
-                                      padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Center(child: pw.Text('Date',
-                                          style: pw.TextStyle(fontSize: 8,font:font1,
-                                              fontWeight: pw.FontWeight.bold)),
-                                      ),),
+
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text('Order Number',
+                                        child: pw.Text('Emp code',
                                             style: pw.TextStyle(fontSize: 8,font:font1,
                                                 fontWeight: pw.FontWeight.bold)),
                                       ),),
                                     pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
-                                        child: pw.Center(
-                                          child: pw.Text('Customer Code',
-                                              style: pw.TextStyle(fontSize: 8,font:font1,
-                                                  fontWeight: pw.FontWeight.bold)),)
-                                    ),
+                                      padding: pw.EdgeInsets.all(8.0),
+                                      child: pw.Center(
+                                        child: pw.Text('Date',
+                                            style: pw.TextStyle(fontSize: 8,font:font1,
+                                                fontWeight: pw.FontWeight.bold)),
+                                      ),),
                                     pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
-                                        child: pw.Center(
-                                          child: pw.Text('Customer/Company Name',
-                                              style: pw.TextStyle(fontSize: 8,font:font1,
-                                                  fontWeight: pw.FontWeight.bold)),)
-                                    ),
-                                    pw.Container(
-                                        padding: pw.EdgeInsets.all(8.0),
-                                        child: pw.Center(
-                                          child: pw.Text('Expected\nDelivery Date',
-                                              style: pw.TextStyle(fontSize: 8,font:font1,
-                                                  fontWeight: pw.FontWeight.bold)),)
-                                    ),
-                                    // Add more Text widgets for additional columns if needed
+                                      padding: pw.EdgeInsets.all(8.0),
+                                      child: pw.Center(
+                                        child: pw.Text('Time',
+                                            style: pw.TextStyle(fontSize: 8,font:font1,
+                                                fontWeight: pw.FontWeight.bold)),
+                                      ),),
                                   ],
                                 ),
                                 ...pageData.asMap().entries.map((entry) {
                                   int sn = entry.key + 1; // Calculate the S.No based on the entry index (starting from 1)
                                   var data = entry.value;
+                                  DateTime punchTime = DateTime.tryParse(data['punch_time'] ?? '') ?? DateTime.now();
+                                  String date = DateFormat("yyyy-MM-dd").format(punchTime);
+                                  String time = DateFormat("HH:mm:ss").format(punchTime);
                                   return pw.TableRow(children: [
                                     //  for (var value in data.values)
                                     pw.Container(
@@ -213,49 +199,24 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
                                               style: pw.TextStyle(fontSize: 8,font:font1,)),
                                         )
                                     ),
-                                    pw.Container(
-                                      padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Center(
-                                        child: pw.Text(data["date"] != null
-                                            ? DateFormat('dd-MM-yyyy').format(
-                                            DateTime.parse("${data["date"]}").toLocal())
-                                            : "",
-                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
-                                    ),
+
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text(data['orderNo'].toString(),
+                                          child: pw.Text(data['emp_code'].toString(),
                                               style: pw.TextStyle(fontSize: 8,font:font1,)),)
                                     ),
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text(data['custCode'],
-                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
+                                        child: pw.Text(date, style: pw.TextStyle(fontSize: 8, font: font1)),
+                                      ),
                                     ),
-
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text(data['custName'],
-                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
-                                    ),
-                                    // pw.Container(
-                                    //   padding: pw.EdgeInsets.all(8.0),
-                                    //   child: pw.Center(
-                                    //     child: pw.Text(data['custMobile'].toString(), style: pw.TextStyle(fontSize: 8)),),
-                                    // ),
-
-                                    pw.Container(
-                                      padding: pw.EdgeInsets.all(8.0),
-                                      child: pw.Center(
-                                        child: pw.Text(data["deliveryDate"] != null
-                                            ? DateFormat('dd-MM-yyyy').format(
-                                            DateTime.parse("${data["deliveryDate"]}").toLocal())
-                                            : "",
-                                            style: pw.TextStyle(fontSize: 8,font:font1,)),),
-
+                                        child: pw.Text(time, style: pw.TextStyle(fontSize: 8, font: font1)),
+                                      ),
                                     ),
 
                                   ]);
@@ -293,7 +254,7 @@ class _PurchaseReportPDFViewState extends State<PurchaseReportPDFView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Customer Order PDF"), centerTitle: true,),
+      appBar: AppBar(title: Text("Punch Report PDF"), centerTitle: true,),
       body: PdfPreview(
         build: (format) => _generatePdfWithCopies(format, 1), // Generate 1 copy
         onPrinted: (context) {},

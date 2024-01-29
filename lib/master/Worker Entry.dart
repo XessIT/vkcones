@@ -103,7 +103,7 @@ class _WorkerEntryState extends State<WorkerEntry> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      route: "worker_entry",
+      route: "worker_entry",backgroundColor: Colors.white,
       body: Container(), // Adjust this as needed
     );
   }

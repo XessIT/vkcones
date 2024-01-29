@@ -29,7 +29,7 @@ class _WithPrintingState extends State<WithPrinting> {
       length: 2,
 
       child: MyScaffold(
-        route: 'printwith',
+        route: 'printwith',backgroundColor: Colors.white,
 
         body: WillPopScope(
           onWillPop: () async {
@@ -1094,10 +1094,11 @@ class _WindingEntryState extends State<WindingEntry> {
                                                         onChanged: (String? newValue) {
                                                           setState(() {
                                                             selectedmachine = newValue;
-                                                            op1.clear();
+                                                            errorMessage = null;
+                                                            /*op1.clear();
                                                             ass1.clear();
                                                             ass2.clear();
-                                                            ass3.clear();
+                                                            ass3.clear();*/
                                                           });
                                                         },
                                                       ),
@@ -2685,8 +2686,9 @@ class _FinishingEntryState extends State<FinishingEntry> {
                                                         onChanged: (String? newValue) {
                                                           setState(() {
                                                             selectedmachine = newValue;
-                                                            op1.clear();
-                                                            ass1.clear();
+                                                            errorMessage = null;
+                                                            /* op1.clear();
+                                                            ass1.clear();*/
                                                           });
                                                         },
                                                       ),

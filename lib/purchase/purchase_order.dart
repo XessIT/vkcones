@@ -63,7 +63,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
   static final RegExp gstregex2 = RegExp(r"^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d{1}[Z]{1}[A-Z\d]{1}$");
   bool isFirstRowRemovalEnabled = false;
   DateTime? deliverydate;
-  int selectedCheckbox = 1;
+  int selectedCheckbox = 2;
 
   void validateDropdown() {
     setState(() {
@@ -673,6 +673,10 @@ class _PurchaseorderState extends State<Purchaseorder> {
     getitemname();
     ordernumfetch();
     filterCodeData(custName.text);
+    saleorderdate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_custNameFocusNode);
+    });
   }
 
   void showOrderNumberExistsDialog() {
@@ -1031,6 +1035,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
     }
   }
 
+  final FocusNode _custNameFocusNode = FocusNode();
   bool isNewOrderEntered = false;
   @override
   Widget build(BuildContext context) {
@@ -1043,7 +1048,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
       filterData5(custCode.text);
     });
     return MyScaffold(
-      route: "purchase_order",
+      route: "purchase_order",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
           child: Form(
@@ -1194,13 +1199,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                                 ),
                                               ),
                                             ),
-                                            /* Align(
-                                              alignment: Alignment.topLeft,
-                                              child: Text(
-                                                DateFormat('dd-MM-yyyy').format(selectedDate),
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),*/
                                             SizedBox(height: 3,),
                                             Divider(
                                               color: Colors.grey.shade600,
@@ -1354,6 +1352,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                   child: TypeAheadFormField<String>(
                                     textFieldConfiguration: TextFieldConfiguration(
                                       controller: custName,
+                                      focusNode: _custNameFocusNode,
                                       onChanged: (value) {
                                         String capitalizedValue = capitalizeFirstLetter(value);
                                         custName.value = custName.value.copyWith(
@@ -1361,6 +1360,16 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                           selection: TextSelection.collapsed(offset: capitalizedValue.length),
                                         );
                                         setState(() {
+                                          if (custName.text.isEmpty) {
+                                            setState(() {
+                                              errorMessage = '* Enter a Customer/Company Name';
+                                            });
+                                          }
+                                          else if (custName.text.length < 3) {
+                                            setState(() {
+                                              errorMessage = '* Customer/Company Name should have at least 3 letters';
+                                            });
+                                          }
                                           errorMessage = null; // Reset error message when user types
                                         });
                                       },
@@ -1419,6 +1428,16 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     style: TextStyle(fontSize: 13),
                                     onChanged: (value){
                                       setState(() {
+                                        if (custMobile.text.isEmpty) {
+                                          setState(() {
+                                            errorMessage = '* Enter a Customer Mobile';
+                                          });
+                                        }
+                                        else if (custMobile.text.length != 10) {
+                                          setState(() {
+                                            errorMessage = '* Mobile number should be 10 digits';
+                                          });
+                                        }
                                         errorMessage = null; // Reset error message when user types
                                       });
                                     },
@@ -1479,9 +1498,16 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     readOnly: readOnlyFields,
                                     controller: pincode,
                                     style: TextStyle(fontSize: 13),
-                                    onChanged: (value){
+                                    onChanged: (value) {
                                       setState(() {
-                                        errorMessage = null; // Reset error message when user types
+                                        errorMessage = null;
+                                        if (value.isEmpty) {
+                                          errorMessage = null;
+                                        }
+                                        if (pincode.text.length == 6) {
+                                        } else {
+                                          errorMessage = '* Enter a valid Pincode';
+                                        }
                                       });
                                     },
                                     decoration: InputDecoration(
@@ -1501,7 +1527,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     ],
                                   ),
                                 ),
-
                                 SizedBox(
                                   width: 220,height: 70,
                                   child: TextFormField(
@@ -1509,16 +1534,24 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     controller: GSTIN,
                                     style: TextStyle(fontSize: 13),
                                     inputFormatters: [
+                                      LengthLimitingTextInputFormatter(15),
                                       UpperCaseTextFormatter(), // Apply the formatter
                                     ],
                                     onChanged: (value){
-                                      if (!gstregex2.hasMatch(GSTIN.text)) {
-                                        setState(() {
-                                          errorMessage = '* Invalid GSTIN';
-                                          //  errorMessage = null;
-                                        });
+                                      setState(() {
                                         errorMessage = null;
-                                      }
+                                        if (value.isEmpty) {
+                                          setState(() {
+                                            errorMessage = '* Enter a GSTIN';
+                                          });
+                                        }
+                                        if (!gstregex2.hasMatch(GSTIN.text)) {
+                                          setState(() {
+                                            errorMessage = '* Invalid GSTIN';
+                                          });
+                                        }
+                                      });
+
                                       // setState(() {
                                       //   / Reset error message when user types
                                       // });
@@ -1561,8 +1594,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                         }).toList(),
                                         // Step 5.
                                         onChanged: (String? newValue) {
-                                          setState(() {
-                                            errorMessage = null; // Reset error message when user types
+                                          setState(() {// Reset error message when user types
                                           });
                                           setState(() {
                                             deliveryType = newValue!;
@@ -1580,26 +1612,27 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                   child: TextFormField(
                                     style: TextStyle(fontSize: 13),
                                     readOnly: true,
-                                    onTap: () {
-                                      showDatePicker(
+                                    onTap: () async {
+                                      DateTime? pickedDate = await showDatePicker(
                                         context: context,
                                         initialDate: deliverydate ?? DateTime.now(),
                                         firstDate: DateTime.now(),
                                         lastDate: DateTime(2100),
-                                      ).then((date) {
-                                        setState(() {
-                                          errorMessage = null; // Reset error message when user types
-                                        });
-                                        if (date != null) {
-                                          setState(() {
-                                            deliverydate = date;
-                                            final formattedDate = DateFormat('dd-MM-yyyy').format(deliverydate!);
-                                            deliveryDate.text = formattedDate;
-                                          });
+                                      );
+
+                                      setState(() {
+                                        if (pickedDate != null) {
+                                          deliverydate = pickedDate;
+                                          final formattedDate = DateFormat('dd-MM-yyyy').format(deliverydate!);
+                                          deliveryDate.text = formattedDate;
+                                        } else {
+                                          // User canceled the date picker, set deliverydate to null
+                                          deliverydate = null;
+                                          deliveryDate.text = ''; // Optional: Clear the text field if needed
                                         }
                                       });
                                     },
-                                    controller: deliveryDate, // Use the deliveryDate controller here
+                                    controller: deliveryDate,
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: Colors.white,
@@ -1610,6 +1643,8 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     ),
                                   ),
                                 ),
+
+
 
                               ],
                             ),
@@ -1693,7 +1728,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                               ),
                                             ),
                                           ]),
-                                
+
                                           for (var i = 0; i < rowData.length; i++)
                                             TableRow(children: [
                                               TableCell(
@@ -1740,7 +1775,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                                             }
                                                           },
                                                         )
-                                
+
                                                     ),
                                                   ),
                                                 ),
@@ -1801,7 +1836,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                                       },
                                                       inputFormatters: <TextInputFormatter>[
                                                         FilteringTextInputFormatter.digitsOnly,
-                                                        LengthLimitingTextInputFormatter(10)
+                                                        LengthLimitingTextInputFormatter(5)
                                                       ],
                                                       decoration: const InputDecoration(
                                                         filled: true,
@@ -1828,51 +1863,31 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                                         ),
                                                       ),
                                                       Visibility(
-                                                        visible: i == rowData.length - 1 &&
-                                                            rowData[i].itemGroup != null &&
-                                                            rowData[i].itemName != null &&
-                                                            rowData[i].qtyController.text.isNotEmpty,
-                                                        child: IconButton(
-                                                          icon: Icon(Icons.add_circle_outline, color: Colors.green),
-                                                          onPressed: () {
-                                                            bool isDuplicate = false;
-                                
-                                                            // Iterate through all previous rows
-                                                            for (int j = 0; j < i; j++) {
-                                                              if (rowData[i].itemGroup == rowData[j].itemGroup &&
-                                                                  rowData[i].itemName == rowData[j].itemName) {
-                                                                isDuplicate = true;
-                                                                break; // Break the loop if a duplicate is found
+                                                          visible: i == rowData.length - 1 &&
+                                                              rowData[i].itemGroup != null &&
+                                                              rowData[i].itemName != null &&
+                                                              rowData[i].qtyController.text.isNotEmpty,
+                                                          child: IconButton(
+                                                            icon: Icon(Icons.add_circle_outline, color: Colors.green),
+                                                            onPressed: () {
+                                                              bool isDuplicate = false;
+
+                                                              // Iterate through all previous rows
+                                                              for (int j = 0; j < i; j++) {
+                                                                if (rowData[i].itemGroup == rowData[j].itemGroup &&
+                                                                    rowData[i].itemName == rowData[j].itemName) {
+                                                                  isDuplicate = true;
+                                                                  break; // Break the loop if a duplicate is found
+                                                                }
                                                               }
-                                                            }
-                                
-                                                            if (isDuplicate) {
-                                                              showDialog(
-                                                                context: context,
-                                                                builder: (BuildContext context) {
-                                                                  return AlertDialog(
-                                                                    title: Text('Alert'),
-                                                                    content: Text('Already Exist the Products'),
-                                                                    actions: [
-                                                                      TextButton(
-                                                                        onPressed: () {
-                                                                          Navigator.of(context).pop();
-                                                                        },
-                                                                        child: Text('OK'),
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
-                                                              );
-                                                            } else {
-                                                              // Check if the quantity is 0
-                                                              if (rowData[i].qtyController.text == '0') {
+
+                                                              if (isDuplicate) {
                                                                 showDialog(
                                                                   context: context,
                                                                   builder: (BuildContext context) {
                                                                     return AlertDialog(
                                                                       title: Text('Alert'),
-                                                                      content: Text('Quantity cannot be 0'),
+                                                                      content: Text('Already Exist the Products'),
                                                                       actions: [
                                                                         TextButton(
                                                                           onPressed: () {
@@ -1885,20 +1900,40 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                                                   },
                                                                 );
                                                               } else {
-                                                                // Quantity is not 0, add the row
-                                                                addRow();
-                                                                if (i == 0) {
-                                                                  // Enable the first row removal once a second row is added
-                                                                  setState(() {
-                                                                    // isFirstRowRemovalEnabled = true;
-                                                                  });
+                                                                // Check if the quantity is 0
+                                                                if (rowData[i].qtyController.text == '0') {
+                                                                  showDialog(
+                                                                    context: context,
+                                                                    builder: (BuildContext context) {
+                                                                      return AlertDialog(
+                                                                        title: Text('Alert'),
+                                                                        content: Text('Quantity cannot be 0'),
+                                                                        actions: [
+                                                                          TextButton(
+                                                                            onPressed: () {
+                                                                              Navigator.of(context).pop();
+                                                                            },
+                                                                            child: Text('OK'),
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                } else {
+                                                                  // Quantity is not 0, add the row
+                                                                  addRow();
+                                                                  if (i == 0) {
+                                                                    // Enable the first row removal once a second row is added
+                                                                    setState(() {
+                                                                      // isFirstRowRemovalEnabled = true;
+                                                                    });
+                                                                  }
                                                                 }
                                                               }
-                                                            }
-                                                          },
-                                                        )
-                                
-                                
+                                                            },
+                                                          )
+
+
                                                       ),
                                                     ],
                                                   ),
@@ -2011,7 +2046,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                 );
                               }
                               else  if (_formKey.currentState!.validate()) {
-                                final deliveryDate = deliverydate?.toIso8601String();
                                 String enteredcustCode = custCode.text;
                                 bool isDuplicate = await checkForDuplicate(enteredcustCode);
                                 validateDropdown();
@@ -2105,7 +2139,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     'custCode': custCode.text,
                                     'custName': custName.text,
                                     'deliveryType': deliveryType,
-                                    'deliveryDate': deliverydate.toString(),
+                                    'deliveryDate': deliverydate == null ? null : deliverydate.toString(),
                                     'itemGroup': rowData[i].itemGroup,
                                     'itemName': rowData[i].itemName,
                                     'qty':rowData[i].qtyController.text,
@@ -2213,7 +2247,6 @@ class _PurchaseorderState extends State<Purchaseorder> {
                               }
 
                               else if (_formKey.currentState!.validate()) {
-                                final deliveryDate = deliverydate?.toIso8601String();
                                 String enteredcustCode = custCode.text;
                                 bool isDuplicate = await checkForDuplicate(enteredcustCode);
                                 validateDropdown();
@@ -2257,7 +2290,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     errorMessage = '* Invalid GSTIN';
                                   });
                                 }
-                                else if (deliveryType == null) {
+                                /* else if (deliveryType == null) {
                                   setState(() {
                                     errorMessage = '* Select a DeliveryType';
                                   });
@@ -2266,7 +2299,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                   setState(() {
                                     errorMessage = '* Select a Expected Delivery Date';
                                   });
-                                }
+                                }*/
                                 else if (rowData[i].itemGroup == null || rowData[i].itemName == null || rowData[i].qtyController.text.isEmpty) {
                                   setState(() {
                                     errorMessage = '* Fill all fields in the table';
@@ -2289,7 +2322,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     'custCode': custCode.text,
                                     'custName': custName.text,
                                     'deliveryType': deliveryType,
-                                    'deliveryDate': deliverydate.toString(),
+                                    'deliveryDate': deliverydate == null ? null : deliverydate.toString(),
                                     'itemGroup': rowData[i].itemGroup,
                                     'itemName': rowData[i].itemName,
                                     'qty':rowData[i].qtyController.text,

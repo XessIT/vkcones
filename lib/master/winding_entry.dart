@@ -1218,7 +1218,7 @@ class _WindingEntryState extends State<WindingEntry> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "winding_entry",
+        route: "winding_entry",backgroundColor: Colors.white,
         body: Form(
           key: _formKey,
           child: SingleChildScrollView(

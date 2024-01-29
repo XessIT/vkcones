@@ -151,7 +151,7 @@ class _supplierViewState extends State<supplierView> {
     DateTime currentdate = DateTime.now();
     final formattedDate = DateFormat("dd-MM-yyyy").format(currentdate);
     return  MyScaffold(
-        route: "supplier view",
+        route: "supplier view",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(

@@ -106,7 +106,7 @@ class _custeditState extends State<custedit> {
   Widget build(BuildContext context) {
     DateTime currentDate = DateTime.now();
     String formattedDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate);
-    return  MyScaffold(route: "cust_edit",
+    return  MyScaffold(route: "cust_edit",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(

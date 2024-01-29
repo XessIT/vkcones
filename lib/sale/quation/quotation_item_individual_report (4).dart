@@ -95,7 +95,7 @@ class _QuotationItemState extends State<QuotationItem> {
     });
 
     return MyScaffold(
-      route: "/quotation_item",
+      route: "/quotation_item",backgroundColor: Colors.white,
       body: Center(
         child: Column(
           children: [

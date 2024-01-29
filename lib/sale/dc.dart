@@ -198,6 +198,7 @@ class _PurchaseState extends State<Dc> {
         orderNo.clear();
         custName.clear();
         grandTotal.clear();
+        transNo.clear();
         deliveryType=null;
         filteredData = data;
       } else {
@@ -211,10 +212,13 @@ class _PurchaseState extends State<Dc> {
           orderNo.text = order['orderNo']?.toString() ?? '';
           custName.text = order['custName']?.toString() ?? '';
           deliveryType = order['deliveryType']?.toString() ?? '';
+          transNo.text = order['transNo']?.toString() ?? '';
           grandTotal.text = order['grandTotal']?.toString() ?? '';
         } else {
-          custCode.clear();orderNo.clear();
+          custCode.clear();
+          orderNo.clear();
           custName.clear();
+          transNo.clear();
           grandTotal.clear();
         }
       }
@@ -683,7 +687,7 @@ class _PurchaseState extends State<Dc> {
     return Builder(
         builder: (context) =>
             MyScaffold(
-              route: "dc",
+              route: "dc",backgroundColor: Colors.white,
               body:  Form(
                 key: _formKey,
                 child: SingleChildScrollView(

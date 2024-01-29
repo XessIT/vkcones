@@ -502,6 +502,8 @@ class _PoIndividualReportState
                                                       : "",
                                                   style: pw.TextStyle(fontSize: 9,font:font1),
                                                 ),
+
+
                                                 pw.SizedBox(height:4),
                                                 pw.Text("")
 

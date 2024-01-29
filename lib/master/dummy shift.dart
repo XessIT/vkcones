@@ -120,7 +120,7 @@ class _ShiftEntryState extends State<ShiftEntry> {
   Widget build(BuildContext context) {
     final date = DateTime.now();
     return MyScaffold(
-        route: "shift_entry",
+        route: "shift_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,

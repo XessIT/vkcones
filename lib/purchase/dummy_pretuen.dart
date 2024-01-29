@@ -1088,7 +1088,7 @@ class _PurchaseState extends State<Purchase> {
 
     double screenWidth = MediaQuery.of(context).size.width;
     return MyScaffold(
-        route: "purchase_entry",
+        route: "purchase_entry",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(

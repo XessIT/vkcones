@@ -325,7 +325,7 @@ class _SalaryPaymentReportState extends State<SalaryPaymentReport> {
     });
 
     return MyScaffold(
-      route: "salary_payment_report",
+      route: "salary_payment_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

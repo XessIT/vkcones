@@ -823,7 +823,7 @@ class _PendingReportState extends State<PendingReport> {
     //   return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
     // }
     return MyScaffold(
-      route: "get_pending_report",
+      route: "get_pending_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

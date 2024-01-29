@@ -142,7 +142,7 @@ class _productViewState extends State<productView> {
     final formattedDate2 = DateFormat("yyyy-MM-dd").format(currentdate);
     final formattedDate = DateFormat("dd-MM-yyyy").format(currentdate);
     return  MyScaffold(
-        route: "supplier view",
+        route: "supplier view",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(

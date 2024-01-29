@@ -12,7 +12,7 @@ class _FPDeviceReportState extends State<FPDeviceReport> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "fb_device_report",
+        route: "fb_device_report",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             child: Center(

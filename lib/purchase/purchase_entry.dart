@@ -886,10 +886,13 @@ class _PurchaseState extends State<Purchase> {
 
   String selectedInvoiceNo = '';
   String selectedPoInvoiceNo = '';
-
+  final FocusNode _suppliernameFocusNode = FocusNode();
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_suppliernameFocusNode);
+    });
     fetchDataPendingPo();
     fetchData();//add Row
     fetchData2();
@@ -1150,7 +1153,7 @@ class _PurchaseState extends State<Purchase> {
 
     double screenWidth = MediaQuery.of(context).size.width;
     return MyScaffold(
-        route: "purchase_entry",
+        route: "purchase_entry",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -1199,11 +1202,23 @@ class _PurchaseState extends State<Purchase> {
                                                 });
                                               },
                                             ),
-                                            Text("PO Number              "),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
+                                            Text("PO"),
+                                            Checkbox(
+                                              value: selectedCheckbox == 3,
+                                              onChanged: (bool? value) {
+                                                setState(() {
+                                                  poNUMber.clear();
+                                                  errorMessage ="";
+                                                  //  checkOrderNo ="";
+                                                  if (value != null && value) {
+                                                    selectedCheckbox = 3;
+                                                  } else {
+                                                    selectedCheckbox = selectedCheckbox == 3 ? 1 : 3;
+                                                  }
+                                                });
+                                              },
+                                            ),
+                                            const Text("GSM"),
                                             Checkbox(
                                               value: selectedCheckbox == 2,
                                               onChanged: (bool? value) {
@@ -1220,22 +1235,24 @@ class _PurchaseState extends State<Purchase> {
                                                 });
                                               },
                                             ),
-                                            Text("Pending PO Number"),
+                                            Text("Pending"),
                                           ],
                                         ),
+
+
                                       ],
                                     ),
                                     //poNumber textformfield
                                     Column(
                                       children: [
                                         Visibility(
-                                          visible: selectedCheckbox ==1,
+                                          visible: selectedCheckbox == 1 || selectedCheckbox == 3 ,
                                           child: SizedBox(
                                             width: 140,
                                             height: 36,
                                             child: TypeAheadFormField<String>(
                                               textFieldConfiguration: TextFieldConfiguration(
-                                                controller: poNUMber,
+                                                controller: poNUMber,focusNode: _suppliernameFocusNode,
                                                 style: const TextStyle(fontSize: 13),
                                                 onChanged: (value) {
                                                   setState(() {
@@ -1262,20 +1279,24 @@ class _PurchaseState extends State<Purchase> {
                                                 if (pattern.isNotEmpty) {
                                                   suggestions = data
                                                       .where((item) =>
-                                                      (item['poNo']?.toString()?.toLowerCase() ?? '')
-                                                          .startsWith(pattern.toLowerCase()))
+                                                  (item['poNo']?.toString()?.toLowerCase() ?? '')
+                                                      .startsWith(pattern.toLowerCase()) &&
+                                                      (selectedCheckbox != 1 || !item['prodName'].toString().startsWith('GSM')))
                                                       .map((item) => item['poNo'].toString())
                                                       .toSet() // Remove duplicates using a Set
                                                       .toList();
+
                                                   suggestions.removeWhere((existingInvoiceNo) =>
                                                   isMachineNameExists(existingInvoiceNo) &&
                                                       existingInvoiceNo != poNUMber.text);
+
                                                   suggestions = suggestions.take(5).toList();
                                                 } else {
                                                   suggestions = [];
                                                 }
                                                 return suggestions;
                                               },
+
                                               itemBuilder: (context, suggestion) {
                                                 return ListTile(
                                                   title: Text(suggestion),
@@ -1656,12 +1677,12 @@ class _PurchaseState extends State<Purchase> {
                                               color: Colors.black54
                                           ),
                                           defaultColumnWidth: const FixedColumnWidth(140.0),
-                                          columnWidths: const <int, TableColumnWidth>{
+                                          columnWidths:  <int, TableColumnWidth>{
                                             // 0: FixedColumnWidth(175),
                                             // 1: FixedColumnWidth(175),
                                             2: FixedColumnWidth(100),
                                             3: FixedColumnWidth(100),
-                                            4: FixedColumnWidth(100),
+                                            4: selectedCheckbox == 3 ? const FixedColumnWidth(100) : const FixedColumnWidth(0),
                                             5: FixedColumnWidth(100),
                                             6: FixedColumnWidth(100),
                                             7: FixedColumnWidth(80),
@@ -1731,14 +1752,18 @@ class _PurchaseState extends State<Purchase> {
                                                       ),
                                                     ),
                                                   ),
-                                                ), TableCell(
+                                                ), 
+                                                
+                                                TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
                                                     child: Center(
                                                       child: Column(
                                                         children: [
                                                           const SizedBox(height:15),
-                                                          Text('Total Weight',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          selectedCheckbox == 3 ?
+                                                          Text('Total Weight',style: TextStyle(fontWeight: FontWeight.bold),)
+                                                         : Text('',style: TextStyle(fontWeight: FontWeight.bold),),
                                                           const SizedBox(height:15),
                                                         ],
                                                       ),
@@ -1871,16 +1896,16 @@ class _PurchaseState extends State<Purchase> {
                                               TableRow(
                                                 children: [
                                                   for (var j = 0; j < 12; j++)
-                                                    j==10? TableCell(
+                                                    j==4? TableCell(
                                                       child: Padding(
                                                         padding: const EdgeInsets.all(8.0),
                                                         child: Visibility(
-                                                          visible:false,
+                                                          visible: selectedCheckbox == 3, // Show only when GSM checkbox is selected
                                                           child: TextFormField(
                                                               style: TextStyle(fontSize: 13,
                                                                 color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
                                                               ),
-                                                              controller: controllers[i][10],
+                                                              controller: controllers[i][j],
                                                               inputFormatters: [
                                                                 UpperCaseTextFormatter(),
                                                                 FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
@@ -2033,16 +2058,16 @@ class _PurchaseState extends State<Purchase> {
                                                         ),
                                                       ),
                                                     ) :
-                                                    j==11? TableCell(
+                                                    j==4? TableCell(
                                                       child: Padding(
                                                         padding: const EdgeInsets.all(8.0),
                                                         child: Visibility(
-                                                          visible:false,
+                                                          visible: selectedCheckbox == 3, // Show only when GSM checkbox is selected
                                                           child: TextFormField(
                                                               style: TextStyle(fontSize: 13,
                                                                 color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
                                                               ),
-                                                              controller: controllers[i][11],
+                                                              controller: controllers[i][j],
                                                               inputFormatters: [UpperCaseTextFormatter(),
                                                                 if (j == 7)
                                                                   FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
@@ -2537,29 +2562,36 @@ class _PurchaseState extends State<Purchase> {
                                   errorMessage = '* Enter a Invoice Number';
                                 });
                               }
-                              // else if (payType == null) {
-                              //   setState(() {
-                              //     errorMessage = '* Select a Payment Type';
-                              //   });
-                              // }
                               else {
-                                if (_formKey.currentState!.validate()
-                                  /*  &&
+                                  if (_formKey.currentState!.validate()
+                                    &&
                                     !controllers.any((controller) =>
                                     controller[0].text.isEmpty ||
                                         controller[1].text.isEmpty ||
                                         controller[2].text.isEmpty ||
                                         controller[3].text.isEmpty ||
-                                        // controller[4].text.isEmpty ||
                                         controller[5].text.isEmpty ||
                                         controller[6].text.isEmpty ||
                                         controller[7].text.isEmpty ||
                                         controller[8].text.isEmpty ||
-                                        controller[9].text.isEmpty ||
-                                        controller[10].text.isEmpty
+                                        controller[9].text.isEmpty
 
-                                    )*/
-                                ) {
+                                    ) || selectedCheckbox == 3 &&
+                                      !controllers.any((controller) =>
+                                      controller[0].text.isEmpty ||
+                                          controller[1].text.isEmpty ||
+                                          controller[2].text.isEmpty ||
+                                          controller[3].text.isEmpty ||
+                                          controller[4].text.isEmpty ||
+                                          controller[5].text.isEmpty ||
+                                          controller[6].text.isEmpty ||
+                                          controller[7].text.isEmpty ||
+                                          controller[8].text.isEmpty ||
+                                          controller[9].text.isEmpty
+                                )
+                                  )
+
+                                  {
                                   for (var i = 0; i < controllers.length; i++) {
                                     String enteredProdCode = controllers[i][0]
                                         .text;
@@ -2647,7 +2679,7 @@ class _PurchaseState extends State<Purchase> {
                                     '* Fill all fields in the table';
                                   });
                                 }
-                              }
+                                }
                             },
                             child: const Text("SAVE", style: TextStyle(color: Colors.white)),
                           ),

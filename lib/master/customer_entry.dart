@@ -199,7 +199,7 @@ String? customercode;
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        route: "customer_entry",
+        route: "customer_entry",backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,

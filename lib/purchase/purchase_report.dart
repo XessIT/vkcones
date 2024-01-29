@@ -203,7 +203,7 @@ class _PurchaseReportState extends State<PurchaseReport> {
 
 
     return MyScaffold(
-      route: "purchase_report",
+      route: "purchase_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -707,7 +707,6 @@ class _YourDataTableSource extends DataTableSource {
                         total: row["total"],
                         grandTotal: row["grandTotal"],
                         payType: row["payType"],
-                      //  amt: row["amt"],
 
                       ),
                     ),

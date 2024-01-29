@@ -166,7 +166,7 @@ class _Winding_printing_productionState extends State<Winding_printing_productio
     });
 
     return MyScaffold(
-      route: "winding_printing_production_report",
+      route: "winding_printing_production_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

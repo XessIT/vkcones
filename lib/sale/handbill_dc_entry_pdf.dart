@@ -8,6 +8,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:http/http.dart'as http;
+import 'package:vinayaga_project/sale/sample_dc.dart';
 import 'dc.dart';
 
 
@@ -46,6 +47,8 @@ class _HandbilldcIndividualPDFViewState
   double totalGST = 0.0;
   int totalqty = 0;
   double total = 0.0;
+  double amnt = 0.0;
+  double totalamt = 0.0;
 
   Future<List<Map<String, dynamic>>> fetchUnitEntries(String dcNo) async {
     try {
@@ -78,14 +81,15 @@ class _HandbilldcIndividualPDFViewState
         //mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(
-            '        $formattedDate   $formattedTime',
+            '$formattedDate   $formattedTime',
             style: pw.TextStyle(fontSize: 6),
           ),
-          pw.SizedBox(width: 375),
+          pw.SizedBox(width: 365),
+          pw.Padding(padding: pw.EdgeInsets.only(right:15),child:
           pw.Text(
             'Page $currentPage of $totalPages',
             style: pw.TextStyle(fontSize: 6),
-          ),
+          ),)
 
         ],
       ),
@@ -112,7 +116,9 @@ class _HandbilldcIndividualPDFViewState
     final List<Map<String, dynamic>> data = await fetchUnitEntries(dcNo);
     totalGST = 0.0;
     totalqty = 0;
+    amnt = 0.0;
     total=0.0;
+    totalamt=0.0;
     int serialNumber = 1;
 
     pw.Widget _buildDataTable(List<Map<String, dynamic>> data, String? dcNo) {
@@ -285,9 +291,11 @@ class _HandbilldcIndividualPDFViewState
         data.skip(j).take(recordsPerPage).toList();
 
         for (var item in pageData) {
-          totalGST += double.parse(item['gstAmnt']);
           totalqty += int.parse(item['qty']);
           total += double.parse(item['rateperunit']);
+          amnt += double.parse(item['amount']);
+          totalGST += double.parse(item['gstAmnt']);
+          totalamt += double.parse(item['totalAmnt']);
         }
         pdf.addPage(
           pw.Page(
@@ -350,14 +358,14 @@ class _HandbilldcIndividualPDFViewState
                       ),),
                   pw.SizedBox(height: 5),
                   pw.Text(
-                    'Delivery Challan Report ',
+                    'Handbill Delivery Challan ',
                     style: pw.TextStyle(fontSize: 14,font:font, fontWeight: pw.FontWeight.bold),
                   ),
                   pw.Padding(
                     padding: pw.EdgeInsets.only(top: 5.0),
                     child: pw.Container(
                       width: double.infinity,
-                      height:pageHeight * 0.80,
+                      height:pageHeight * 0.79,
                       padding: pw.EdgeInsets.all(0.0),
                       decoration: pw.BoxDecoration(
                         border: pw.Border.all(color: PdfColors.grey),
@@ -368,7 +376,7 @@ class _HandbilldcIndividualPDFViewState
                           children: [
 
                             pw.Padding(
-                              padding: pw.EdgeInsets.only(left:20,bottom: 10,top: 10),
+                              padding: pw.EdgeInsets.only(left:20,bottom: 5,top: 10),
                               child: pw.Row(
                                 children: [
                                   pw.Text(
@@ -379,13 +387,13 @@ class _HandbilldcIndividualPDFViewState
                                       font:font,
                                     ),
                                   ),
-                                  pw.SizedBox(width: 220),
+                                  pw.SizedBox(width: 180),
                                   pw.Column(
                                       children: [
                                         pw.Align(
                                           alignment: pw.Alignment.topRight,
                                           child: pw.Padding(
-                                            padding: pw.EdgeInsets.only(left:80,top:20),
+                                            padding: pw.EdgeInsets.only(left:80,top:10),
                                             child: pw.Column(
                                               crossAxisAlignment:
                                               pw.CrossAxisAlignment.end,
@@ -415,30 +423,32 @@ class _HandbilldcIndividualPDFViewState
                                                         pw.SizedBox(height:5),
 
                                                         pw.Row(
-                                                          children: [
 
-                                                            pw.Align(
-                                                              alignment: pw.Alignment.topLeft,
-                                                              child: pw.Text(
-                                                                "DC Number   :   ",
-                                                                style: pw.TextStyle(
-                                                                    fontWeight:
-                                                                    pw.FontWeight.bold,
-                                                                    fontSize: 7,font:font1),
-                                                              ),
-                                                            ),
-                                                            pw.Align(
-                                                              alignment: pw.Alignment.topLeft,
-                                                              child: pw.Text(
-                                                                widget.dcNo.toString(),
-                                                                style: pw.TextStyle(
-                                                                  // fontWeight:
-                                                                  // pw.FontWeight.bold,
-                                                                    fontSize: 7,font:font1),
-                                                              ),
-                                                            ),
+                                                            children: [
 
-                                                          ]
+                                                              pw.Align(
+                                                                alignment: pw.Alignment.topLeft,
+                                                                child: pw.Text(
+                                                                  "DC Number   :   ",
+                                                                  style: pw.TextStyle(
+                                                                      fontWeight:
+                                                                      pw.FontWeight.bold,
+                                                                      fontSize: 7,font:font1),
+                                                                ),
+                                                              ),
+                                                              pw.Align(
+                                                                alignment: pw.Alignment.topLeft,
+                                                                child: pw.Text(
+                                                                  widget.dcNo.toString(),
+                                                                  style: pw.TextStyle(
+                                                                    // fontWeight:
+                                                                    // pw.FontWeight.bold,
+                                                                      fontSize: 7,font:font1),
+                                                                ),
+                                                              ),
+
+                                                            ]
+
                                                         ),
                                                         pw.SizedBox(height:5),
 
@@ -447,7 +457,7 @@ class _HandbilldcIndividualPDFViewState
                                                           pw.Align(
                                                             alignment: pw.Alignment.topLeft,
                                                             child: pw.Text(
-                                                              "Invoice Number",
+                                                              "Invoice Number  :  ",
                                                               style: pw.TextStyle(
                                                                   fontWeight:
                                                                   pw.FontWeight.bold,
@@ -496,15 +506,16 @@ class _HandbilldcIndividualPDFViewState
                                             pw.Text(
                                               "Customer/Company Name",
                                               style: pw.TextStyle(
-                                                fontSize: 9,
-                                                font:font1
+                                         fontSize: 9,
+                                                  font:font1
+
                                               ),
                                             ),
                                             pw.SizedBox(height: 3),
                                             pw.Text(
                                               "Customer Address",
                                               style: pw.TextStyle(
-                                                fontSize: 9,
+                                                  fontSize: 9,
                                                   font:font1
                                               ),
                                             ),
@@ -512,7 +523,7 @@ class _HandbilldcIndividualPDFViewState
                                             pw.Text(
                                               "Pincode",
                                               style: pw.TextStyle(
-                                                fontSize: 9,
+                                                  fontSize: 9,
                                                   font:font1
                                               ),
                                             ),
@@ -520,7 +531,7 @@ class _HandbilldcIndividualPDFViewState
                                             pw.Text(
                                               "Place of supply",
                                               style: pw.TextStyle(
-                                                fontSize: 9,
+                                                  fontSize: 9,
                                                   font:font1
                                               ),
                                             ),
@@ -528,7 +539,7 @@ class _HandbilldcIndividualPDFViewState
                                             pw.Text(
                                               "Customer Mobile",
                                               style: pw.TextStyle(
-                                                fontSize: 9,
+                                               fontSize: 9,
                                                   font:font1
                                               ),
                                             ),
@@ -607,7 +618,7 @@ class _HandbilldcIndividualPDFViewState
                                     pw.SizedBox(width: 10),
                                     pw.Container(
                                       height: 13,
-                                      width: 32,
+                                      width: 100,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -619,7 +630,7 @@ class _HandbilldcIndividualPDFViewState
                                     ),
                                     pw.Container(
                                       height: 13,
-                                      width: 103,
+                                      width: 55,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -631,7 +642,19 @@ class _HandbilldcIndividualPDFViewState
                                     ),
                                     pw.Container(
                                       height: 13,
-                                      width: 45,
+                                      width: 55,
+                                      //color: PdfColors.pink
+                                      padding: pw.EdgeInsets.all(2.0),
+                                      decoration: pw.BoxDecoration(
+                                        border: pw.Border.all(color: PdfColors.black),
+                                        borderRadius: pw.BorderRadius.circular(1.0),
+                                      ),
+                                      child: pw.Text(amnt.toStringAsFixed(2),
+                                          style: pw.TextStyle(fontSize: 9,font:font1)),
+                                    ),
+                                    pw.Container(
+                                      height: 13,
+                                      width: 35,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -644,7 +667,7 @@ class _HandbilldcIndividualPDFViewState
 
                                     pw.Container(
                                       height: 13,
-                                      width: 57,
+                                      width: 35,
                                       //color: PdfColors.pink
                                       padding: pw.EdgeInsets.all(2.0),
                                       decoration: pw.BoxDecoration(
@@ -689,10 +712,10 @@ class _HandbilldcIndividualPDFViewState
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>Dc()));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>SampleDC()));
           },
         ),
-        title: Text("Delivery Challan PDF"),
+        title: Text("Hand bill Delivery Challan"),
         centerTitle: true,
       ),
       body: PdfPreview(

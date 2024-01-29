@@ -168,7 +168,7 @@ class _DamageStockEntriesState extends State<DamageStockEntries> {
     });
 
     return MyScaffold(
-      route: "damage_stock",
+      route: "damage_stock",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

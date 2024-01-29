@@ -8,11 +8,14 @@ import 'package:vinayaga_project/purchase/po_creations.dart';
 import 'package:vinayaga_project/purchase/purchase_entry.dart';
 import 'package:vinayaga_project/purchase/purchase_order.dart';
 import 'package:vinayaga_project/report/raw_material_stock.dart';
+import 'package:vinayaga_project/report/salary_payment_report.dart';
 import 'package:vinayaga_project/sale/dc.dart';
 import 'package:vinayaga_project/sale/entry_sales.dart';
 import 'package:vinayaga_project/sale/sales_order_entry.dart';
 //import 'package:vinayaga_project/sample_dummy_pdf.dart';
 import 'Attendance/Attendance_report.dart';
+import 'Attendance/Punch.dart';
+import 'Attendance/salary.dart';
 import 'main.dart';
 import 'dashboard_component.dart';
 import 'master/shift_entry.dart';
@@ -23,156 +26,33 @@ class Home extends StatefulWidget {
   @override
   State<Home> createState() => _HomeState();
 }
-
-/*
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
       route: "/",
+      backgroundColor: Colors.white,  // Set the background color here
       body: Container(
+       color: Colors.white,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(18.0),
             child: Column(
               children: [
-                SizedBox(height: 20),
+                SizedBox(height: 50),
                 Container(
+                  width: 850,
                   child: InputDecorator(
                     decoration: const InputDecoration(
-                      labelText: 'Dashboard',
+                      labelText: 'Sale/Purchase',
                       labelStyle:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: Wrap(
                         children: [
-                          buildDashboardItem(
-                            'Sales',
-                            "sales.JPEG",
-                            [Colors.deepPurple, Colors.deepPurpleAccent],
-                                () => navigateTo(EntrySales()),
-                          ),
-                          buildDashboardItem(
-                            'Purchase Order Creation',
-                            "purchaeorder.JPEG",
-                            [Colors.orange, Colors.orangeAccent],
-                                () => navigateTo(PoCreation()),
-                          ),
-                          buildDashboardItem(
-                            'Shift Entry',
-                            "shiftentry.JPEG",
-                            [Colors.teal, Colors.tealAccent],
-                                () => navigateTo(ShiftCreation()),
-                          ),
-                          buildDashboardItem(
-                            'Delivery Challan',
-                            "deliverycha.JPEG",
-                            [Colors.blue, Colors.blueAccent],
-                                () => navigateTo(Dc()),
-                          ),
-                          buildDashboardItem(
-                            'Production Stock',
-                            "production.JPEG",
-                            [Colors.green, Colors.greenAccent],
-                                () => navigateTo(ProductionEntry()),
-                          ),
-                          buildDashboardItem(
-                            'Employee',
-                            "employee.JPEG",
-                            [Colors.pink, Colors.pinkAccent],
-                                () => navigateTo(EmployeeProfileUpdate()),
-                          ),
-                          buildDashboardItem(
-                            'Sales Order',
-                            "custorder.JPEG",
-                            [Colors.lightBlue, Colors.lightBlueAccent],
-                                () => navigateTo(Purchaseorder()),
-                          ),
-                          buildDashboardItem(
-                            'Finger Print Device',
-                            "fb.JPEG",
-                            [Colors.blue, Colors.blueAccent],
-                                () => navigateTo(FingerPrint()),
-                          ),
-                          buildDashboardItem(
-                            'Raw Material Stock',
-                            "rawmaterial.JPEG",
-                            [Colors.red, Colors.redAccent],
-                                () => navigateTo(RawMaterialStockEntries()),
-                          ),
-                          buildDashboardItem(
-                            'Purchase',
-                            "purchaseentry2.JPEG",
-                            [Colors.cyan, Colors.cyanAccent],
-                                () => navigateTo(Purchase()),
-                          ),
-                          buildDashboardItem(
-                            'Attendance',
-                            "shiftentry.JPEG",
-                            [Colors.pink, Colors.pinkAccent],
-                                () => navigateTo(AttendanceReport()),
-                          ),
-                          buildDashboardItem(
-                            'Daily Work Status',
-                            "dailyworkstatus.JPEG",
-                            [Colors.blueGrey, Colors.greenAccent],
-                                () => navigateTo(DailyWorkStatus()),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildDashboardItem(
-      String title, String iconName, List<Color> colors, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: DashboardComponent(
-        title: title,
-        iconName: iconName,
-        colors: colors,
-      ),
-    );
-  }
-
-  void navigateTo(Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-  }
-}
-*/
-class _HomeState extends State<Home> {
-  @override
-  Widget build(BuildContext context) {
-    return MyScaffold(
-      route: "/",
-      body: Container(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              children: [
-                SizedBox(height: 20),
-                Container(
-                  child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Dashboard',
-                      labelStyle:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: Wrap(
-                        children: [
+                          SizedBox(width: 60),
                           buildDashboardItem(
                             title: ' Sales order',
                             icon: Icons.add_shopping_cart,
@@ -186,8 +66,9 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
                           buildDashboardItem(
-                            title: '     Sales     ',
+                            title: '      Sales      ',
                             icon: Icons.shopping_cart,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -199,8 +80,10 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          SizedBox(width: 30),
+
                           buildDashboardItem(
-                            title: '      Dc     ',
+                            title: '        Dc       ',
                             icon: Icons.delivery_dining,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -211,9 +94,9 @@ class _HomeState extends State<Home> {
                                 ),
                               );
                             },
-                          ),
+                          ), SizedBox(width: 30),
                           buildDashboardItem(
-                            title: '      Po      ',
+                            title: '        Po        ',
                             icon: Icons.add_shopping_cart,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -224,9 +107,9 @@ class _HomeState extends State<Home> {
                                 ),
                               );
                             },
-                          ),
+                          ),SizedBox(width: 30),
                           buildDashboardItem(
-                            title: ' Purchase ',
+                            title: '  Purchase  ',
                             icon: Icons.shopping_cart,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
@@ -238,6 +121,28 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+
+                          SizedBox(width: 30),
+
+                          // Add more dashboard items similarly
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(width: 850,
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Masters',
+                      labelStyle:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Wrap(
+                        children: [
+
                           buildDashboardItem(
                             title: 'Employee',
                             icon: Icons.person,
@@ -265,19 +170,7 @@ class _HomeState extends State<Home> {
                             },
                           ),
 
-                          buildDashboardItem(
-                            title: 'Attendance',
-                            icon: Icons.access_time,
-                            colors: [Colors.black26, Colors.blue],
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AttendanceReport(),
-                                ),
-                              );
-                            },
-                          ),
+
                           buildDashboardItem(
                             title: 'Daily work',
                             icon: Icons.calendar_today,
@@ -317,6 +210,65 @@ class _HomeState extends State<Home> {
                               );
                             },
                           ),
+                          // Add more dashboard items similarly
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(width: 850,
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Attendance',
+                      labelStyle:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Wrap(
+                        children: [
+
+                          buildDashboardItem(
+                            title: 'Attendance',
+                            icon: Icons.access_time,
+                            colors: [Colors.black26, Colors.blue],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AttendanceReport(),
+                                ),
+                              );
+                            },
+                          ),
+                          buildDashboardItem(
+                            title: 'Punches',
+                            icon: Icons.punch_clock,
+                            colors: [Colors.black26, Colors.blue],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Punch(),
+                                ),
+                              );
+                            },
+                          ),
+                          buildDashboardItem(
+                            title: ' Salary ',
+                            icon: Icons.access_time,
+                            colors: [Colors.black26, Colors.blue],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SalaryCalculation(),
+                                ),
+                              );
+                            },
+                          ),
+
                           // Add more dashboard items similarly
                         ],
                       ),

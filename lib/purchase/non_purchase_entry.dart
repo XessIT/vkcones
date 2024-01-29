@@ -605,7 +605,7 @@ class _NonPurchaseEntryState extends State<NonPurchaseEntry> {
     });
 
     return MyScaffold(
-        route: "po_creation",
+        route: "po_creation",backgroundColor: Colors.white,
         body:  Form(
           key: _formKey,
           child: SingleChildScrollView(

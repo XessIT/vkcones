@@ -225,7 +225,7 @@ class _DcReportState extends State<DcReport> {
     //   filterData(searchController.text);
     // });
     return MyScaffold(
-      route: "delivery_challan_report",
+      route: "delivery_challan_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(
@@ -738,6 +738,7 @@ class _YourDataTableSource extends DataTableSource {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+/*
                 IconButton(icon: Icon(Icons.remove_red_eye_outlined,color:Colors. blue,),onPressed: (){
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>dcViwe(
                     customerData:filteredData,
@@ -755,6 +756,7 @@ class _YourDataTableSource extends DataTableSource {
                     grandTotal:row["grandTotal"],
                   )));
                 },),
+*/
                 IconButton(
                     icon: Icon(Icons.print),
                     color: Colors.blue.shade600,

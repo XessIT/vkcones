@@ -154,7 +154,7 @@ class _WindingReportState extends State<WindingReport> {
 
 
     return MyScaffold(
-      route: "winding_report",
+      route: "winding_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

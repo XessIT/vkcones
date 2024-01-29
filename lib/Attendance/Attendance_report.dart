@@ -195,7 +195,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
     //   return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
     // }
     return MyScaffold(
-      route: "attendance_report",
+      route: "attendance_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

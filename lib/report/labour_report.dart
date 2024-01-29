@@ -323,7 +323,7 @@ class _LabourReportState extends State<LabourReport> {
       return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
     }
     return MyScaffold(
-      route: "employee_report",
+      route: "employee_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

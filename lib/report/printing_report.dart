@@ -165,7 +165,7 @@ class _PrintingReportState extends State<PrintingReport> {
     });
 
     return MyScaffold(
-      route: "printing_report",
+      route: "printing_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           child: Center(

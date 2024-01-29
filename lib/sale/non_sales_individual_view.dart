@@ -134,7 +134,7 @@ class _NonOrderSalesViewState extends State<NonOrderSalesView> {
     List<Map<String, dynamic>> customerData = widget.customerData;
 */
 
-    return  MyScaffold(route: "dcview",
+    return  MyScaffold(route: "dcview",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(
@@ -196,7 +196,7 @@ class _NonOrderSalesViewState extends State<NonOrderSalesView> {
                                                     Align(
                                                         alignment: Alignment.topLeft,
                                                         child: Text(widget.invoiceNo!)),
-                                                  /*  const Align(
+                                                    /*  const Align(
                                                         alignment: Alignment.topLeft,
                                                         child: Text("Order No",style: TextStyle(fontWeight: FontWeight.bold),)),*/
 /*
@@ -443,18 +443,15 @@ class _NonOrderSalesViewState extends State<NonOrderSalesView> {
                                                                     color: Colors.blue.shade100,
                                                                   ),
                                                                   children: [
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(// Set the desired height
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(
-                                                                            child: Text(
-                                                                              'S.No',
-                                                                              style: TextStyle(
-                                                                                fontWeight: FontWeight.bold,
-                                                                                color: Colors.black,
-                                                                              ),
+                                                                    TableCell(// Set the desired height
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(
+                                                                          child: Text(
+                                                                            'S.No',
+                                                                            style: TextStyle(
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.black,
                                                                             ),
                                                                           ),
                                                                         ),
@@ -476,22 +473,16 @@ class _NonOrderSalesViewState extends State<NonOrderSalesView> {
                                                                       ),
                                                                     ),
 */
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(child: Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                        ),
+                                                                    TableCell(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(child: Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                       ),
                                                                     ), /// Product Name
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                        ),
+                                                                    TableCell(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                       ),
                                                                     ),   /// Quanity
 
@@ -550,23 +541,17 @@ class _NonOrderSalesViewState extends State<NonOrderSalesView> {
                                                                       ),
                                                                     ),
 */
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(child: Text('Rate', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                        ),
+                                                                    TableCell(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(child: Text('Rate', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                       ),
                                                                     ),    /// Rate
 
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: TableCell(
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets.all(8.0),
-                                                                          child: Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                        ),
+                                                                    TableCell(
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.all(8.0),
+                                                                        child: Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                       ),
                                                                     ), /// Total
                                                                   ],

@@ -186,7 +186,7 @@ class _AttendanceState extends State<Attendance> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text("Cancel"),
+              child: const Text("Cancel",style: TextStyle(color: Colors.white),),
             ),
             ElevatedButton(
               onPressed: () {
@@ -205,7 +205,7 @@ class _AttendanceState extends State<Attendance> {
                   );
                 }
               },
-              child: Text("Submit"),
+              child: Text("Submit",style: TextStyle(color: Colors.white),),
             ),
           ],
         );
