@@ -181,9 +181,6 @@ class _RawMaterialEntriesReportState extends State<RawMaterialEntriesReport> {
     searchController.addListener(() {
       filterData(searchController.text);
     });
-    if (data.isEmpty) {
-      return const CircularProgressIndicator(); // Show a loading indicator while data is fetched.
-    }
     return MyScaffold(
       route: "raw_Materials_report",backgroundColor: Colors.white,
       body: SingleChildScrollView(

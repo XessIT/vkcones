@@ -1027,7 +1027,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 initialDate: eod,
                                                 firstDate: DateTime(2000),
                                                 // Set the range of selectable dates
-                                                lastDate: DateTime(2100) , //eod,
+                                                lastDate: eod , //eod,
                                               ).then((date) {
                                                 if (date != null) {
                                                   setState(() {
