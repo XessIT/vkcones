@@ -112,7 +112,6 @@ class _PoCreationState extends State<PoCreation> {
     // Update any validation-related state here if needed.
   }
   void removeRow(int rowIndex) {
-    // Assuming controllers is a List<List<TextEditingController>> representing your text controllers
     setState(() {
       controllers.removeAt(rowIndex); // Remove the controllers for the row
       rowData.removeAt(rowIndex); // Remove the data for the row
@@ -1397,12 +1396,6 @@ class _PoCreationState extends State<PoCreation> {
                                                               },
                                                             )
 
-                                                            // IconButton(
-                                                            //   icon: Icon(Icons.add_circle_outline, color: Colors.green),
-                                                            //   onPressed: () {
-                                                            //     addRow();
-                                                            //   },
-                                                            // ),
                                                           ],
                                                         ),
                                                       ),

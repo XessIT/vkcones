@@ -35,7 +35,7 @@ const upload = multer({ storage: storage });
 const db = mysql.createConnection({
    host: 'localhost',
    user: 'root',
-   password: 'root',
+   password: 'root123',
    database: 'vkcones',
 });
 // Connect to MySQL
@@ -2256,6 +2256,19 @@ app.post('/purchase_entry_item', (req, res) => {
     }
   });
 });
+app.post('/purchase_entry_item_gsm', (req, res) => {
+  const { dataToInsertSupItemGsm } = req.body; // Assuming you send the data to insert in the request body
+  const sql = 'INSERT INTO purchase SET ?'; // Modify to your table name
+  db.query(sql, [dataToInsertSupItemGsm], (err, result) => { // Wrap dataToInsert in an array
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).json({ error: 'Error inserting data' });
+    } else {
+      console.log('Data inserted successfully');
+      res.status(200).json({ message: 'Data inserted successfully' });
+    }
+  });
+});
 
 
 app.get('/fetch_po_data', (req, res) => {
@@ -2992,10 +3005,25 @@ app.put('/returnTotal_update/:invoiceNo/:prodCode', (req, res) => {
 });
 //11/12
 app.post('/addRawMaterial', async (req, res) => {
-  const { prodCode, prodName, qty,totalweight, unit, modifyDate } = req.body;
+  const { prodCode, prodName, qty, unit, modifyDate } = req.body;
 
-  const sql = 'UPDATE raw_material SET qty = qty + ?, totalweight = totalweight + ? , modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ?';
-  const values = [qty,totalweight, modifyDate, prodCode, prodName, unit];
+  const sql = 'UPDATE raw_material SET qty = qty + ?, modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ?';
+  const values = [qty, modifyDate, prodCode, prodName, unit];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error updating raw_material entry:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.send('raw_material updated successfully');
+    }
+  });
+});
+app.post('/addRawMaterialGsm', async (req, res) => {
+  const { prodCode, prodName, sNo, totalweight, unit, modifyDate } = req.body;
+
+  const sql = 'UPDATE raw_material SET  totalweight = totalweight + ? , modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ? AND sNo = ? ';
+  const values = [totalweight, modifyDate, prodCode, prodName, unit, sNo];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -3007,7 +3035,20 @@ app.post('/addRawMaterial', async (req, res) => {
   });
 });
 
-
+app.post('/Raw_material_entry_gsm', (req, res) => {
+  const { dataToInsertRawGsm } = req.body;
+  const sql = 'INSERT INTO raw_material SET ?';
+  console.log('SQL Query:', sql);
+  db.query(sql, [dataToInsertRawGsm], (err, result) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).json({ error: 'Error inserting data' });
+    } else {
+      console.log('Data inserted successfully');
+      res.status(200).json({ message: 'Data inserted successfully' });
+    }
+  });
+});
 
 app.post('/Raw_material_entry', (req, res) => {
   const { dataToInsertRaw } = req.body; // Assuming you send the data to insert in the request body
@@ -3076,6 +3117,18 @@ app.get('/fetch_supplier_data', (req, res) => {
   });
 });
 app.get('/fetch_productcode_duplicate', (req, res) => {
+  const sql = 'SELECT * FROM raw_material';
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+app.get('/fetch_productcode_duplicate_gsm', (req, res) => {
   const sql = 'SELECT * FROM raw_material';
   db.query(sql, (err, result) => {
     if (err) {

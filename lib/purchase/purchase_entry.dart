@@ -22,6 +22,7 @@ class _PurchaseState extends State<Purchase> {
 
   final  date = DateTime.now();
   List<List<TextEditingController>> controllers = [];
+  List<List<TextEditingController>> controllers2 = [];
   List<List<FocusNode>> focusNodes = [];
   List<Map<String, dynamic>> rowData = [];
   List<bool> isRowFilled = [false];
@@ -37,77 +38,32 @@ class _PurchaseState extends State<Purchase> {
 
   bool dropdownValid1 = true;
   bool alertVisible = false;
+  double grandTotalGsm = 0.0;
+  double grandTotalValue = 0.0;
 
 
 
 
 
-
-  double calculateTotal(int rowIndex) {
-    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-    double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-    double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
-
-    double amount = quantity * rate;
-    double gstAmt = (amount*gst)/100;
-    double total = amount + gstAmt;
-
-    controllers[rowIndex][5].text = amount.toStringAsFixed(2);
-    controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
-    controllers[rowIndex][8].text = total.toStringAsFixed(2);
-
+  double calculateGrandTotalGsm() {
+    double total = 0.0;
+    for (var i = 0; i < controllers2.length; i++) {
+      total += double.tryParse(controllers2[i][9].text) ?? 0.0;
+    }
     return total;
   }
   double calculateGrandTotal() {
-    double grandTotalValue = 0.0;
+    double total = 0.0;
     for (var i = 0; i < controllers.length; i++) {
-      double total = double.tryParse(controllers[i][9].text) ?? 0.0;
-      grandTotalValue += total;
+      total += double.tryParse(controllers[i][8].text) ?? 0.0;
     }
-    return grandTotalValue;
+    return total;
   }
 
 
 
-/*
-  void addRow() {
-    setState(() {
-      List<TextEditingController> rowControllers = [];
-      List<FocusNode> rowFocusNodes = [];
 
-      for (int j = 0; j < 12; j++) {
-        rowControllers.add(TextEditingController());
-        rowFocusNodes.add(FocusNode());
-      }
 
-      controllers.add(rowControllers);
-      focusNodes.add(rowFocusNodes);
-
-      isRowFilled.add(false);
-
-      Map<String, dynamic> row = {
-        'prodCode': '',
-        'prodName': '',
-        'unit':'',
-        'qty': '',
-        'rate':'',
-        'amt':'',
-        'gst':'',
-        'amtGST':'',
-        'total':'',
-        'rQty':'',
-        'aQty':'',
-      };
-
-      rowData.add(row);
-
-      Future.delayed(Duration.zero, () {
-        FocusScope.of(context).requestFocus(rowFocusNodes[0]);
-      });
-    });
-    grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-  }
-*/
 
   List<Map<String, dynamic>> datapendingInsertList = [];
 
@@ -157,6 +113,12 @@ class _PurchaseState extends State<Purchase> {
     }
   }
 */
+    void removeRow2(int rowIndex) {
+    setState(() {
+      controllers2.removeAt(rowIndex); // Remove the controllers for the row
+      rowData.removeAt(rowIndex); // Remove the data for the row
+    });
+  }
   void removeRow(int rowIndex) {
     if (rowIndex >= 0 && rowIndex < controllers.length) {
       DateTime now = DateTime.now();
@@ -220,6 +182,7 @@ class _PurchaseState extends State<Purchase> {
     });
   }
 */
+
   void clearAllRows() {
     setState(() {
       rowData.clear();
@@ -233,7 +196,7 @@ class _PurchaseState extends State<Purchase> {
   void updateFieldValidation() {
     bool allValid = true;
     for (var i = 0; i < controllers.length; i++) {
-      for (var j = 0; j < 12; j++) {
+      for (var j = 0; j < 11; j++) {
         if (i < controllers.length &&
             j < controllers[i].length &&
             controllers[i][j].text.isEmpty) {
@@ -609,7 +572,9 @@ class _PurchaseState extends State<Purchase> {
     return text.substring(0, 1).toUpperCase() + text.substring(1);
   }
   Map<String, dynamic> dataToInsertRaw = {};
+  Map<String, dynamic> dataToInsertRawGsm = {};
   Map<String, dynamic> dataToInsertSupItem2 = {};
+  Map<String, dynamic> dataToInsertSupItemGsm = {};
 
   Future<void> insertDataPoItem2(Map<String, dynamic> dataToInsertSupItem2) async {
     const String apiUrl = 'http://localhost:3309/purchase_entry_item'; // Replace with your server details
@@ -657,6 +622,94 @@ class _PurchaseState extends State<Purchase> {
       throw Exception('Error: $e');
     }
   }
+  Future<void> insertDataPoItemGsm(Map<String, dynamic> dataToInsertSupItemGsm) async {
+    const String apiUrl = 'http://localhost:3309/purchase_entry_item_gsm'; // Replace with your server details
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertSupItemGsm': dataToInsertSupItemGsm}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+        if(alertVisible==false) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Purchase"),
+                content: const Text(
+                    "Saved Successfully"),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.push(context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  Purchase()));
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } else {
+        print('Failed to insert data into the table');
+        throw Exception('Failed to insert data into the table');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<void> submitItemDataToDatabaseGsm() async {
+    List<Future<void>> insertFutures = [];
+    for (var i = 0; i < controllers2.length; i++) {
+      String purchaseDateString = purchaseDate.text;
+      DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+      String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
+
+      Map<String, dynamic> dataToInsertSupItemGsm = {
+        'invoiceNo':invoiceNo.text,
+        "date":date.toString(),
+        "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
+        'purchaseDate': formattedPurchaseDate,
+        "supName": supName.text,
+        "supCode":supCode.text,
+        "supAddress": supAddress.text,
+        "pincode": pincode.text,
+        "supMobile": supMobile.text,
+        'prodCode':controllers2[i][0].text,
+        'prodName': controllers2[i][1].text,
+        'unit': controllers2[i][2].text,
+        'sNo': controllers2[i][3].text,
+        'totalWeight': controllers2[i][4].text,
+        'rate':controllers2[i][5].text,
+        'amt':controllers2[i][6].text,
+        'gst': controllers2[i][7].text,
+        'amtGST': controllers2[i][8].text,
+        'total': controllers2[i][9].text,
+        'grandTotal':grandTotalGsm,
+        "payType":payType,
+      };
+      insertFutures.add(insertDataPoItemGsm(dataToInsertSupItemGsm));
+    }
+
+    try {
+      await Future.wait(insertFutures);
+
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
   Future<void> submitItemDataToDatabase() async {
     List<Future<void>> insertFutures = [];
     for (var i = 0; i < controllers.length; i++) {
@@ -668,7 +721,7 @@ class _PurchaseState extends State<Purchase> {
         'invoiceNo':invoiceNo.text,
         "date":date.toString(),
         // "poNo":poNUMber.text,
- //        "poNo":poNUMber.text.isEmpty? pendingPoNUMber.text:poNUMber.text,
+        //        "poNo":poNUMber.text.isEmpty? pendingPoNUMber.text:poNUMber.text,
         "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
         'purchaseDate': formattedPurchaseDate,
         /*"supName": supplierInfo["supName"].toString(),
@@ -706,31 +759,7 @@ class _PurchaseState extends State<Purchase> {
     }
   }
 
-  Future<void> addRawMaterial(String prodCode, String prodName, String unit,int qty,String modifyDate,String totalweight) async {
-    final Uri url = Uri.parse('http://localhost:3309/addRawMaterial'); // Replace with your actual backend URL
 
-    final response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'prodCode': prodCode,
-        'prodName': prodName,
-        'unit':unit.toString(),
-        'totalweight':totalweight,
-        'qty': qty,
-        "modifyDate":date.toString(),
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('Update  raw material successful');
-    } else {
-      print('Failed to update. raw material  Status code: ${response.statusCode}');
-      throw Exception('Failed to update raw material');
-    }
-  }
   bool isDuplicateProductCode(String productCode, int currentRowIndex) {
     for (int i = 0; i < controllers.length; i++) {
       if (i != currentRowIndex &&
@@ -769,24 +798,6 @@ class _PurchaseState extends State<Purchase> {
 
 
 
-  Future<List<dynamic>> fetchSizeData() async {
-    const String apiUrl = 'http://localhost:3309/fetch_productcode_duplicate/'; // Replace with your server details
-
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-
-      if (response.statusCode == 200) {
-        List<dynamic> sizeData = jsonDecode(response.body);
-        return sizeData;
-      } else {
-        print('Failed to fetch data');
-        throw Exception('Failed to fetch data');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Error: $e');
-    }
-  }
   Future<bool> checkForDuplicate(String prodCode) async {
     const String apiUrl = 'http://localhost:3309/fetch_productcode_duplicate'; // Replace with your server endpoint
 
@@ -834,14 +845,12 @@ class _PurchaseState extends State<Purchase> {
       String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
 
       Map<String, dynamic> dataToInsertRaw = {
-        //'invoiceNo':invoiceNo.text,
-        //"poNo":poNo.text,
         "date":date.toString(),
         'prodCode':controllers[i][0].text,
         'prodName': controllers[i][1].text,
         'unit':controllers[i][2].text,
         'qty': controllers[i][3].text,
-        'totalweight': controllers[i][4].text,
+
       };
       insertFutures.add(insertDataRaw(dataToInsertRaw));
     }
@@ -851,6 +860,119 @@ class _PurchaseState extends State<Purchase> {
       print('All data inserted successfully');
     } catch (e) {
       print('Error inserting data: $e');
+    }
+  }
+
+  Future<bool> checkForDuplicateGsm(String prodCode) async {
+    const String apiUrl = 'http://localhost:3309/fetch_productcode_duplicate_gsm'; // Replace with your server endpoint
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        List<dynamic> sizeData = jsonDecode(response.body);
+        return sizeData.any((item) => item['prodCode'] == prodCode);
+      } else {
+        print('Failed to fetch data');
+        throw Exception('Failed to fetch data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<void> insertDataRawGsm(Map<String, dynamic> dataToInsertRawGsm) async {
+    const String apiUrl = 'http://localhost:3309/Raw_material_entry_gsm'; // Replace with your server details
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertRawGsm': dataToInsertRawGsm}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+      } else {
+        print('Failed to insert data into the table');
+        throw Exception('Failed to insert data into the table');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<void> submitItemDataToRawGsm() async {
+    List<Future<void>> insertFutures = [];
+    for (var i = 0; i < controllers2.length; i++) {
+      String purchaseDateString = purchaseDate.text;
+      DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+      String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
+
+      Map<String, dynamic> dataToInsertRawGsm = {
+        "date":date.toString(),
+        'prodCode':controllers2[i][0].text,
+        'prodName': controllers2[i][1].text,
+        'unit':controllers2[i][2].text,
+        'sNo': controllers2[i][3].text,
+        'totalweight': controllers2[i][4].text,
+      };
+      insertFutures.add(insertDataRawGsm(dataToInsertRawGsm));
+    }
+
+    try {
+      await Future.wait(insertFutures);
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
+
+  Future<void> addRawMaterialGsm(String prodCode, String prodName, String unit,int sNo,String modifyDate,String totalweight) async {
+    final Uri url = Uri.parse('http://localhost:3309/addRawMaterialGsm'); // Replace with your actual backend URL
+
+    final response = await http.post(url, headers: <String, String>{
+      'Content-Type': 'application/json',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'prodCode': prodCode,
+        'prodName': prodName,
+        'unit':unit.toString(),
+        'sNo': sNo,
+        "modifyDate":date.toString(),
+        'totalweight':totalweight,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Update  raw material successful');
+    } else {
+      print('Failed to update. raw material  Status code: ${response.statusCode}');
+      throw Exception('Failed to update raw material');
+    }
+  }
+  Future<void> addRawMaterial(String prodCode, String prodName, String unit,int qty,String modifyDate) async {
+    final Uri url = Uri.parse('http://localhost:3309/addRawMaterial'); // Replace with your actual backend URL
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'prodCode': prodCode,
+        'prodName': prodName,
+        'unit':unit.toString(),
+        'qty': qty,
+        "modifyDate":date.toString(),
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Update  raw material successful');
+    } else {
+      print('Failed to update. raw material  Status code: ${response.statusCode}');
+      throw Exception('Failed to update raw material');
     }
   }
 
@@ -896,9 +1018,10 @@ class _PurchaseState extends State<Purchase> {
     fetchDataPendingPo();
     fetchData();//add Row
     fetchData2();
-   // addRow();
+     addRow2();
     ponumfetchsalINv();
-
+    calculateGrandTotal();
+    calculateGrandTotalGsm();
 
     fetchPono();
   }
@@ -1084,6 +1207,82 @@ class _PurchaseState extends State<Purchase> {
   }
   Map<int, double> fetchedQuantities = {};
   Map<int, double> fetchedtotalWeight = {};
+  Set<String> selectedProducts = Set();
+
+  Future<List<String>> fetchSuggestions(String pattern) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:3309/fetchSuggestions'), // Replace with your actual endpoint
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'pattern': pattern}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return List<String>.from(data['suggestions']);
+    } else {
+      throw Exception('Failed to fetch suggestions');
+    }
+  }
+  void showWarningMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Warning'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert box
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Future<String> fetchUnitInPO(String prodCode, String prodName) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:3309/fetchUnitInPO'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'prodCode': prodCode, 'prodName': prodName}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['unit'];
+    } else {
+      throw Exception('Failed to fetch unit from PO table');
+    }
+  }
+  void addRow2() {
+    setState(() {
+      List<TextEditingController> rowControllers = [];
+      List<FocusNode> rowFocusNodes = [];
+
+      for (int j = 0; j < 10; j++) {
+        rowControllers.add(TextEditingController());
+        rowFocusNodes.add(FocusNode());
+      }
+
+      controllers2.add(rowControllers);
+      isRowFilled.add(false);
+
+      Map<String, dynamic> row = {
+        'prodCode': '',
+        'prodName': '',
+        'unit':'',
+        'qty': '',
+      };
+
+      rowData.add(row);
+
+      Future.delayed(Duration.zero, () {
+        FocusScope.of(context).requestFocus(rowFocusNodes[0]);
+      });
+    });
+  }
 
   Future<void> fetchDataByInvoiceNumber(String poNumber) async {
     try {
@@ -1668,6 +1867,429 @@ class _PurchaseState extends State<Purchase> {
                                 padding: const EdgeInsets.only(left: 5),
                                 child: Column(
                                   children: [
+                                    if ( selectedCheckbox == 3)
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: FocusTraversalGroup(
+                                        policy: OrderedTraversalPolicy(),
+                                        child: Table(
+                                          border: TableBorder.all(color: Colors.black54),
+                                          columnWidths: const <int, TableColumnWidth>{
+                                            0: FixedColumnWidth(110),
+                                            1: FixedColumnWidth(150),
+                                            2: FixedColumnWidth(80),
+                                            3: FixedColumnWidth(60),
+                                            4: FixedColumnWidth(100),
+                                            5: FixedColumnWidth(80),
+                                            6: FixedColumnWidth(100),
+                                            7: FixedColumnWidth(60),
+                                            8: FixedColumnWidth(100),
+                                            9: FixedColumnWidth(120),
+                                            10: FixedColumnWidth(110),
+                                          },
+                                          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                          children: [
+                                            // Table header row
+                                            TableRow(
+                                              children: [
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Center(
+                                                      child: Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Product Code', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Unit', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('S.No', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Weight', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Rate', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Gst %', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Gst Amt', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color: Colors.blue.shade100,
+                                                    child: const Column(
+                                                      children: [
+                                                        SizedBox(height: 8),
+                                                        Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        SizedBox(height: 8),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            // Table data rows
+                                            for (var i = 0; i < controllers2.length; i++)
+                                              TableRow(
+                                                children: [
+                                                  for (var j = 0; j < 10; j++)
+                                                    TableCell(
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: j == 3
+                                                            ? TextFormField(
+                                                          style: TextStyle(fontSize: 13),
+                                                          controller: controllers2[i][j],
+                                                          inputFormatters: [
+                                                          ],
+                                                          decoration: const InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                          ),
+                                                          onChanged: (value) {
+                                                            final int rowIndex = i;
+                                                            final int colIndex = j;
+                                                            final String key = _getKeyForColumn(colIndex);
+                                                            updateFieldValidation();
+                                                            setState(() {
+                                                              rowData[rowIndex][key] = value;
+                                                              errorMessage = ''; // Clear the error message when the user types in the table
+                                                            });
+                                                          },
+                                                        )
+                                                            : j == 2
+                                                            ? TextFormField(
+                                                          enabled: false, // Set this to false to make it read-only
+
+                                                          style: TextStyle(fontSize: 13),
+                                                          controller: controllers2[i][j],
+                                                          decoration: const InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                          ),
+                                                          onChanged: (value) {
+                                                            final int rowIndex = i;
+                                                            final int colIndex = j;
+                                                            final String key = _getKeyForColumn(colIndex);
+
+                                                            updateFieldValidation();
+                                                            setState(() {
+                                                              rowData[rowIndex][key] = value;
+                                                            });
+                                                          },
+                                                        )
+                                                            : (j == 0 || j == 1)  ? TypeAheadFormField<String>(
+                                                            textFieldConfiguration: TextFieldConfiguration(
+                                                              controller: controllers2[i][j],
+                                                              style: TextStyle(fontSize: 13),
+                                                              inputFormatters: [
+                                                                UpperCaseTextFormatter(),
+                                                              ],
+                                                              decoration: const InputDecoration(
+                                                                filled: true,
+                                                                fillColor: Colors.white,
+                                                              ),
+
+                                                              onChanged: (value) async {
+                                                                final int rowIndex = i;
+                                                                final int colIndex = j;
+                                                                final String key = _getKeyForColumn(colIndex);
+
+                                                                updateFieldValidation();
+                                                                setState(() {
+                                                                  rowData[rowIndex][key] = value;
+                                                                });
+
+                                                                // Fetch unit based on prodCode and prodName
+                                                                final prodCode = controllers2[rowIndex][0].text;
+                                                                final prodName = controllers2[rowIndex][1].text;
+                                                                final unit = await fetchUnitInPO(prodCode, prodName);
+
+                                                                // Update the unit controller
+                                                                controllers2[rowIndex][2].text = unit;
+                                                                setState(() {
+                                                                  rowData[rowIndex][key] = value;
+                                                                  errorMessage = ''; // Clear the error message when the user types in the table
+                                                                });
+                                                              },
+                                                            ),
+                                                            suggestionsCallback: (pattern) async {
+                                                              return await fetchSuggestions(pattern);
+                                                            },
+                                                            itemBuilder: (context, suggestion) {
+                                                              return ListTile(
+                                                                title: Text(suggestion),
+                                                              );
+                                                            },
+                                                            // ...
+
+                                                            onSuggestionSelected: (suggestion) async {
+                                                              final int rowIndex = i;
+                                                              final int colIndex = j;
+                                                              final String key = _getKeyForColumn(colIndex);
+
+                                                              final match = RegExp(r'^(.+?) - (.+)$').firstMatch(suggestion);
+                                                              if (match != null) {
+                                                                final productCode = match.group(1)?.trim();
+                                                                final productName = match.group(2)?.trim();
+                                                                final selectedProductKey = '$productCode-$productName';
+
+                                                                if (controllers2.any((row) => row[0].text == productCode && row != controllers2[rowIndex])) {
+                                                                  showWarningMessage('Product with code $productCode already selected in another row!');
+                                                                  setState(() {
+                                                                    controllers2[rowIndex][0].text = ''; // Clear the product code
+                                                                    controllers2[rowIndex][1].text = ''; // Clear the product code
+                                                                  });
+                                                                } else {
+                                                                  if (selectedProducts.isNotEmpty) {
+                                                                    final previousProductName = selectedProducts.last.split('-').last;
+
+                                                                    if ((previousProductName.startsWith('GSM') && !productName!.startsWith('GSM')) ||
+                                                                        (!previousProductName.startsWith('GSM') && productName!.startsWith('GSM'))) {
+                                                                      showWarningMessage('Product name mismatched Please check!');
+                                                                      setState(() {
+                                                                        controllers2[rowIndex][0].text = '';
+                                                                        controllers2[rowIndex][1].text = '';
+                                                                        // Clear the product code
+                                                                      });
+                                                                      return;
+                                                                    }
+                                                                  }
+
+                                                                  selectedProducts.add(selectedProductKey);
+                                                                  setState(() {
+                                                                    controllers2[rowIndex][0].text = productCode!;
+                                                                    controllers2[rowIndex][1].text = productName!;
+                                                                  });
+
+                                                                  // Fetch unit based on prodCode and prodName
+                                                                  final unit = await fetchUnitInPO(productCode!, productName!);
+
+                                                                  controllers2[rowIndex][2].text = unit;
+                                                                }
+                                                              }
+                                                            }
+                                                        ):
+                                                        TextFormField(
+                                                          style: TextStyle(fontSize: 13,
+                                                            color: (j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9 ) ? Colors.black : Colors.grey, // Set the text color
+                                                          ),
+                                                          controller: controllers2[i][j],
+                                                          inputFormatters: [
+                                                            UpperCaseTextFormatter(),
+                                                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                            if (j == 7)
+                                                              FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
+                                                          ],
+                                                          decoration: const InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                          ),
+                                                          onChanged: (value) async {
+                                                            final int rowIndex2 = i;
+                                                            final int colIndex2 = j;
+                                                            final String key = _getKeyForColumn(colIndex2);
+
+                                                            setState(() {
+                                                              double weight= double.tryParse(controllers2[rowIndex2][4].text) ?? 0.0;
+                                                              double rate = double.tryParse(controllers2[rowIndex2][5].text) ?? 0.0;
+                                                              double gst = double.tryParse(controllers2[rowIndex2][7].text) ?? 0.0;
+
+
+                                                              double amount = weight * rate;
+                                                              double gstAmt = (amount * gst) / 100;
+                                                              double total = amount + gstAmt;
+
+                                                              controllers2[rowIndex2][6].text = amount.toStringAsFixed(2);
+                                                              controllers2[rowIndex2][8].text = gstAmt.toStringAsFixed(2);
+                                                              controllers2[rowIndex2][9].text = total.toStringAsFixed(2);
+                                                              grandTotalGsm = calculateGrandTotalGsm();
+
+                                                            });
+
+                                                          }
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  TableCell(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(8.0),
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          IconButton(
+                                                            icon: Icon(Icons.remove_circle_outline),
+                                                            color: Colors.red.shade600,
+                                                            onPressed: () {
+                                                              showDialog(
+                                                                context: context,
+                                                                builder: (BuildContext context) {
+                                                                  return AlertDialog(
+                                                                    title: Text('Confirmation'),
+                                                                    content: Text('Are you sure you want to remove this row?'),
+                                                                    actions: <Widget>[
+                                                                      TextButton(
+                                                                        child: Text('Cancel'),
+                                                                        onPressed: () {
+                                                                          Navigator.of(context).pop(); // Close the alert box
+                                                                        },
+                                                                      ),
+                                                                      TextButton(
+                                                                        child: Text('Remove'),
+                                                                        onPressed: () {
+                                                                          if (controllers2.length == 1) {
+                                                                            // If there is only one row, clear the data instead of removing the row
+                                                                            clearAllRows();
+                                                                            Navigator.of(context).pop();
+                                                                          } else {
+                                                                            // If there are multiple rows, remove the entire row
+                                                                            removeRow2(i);
+                                                                            Navigator.of(context).pop();
+                                                                          }
+                                                                          //Navigator.of(context).pop(); // Close the alert box// Close the alert box
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+                                                            },
+                                                          ),
+                                                          Visibility(
+                                                            visible: i == controllers2.length - 1,
+                                                            child: Row(
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                              children: [
+
+                                                                IconButton(
+                                                                  icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                                                                  onPressed: () {
+
+                                                                    if (controllers2[i][0].text.isNotEmpty && controllers2[i][1].text.isNotEmpty && controllers2[i][2].text.isNotEmpty && controllers2[i][3].text.isNotEmpty) {
+                                                                      addRow2();
+                                                                    } else {
+                                                                      showWarningMessage(' Fields cannot be empty!');
+                                                                    }
+
+
+                                                                  },
+                                                                )
+
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                          ],
+
+                                        ),
+                                      ),
+                                    ),
+                                    if ( selectedCheckbox == 1 || selectedCheckbox == 2 )
                                     SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
                                       child: FocusTraversalGroup(
@@ -1677,20 +2299,20 @@ class _PurchaseState extends State<Purchase> {
                                               color: Colors.black54
                                           ),
                                           defaultColumnWidth: const FixedColumnWidth(140.0),
-                                          columnWidths:  <int, TableColumnWidth>{
+                                          columnWidths:  const <int, TableColumnWidth>{
                                             // 0: FixedColumnWidth(175),
                                             // 1: FixedColumnWidth(175),
                                             2: FixedColumnWidth(100),
                                             3: FixedColumnWidth(100),
-                                            4: selectedCheckbox == 3 ? const FixedColumnWidth(100) : const FixedColumnWidth(0),
+                                            4: FixedColumnWidth(100),
                                             5: FixedColumnWidth(100),
                                             6: FixedColumnWidth(100),
-                                            7: FixedColumnWidth(80),
+                                            7: FixedColumnWidth(100),
                                             8: FixedColumnWidth(115),
-                                            9: FixedColumnWidth(115),
+                                            9: FixedColumnWidth(0),
                                             10: FixedColumnWidth(0),
-                                            11: FixedColumnWidth(0),
-                                            12: FixedColumnWidth(60),
+                                            11: FixedColumnWidth(60),
+
 
                                           },
                                           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -1701,12 +2323,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height:15 ),
+                                                          SizedBox(height:15 ),
                                                           Text('Product Code',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                         ],
                                                       ),
                                                     ),
@@ -1715,12 +2337,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height:15),
+                                                          SizedBox(height:15),
                                                           Text('Product Name',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height:15),
+                                                          SizedBox(height:15),
                                                         ],
                                                       ),
                                                     ),
@@ -1728,12 +2350,12 @@ class _PurchaseState extends State<Purchase> {
                                                 ),TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height:15),
+                                                          SizedBox(height:15),
                                                           Text('Unit',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height:15),
+                                                          SizedBox(height:15),
                                                         ],
                                                       ),
                                                     ),
@@ -1742,29 +2364,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height:15),
+                                                          SizedBox(height:15),
                                                           Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height:15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ), 
-                                                
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height:15),
-                                                          selectedCheckbox == 3 ?
-                                                          Text('Total Weight',style: TextStyle(fontWeight: FontWeight.bold),)
-                                                         : Text('',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height:15),
+                                                          SizedBox(height:15),
                                                         ],
                                                       ),
                                                     ),
@@ -1773,12 +2378,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                           Text(' Rate ',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                         ],
                                                       ),
                                                     ),
@@ -1787,12 +2392,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                           Text('Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                         ],
                                                       ),
                                                     ),
@@ -1801,12 +2406,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                           Text('GST (%)',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                         ],
                                                       ),
                                                     ),
@@ -1815,12 +2420,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                           Text('GST Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                         ],
                                                       ),
                                                     ),
@@ -1829,12 +2434,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                           Text('Total',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                         ],
                                                       ),
                                                     ),
@@ -1845,12 +2450,12 @@ class _PurchaseState extends State<Purchase> {
                                                   child: TableCell(
                                                     child: Container(
                                                       color:Colors.blue.shade200,
-                                                      child: Center(
+                                                      child: const Center(
                                                         child: Column(
                                                           children: [
-                                                            const SizedBox(height: 15),
+                                                            SizedBox(height: 15),
                                                             Text('R qty',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                            const SizedBox(height: 15),
+                                                            SizedBox(height: 15),
                                                           ],
                                                         ),
                                                       ),
@@ -1878,12 +2483,12 @@ class _PurchaseState extends State<Purchase> {
                                                 TableCell(
                                                   child: Container(
                                                     color:Colors.blue.shade200,
-                                                    child: Center(
+                                                    child: const Center(
                                                       child: Column(
                                                         children: [
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                           Text('Action',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
+                                                          SizedBox(height: 15),
                                                         ],
                                                       ),
                                                     ),
@@ -1895,328 +2500,228 @@ class _PurchaseState extends State<Purchase> {
                                             for (var i = 0; i < controllers.length; i++)
                                               TableRow(
                                                 children: [
-                                                  for (var j = 0; j < 12; j++)
+                                                  for (var j = 0; j < 11; j++)
                                                     j==4? TableCell(
                                                       child: Padding(
                                                         padding: const EdgeInsets.all(8.0),
-                                                        child: Visibility(
-                                                          visible: selectedCheckbox == 3, // Show only when GSM checkbox is selected
-                                                          child: TextFormField(
-                                                              style: TextStyle(fontSize: 13,
-                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
-                                                              ),
-                                                              controller: controllers[i][j],
-                                                              inputFormatters: [
-                                                                UpperCaseTextFormatter(),
-                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                                                                if (j == 7)
-                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
-                                                              ],
-                                                              decoration: const InputDecoration(
-                                                                filled: true,
-                                                                fillColor: Colors.white,
-                                                              ),
+                                                        child: TextFormField(
+                                                            style: TextStyle(fontSize: 13,
+                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                            ),
+                                                            controller: controllers[i][j],
+                                                            inputFormatters: [
+                                                              UpperCaseTextFormatter(),
+                                                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                              if (j == 7)
+                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
+                                                            ],
+                                                            decoration: const InputDecoration(
+                                                              filled: true,
+                                                              fillColor: Colors.white,
+                                                            ),
 
-                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                              enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
-                                                              onChanged: (value) async {
-                                                                final int rowIndex = i;
-                                                                final int colIndex = j;
-                                                                final String key = _getKeyForColumn(colIndex);
-                                                                final productName= await fetchProductName(value);
-                                                                final productCode= await fetchProductCode(value);
-                                                                updateFieldValidation();
-                                                                setState(() {
-                                                                  rowData[rowIndex][key] = value;
-                                                                  if (colIndex == 0) {
-                                                                    controllers[i][1].clear();
-                                                                  } else if (colIndex == 1) {
-                                                                    controllers[i][0].clear();
-                                                                  }
+                                                            textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                            enabled: (j == 3 || j == 6 || j == 4),
+                                                            onChanged: (value) async {
+                                                              final int rowIndex = i;
+                                                              final int colIndex = j;
+                                                              final String key = _getKeyForColumn(colIndex);
+                                                              final productName= await fetchProductName(value);
+                                                              final productCode= await fetchProductCode(value);
+                                                              updateFieldValidation();
+                                                              setState(() {
+                                                                rowData[rowIndex][key] = value;
+                                                                if (colIndex == 0) {
+                                                                  controllers[i][1].clear();
+                                                                } else if (colIndex == 1) {
+                                                                  controllers[i][0].clear();
+                                                                }
 
-                                                                  if (productName.isNotEmpty) {
-                                                                    controllers[i][1].text = productName;
-                                                                  }
-                                                                  if (productCode.isNotEmpty) {
-                                                                    controllers[i][0].text = productCode;
-                                                                  }
-                                                                  isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                    controllers[rowIndex][1].clear();
-                                                                    errorMessage = 'You already entered the\n product code $value.';
-                                                                    return;
-                                                                  }
-                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                    errorMessage = 'You already entered the\n product Name $value.';
-                                                                    controllers[rowIndex][0].clear();
-                                                                    return;
-                                                                  }
-                                                                  errorMessage = '';
+                                                                if (productName.isNotEmpty) {
+                                                                  controllers[i][1].text = productName;
+                                                                }
+                                                                if (productCode.isNotEmpty) {
+                                                                  controllers[i][0].text = productCode;
+                                                                }
+                                                                isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
+                                                                if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                  controllers[rowIndex][1].clear();
+                                                                  errorMessage = 'You already entered the\n product code $value.';
+                                                                  return;
+                                                                }
+                                                                if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                  errorMessage = 'You already entered the\n product Name $value.';
+                                                                  controllers[rowIndex][0].clear();
+                                                                  return;
+                                                                }
+                                                                errorMessage = '';
 
 
 
 
-                                                                  if( !rowData[i]['prodName'].startsWith('GSM')){
-                                                                    if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
-                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+                                                                if( !rowData[i]['prodName'].startsWith('GSM')){
+                                                                  if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
+                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                    double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                    double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
 
 
-                                                                      double amount = quantity * rate;
-                                                                      double gstAmt = (amount * gst) / 100;
-                                                                      double total = amount + gstAmt;
-                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: const Duration(seconds: 2),
-                                                                        ));
+                                                                    double amount = quantity * rate;
+                                                                    double gstAmt = (amount * gst) / 100;
+                                                                    double total = amount + gstAmt;
+                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                        duration: const Duration(seconds: 2),
+                                                                      ));
 
-                                                                        setState(() {
-                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                        });
-                                                                        return;
-                                                                      }
-
-
-                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                      int? pendingqty = receiveqty-editedqty;
                                                                       setState(() {
-
-                                                                        qty = receiveqty!;
-                                                                        recieved= editedqty;
-                                                                        pending= pendingqty;
-
-
-                                                                        print("  Qty $qty");
-                                                                        print(" received Qty $recieved");
-                                                                        print(" pending Qty  $pending");
-                                                                        // editqty = editedqty;
+                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
                                                                       });
-                                                                      controllers[rowIndex][11].text = pendingqty.toString();
-                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                    }}else{
-                                                                    if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
-                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                      double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                      double amount = totweight * rate;
-                                                                      double gstAmt = (amount * gst) / 100;
-                                                                      double total = amount + gstAmt;
-                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: Duration(seconds: 2),
-                                                                        ));
-
-                                                                        setState(() {
-                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                        });
-                                                                        return;
-                                                                      }
-
-                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                      int? pendingqty = receiveqty-editedqty;
-                                                                      setState(() {
-
-                                                                        qty = receiveqty!;
-                                                                        recieved= editedqty;
-                                                                        pending= pendingqty;
-
-
-                                                                        print("  Qty $qty");
-                                                                        print(" received Qty $recieved");
-                                                                        print(" pending Qty  $pending");
-                                                                        // editqty = editedqty;
-                                                                      });
-                                                                      controllers[rowIndex][11].text = pending.toString();
-                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                                      return;
                                                                     }
-                                                                  }
-                                                                });
-                                                                setState(() {
-                                                                  fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                  calculateQTY = fetchingQTY-editingQTY;
-                                                                  print("calculateQty $calculateQTY");
 
-                                                                });
-                                                              }
-                                                          ),
+
+                                                                    controllers[rowIndex][5].text = amount.toStringAsFixed(2);
+                                                                    controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                                    controllers[rowIndex][8].text = total.toStringAsFixed(2);
+                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                    int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
+                                                                    int? pendingqty = receiveqty-editedqty;
+                                                                    setState(() {
+
+                                                                      qty = receiveqty!;
+                                                                      recieved= editedqty;
+                                                                      pending= pendingqty;
+
+
+                                                                      print("  Qty $qty");
+                                                                      print(" received Qty $recieved");
+                                                                      print(" pending Qty  $pending");
+                                                                      // editqty = editedqty;
+                                                                    });
+                                                                    controllers[rowIndex][10].text = pendingqty.toString();
+                                                                    grandTotalValue = calculateGrandTotal();
+                                                                  }}
+                                                              });
+                                                              setState(() {
+                                                                fetchingQTY = int.parse(controllers[rowIndex][10].text);
+                                                                editingQTY =int.parse(controllers[rowIndex][3].text);
+                                                                calculateQTY = fetchingQTY-editingQTY;
+                                                                print("calculateQty $calculateQTY");
+
+                                                              });
+                                                            }
                                                         ),
                                                       ),
                                                     ) :
                                                     j==4? TableCell(
                                                       child: Padding(
                                                         padding: const EdgeInsets.all(8.0),
-                                                        child: Visibility(
-                                                          visible: selectedCheckbox == 3, // Show only when GSM checkbox is selected
-                                                          child: TextFormField(
-                                                              style: TextStyle(fontSize: 13,
-                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
-                                                              ),
-                                                              controller: controllers[i][j],
-                                                              inputFormatters: [UpperCaseTextFormatter(),
-                                                                if (j == 7)
-                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                                                              ],
-                                                              decoration: const InputDecoration(
-                                                                filled: true,
-                                                                fillColor: Colors.white,
-                                                              ),
+                                                        child: TextFormField(
+                                                            style: TextStyle(fontSize: 13,
+                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                            ),
+                                                            controller: controllers[i][j],
+                                                            inputFormatters: [UpperCaseTextFormatter(),
+                                                              if (j == 7)
+                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                            ],
+                                                            decoration: const InputDecoration(
+                                                              filled: true,
+                                                              fillColor: Colors.white,
+                                                            ),
 
-                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                              enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
-                                                              onChanged: (value) async {
-                                                                final int rowIndex = i;
-                                                                final int colIndex = j;
-                                                                final String key = _getKeyForColumn(colIndex);
-                                                                final productName= await fetchProductName(value);
-                                                                final productCode= await fetchProductCode(value);
+                                                            textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                            enabled: (j == 3 || j == 6 || j == 4),                                                            onChanged: (value) async {
+                                                              final int rowIndex = i;
+                                                              final int colIndex = j;
+                                                              final String key = _getKeyForColumn(colIndex);
+                                                              final productName= await fetchProductName(value);
+                                                              final productCode= await fetchProductCode(value);
 
 
-                                                                updateFieldValidation();
-                                                                setState(() {
-                                                                  rowData[rowIndex][key] = value;
-                                                                  if (colIndex == 0) {
-                                                                    controllers[i][1].clear();
-                                                                  } else if (colIndex == 1) {
-                                                                    controllers[i][0].clear();
-                                                                  }
+                                                              updateFieldValidation();
+                                                              setState(() {
+                                                                rowData[rowIndex][key] = value;
+                                                                if (colIndex == 0) {
+                                                                  controllers[i][1].clear();
+                                                                } else if (colIndex == 1) {
+                                                                  controllers[i][0].clear();
+                                                                }
 
-                                                                  if (productName.isNotEmpty) {
-                                                                    controllers[i][1].text = productName;
-                                                                  }
-                                                                  if (productCode.isNotEmpty) {
-                                                                    controllers[i][0].text = productCode;
-                                                                  }
-                                                                  isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                    controllers[rowIndex][1].clear();
-                                                                    errorMessage = 'You already entered the\n product code $value.';
-                                                                    return;
-                                                                  }
-                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                    errorMessage = 'You already entered the\n product Name $value.';
-                                                                    controllers[rowIndex][0].clear();
-                                                                    return;
-                                                                  }
-                                                                  errorMessage = '';
+                                                                if (productName.isNotEmpty) {
+                                                                  controllers[i][1].text = productName;
+                                                                }
+                                                                if (productCode.isNotEmpty) {
+                                                                  controllers[i][0].text = productCode;
+                                                                }
+                                                                isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
+                                                                if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                  controllers[rowIndex][1].clear();
+                                                                  errorMessage = 'You already entered the\n product code $value.';
+                                                                  return;
+                                                                }
+                                                                if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                  errorMessage = 'You already entered the\n product Name $value.';
+                                                                  controllers[rowIndex][0].clear();
+                                                                  return;
+                                                                }
+                                                                errorMessage = '';
 
 
-                                                                  if(!rowData[i]['prodName'].startsWith('GSM')){
-                                                                    if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
-                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+                                                                if(!rowData[i]['prodName'].startsWith('GSM')){
+                                                                  if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
+                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                    double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                    double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
 
-                                                                      double amount = quantity * rate;
-                                                                      double gstAmt = (amount * gst) / 100;
-                                                                      double total = amount + gstAmt;
-                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: Duration(seconds: 2),
-                                                                        ));
+                                                                    double amount = quantity * rate;
+                                                                    double gstAmt = (amount * gst) / 100;
+                                                                    double total = amount + gstAmt;
+                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                        duration: Duration(seconds: 2),
+                                                                      ));
 
-                                                                        setState(() {
-                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                        });
-                                                                        return;
-                                                                      }
-
-                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                      int? pendingqty = receiveqty-editedqty;
                                                                       setState(() {
-
-                                                                        qty = receiveqty!;
-                                                                        recieved= editedqty;
-                                                                        pending= pendingqty;
-
-
-                                                                        print("  Qty $qty");
-                                                                        print(" received Qty $recieved");
-                                                                        print(" pending Qty  $pending");
-                                                                        // editqty = editedqty;
+                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
                                                                       });
-                                                                      controllers[rowIndex][11].text = pendingqty.toString();
-                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                    }}else{
-                                                                    if (colIndex == 4 || colIndex == 5 || colIndex == 7||colIndex == 3 ) {
-                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                      double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                      double amount = totweight * rate;
-                                                                      double gstAmt = (amount * gst) / 100;
-                                                                      double total = amount + gstAmt;
-                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: Duration(seconds: 2),
-                                                                        ));
-
-                                                                        setState(() {
-                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                        });
-                                                                        return;
-                                                                      }
-
-                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                      int? pendingqty = receiveqty-editedqty;
-                                                                      setState(() {
-
-                                                                        qty = receiveqty!;
-                                                                        recieved= editedqty;
-                                                                        pending= pendingqty;
-
-
-                                                                        print("  Qty $qty");
-                                                                        print(" received Qty $recieved");
-                                                                        print(" pending Qty  $pending");
-                                                                        // editqty = editedqty;
-                                                                      });
-                                                                      controllers[rowIndex][11].text = pending.toString();
-                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                                      return;
                                                                     }
 
+                                                                    controllers[rowIndex][5].text = amount.toStringAsFixed(2);
+                                                                    controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                                    controllers[rowIndex][8].text = total.toStringAsFixed(2);
+                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                    int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
+                                                                    int? pendingqty = receiveqty-editedqty;
+                                                                    setState(() {
 
-                                                                  }
-                                                                });
-                                                                setState(() {
-                                                                  fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                  calculateQTY = fetchingQTY-editingQTY;
-                                                                  print("calculateQty $calculateQTY");
+                                                                      qty = receiveqty!;
+                                                                      recieved= editedqty;
+                                                                      pending= pendingqty;
 
-                                                                });
 
-                                                              }
-                                                          ),
+                                                                      print("  Qty $qty");
+                                                                      print(" received Qty $recieved");
+                                                                      print(" pending Qty  $pending");
+                                                                      // editqty = editedqty;
+                                                                    });
+                                                                    controllers[rowIndex][10].text = pendingqty.toString();
+                                                                    grandTotalValue = calculateGrandTotal();
+                                                                  }}
+                                                              });
+                                                              setState(() {
+                                                                fetchingQTY = int.parse(controllers[rowIndex][9].text);
+                                                                editingQTY =int.parse(controllers[rowIndex][3].text);
+                                                                calculateQTY = fetchingQTY-editingQTY;
+                                                                print("calculateQty $calculateQTY");
+
+                                                              });
+
+                                                            }
                                                         ),
                                                       ),
                                                     )
@@ -2243,8 +2748,7 @@ class _PurchaseState extends State<Purchase> {
                                                             ),
 
                                                             textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                            enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
-                                                            onChanged: (value) async {
+                                                            enabled: (j == 3 || j == 6 || j == 4),                                                            onChanged: (value) async {
                                                               final int rowIndex = i;
                                                               final int colIndex = j;
                                                               final String key = _getKeyForColumn(colIndex);
@@ -2282,10 +2786,10 @@ class _PurchaseState extends State<Purchase> {
 
 
                                                                 if( !rowData[i]['prodName'].startsWith('GSM')){
-                                                                  if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
+                                                                  if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
                                                                     double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                    double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                    double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+                                                                    double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                    double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
 
                                                                     double amount = quantity * rate;
                                                                     double gstAmt = (amount * gst) / 100;
@@ -2302,12 +2806,11 @@ class _PurchaseState extends State<Purchase> {
                                                                       return;
                                                                     }
 
-                                                                    controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                    /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                    controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                    controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                                    controllers[rowIndex][5].text = amount.toStringAsFixed(2);
+                                                                    controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                                    controllers[rowIndex][8].text = total.toStringAsFixed(2);
                                                                     int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                    int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
+                                                                    int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
                                                                     int? pendingqty = receiveqty-editedqty;
                                                                     setState(() {
 
@@ -2322,58 +2825,11 @@ class _PurchaseState extends State<Purchase> {
                                                                       // editqty = editedqty;
                                                                     });
                                                                     controllers[rowIndex][11].text = pending.toString();
-                                                                    grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                  }}else{
-                                                                  if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
-                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                    double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                    double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                    double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                    double amount = totweight * rate;
-                                                                    double gstAmt = (amount * gst) / 100;
-                                                                    double total = amount + gstAmt;
-                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                        duration: Duration(seconds: 2),
-                                                                      ));
-
-                                                                      setState(() {
-                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                      });
-                                                                      return;
-                                                                    }
-
-
-                                                                    controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                    /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                    controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                    controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                    int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                    int? pendingqty = receiveqty-editedqty;
-                                                                    setState(() {
-
-                                                                      qty = receiveqty!;
-                                                                      recieved= editedqty;
-                                                                      pending= pendingqty;
-
-
-                                                                      print("  Qty $qty");
-                                                                      print(" received Qty $recieved");
-                                                                      print(" pending Qty  $pending");
-                                                                      // editqty = editedqty;
-                                                                    });
-                                                                    controllers[rowIndex][11].text = pending.toString();
-                                                                    grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                  }
-
-
-                                                                }                                                              });
+                                                                    grandTotalValue = calculateGrandTotal();
+                                                                  }}
+                                                                                                                     });
                                                               setState(() {
-                                                                fetchingQTY = int.parse(controllers[rowIndex][10].text);
+                                                                fetchingQTY = int.parse(controllers[rowIndex][9].text);
                                                                 editingQTY =int.parse(controllers[rowIndex][3].text);
                                                                 calculateQTY = fetchingQTY-editingQTY;
                                                                 print("calculateQty $calculateQTY");
@@ -2430,25 +2886,6 @@ class _PurchaseState extends State<Purchase> {
                                                                 }
                                                               }),
                                                           ///addrow                                                      // if (i == controllers.length - 1&&allFieldsFilled) // Render "Add" button only in the last row
-/*
-                                                          Visibility(
-                                                            visible: i == controllers.length-1 && isRowFilled[i],
-                                                            child: Align(
-                                                              alignment: Alignment.center,
-                                                              child: Row(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                children: [
-                                                                  IconButton(
-                                                                    icon: Icon(Icons.add_circle_outline,color: Colors.green,),
-                                                                    onPressed: () {
-                                                                      addRow();
-                                                                    },
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-*/
                                                         ],
                                                       ),
                                                     ),
@@ -2459,56 +2896,25 @@ class _PurchaseState extends State<Purchase> {
                                         ),
                                       ),
                                     ),
+
                                     SizedBox(height: 10,),
                                     Wrap(
                                       children: [
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
-                                            Text("Grand Total  ₹ ", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14)),
-                                            SizedBox(
-                                              width: calculateContainerWidth(grandTotal.text),
-                                              //  height: 70,
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(right: 32),
-                                                child: TextFormField(
-                                                  readOnly: true,
-                                                  controller: grandTotal,
-                                                  style: const TextStyle(fontSize: 13),
-                                                  textAlign: TextAlign.right,
-                                                  /*  validator: (value) {
-                                                if (value!.isEmpty) {
-                                                  return '* Enter Grand Total';
-                                                }
-                                                return null;
-                                            },*/
-                                                  keyboardType: TextInputType.number,
-                                                  inputFormatters: <TextInputFormatter>[
-                                                    LengthLimitingTextInputFormatter(10),
-                                                    FilteringTextInputFormatter.digitsOnly,
-                                                  ],
-                                                  decoration: InputDecoration(
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      //prefixIcon: const Icon(Icons.currency_rupee),
-                                                      enabledBorder: OutlineInputBorder(
-                                                          borderSide: BorderSide(color: Colors.grey)
-                                                      )
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            // SizedBox(
-                                            //     width: 140,
-                                            //     child: Text(" ")),
-                                          ],
+                                            selectedCheckbox != 3 ?
+                                            Text("Grand Total ₹ $grandTotalValue", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
+                                            :  Text("Grand Total ₹ $grandTotalGsm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
+
+                                      ],
                                         ),
                                       ],
                                     ),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                       /* Padding(
+                                        /* Padding(
                                           padding: const EdgeInsets.only(top:20),
                                           child: Text(
                                             errorMessage ?? '',
@@ -2530,162 +2936,190 @@ class _PurchaseState extends State<Purchase> {
                       child:
                       Wrap(
                         children: [
-                          MaterialButton(
-                            color: Colors.green.shade600,
-                            onPressed: () async {
-                              bool hasDuplicateProdCode = false;
-                              bool hasNewProdCode = false;
-
-                              /*   if (poNUMber.text.isEmpty||pendingPoNUMber.text.isEmpty) {
-                                setState(() {
-                                  errorMessage = '* Enter a PO Number';
-                                });
-                              }*/
-                              if (isMachineNameExists(poNUMber.text)) {
-                                setState(() {
-                                  errorMessage = '* This PO Number is Already invoiced';
-                                });
-                              }
-                              else if (isMachineNameExists(pendingPoNUMber.text)) {
-                                setState(() {
-                                  errorMessage = '* This PendingPo Number is Already invoiced';
-                                });
-                              }
-
-                              else if (purchaseDate.text.isEmpty) {
-                                setState(() {
-                                  errorMessage = '* Enter a Purchase Date';
-                                });
-                              }
-                              else if (invoiceNo.text.isEmpty) {
-                                setState(() {
-                                  errorMessage = '* Enter a Invoice Number';
-                                });
-                              }
-                              else {
-                                  if (_formKey.currentState!.validate()
-                                    &&
-                                    !controllers.any((controller) =>
-                                    controller[0].text.isEmpty ||
-                                        controller[1].text.isEmpty ||
-                                        controller[2].text.isEmpty ||
-                                        controller[3].text.isEmpty ||
-                                        controller[5].text.isEmpty ||
-                                        controller[6].text.isEmpty ||
-                                        controller[7].text.isEmpty ||
-                                        controller[8].text.isEmpty ||
-                                        controller[9].text.isEmpty
-
-                                    ) || selectedCheckbox == 3 &&
-                                      !controllers.any((controller) =>
-                                      controller[0].text.isEmpty ||
-                                          controller[1].text.isEmpty ||
-                                          controller[2].text.isEmpty ||
-                                          controller[3].text.isEmpty ||
-                                          controller[4].text.isEmpty ||
-                                          controller[5].text.isEmpty ||
-                                          controller[6].text.isEmpty ||
-                                          controller[7].text.isEmpty ||
-                                          controller[8].text.isEmpty ||
-                                          controller[9].text.isEmpty
-                                )
-                                  )
-
-                                  {
-                                  for (var i = 0; i < controllers.length; i++) {
-                                    String enteredProdCode = controllers[i][0]
-                                        .text;
-                                    bool isDuplicate = await checkForDuplicate(
-                                        enteredProdCode);
-                                    if (isDuplicate) {
-                                      hasDuplicateProdCode = true;
-                                    } else {
-                                      hasNewProdCode = true;
-                                    }
-                                  }
-
-                                  if (hasDuplicateProdCode && hasNewProdCode) {
-                                    // Case: Both duplicate and new product codes
-                                    for (int i = 0; i < controllers.length; i++) {
-                                      String enteredProdCode = controllers[i][0]
-                                          .text;
-                                      bool isDuplicate = await checkForDuplicate(
-                                          enteredProdCode);
-                                      if (isDuplicate) {
-                                        await addRawMaterial(
-                                          controllers[i][0].text,
-                                          controllers[i][1].text,
-                                          controllers[i][2].text,
-                                          int.parse(controllers[i][3].text),
-                                          date.toIso8601String(),
-                                          controllers[i][4].text,
-                                        );
-                                      } else {
-                                        Map<String, dynamic> dataToInsertRaw = {
-                                          'date': date.toString(),
-                                          'prodCode': controllers[i][0].text,
-                                          'prodName': controllers[i][1].text,
-                                          'unit': controllers[i][2].text,
-                                          'qty': controllers[i][3].text,
-                                          "totalweight":controllers[i][4].text,
-                                        };
-                                        await insertDataRaw(dataToInsertRaw);
-                                      }
-                                    }
-                                  } else if (hasDuplicateProdCode) {
-                                    // Case: Only duplicate product codes
-                                    for (int i = 0; i <
-                                        controllers.length; i++) {
-                                      await addRawMaterial(
-                                          controllers[i][0].text,
-                                          controllers[i][1].text,
-                                          controllers[i][2].text,
-                                          int.parse(controllers[i][3].text),
-                                          date.toIso8601String(),
-                                          controllers[i][4].text);
-
-                                    }
-                                  } else if (hasNewProdCode) {
-                                    submitItemDataToRaw();
-                                  }
-
+                          Visibility(
+                            visible: selectedCheckbox != 3,
+                            child:MaterialButton(
+                              color: Colors.green.shade600,
+                              onPressed: () async {
+                                bool hasDuplicateProdCode = false;
+                                bool hasNewProdCode = false;
+                                if (isMachineNameExists(poNUMber.text)) {
                                   setState(() {
-                                    isDataSaved = true;
+                                    errorMessage = '* This PO Number is Already invoiced';
                                   });
-                                  submitItemDataToDatabase();
-
-                                  List<Map<String, dynamic>> rowsDataToInsert = [];
-
-                                  if(fetchingQTY != editingQTY){
-                                    rowsDataToInsert.add(datapendingInsert);
-                                    await pendingToDatabase();
-                                  }
-                                  List<Future<void>> insertFutures = [];
-                                  for (var i = 0; i < datapendingInsertList.length; i++) {
-                                    insertFutures.add(insertDataPendingReport(datapendingInsertList[i]));
-                                    await Future.wait(insertFutures);
-                                  }
-
-                                  // datapendingInsertList.clear();
-
+                                }
+                                else if (isMachineNameExists(pendingPoNUMber.text)) {
                                   setState(() {
-                                    isDataSaved = true;
+                                    errorMessage = '* This PendingPo Number is Already invoiced';
                                   });
-
+                                }
+                                else if (purchaseDate.text.isEmpty) {
+                                  setState(() {
+                                    errorMessage = '* Enter a Purchase Date';
+                                  });
+                                }
+                                else if (invoiceNo.text.isEmpty) {
+                                  setState(() {
+                                    errorMessage = '* Enter a Invoice Number';
+                                  });
                                 }
                                 else {
-                                  setState(() {
-                                    errorMessage =
-                                    '* Fill all fields in the table';
-                                  });
+                                  if (_formKey.currentState!.validate())
+                                  {
+                                    for (var i = 0; i < controllers.length; i++) {
+                                      String enteredProdCode = controllers[i][0].text;
+                                      bool isDuplicate = await checkForDuplicate(enteredProdCode);
+                                      if (isDuplicate) {
+                                        hasDuplicateProdCode = true;
+                                      } else {
+                                        hasNewProdCode = true;
+                                      }
+                                    }
+                                    if (hasDuplicateProdCode && hasNewProdCode) {
+                                      for (int i = 0; i < controllers.length; i++) {
+                                        String enteredProdCode = controllers[i][0].text;
+                                        bool isDuplicate = await checkForDuplicate(enteredProdCode);
+                                        if (isDuplicate) {
+                                          await addRawMaterial(
+                                            controllers[i][0].text,
+                                            controllers[i][1].text,
+                                            controllers[i][2].text,
+                                            int.parse(controllers[i][3].text),
+                                            date.toIso8601String(),
+                                          );
+                                        }
+                                        else {
+                                          Map<String, dynamic> dataToInsertRaw = {
+                                            'date': date.toString(),
+                                            'prodCode': controllers[i][0].text,
+                                            'prodName': controllers[i][1].text,
+                                            'unit': controllers[i][2].text,
+                                            'qty': controllers[i][3].text,
+                                          };
+                                          await insertDataRaw(dataToInsertRaw);
+                                        }
+                                      }
+                                    }
+                                    else if (hasDuplicateProdCode) {
+                                      for (int i = 0; i < controllers.length; i++) {
+                                        await addRawMaterial(
+                                            controllers[i][0].text,
+                                            controllers[i][1].text,
+                                            controllers[i][2].text,
+                                            int.parse(controllers[i][3].text),
+                                            date.toIso8601String()
+                                        );
+
+                                      }
+                                    }
+                                    else if (hasNewProdCode) {
+                                      submitItemDataToRaw();
+                                    }
+
+                                    setState(() {
+                                      isDataSaved = true;
+                                    });
+                                    submitItemDataToDatabase();
+
+                                    List<Map<String, dynamic>> rowsDataToInsert = [];
+
+                                    if(fetchingQTY != editingQTY){
+                                      rowsDataToInsert.add(datapendingInsert);
+                                      await pendingToDatabase();
+                                    }
+                                    List<Future<void>> insertFutures = [];
+                                    for (var i = 0; i < datapendingInsertList.length; i++) {
+                                      insertFutures.add(insertDataPendingReport(datapendingInsertList[i]));
+                                      await Future.wait(insertFutures);
+                                    }
+
+                                    setState(() {
+                                      isDataSaved = true;
+                                    });
+
+                                  }
+                                  else {
+                                    setState(() {
+                                      errorMessage =
+                                      '* Fill all fields in the table';
+                                    });
+                                  }
                                 }
-                                }
-                            },
-                            child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                              },
+                              child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                            ),
                           ),
 
-
-                          const SizedBox(width: 20,),
+                          Visibility(
+                            visible: selectedCheckbox == 3,
+                            child: MaterialButton(
+                              color: Colors.green.shade600,
+                              onPressed: () async {
+                                bool hasDuplicateProdCode2 = false;
+                                bool hasNewProdCode2 = false;
+                                if (_formKey.currentState!.validate())
+                                  {
+                                    for (var i = 0; i < controllers2.length; i++) {
+                                      String enteredProdCode = controllers2[i][0].text;
+                                      bool isDuplicate2 = await checkForDuplicateGsm(enteredProdCode);
+                                      if (isDuplicate2) {
+                                        hasDuplicateProdCode2 = true;
+                                      } else {
+                                        hasNewProdCode2 = true;
+                                      }
+                                    }
+                                    if (hasDuplicateProdCode2 && hasNewProdCode2) {
+                                      for (int i = 0; i < controllers2.length; i++) {
+                                        String enteredProdCode = controllers2[i][0].text;
+                                        bool isDuplicate = await checkForDuplicateGsm(enteredProdCode);
+                                        if (isDuplicate) {
+                                          await addRawMaterialGsm(
+                                            controllers2[i][0].text,
+                                            controllers2[i][1].text,
+                                            controllers2[i][2].text,
+                                            int.parse(controllers2[i][3].text),
+                                            date.toIso8601String(),
+                                            controllers2[i][4].text,
+                                          );
+                                        }
+                                        else {
+                                          Map<String, dynamic> dataToInsertRawGsm = {
+                                            'date': date.toString(),
+                                            'prodCode': controllers2[i][0].text,
+                                            'prodName': controllers2[i][1].text,
+                                            'unit': controllers2[i][2].text,
+                                            'sNo': controllers2[i][3].text,
+                                            "totalweight":controllers2[i][4].text,
+                                          };
+                                          await insertDataRawGsm(dataToInsertRawGsm);
+                                        }
+                                      }
+                                    }
+                                    else if (hasDuplicateProdCode2) {
+                                      for (int i = 0; i < controllers2.length; i++) {
+                                        await addRawMaterialGsm(
+                                            controllers2[i][0].text,
+                                            controllers2[i][1].text,
+                                            controllers2[i][2].text,
+                                            int.parse(controllers2[i][3].text),
+                                            date.toIso8601String(),
+                                            controllers2[i][4].text
+                                        );
+                                      }
+                                    }
+                                    else if (hasNewProdCode2) {
+                                      submitItemDataToRawGsm();
+                                    }
+                                    setState(() {
+                                      isDataSaved = true;
+                                    });
+                                    await submitItemDataToDatabaseGsm();
+                                  }
+                              },
+                              child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                          SizedBox(width: 20,),
                           MaterialButton(
                             color: Colors.blue.shade600,
                             onPressed: (){
