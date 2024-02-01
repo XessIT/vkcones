@@ -41,9 +41,33 @@ class _PurchaseState extends State<Purchase> {
   double grandTotalGsm = 0.0;
   double grandTotalValue = 0.0;
 
+  TextEditingController tcsController = TextEditingController();
+  TextEditingController discountController = TextEditingController();
 
+/*
+  void updateGrandTotal() {
+    double tcs = double.tryParse(tcsController.text) ?? 0.0;
+    double discount = double.tryParse(discountController.text) ?? 0.0;
 
+    if (selectedCheckbox != 3) {
+      grandTotalValue = calculateGrandTotal() + tcs - discount;
+    } else {
+      grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;
+    }
+    setState(() {
+      grandTotalValue = calculateGrandTotal() + tcs - discount;
+      grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;    });
+  }
+*/
+  void updateGrandTotal() {
+    double tcs = double.tryParse(tcsController.text) ?? 0.0;
+    double discount = double.tryParse(discountController.text) ?? 0.0;
 
+      grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;
+
+    setState(() {
+      grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;    });
+  }
 
   double calculateGrandTotalGsm() {
     double total = 0.0;
@@ -52,15 +76,14 @@ class _PurchaseState extends State<Purchase> {
     }
     return total;
   }
-  double calculateGrandTotal() {
-    double total = 0.0;
-    for (var i = 0; i < controllers.length; i++) {
-      total += double.tryParse(controllers[i][8].text) ?? 0.0;
-    }
-    return total;
+
+  bool isTextFormFieldsVisible = false;
+
+  void onArrowButtonClick() {
+    setState(() {
+      isTextFormFieldsVisible = !isTextFormFieldsVisible;
+    });
   }
-
-
 
 
 
@@ -152,7 +175,7 @@ class _PurchaseState extends State<Purchase> {
       focusNodes.removeAt(rowIndex);
       isRowFilled.removeAt(rowIndex);
       setState(() {
-        grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+       // grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
         for (int i = rowIndex; i < controllers.length; i++)
         {
           int fetchedIndex = i + 1;
@@ -697,6 +720,8 @@ class _PurchaseState extends State<Purchase> {
         'amtGST': controllers2[i][8].text,
         'total': controllers2[i][9].text,
         'grandTotal':grandTotalGsm,
+        'extraCharge':tcsController.text,
+        'discount':discountController.text,
         "payType":payType,
       };
       insertFutures.add(insertDataPoItemGsm(dataToInsertSupItemGsm));
@@ -1020,7 +1045,7 @@ class _PurchaseState extends State<Purchase> {
     fetchData2();
      addRow2();
     ponumfetchsalINv();
-    calculateGrandTotal();
+    //calculateGrandTotal();
     calculateGrandTotalGsm();
 
     fetchPono();
@@ -2204,7 +2229,7 @@ class _PurchaseState extends State<Purchase> {
                                                               controllers2[rowIndex2][8].text = gstAmt.toStringAsFixed(2);
                                                               controllers2[rowIndex2][9].text = total.toStringAsFixed(2);
                                                               grandTotalGsm = calculateGrandTotalGsm();
-
+                                                              print("grandTotalGsm $grandTotalGsm");
                                                             });
 
                                                           }
@@ -2601,7 +2626,9 @@ class _PurchaseState extends State<Purchase> {
                                                                       // editqty = editedqty;
                                                                     });
                                                                     controllers[rowIndex][10].text = pendingqty.toString();
-                                                                    grandTotalValue = calculateGrandTotal();
+                                                                    //grandTotalValue = calculateGrandTotal();
+                                                                    print("grandTotalValue0 $grandTotalValue");
+
                                                                   }}
                                                               });
                                                               setState(() {
@@ -2710,7 +2737,9 @@ class _PurchaseState extends State<Purchase> {
                                                                       // editqty = editedqty;
                                                                     });
                                                                     controllers[rowIndex][10].text = pendingqty.toString();
-                                                                    grandTotalValue = calculateGrandTotal();
+                                                                   // grandTotalValue = calculateGrandTotal();
+                                                                    print("grandTotalValue1 $grandTotalValue");
+
                                                                   }}
                                                               });
                                                               setState(() {
@@ -2825,7 +2854,9 @@ class _PurchaseState extends State<Purchase> {
                                                                       // editqty = editedqty;
                                                                     });
                                                                     controllers[rowIndex][11].text = pending.toString();
-                                                                    grandTotalValue = calculateGrandTotal();
+                                                                    //grandTotalValue = calculateGrandTotal();
+                                                                    print("grandTotalValue2 $grandTotalValue");
+
                                                                   }}
                                                                                                                      });
                                                               setState(() {
@@ -2903,11 +2934,49 @@ class _PurchaseState extends State<Purchase> {
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
-                                            selectedCheckbox != 3 ?
-                                            Text("Grand Total ₹ $grandTotalValue", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
-                                            :  Text("Grand Total ₹ $grandTotalGsm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
-
-                                      ],
+                                            IconButton(
+                                              icon: Icon(Icons.arrow_left_sharp ),
+                                              onPressed: () {
+                                                onArrowButtonClick();
+                                              },
+                                            ),
+                                            Visibility(
+                                              visible: isTextFormFieldsVisible,
+                                              child: Row(
+                                                children: [
+                                                  SizedBox(
+                                                    width: 70,
+                                                    height: 30,
+                                                    child: TextFormField(
+                                                      controller: tcsController,
+                                                      keyboardType: TextInputType.number,
+                                                      decoration: const InputDecoration(labelText: 'Tcs'),
+                                                      onChanged: (_) {
+                                                        updateGrandTotal();
+                                                      },
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  SizedBox(
+                                                    width: 70,
+                                                    height: 30,
+                                                    child: TextFormField(
+                                                      controller: discountController,
+                                                      keyboardType: TextInputType.number,
+                                                      decoration: const InputDecoration(labelText: 'Dis'),
+                                                      onChanged: (_) {
+                                                        updateGrandTotal();
+                                                      },
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                ],
+                                              ),
+                                            ),
+                                            selectedCheckbox != 3
+                                                ? Text("Grand Total ₹ $grandTotalValue", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
+                                                : Text("Grand Total ₹ $grandTotalGsm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                          ],
                                         ),
                                       ],
                                     ),
