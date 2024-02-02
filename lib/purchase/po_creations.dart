@@ -117,21 +117,7 @@ class _PoCreationState extends State<PoCreation> {
       rowData.removeAt(rowIndex); // Remove the data for the row
     });
   }
-/*
-  void removeRow(int index) {
-    setState(() {
-      for (var controller in controllers[index]) {
-        controller.dispose();
-      }
-      if (index >= 0 && index < controllers.length) {
-        controllers.removeAt(index);
-        //focusNodes.removeAt(index);
-        isRowFilled.removeAt(index);
-        rowData.removeAt(index);
-      }
-    });
-  }
-*/
+
   void clearAllRows() {
     setState(() {
       rowData.clear();
@@ -213,7 +199,6 @@ class _PoCreationState extends State<PoCreation> {
     insertFutures.add(insertDataSup(dataToInsertSup));
     await Future.wait(insertFutures);
   }
-
   Future<List<dynamic>> fetchSizeData() async {
     const String apiUrl = 'http://localhost:3309/fetch_supCode/'; // Replace with your server details
 
@@ -240,6 +225,71 @@ class _PoCreationState extends State<PoCreation> {
       }
     }
     return false; // Size is unique, return false
+  }
+  void filterData(String searchText) {
+    setState(() {
+      if (searchText.isEmpty) {
+        filteredData = data;
+        readOnlyFields = false;
+        supCode.clear();
+        supAddress.clear();
+        pincode.clear();
+        supMobile.clear();
+      } else {
+        final existingSupplier = data.firstWhere(
+              (item) => item['supName']?.toString() == searchText,
+          orElse: () => {}, // Use an empty map literal as the default value
+        );
+
+        if (existingSupplier.isNotEmpty) {
+          // Supplier found, populate fields
+          readOnlyFields = true;
+          supCode.text = existingSupplier['supCode']?.toString() ?? '';
+          supAddress.text = existingSupplier['supAddress']?.toString() ?? '';
+          supMobile.text = existingSupplier['supMobile']?.toString() ?? '';
+          pincode.text = existingSupplier['pincode']?.toString() ?? '';
+        } else {
+          readOnlyFields = false;
+          int maxCodeNumber = 0;
+          for (var item in data) {
+            final supCodeStr = item['supCode']?.toString() ?? '';
+            if (supCodeStr.startsWith('S') && supCodeStr.length == 4) {
+              final codeNumber = int.tryParse(supCodeStr.substring(1));
+              if (codeNumber != null && codeNumber > maxCodeNumber) {
+                maxCodeNumber = codeNumber;
+              }
+            }
+          }
+          final newCode = 'S${(maxCodeNumber + 1).toString().padLeft(3, '0')}';
+          supCode.text = newCode;
+          supAddress.clear();
+          supMobile.clear();
+          pincode.clear();
+        }
+      }
+    });
+  }
+  Future<void> fetchData() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/fetch_supplier/');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> itemGroups = responseData;
+
+        setState(() {
+          data = itemGroups.cast<Map<String, dynamic>>();
+        });
+
+        print('Data: $data');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle any other errors, e.g., network issues
+      print('Error: $error');
+    }
   }
 
 
@@ -444,71 +494,6 @@ class _PoCreationState extends State<PoCreation> {
     }
   }
 
-  void filterData(String searchText) {
-    setState(() {
-      if (searchText.isEmpty) {
-        filteredData = data;
-        readOnlyFields = false;
-        supCode.clear();
-        supAddress.clear();
-        pincode.clear();
-        supMobile.clear();
-      } else {
-        final existingSupplier = data.firstWhere(
-              (item) => item['supName']?.toString() == searchText,
-          orElse: () => {}, // Use an empty map literal as the default value
-        );
-
-        if (existingSupplier.isNotEmpty) {
-          // Supplier found, populate fields
-          readOnlyFields = true;
-          supCode.text = existingSupplier['supCode']?.toString() ?? '';
-          supAddress.text = existingSupplier['supAddress']?.toString() ?? '';
-          supMobile.text = existingSupplier['supMobile']?.toString() ?? '';
-          pincode.text = existingSupplier['pincode']?.toString() ?? '';
-        } else {
-          readOnlyFields = false;
-          int maxCodeNumber = 0;
-          for (var item in data) {
-            final supCodeStr = item['supCode']?.toString() ?? '';
-            if (supCodeStr.startsWith('S') && supCodeStr.length == 4) {
-              final codeNumber = int.tryParse(supCodeStr.substring(1));
-              if (codeNumber != null && codeNumber > maxCodeNumber) {
-                maxCodeNumber = codeNumber;
-              }
-            }
-          }
-          final newCode = 'S${(maxCodeNumber + 1).toString().padLeft(3, '0')}';
-          supCode.text = newCode;
-          supAddress.clear();
-          supMobile.clear();
-          pincode.clear();
-        }
-      }
-    });
-  }
-  Future<void> fetchData() async {
-    try {
-      final url = Uri.parse('http://localhost:3309/fetch_supplier/');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final List<dynamic> itemGroups = responseData;
-
-        setState(() {
-          data = itemGroups.cast<Map<String, dynamic>>();
-        });
-
-        print('Data: $data');
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle any other errors, e.g., network issues
-      print('Error: $error');
-    }
-  }
 
 
   int currentPoNumber = 1;
@@ -821,7 +806,8 @@ class _PoCreationState extends State<PoCreation> {
                                                 )
                                             ),
                                           ),
-                                        ),SizedBox(width: 32,),
+                                        ),
+                                        SizedBox(width: 32,),
 
                                         Padding(
                                           padding: const EdgeInsets.only(bottom: 36),

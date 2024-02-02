@@ -888,7 +888,7 @@ class _PurchaseState extends State<Purchase> {
     }
   }
 
-  Future<bool> checkForDuplicateGsm(String prodCode) async {
+  Future<bool> checkForDuplicateGsm(String prodCode, String sNo) async {
     const String apiUrl = 'http://localhost:3309/fetch_productcode_duplicate_gsm'; // Replace with your server endpoint
 
     try {
@@ -896,7 +896,7 @@ class _PurchaseState extends State<Purchase> {
 
       if (response.statusCode == 200) {
         List<dynamic> sizeData = jsonDecode(response.body);
-        return sizeData.any((item) => item['prodCode'] == prodCode);
+        return sizeData.any((item) => item['prodCode'] == prodCode && item['sNo'] == sNo);
       } else {
         print('Failed to fetch data');
         throw Exception('Failed to fetch data');
@@ -1045,13 +1045,14 @@ class _PurchaseState extends State<Purchase> {
     fetchData2();
      addRow2();
     ponumfetchsalINv();
-    //calculateGrandTotal();
+    fetchDataSup();
     calculateGrandTotalGsm();
 
     fetchPono();
   }
 
   List<Map<String, dynamic>> data = [];
+  List<Map<String, dynamic>> dataSup = [];
   List<Map<String, dynamic>> data2 = [];
   List<Map<String, dynamic>> data3 = [];
   List<Map<String, dynamic>> filteredData = [];
@@ -1361,6 +1362,138 @@ class _PurchaseState extends State<Purchase> {
       print('Error: $error');
     }
   }
+
+  /// fetch supplier
+  bool readOnlyFields = false;
+  String selectedCustomer=" ";
+
+  Future<void> insertDataSup(Map<String, dynamic> dataToInsertSup) async {
+    const String apiUrl = 'http://localhost:3309/supplier_data'; // Replace with your server details
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertSup': dataToInsertSup}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+      } else {
+        print('Failed to Table insert data');
+        throw Exception('Failed to Table insert data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<void> supDataToDatabase() async {
+    List<Future<void>> insertFutures = [];
+    Map<String, dynamic> dataToInsertSup = {
+      'date': date.toString(),
+      'supName': supName.text,
+      'supCode': supCode.text,
+      'supAddress': supAddress.text,
+      'pincode':pincode.text,
+      'supMobile': supMobile.text,
+    };
+    insertFutures.add(insertDataSup(dataToInsertSup));
+    await Future.wait(insertFutures);
+  }
+  Future<List<dynamic>> fetchSizeData() async {
+    const String apiUrl = 'http://localhost:3309/fetch_supCode/'; // Replace with your server details
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        List<dynamic> sizeData = jsonDecode(response.body);
+        return sizeData;
+      } else {
+        print('Failed to fetch data');
+        throw Exception('Failed to fetch data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<bool> checkForDuplicateSup(String size) async {
+    List<dynamic> sizeData = await fetchSizeData();
+    for (var item in sizeData) {
+      if (item['supCode'] == size) {
+        return true; // Size already exists, return true
+      }
+    }
+    return false; // Size is unique, return false
+  }
+  void filterDataSup(String searchText) {
+    setState(() {
+      if (searchText.isEmpty) {
+        filteredData = dataSup;
+        readOnlyFields = false;
+        supCode.clear();
+        supAddress.clear();
+        pincode.clear();
+        supMobile.clear();
+      } else {
+        final existingSupplier = dataSup.firstWhere(
+              (item) => item['supName']?.toString() == searchText,
+          orElse: () => {}, // Use an empty map literal as the default value
+        );
+
+        if (existingSupplier.isNotEmpty) {
+          // Supplier found, populate fields
+          readOnlyFields = true;
+          supCode.text = existingSupplier['supCode']?.toString() ?? '';
+          supAddress.text = existingSupplier['supAddress']?.toString() ?? '';
+          supMobile.text = existingSupplier['supMobile']?.toString() ?? '';
+          pincode.text = existingSupplier['pincode']?.toString() ?? '';
+        } else {
+          readOnlyFields = false;
+          int maxCodeNumber = 0;
+          for (var item in dataSup) {
+            final supCodeStr = item['supCode']?.toString() ?? '';
+            if (supCodeStr.startsWith('S') && supCodeStr.length == 4) {
+              final codeNumber = int.tryParse(supCodeStr.substring(1));
+              if (codeNumber != null && codeNumber > maxCodeNumber) {
+                maxCodeNumber = codeNumber;
+              }
+            }
+          }
+          final newCode = 'S${(maxCodeNumber + 1).toString().padLeft(3, '0')}';
+          supCode.text = newCode;
+          supAddress.clear();
+          supMobile.clear();
+          pincode.clear();
+        }
+      }
+    });
+  }
+  Future<void> fetchDataSup() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/fetch_supplier/');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> itemGroups = responseData;
+
+        setState(() {
+          dataSup = itemGroups.cast<Map<String, dynamic>>();
+        });
+
+        print('Data: $dataSup');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle any other errors, e.g., network issues
+      print('Error: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     poNUMber.addListener(() {
@@ -1374,7 +1507,9 @@ class _PurchaseState extends State<Purchase> {
     supCode.addListener(() {
       filterData2(supCode.text);
     });
-
+    supName.addListener(() {
+      filterDataSup(supName.text);
+    });
     double screenWidth = MediaQuery.of(context).size.width;
     return MyScaffold(
         route: "purchase_entry",backgroundColor: Colors.white,
@@ -1736,46 +1871,163 @@ class _PurchaseState extends State<Purchase> {
                                     child: Wrap(
                                       children: [
                                         SizedBox(
-                                          width: 190, height: 70,
+                                          width: 240,height: 70,
                                           child: TextFormField(
                                             readOnly: true,
-                                            controller: supCode,
-                                            //initialValue: supplierInfo['supCode'].toString()??'',
+                                            controller:supCode,
                                             style: TextStyle(fontSize: 13),
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Supplier Code",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
+                                            onChanged: (value) {
+                                              String capitalizedValue = capitalizeFirstLetter(value);
+                                              supCode.value = supCode.value.copyWith(
+                                                text: capitalizedValue,
+                                                selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                              );
 
-                                              ),
-                                            ),
-                                          ),
-                                        ),SizedBox(width: 20,),
-                                        SizedBox(
-                                          width: 190,height: 70,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            //initialValue: supplierInfo['supName'].toString()??'',
-                                            controller: supName,
-                                            style: TextStyle(fontSize: 13),
+                                            },
 
                                             decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Supplier Name",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
-
-                                              ),
+                                                labelText: "Supplier Code",
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10,),
+                                                )
                                             ),
                                           ),
-                                        ),SizedBox(width: 20,),
+                                        ),
+                                        SizedBox(width: 60,),
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 36),
+                                          child:SizedBox(
+                                            width: 240,
+                                            height:50,
+                                            child: TypeAheadFormField<String>(
+                                              textFieldConfiguration: TextFieldConfiguration(
+                                                controller: supName,
+                                               // focusNode: _suppliernameFocusNode,
+                                                onChanged: (value) {
+                                                  String capitalizedValue = capitalizeFirstLetter(value);
+                                                  supName.value = supName.value.copyWith(
+                                                    text: capitalizedValue,
+                                                    selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                  );
+                                                  setState(() {
+                                                    errorMessage = null; // Reset error message when user types
+                                                  });
+                                                },
+                                                style: const TextStyle(fontSize: 13),
+                                                decoration: InputDecoration(
+                                                  fillColor: Colors.white,
+                                                  filled: true,
+                                                  labelText: "Supplier/Company Name",
+                                                  labelStyle: TextStyle(fontSize: 16,color: Colors.black),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                  ),
+                                                ),
+                                              ),
+                                              suggestionsCallback: (pattern) async {
+                                                if (pattern.isEmpty) {
+                                                  return [];
+                                                }
+                                                List<String> suggestions = dataSup
+                                                    .where((item) =>
+                                                (item['supName']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()) ||
+                                                    (item['supCode']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()))
+                                                    .map((item) => item['supName'].toString())
+                                                    .toSet()
+                                                    .toList();
+                                                return suggestions;
+                                              },
+                                              itemBuilder: (context, suggestion) {
+                                                Map<String, dynamic> customerData = dataSup.firstWhere(
+                                                      (item) => item['supName'].toString() == suggestion,
+                                                  orElse: () => Map<String, dynamic>(),
+                                                );
+                                                return ListTile(
+                                                  title: Text('${customerData['supName']} (${customerData['supCode']})'),
+                                                );
+                                              },
+                                              onSuggestionSelected: (suggestion) {
+                                                Map<String, dynamic> customerData = dataSup.firstWhere(
+                                                      (item) => item['supName'].toString() == suggestion,
+                                                  orElse: () => Map<String, dynamic>(),
+                                                );
+                                                setState(() {
+                                                  selectedCustomer = suggestion;
+                                                  supName.text = suggestion;
+                                                });
+                                                print('Selected Customer: $selectedCustomer, Customer Code: ${customerData['supCode']}');
+                                              },
+                                            ),
+                                          ),
+
+                                          /* SizedBox(
+                                            width: 220,
+                                            height: 34,
+                                            child:
+                                            TypeAheadFormField<String>(
+                                              hideKeyboard: checkName,
+                                              textFieldConfiguration: TextFieldConfiguration(
+                                                controller: supName,
+                                                onChanged: (value) {
+                                                  // fetchData5();
+                                                  String capitalizedValue = capitalizeFirstLetter(value);
+                                                  supName.value = supName.value.copyWith(
+                                                    text: capitalizedValue,
+                                                    selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                  );
+                                                },
+                                                style: const TextStyle(fontSize: 13),
+                                                decoration: InputDecoration(
+                                                  fillColor: Colors.white,
+                                                  filled: true,
+                                                  labelText: "Supplier Name", // Update label
+                                                  labelStyle: TextStyle(fontSize: 13, color: Colors.black),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                  ),
+                                                ),
+                                              ),
+                                              suggestionsCallback: (pattern) async {
+                                                if (pattern.isEmpty) {
+                                                  return [];
+                                                }
+                                                List<String> suggestions = data
+                                                    .where((item) {
+                                                  String empName = item['supName']?.toString()?.toLowerCase() ?? '';
+                                                  String empId = item['supCode']?.toString()?.toLowerCase() ?? '';
+                                                  return empName.contains(pattern.toLowerCase()) || empId.contains(pattern.toLowerCase());
+                                                })
+                                                    .map<String>((item) =>
+                                                '${item['supName']} (${item['supCode']})') // Modify this line to match your data structure
+                                                    .toSet() // Remove duplicates using a Set
+                                                    .toList();
+                                                return suggestions;
+                                              },
+                                              itemBuilder: (context, suggestion) {
+                                                return ListTile(
+                                                  title: Text(suggestion),
+                                                );
+                                              },
+                                              onSuggestionSelected: (suggestion) {
+                                                String selectedEmpName = suggestion.split(' ')[0];
+                                                String selectedEmpID = suggestion.split('(')[1].split(')')[0];
+                                                setState(() {
+                                                  selectedCustomer = selectedEmpName;
+                                                  supName.text = selectedEmpName;
+                                                  checkName = true;
+                                                });
+                                                print('Selected Customer: $selectedCustomer, ID: $selectedEmpID');
+                                              },
+                                            ),
+                                          ),*/
+                                        ),
+                                        SizedBox(width: 60,),
                                         SizedBox(
-                                          width: 190,height: 70,
+                                          width: 240,height: 70,
                                           child: TextFormField(
-                                            readOnly: true,
+                                            readOnly: selectedCheckbox != 3,
                                             controller: supAddress,
                                             style: TextStyle(fontSize: 13),
                                             decoration: InputDecoration(
@@ -1788,11 +2040,17 @@ class _PurchaseState extends State<Purchase> {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 20,),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: Wrap(
+                                      children: [
                                         SizedBox(
-                                          width: 190,height: 70,
+                                          width: 240,height: 70,
                                           child: TextFormField(
-                                            readOnly: true,
+                                            readOnly: selectedCheckbox != 3,
                                             controller: pincode,
                                             //initialValue: supplierInfo['supAddress'].toString()??'',
                                             onChanged: (value) {
@@ -1818,11 +2076,11 @@ class _PurchaseState extends State<Purchase> {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 20,),
+                                        SizedBox(width: 60,),
                                         SizedBox(
-                                          width: 190,height: 70,
+                                          width: 240,height: 70,
                                           child: TextFormField(
-                                            readOnly: true,
+                                            readOnly: selectedCheckbox != 3,
                                             controller: supMobile,
                                             //initialValue: supplierInfo['supMobile'].toString()??'',
                                             style: TextStyle(fontSize: 13),
@@ -1838,11 +2096,12 @@ class _PurchaseState extends State<Purchase> {
                                               ),
                                             ),
                                           ),
-                                        ),SizedBox(width: 20,),
+                                        ),
+                                        SizedBox(width: 60,),
                                         Padding(
                                           padding: const EdgeInsets.only(bottom: 38),
                                           child: SizedBox(
-                                            width: 190,height:38,
+                                            width: 240,height:38,
                                             child: DropdownButtonHideUnderline(
                                               child: DropdownButtonFormField<String>(
                                                 decoration: InputDecoration(
@@ -3130,7 +3389,8 @@ class _PurchaseState extends State<Purchase> {
                                   {
                                     for (var i = 0; i < controllers2.length; i++) {
                                       String enteredProdCode = controllers2[i][0].text;
-                                      bool isDuplicate2 = await checkForDuplicateGsm(enteredProdCode);
+                                      String enteredSNo = controllers2[i][3].text;
+                                      bool isDuplicate2 = await checkForDuplicateGsm(enteredProdCode,enteredSNo);
                                       if (isDuplicate2) {
                                         hasDuplicateProdCode2 = true;
                                       } else {
@@ -3140,8 +3400,8 @@ class _PurchaseState extends State<Purchase> {
                                     if (hasDuplicateProdCode2 && hasNewProdCode2) {
                                       for (int i = 0; i < controllers2.length; i++) {
                                         String enteredProdCode = controllers2[i][0].text;
-                                        bool isDuplicate = await checkForDuplicateGsm(enteredProdCode);
-                                        if (isDuplicate) {
+                                        String enteredSNo = controllers2[i][3].text;
+                                        bool isDuplicate = await checkForDuplicateGsm(enteredProdCode,enteredSNo);                                        if (isDuplicate) {
                                           await addRawMaterialGsm(
                                             controllers2[i][0].text,
                                             controllers2[i][1].text,
