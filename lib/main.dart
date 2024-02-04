@@ -16,6 +16,7 @@ import 'package:vinayaga_project/master/finger_print_entry.dart';
 import 'package:vinayaga_project/master/finishing_entry.dart';
 import 'package:vinayaga_project/master/machine_entry.dart';
 import 'package:vinayaga_project/master/production_entry.dart';
+import 'package:vinayaga_project/master/purchase_balancesheet.dart';
 import 'package:vinayaga_project/master/salary_payment_entry.dart';
 import 'package:vinayaga_project/master/shift_entry.dart';
 import 'package:vinayaga_project/master/supplier_entry.dart';
@@ -46,6 +47,7 @@ import 'package:vinayaga_project/report/mach_production_report.dart';
 import 'package:vinayaga_project/report/po_pending_report.dart';
 import 'package:vinayaga_project/report/printing_report.dart';
 import 'package:vinayaga_project/report/production_report.dart';
+import 'package:vinayaga_project/report/purchase_balance_report.dart';
 import 'package:vinayaga_project/report/raw_material_entry_report.dart';
 import 'package:vinayaga_project/report/raw_material_stock.dart';
 import 'package:vinayaga_project/report/salary_payment_report.dart';
@@ -366,6 +368,10 @@ class _MyAppState extends State<MyApp> {
         return const RawMaterialEntriesReport();
       case 'punch_report':
         return const Punch();
+      case 'balancesheet_entry_purchase':
+        return const PurchaseBalanceSheet();
+        case 'purchase_balance_report':
+        return const PurchaseBalanceReport();
 
     }
     return null;
@@ -479,8 +485,11 @@ class MyScaffold extends StatelessWidget {
         ),
 
         AdminMenuItem(
-          title: 'Balance Sheet',
+          title: 'Sales Balance',
           route: 'balancesheet_entry',
+        ),AdminMenuItem(
+          title: 'Purchase Balance',
+          route: 'balancesheet_entry_purchase',
         ),
         AdminMenuItem(
           title: 'Worker',
@@ -569,15 +578,17 @@ class MyScaffold extends StatelessWidget {
           route: 'hand_delivery_challan_report',
         ),
         AdminMenuItem(
-          title: 'Balance Sheet',
+          title: 'Sales Balance',
           route: 'balancesheetreport',
+        ),AdminMenuItem(
+          title: 'Purchase Balance',
+          route: 'purchase_balance_report',
         ),
-
         AdminMenuItem(
           title: 'Quotation',
           route: 'quotation_report',
         ),
-        AdminMenuItem(
+        AdminMenuItem (
           title: 'Employee',
           route: 'employee_report',
         ),
@@ -709,7 +720,16 @@ class MyScaffold extends StatelessWidget {
       ) ,centerTitle: true,
         backgroundColor: Theme.of(context).primaryColor,
         elevation: 2,
-        iconTheme:  const IconThemeData(color: Colors.white),),
+        iconTheme:  const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_box_outlined),
+            onPressed: () {
+              Navigator.pushNamed(context, 'company_info');
+            },
+          ),
+        ],
+      ),
 
 
       sideBar: SideBar(

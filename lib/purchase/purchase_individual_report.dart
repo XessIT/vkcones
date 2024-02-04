@@ -20,6 +20,7 @@ class PurchaseIndividualReport extends StatefulWidget {
   String? prodCode;
   String? prodName;
   String? qty;
+  String? weight;
   String? amtGST;
   String? rate;
   String? total;
@@ -38,6 +39,7 @@ class PurchaseIndividualReport extends StatefulWidget {
     required this.prodCode,
     required this.prodName,
     required this.qty,
+    required this.weight,
     required this.rate,
     required this.amtGST,
     required this.total,
@@ -276,12 +278,18 @@ class _PurchaseIndividualReportState
               ),
               pw.Padding(
                 padding: pw.EdgeInsets.only(right: 5),
-                child: pw.Center( child: pw.Column(
+                child: pw.Center(
+                  child: pw.Column(
                     children: [
                       pw.SizedBox(height: 3),
-                      pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize: 10)),
+                      pw.Text(
+                        data[i]['qty'] ?? '${data[i]['totalWeight']} Kg',
+                        style: const pw.TextStyle(fontSize: 10),
+                      ),
                       pw.SizedBox(height: 3),
-                    ])),
+                    ],
+                  ),
+                ),
               ),
               pw.Padding(
                 padding: pw.EdgeInsets.only(right: 5),
@@ -469,7 +477,6 @@ class _PurchaseIndividualReportState
                       pw.SizedBox(height: 3),
                     ])),
               ),
-
               pw.Padding(
                 padding: pw.EdgeInsets.only(right: 0),
                 child: pw.Center( child: pw.Column(
@@ -520,7 +527,6 @@ class _PurchaseIndividualReportState
 
     for (var i = 0; i < copies; i++) {
       if (datareturn!=[])
-
         for (var j = 0; j < filteredData.length; j += recordsPerPage) {
           final List<Map<String, dynamic>> pageData =
           filteredData.skip(j).take(recordsPerPage).toList();
@@ -708,8 +714,8 @@ class _PurchaseIndividualReportState
                                                     fontSize: 10,
                                                   ),
                                                 ),
-                                                pw.SizedBox(height: 5),
-                                                pw.Text(
+                                                if (widget.payType != null && widget.payType!.isNotEmpty)
+                                                  pw.Text(
                                                   "Payment Type",
                                                   style: pw.TextStyle(
                                                     fontSize: 10,
@@ -741,7 +747,8 @@ class _PurchaseIndividualReportState
                                                 pw.SizedBox(height: 5),
                                                 pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
-                                                pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
+                                                if (widget.payType != null && widget.payType!.isNotEmpty)
+                                                  pw.Text(":", style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
                                               ],
                                             ),
@@ -758,8 +765,8 @@ class _PurchaseIndividualReportState
                                                 pw.Text(widget.supAddress.toString(), style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),
                                                 pw.Text(widget.pincode.toString(), style: pw.TextStyle(fontSize: 10,)),
-                                                pw.SizedBox(height: 5),
-                                                pw.Text(widget.payType.toString(), style: pw.TextStyle(fontSize: 10,)),
+                                                if (widget.payType != null && widget.payType!.isNotEmpty)
+                                                  pw.Text(widget.payType.toString(), style: pw.TextStyle(fontSize: 9)),                                                  pw.SizedBox(height: 5),
                                                 pw.SizedBox(height: 5),
                                                 pw.Text("+91 "+widget.supMobile.toString(), style: pw.TextStyle(fontSize: 10,)),
                                                 pw.SizedBox(height: 5),

@@ -42,6 +42,7 @@ class _HomeState extends State<Home> {
                 SizedBox(height: 20),
                 Container(
                   width: 850,
+
                   child: InputDecorator(
                     decoration: const InputDecoration(
                       labelText: 'Sale/Purchase',

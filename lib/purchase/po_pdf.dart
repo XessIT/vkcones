@@ -427,11 +427,11 @@ class _PoIndividualReportState
                                             //     fontSize: 7,
                                             //   ),
                                             // ),
-                                            pw.SizedBox(height: 3),
+                                            if (widget.deliveryDate != null && widget.deliveryDate!.isNotEmpty)
                                             pw.Text(
-                                              "Expexted Delivery Date",
+                                              "Expected Delivery Date",
                                               style: pw.TextStyle(
-                                                fontSize: 9,
+                                                  fontSize: 9,
                                                   font:font1
                                               ),
                                             ),
@@ -454,7 +454,8 @@ class _PoIndividualReportState
                                             pw.SizedBox(height: 3),
                                             pw.Text(":", style: pw.TextStyle(fontSize: 9,font:font1)),
                                             pw.SizedBox(height: 3),
-                                            pw.Text(":", style: pw.TextStyle(fontSize: 9,font:font1)),
+                                            if (widget.deliveryDate != null && widget.deliveryDate!.isNotEmpty)
+                                             pw.Text(":", style: pw.TextStyle(fontSize: 9,font:font1)),
                                             // pw.SizedBox(height: 3),
                                             // pw.Text(":", style: pw.TextStyle(fontSize: 7,)),
                                             pw.SizedBox(height: 3),
@@ -477,21 +478,12 @@ class _PoIndividualReportState
                                             pw.Text("+91 "+supdata[0]["supMobile"].toString(), style: pw.TextStyle(fontSize: 9,font:font1)),
                                             // pw.SizedBox(height: 3),
                                             // pw.Text(widget.deliveryType.toString(), style: pw.TextStyle(fontSize: 7,)),
-                                            pw.SizedBox(height: 3),
-                                            pw.Text(
-                                              widget.deliveryDate != null
-                                                  ? () {
-                                                try {
-                                                  DateTime parsedDate = DateTime.parse("${widget.deliveryDate!}");
-                                                  return DateFormat("dd-MM-yyyy").format(parsedDate.toLocal());
-                                                } catch (e) {
-                                                  print("Error parsing date: $e");
-                                                  return " ";
-                                                }
-                                              }()
-                                                  : "",
-                                              style: pw.TextStyle(fontSize: 9,font:font1),
-                                            ),
+                                            if (widget.deliveryDate != null && widget.deliveryDate!.isNotEmpty)
+                                              pw.Text(  widget.deliveryDate != null
+                                                  ? DateFormat("dd-MM-yyyy")
+                                                  .format(DateTime.parse(
+                                                  "${widget.deliveryDate}").toLocal())
+                                                  : "-", style: pw.TextStyle(fontSize: 9,font:font1,)),
 
                                             pw.SizedBox(height:2),
                                           ],

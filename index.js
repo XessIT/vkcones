@@ -1495,7 +1495,6 @@ app.get('/balance_sheet_values_get_for_table', (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 });
-
 app.get('/get_balancesheet_for_suggestion', (req, res) => {
   const sql = `
     SELECT DISTINCT s.invoiceNo
@@ -3227,10 +3226,10 @@ app.post('/updatePurchaseRqty', async (req, res) => {
 });
 
 app.post('/updateRawMaterial', async (req, res) => {
-  const { prodCode, prodName, qty,totalweight, unit, modifyDate } = req.body;
+  const { prodCode, prodName, qty, unit, modifyDate } = req.body;
 
-  const sql = 'UPDATE raw_material SET qty = qty - ?, totalweight =totalweight - ?, modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ?';
-  const values = [qty,totalweight, modifyDate, prodCode, prodName, unit];
+  const sql = 'UPDATE raw_material SET qty = qty - ?, modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ?';
+  const values = [qty, modifyDate, prodCode, prodName, unit];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -7406,6 +7405,93 @@ app.get('/hand_dc_item_view', (req, res) => {
 //hand bill dc report
 app.get('/gethand_billDC', (req, res) => {
   const sql = 'select * from handbill_dc'; // Modify to your table name
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+
+
+// balance sheet purchase
+app.get('/checkinvoiveNo_forbalancesheet_purchase', (req, res) => {
+  const sql = 'select * from balance_sheet_purchase'; // Modify to your table name
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+app.get('/get_balancesheet_for_suggestion_purchase', (req, res) => {
+  const sql = `
+    SELECT DISTINCT p.invoiceNo
+    FROM purchase p
+    LEFT JOIN balance_sheet_purchase b ON p.invoiceNo = b.individual_invoice
+    WHERE b.individual_invoice IS NULL;
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+app.post('/balanace_sheet_purchase', (req, res) => {
+  const { dataToInsert } = req.body; // Assuming you send the data to insert in the request body
+
+  const sql = 'INSERT INTO balance_sheet_purchase SET ?';// Modify to your table name
+
+  db.query(sql, [dataToInsert], (err, result) => { // Wrap dataToInsert in an array
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).json({ error: 'Error inserting data' });
+    } else {
+      console.log('Data inserted successfully');
+      res.status(200).json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+app.get('/balance_sheet_values_purchase', (req, res) => {
+  try {
+    const invoiceNosParam = req.query.invoiceNos;
+
+    if (!invoiceNosParam) {
+      return res.status(400).json({ error: 'Bad Request', message: 'Order numbers not provided.' });
+    }
+
+    const invoiceNos = invoiceNosParam.split(',');
+
+    const query = `
+    SELECT distinct invoiceNo,grandTotal,supName,supCode FROM purchase WHERE invoiceNo in (?)
+    `;
+
+    db.query(query, [invoiceNos], (error, results) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+      } else {
+        res.json(results);
+      }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+});
+app.get('/getPurchaseBalance', (req, res) => {
+  const sql = 'select * from balance_sheet_purchase'; // Modify to your table name
 
   db.query(sql, (err, results) => {
     if (err) {

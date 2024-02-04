@@ -196,11 +196,23 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
                                           child: pw.Text('Unit',
                                               style: pw.TextStyle(fontSize: 8,font:font,
                                                   fontWeight: pw.FontWeight.bold)),)
+                                    ), pw.Container(
+                                        padding: pw.EdgeInsets.all(8.0),
+                                        child: pw.Center(
+                                          child: pw.Text('S No',
+                                              style: pw.TextStyle(fontSize: 8,font:font,
+                                                  fontWeight: pw.FontWeight.bold)),)
+                                    ), pw.Container(
+                                        padding: pw.EdgeInsets.all(8.0),
+                                        child: pw.Center(
+                                          child: pw.Text('Weight',
+                                              style: pw.TextStyle(fontSize: 8,font:font,
+                                                  fontWeight: pw.FontWeight.bold)),)
                                     ),
                                     pw.Container(
                                         padding: pw.EdgeInsets.all(8.0),
                                         child: pw.Center(
-                                          child: pw.Text('Stock Quantity', style: pw.TextStyle(
+                                          child: pw.Text('Quantity', style: pw.TextStyle(
                                               fontSize: 8,font:font,
                                               fontWeight: pw.FontWeight.bold)),)
                                     ),
@@ -246,12 +258,22 @@ class _RawMaterialReportPdfState extends State<RawMaterialReportPdf> {
                                       child: pw.Center(
                                         child: pw.Text(data['unit'].toString(),
                                             style: pw.TextStyle(fontSize: 8,font:font1)),),
+                                    ),pw.Container(
+                                      padding: pw.EdgeInsets.all(8.0),
+                                      child: pw.Center(
+                                        child: pw.Text(  data['sNo'] ?? "-".toString(),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
+                                    ),pw.Container(
+                                      padding: pw.EdgeInsets.all(8.0),
+                                      child: pw.Center(
+                                        child: pw.Text(data['totalweight'] ?? "-".toString(),
+                                            style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
 
                                     pw.Container(
                                       padding: pw.EdgeInsets.all(8.0),
                                       child: pw.Center(
-                                        child: pw.Text(data['qty'].toString(),
+                                        child: pw.Text(data['qty']?.toString() ?? "-",
                                             style: pw.TextStyle(fontSize: 8,font:font1)),),
                                     ),
                                   ]);

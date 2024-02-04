@@ -627,12 +627,17 @@ class _YourDataTableSource extends DataTableSource {
           Center(
             child: Align(
               alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 17,right:25),
+              child:
+              Padding(
+                padding: const EdgeInsets.only(top: 17, right: 25),
                 child: Text(
-                  "${(double.parse(row["grandTotal"]) - double.parse(row["returnTotal"])).toStringAsFixed(2)}",
+                  (row["returnTotal"] == null || !isValidDouble(row["returnTotal"]))
+                      ? row["grandTotal"]
+                      : (double.parse(row["grandTotal"]) - double.parse(row["returnTotal"])).toStringAsFixed(2),
                 ),
               ),
+
+
             ),
           ),
         ),
@@ -651,6 +656,7 @@ class _YourDataTableSource extends DataTableSource {
                 prodCode:row["prodCode"],
                 prodName:row["prodName"],
                 qty:row["qty"],
+                weight:row["totalWeight"],
                 rate:row["rate"],
                 amtGST:row["amtGST"],
                 total:row["total"],
@@ -676,21 +682,17 @@ class _YourDataTableSource extends DataTableSource {
                         prodCode: row["prodCode"],
                         prodName: row["prodName"],
                         qty: row["qty"],
+                        weight:row["totalWeight"],
                         rate: row["rate"],
                         amtGST: row["amtGST"],
                         total: row["total"],
                         grandTotal: row["grandTotal"],
                         payType: row["payType"],
-                       // amt: row["amt"],
-
                       ),
                     ),
                   );
                 } else {
-                  // Navigate to PurchaseIndividualReport page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
+                  Navigator.push(context, MaterialPageRoute(
                       builder: (context) => PurchaseIndividualReport(
                         invoiceNo: row["invoiceNo"],
                         date: row["date"],
@@ -702,6 +704,7 @@ class _YourDataTableSource extends DataTableSource {
                         prodCode: row["prodCode"],
                         prodName: row["prodName"],
                         qty: row["qty"],
+                        weight: row["totalWeight"],
                         rate: row["rate"],
                         amtGST: row["amtGST"],
                         total: row["total"],
@@ -728,4 +731,12 @@ class _YourDataTableSource extends DataTableSource {
 
   @override
   int get selectedRowCount => 0;
+}
+bool isValidDouble(String value) {
+  try {
+    double.parse(value);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }

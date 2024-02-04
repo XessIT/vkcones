@@ -20,6 +20,7 @@ class NoReturnPurchaseIndividualReport extends StatefulWidget {
   String? prodCode;
   String? prodName;
   String? qty;
+  String? weight;
   String? amtGST;
   String? rate;
   String? total;
@@ -38,6 +39,7 @@ class NoReturnPurchaseIndividualReport extends StatefulWidget {
     required this.prodCode,
     required this.prodName,
     required this.qty,
+    required this.weight,
     required this.rate,
     required this.amtGST,
     required this.total,
@@ -170,7 +172,7 @@ class _NoReturnPurchaseIndividualReportState
                 child: pw.Center(child:
                 pw.Column(children: [
                   pw.SizedBox(height: 3),
-                  pw.Text('Quantity\n(pack)',style: pw.TextStyle(fontSize:9,font: font ),),
+                  pw.Text('Quantity',style: pw.TextStyle(fontSize:9,font: font ),),
                   pw.SizedBox(height: 3),
                 ])),
               ),
@@ -249,13 +251,22 @@ class _NoReturnPurchaseIndividualReportState
                 ),
                 pw.Padding(
                   padding: pw.EdgeInsets.only(right: 5),
-                  child: pw.Center( child: pw.Column(
+                  child: pw.Center(
+                    child: pw.Column(
                       children: [
                         pw.SizedBox(height: 3),
-                        pw.Text(data[i]['qty'],style: pw.TextStyle(fontSize: 9,font: font1)),
+                        pw.Text(
+                          data[i]['qty'] != null
+                              ? data[i]['qty']
+                              : '${data[i]['totalWeight'] ?? ''} Kg',
+                          style: pw.TextStyle(fontSize: 9, font: font1),
+                        ),
                         pw.SizedBox(height: 3),
-                      ])),
+                      ],
+                    ),
+                  ),
                 ),
+
                 pw.Padding(
                   padding: pw.EdgeInsets.only(right: 5),
                   child: pw.Center( child: pw.Column(
@@ -380,7 +391,7 @@ class _NoReturnPurchaseIndividualReportState
 
         for (var item in pageData) {
           totalGST += double.parse(item['amtGST']);
-          totalqty += double.parse(item['qty']);
+          totalqty += double.parse(item['qty'] ?? item['totalWeight'] ?? '0');
           totalamt += double.parse(item['amt']);
         }
 

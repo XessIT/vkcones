@@ -56,7 +56,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
   double calculateGrandTotal() {
     double grandTotalValue = 0.0;
     for (var i = 0; i < controllers.length; i++) {
-      double total = double.tryParse(controllers[i][9].text) ?? 0.0;
+      double total = double.tryParse(controllers[i][8].text) ?? 0.0;
       grandTotalValue += total;
     }
     return grandTotalValue;
@@ -66,7 +66,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
       List<TextEditingController> rowControllers = [];
       List<FocusNode> rowFocusNodes = [];
 
-      for (int j = 0; j < 11; j++) {
+      for (int j = 0; j < 10; j++) {
         rowControllers.add(TextEditingController());
         rowFocusNodes.add(FocusNode());
       }
@@ -82,7 +82,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
         'prodName': '',
         'unit':'',
         'qty': '',
-        'totalWeight': '',
         'rate':'',
         'amt':'',
         'gst':'',
@@ -132,7 +131,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
   void updateFieldValidation() {
     bool allValid = true;
     for (var i = 0; i < controllers.length; i++) {
-      for (var j = 0; j < 11; j++) {
+      for (var j = 0; j < 10; j++) {
         if (i < controllers.length &&
             j < controllers[i].length &&
             controllers[i][j].text.isEmpty) {
@@ -224,7 +223,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
       throw Exception('Error: $e');
     }
   }
-  Future<void> updateRawMaterial(String prodCode, String prodName,String unit,int qty,String modifyDate,String totalweight) async {
+  Future<void> updateRawMaterial(String prodCode, String prodName,String unit,int qty,String modifyDate) async {
     final Uri url = Uri.parse('http://localhost:3309/updateRawMaterial'); // Replace with your actual backend URL
 
     final response = await http.post(
@@ -238,12 +237,10 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
         'unit':unit.toString(),
         /* 'preturnNo': preturnNo,*/
         'qty': qty,
-        'totalweight': totalweight,
         "modifyDate":date.toString(),
       }),
     );
     if (response.statusCode == 200) {
-      print("total Weight :$totalweight");
       print('Update successful');
     } else {
       print('Failed to update. Status code: ${response.statusCode}');
@@ -309,13 +306,12 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
         'prodName': controllers[i][1].text,
         'unit':controllers[i][2].text,
         'qty': controllers[i][3].text,
-        'totalWeight': controllers[i][4].text,
-        'rate': controllers[i][5].text,
-        'amt': controllers[i][6].text,
-        'gst': controllers[i][7].text,
-        'amtGST': controllers[i][8].text,
-        'total': controllers[i][9].text,
-        'reason': controllers[i][10].text,
+        'rate': controllers[i][4].text,
+        'amt': controllers[i][5].text,
+        'gst': controllers[i][6].text,
+        'amtGST': controllers[i][7].text,
+        'total': controllers[i][8].text,
+        'reason': controllers[i][9].text,
         'grandTotal': grandTotal.text,
       };
       insertFutures.add(insertDataPurchaseReturnItem(dataToInsertPurchaseReturnItem)); // Await here
@@ -324,7 +320,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
         controllers[i][2].text,
         int.parse(controllers[i][3].text),
         date.toString(),
-        controllers[i][4].text,
       );
 
       updateReturnQty(controllers[i][0].text, controllers[i][1].text, invoiceNo.text,  int.parse(controllers[i][3].text),grandTotal.text, date.toString());
@@ -388,7 +383,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
     loadReturnNumber();
     loadReturnNumber();
     reNoFetch();
-    // fetchDataByInvoiceNumber(invoiceNo.text);
+     fetchDataByInvoiceNumber(invoiceNo.text);
     setState(() {
       filterPoNo(invoiceNo.text);
     });
@@ -417,7 +412,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
               'prodName': rows[i]['prodName'],
               'unit':rows[i]['unit'],
               'qty': rows[i]['qty'],
-              'totalWeight': rows[i]['totalWeight'],
               'rate': rows[i]['rate'],
               'amt': rows[i]['amt'],
               'gst': rows[i]['gst'],
@@ -426,17 +420,16 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
               'reason': rows[i]['reason'],
             };
 
-            for (int j = 0; j < 11; j++) {
+            for (int j = 0; j < 10; j++) {
               TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
               rowControllers.add(controller);
             }
 
             controllers.add(rowControllers);
-            focusNodes.add(List.generate(10, (i) => FocusNode()));
+            focusNodes.add(List.generate(9, (i) => FocusNode()));
             rowData.add(row);
             isRowFilled.add(true);
             fetchedQuantities[i] = double.tryParse(rows[i]['qty']) ?? 0.0;
-            fetchedtotalWeight[i] = double.tryParse(rows[i]['totalWeight']) ?? 0.0;
             grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
           }
         });
@@ -825,6 +818,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                     },
                                     onSuggestionSelected: (suggestion) {
                                       setState(() {
+                                        fetchDataByInvoiceNumber(invoiceNo.text);
                                         if (isMachineNameExists(invoiceNo.text)) {
                                           errorMessage = '* Invoice Number already exists';
                                         } else {
@@ -1079,7 +1073,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                         3: FixedColumnWidth(100),
                                         4: FixedColumnWidth(100),
                                         5: FixedColumnWidth(100),
-                                        6: FixedColumnWidth(100), 7: FixedColumnWidth(80),
+                                        6: FixedColumnWidth(100), 7: FixedColumnWidth(100),
                                         8: FixedColumnWidth(120),9: FixedColumnWidth(120),
                                         10: FixedColumnWidth(120),11: FixedColumnWidth(60),
 
@@ -1147,22 +1141,6 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                       const SizedBox(height: 15),
                                                       Text(
                                                         'Quantity',
-                                                        style: TextStyle(fontWeight: FontWeight.bold),
-                                                      ),
-                                                      const SizedBox(height: 15),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),TableCell(
-                                              child: Container(
-                                                color: Colors.blue.shade200,
-                                                child: Center(
-                                                  child: Column(
-                                                    children: [
-                                                      const SizedBox(height: 15),
-                                                      Text(
-                                                        'Total Weight',
                                                         style: TextStyle(fontWeight: FontWeight.bold),
                                                       ),
                                                       const SizedBox(height: 15),
@@ -1296,11 +1274,11 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                         for (var i = 0; i < controllers.length; i++)
                                           TableRow(
                                             children: [
-                                              for (var j = 0; j < 11; j++)
+                                              for (var j = 0; j < 10; j++)
                                                 TableCell(
                                                   child: Padding(
                                                     padding: const EdgeInsets.all(8.0),
-                                                    child: j == 10 // Check if it's the "Reason" field
+                                                    child: j == 9 // Check if it's the "Reason" field
                                                         ? TypeAheadFormField<String>(
                                                       suggestionsCallback: (query) {
                                                         return getSuggestionsForReason(query);
@@ -1311,13 +1289,13 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                         );
                                                       },
                                                       onSuggestionSelected: (suggestion) {
-                                                        controllers[i][10].text = suggestion;
+                                                        controllers[i][9].text = suggestion;
                                                         setState(() {
                                                           errorMessage ="";
                                                         });
                                                       },
                                                       textFieldConfiguration: TextFieldConfiguration(
-                                                        controller: controllers[i][10],
+                                                        controller: controllers[i][9],
                                                         decoration: const InputDecoration(
                                                           filled: true,
                                                           fillColor: Colors.white,
@@ -1326,7 +1304,7 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                     )
                                                         :  TextFormField(
                                                       style: TextStyle(fontSize: 13,
-                                                        color: (j == 0 || j == 1 || j == 2 || j == 3 ||rowData[i]['prodName'].startsWith('GSM') || j == 5 || j == 6 || j == 7||j==8) ? Colors.black : Colors.grey, // Set the text color
+                                                        color: (j == 0 || j == 1 || j == 2 || j == 3 || j == 5 || j == 6 || j == 7) ? Colors.black : Colors.grey, // Set the text color
                                                       ),
 
                                                       controller: controllers[i][j],
@@ -1338,8 +1316,8 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                         filled: true,
                                                         fillColor: Colors.white,
                                                       ),
-                                                      textAlign: j >= 5 && j <= 8 ? TextAlign.right : TextAlign.left,
-                                                      enabled: (j == 3 || j == 9 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 9))),
+                                                      textAlign: j >= 4 && j <= 7 ? TextAlign.right : TextAlign.left,
+                                                      enabled: (j == 3 || j == 7 || j == 3 || j == 4 || j == 8),
                                                       onChanged: (value) {
                                                         final int rowIndex = i;
                                                         final int colIndex = j;
@@ -1350,9 +1328,9 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                           rowData[rowIndex][key] = value;
                                                           isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
                                                           if(!rowData[i]['prodName'].startsWith('GSM')){
-                                                            if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
+                                                            if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
                                                               double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                              double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                             // double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
 
                                                               if (quantity > fetchedQuantities[rowIndex]!) {
                                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1364,7 +1342,9 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                                   controllers[i][3].text = fetchedQuantities[rowIndex].toString();
                                                                 });
                                                                 return;
-                                                              }  if (totweight > fetchedtotalWeight[rowIndex]!) {
+                                                              }
+/*
+                                                              if (totweight > fetchedtotalWeight[rowIndex]!) {
                                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                                                   content: Text('Weight should be less than or equal to ${fetchedtotalWeight[rowIndex]}'),
                                                                   duration: Duration(seconds: 2),
@@ -1376,28 +1356,29 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
 
                                                                 return;
                                                               }
+*/
 
 
 
-                                                              double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                              double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+                                                              double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                              double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
 
                                                               double amount = quantity * rate;
                                                               double gstAmt = (amount * gst) / 100;
                                                               double total = amount + gstAmt;
 
-                                                              controllers[rowIndex][6].text = amount.toStringAsFixed(2);
+                                                              controllers[rowIndex][5].text = amount.toStringAsFixed(2);
                                                               /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                              controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                              controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                              controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                              controllers[rowIndex][8].text = total.toStringAsFixed(2);
 
                                                               grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
                                                             }}else{
 
 
-                                                            if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
+                                                            if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
                                                               double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                              double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                              // double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
 
                                                               if (quantity > fetchedQuantities[rowIndex]!) {
                                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1410,7 +1391,9 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                                 });
 
                                                                 return;
-                                                              }  if (totweight > fetchedtotalWeight[rowIndex]!) {
+                                                              }
+/*
+                                                              if (totweight > fetchedtotalWeight[rowIndex]!) {
                                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                                                   content: Text('Weight should be less than or equal to ${fetchedtotalWeight[rowIndex]}'),
                                                                   duration: Duration(seconds: 2),
@@ -1422,21 +1405,22 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
                                                                 });
                                                                 return;
                                                               }
+*/
 
 
-                                                              double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                              double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+                                                              /*double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                              double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
 
                                                               double amount = totweight * rate;
                                                               double gstAmt = (amount * gst) / 100;
                                                               double total = amount + gstAmt;
 
-                                                              controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                              /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                              controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                              controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                              controllers[rowIndex][5].text = amount.toStringAsFixed(2);
+                                                              *//*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*//*
+                                                              controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                              controllers[rowIndex][8].text = total.toStringAsFixed(2);
 
-                                                              grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                              grandTotal.text = calculateGrandTotal().toStringAsFixed(2);*/
                                                             }
                                                           }
                                                         });
@@ -1558,18 +1542,13 @@ class _PurchaseReturnState extends State<PurchaseReturn> {
 
                           for (var i = 0; i < controllers.length; i++) {
                             bool isGSMProduct = rowData[i]['prodName'].startsWith('GSM');
-                            if (controllers[i][3].text.isEmpty || controllers[i][10].text.isEmpty) {
+                            if (controllers[i][3].text.isEmpty || controllers[i][9].text.isEmpty) {
                               setState(() {
                                 errorMessage = '* Please fill all fields ';
                               });
                               return;
                             }
-                           /* else if (isGSMProduct && controllers[i][4].text.isEmpty) {
-                              setState(() {
-                                errorMessage = '* Please fill Total Weight';
-                              });
-                              return;
-                            }*/
+
                           }
                           setState(() {
                             errorMessage = null;
@@ -1719,18 +1698,16 @@ String _getKeyForColumn(int columnIndex) {
     case 3:
       return 'qty';
     case 4:
-      return 'totalWeight';
-    case 5:
       return 'rate';
-    case 6:
+    case 5:
       return 'amt';
-    case 7:
+    case 6:
       return 'gst';
-    case 8:
+    case 7:
       return 'amtGST';
-    case 9:
+    case 8:
       return 'total';
-    case 10:
+    case 9:
       return 'reason';
     default:
       return '';

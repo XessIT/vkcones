@@ -19,12 +19,27 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
   List<String> supplierSuggestions = [];
   String selectedSupplier = "";
   bool isDateRangeValid=true;
-
+  double Grandtotal = 0;
+  double GrandtotalGsm = 0;
   int currentPage = 1;
   int rowsPerPage = 10;
   String selectedCustomer="";
   final ScrollController _scrollController = ScrollController();
 
+  double calculateTotal(List<Map<String, dynamic>> filteredData) {
+    double totalSalary = 0;
+    for (var row in filteredData) {
+      totalSalary += double.parse(row['qty'] ?? '0');
+    }
+    return totalSalary;
+  }
+  double calculateTotalGsm(List<Map<String, dynamic>> filteredData) {
+    double totalSalary = 0;
+    for (var row in filteredData) {
+      totalSalary += double.parse(row['totalweight'] ?? '0');
+    }
+    return totalSalary;
+  }
 
 
 
@@ -149,6 +164,9 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
         }
         return dateB.compareTo(dateA); // Compare in descending order
       });
+      Grandtotal = calculateTotal(filteredData);
+      GrandtotalGsm = calculateTotalGsm(filteredData);
+
     });
   }
 
@@ -469,11 +487,52 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            const Align(
+                             Align(
                                 alignment:Alignment.topLeft,
                                 child: Padding(
                                   padding: EdgeInsets.only(left: 5),
-                                  child: Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),)),
+                                  child: Row(
+                                    children: [
+                                      Text("Report Details",style: TextStyle(fontSize:17,fontWeight: FontWeight.bold),),
+                                      if (generatedButton || searchController.text.isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 600),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width:150,
+                                                child: TextFormField(
+                                                  decoration: InputDecoration(
+                                                      hintText:"Quantity: ${calculateTotal(filteredData)}",
+                                                      hintStyle: TextStyle(fontSize: 13),
+                                                      border:OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                      )
+                                                  ),
+                                                  /* */
+                                                  //
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10,),
+                                              SizedBox(
+                                                width:150,
+                                                child: TextFormField(
+                                                  decoration: InputDecoration(
+                                                      hintText:"GSM: ${calculateTotalGsm(filteredData)}",
+                                                      hintStyle: TextStyle(fontSize: 13),
+                                                      border:OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                      )
+                                                  ),
+                                                  /* */
+                                                  //
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),)),
                             const SizedBox(height: 20,),
                             filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
                             Scrollbar(
@@ -492,7 +551,7 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
                                       DataColumn(label: Center(child: Text("    Date",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("Product Code",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("           Product Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                      DataColumn(label: Center(child: Text("   Weight",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("S No",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("Total Weight",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("Available Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("Modify Date",style: TextStyle(fontWeight: FontWeight.bold),))),
@@ -594,11 +653,12 @@ class _YourDataTableSource extends DataTableSource {
         )),
         DataCell(Center(child: Text("${row["prodCode"]}"))),
         DataCell(Center(child: Text("${row["prodName"]}"))),
+        DataCell(Center(child: Text(row["sNo"]!= null ? "${row["sNo"]}" : "-"))),
         //  DataCell(Center(child: Text("${row["supName"]}"))),
         // DataCell(Center(child: Text("${row["custMobile"]}"))),
-        DataCell(Center(child: Text(row["weight"] != null ? "${row["weight"]}" : "-"))),
+        //DataCell(Center(child: Text(row["weight"] != null ? "${row["weight"]}" : "-"))),
         DataCell(Center(child: Text(row["totalweight"] != null ? "${row["totalweight"]}" : "-"))),
-        DataCell(Center(child: Text("${row["qty"]}"))),
+        DataCell(Center(child: Text(row["qty"] != null ? "${row["qty"]}" : "-"))),
         DataCell(Center(
           child: Text(
             row["modifyDate"] != null

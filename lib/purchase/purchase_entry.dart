@@ -44,21 +44,20 @@ class _PurchaseState extends State<Purchase> {
   TextEditingController tcsController = TextEditingController();
   TextEditingController discountController = TextEditingController();
 
-/*
   void updateGrandTotal() {
     double tcs = double.tryParse(tcsController.text) ?? 0.0;
     double discount = double.tryParse(discountController.text) ?? 0.0;
 
     if (selectedCheckbox != 3) {
-      grandTotalValue = calculateGrandTotal() + tcs - discount;
+      grandTotalValue = calculateGrandTotal2() + tcs - discount;
     } else {
       grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;
     }
     setState(() {
-      grandTotalValue = calculateGrandTotal() + tcs - discount;
+      grandTotalValue = calculateGrandTotal2() + tcs - discount;
       grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;    });
   }
-*/
+/*
   void updateGrandTotal() {
     double tcs = double.tryParse(tcsController.text) ?? 0.0;
     double discount = double.tryParse(discountController.text) ?? 0.0;
@@ -68,12 +67,22 @@ class _PurchaseState extends State<Purchase> {
     setState(() {
       grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;    });
   }
+*/
 
   double calculateGrandTotalGsm() {
     double total = 0.0;
     for (var i = 0; i < controllers2.length; i++) {
       total += double.tryParse(controllers2[i][9].text) ?? 0.0;
     }
+    print("total------------------ $total");
+    return total;
+  }
+  double calculateGrandTotal2() {
+    double total = 0.0;
+    for (var i = 0; i < controllers.length; i++) {
+      total += double.tryParse(controllers[i][8].text) ?? 0.0;
+    }
+    print("total------------------ $total");
     return total;
   }
 
@@ -139,7 +148,10 @@ class _PurchaseState extends State<Purchase> {
     void removeRow2(int rowIndex) {
     setState(() {
       controllers2.removeAt(rowIndex); // Remove the controllers for the row
-      rowData.removeAt(rowIndex); // Remove the data for the row
+      rowData.removeAt(rowIndex);
+      setState(() {
+        grandTotalGsm = calculateGrandTotalGsm();
+      });
     });
   }
   void removeRow(int rowIndex) {
@@ -159,7 +171,7 @@ class _PurchaseState extends State<Purchase> {
         "supName": supName.text,
         "prodCode": controllers[rowIndex][0].text,
         "prodName": controllers[rowIndex][1].text,
-        'qty': controllers[rowIndex][10].text.isNotEmpty ? controllers[rowIndex][10].text : '0',
+        'qty': controllers[rowIndex][9].text.isNotEmpty ? controllers[rowIndex][9].text : '0',
         "pincode": pincode.text,
         "deliveryDate": "",
         'unit': controllers[rowIndex][2].text,
@@ -175,11 +187,14 @@ class _PurchaseState extends State<Purchase> {
       focusNodes.removeAt(rowIndex);
       isRowFilled.removeAt(rowIndex);
       setState(() {
+        grandTotalValue = calculateGrandTotal2();
+      });
+      setState(() {
        // grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
         for (int i = rowIndex; i < controllers.length; i++)
         {
           int fetchedIndex = i + 1;
-          controllers[i][10].text = fetchedQuantities[fetchedIndex].toString();
+          controllers[i][9].text = fetchedQuantities[fetchedIndex].toString();
           fetchedQuantities[i] = fetchedQuantities[fetchedIndex]!;
           rowData[i]['prodName'] = controllers[i][1].text;
         }
@@ -440,7 +455,7 @@ class _PurchaseState extends State<Purchase> {
           "supName":supName.text,
           "prodCode": controllers[i][0].text,
           "prodName": controllers[i][1].text,
-          'qty':controllers[i][11].text.isNotEmpty?controllers[i][11].text:'0',
+          'qty':controllers[i][10].text.isNotEmpty?controllers[i][10].text:'0',
           "pincode":pincode.text,
           "deliveryDate":"",
           'unit': controllers[i][2].text,
@@ -702,6 +717,7 @@ class _PurchaseState extends State<Purchase> {
       Map<String, dynamic> dataToInsertSupItemGsm = {
         'invoiceNo':invoiceNo.text,
         "date":date.toString(),
+       // "poNo":poNUMber,
         "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
         'purchaseDate': formattedPurchaseDate,
         "supName": supName.text,
@@ -722,7 +738,7 @@ class _PurchaseState extends State<Purchase> {
         'grandTotal':grandTotalGsm,
         'extraCharge':tcsController.text,
         'discount':discountController.text,
-        "payType":payType,
+        "payType":payType,'returnTotal':"0.00"
       };
       insertFutures.add(insertDataPoItemGsm(dataToInsertSupItemGsm));
     }
@@ -762,13 +778,15 @@ class _PurchaseState extends State<Purchase> {
         'prodName': controllers[i][1].text,
         'unit': controllers[i][2].text,
         'qty': controllers[i][3].text,
-        'totalWeight': controllers[i][4].text,
-        'rate':controllers[i][5].text,
-        'amt':controllers[i][6].text,
-        'gst': controllers[i][7].text,
-        'amtGST': controllers[i][8].text,
-        'total': controllers[i][9].text,
-        'grandTotal':grandTotal.text,
+        // 'totalWeight': controllers[i][4].text,
+        'rate':controllers[i][4].text,
+        'amt':controllers[i][5].text,
+        'gst': controllers[i][6].text,
+        'amtGST': controllers[i][7].text,
+        'total': controllers[i][8].text,
+        'grandTotal':grandTotalValue,
+        'extraCharge':tcsController.text,
+        'discount':discountController.text,
         "payType":payType,
         'returnTotal':"0.00"
       };
@@ -875,7 +893,6 @@ class _PurchaseState extends State<Purchase> {
         'prodName': controllers[i][1].text,
         'unit':controllers[i][2].text,
         'qty': controllers[i][3].text,
-
       };
       insertFutures.add(insertDataRaw(dataToInsertRaw));
     }
@@ -1047,7 +1064,7 @@ class _PurchaseState extends State<Purchase> {
     ponumfetchsalINv();
     fetchDataSup();
     calculateGrandTotalGsm();
-
+    calculateGrandTotal2();
     fetchPono();
   }
 
@@ -1070,7 +1087,6 @@ class _PurchaseState extends State<Purchase> {
         final existingSupplier = data2.firstWhere(
               (item) => item['supCode']?.toString() == searchText,
           orElse: () => {},
-          // Use an empty map literal as the default value
         );
         if (existingSupplier.isNotEmpty) {
           supMobile.text = existingSupplier['supMobile']?.toString() ?? '';
@@ -1513,1286 +1529,951 @@ class _PurchaseState extends State<Purchase> {
     double screenWidth = MediaQuery.of(context).size.width;
     return MyScaffold(
         route: "purchase_entry",backgroundColor: Colors.white,
-        body:  Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Center(
-              child: Column(
-                  children: [
-                    SizedBox(height: 15,),
-                    SizedBox(
-                      //width: 720,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          width: double.infinity, // Set the width to full page width
-                          padding: EdgeInsets.all(14.0), // Add padding for spacing
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey), // Add a border for the box
-                            borderRadius: BorderRadius.circular(10.0), // Add border radius for rounded corners
-                          ),
-                          child: Wrap(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Row(
-                                            children:[    const Icon(Icons.local_grocery_store, size:30),
-                                              Text("Purchase Entry",style: TextStyle(fontSize:screenWidth * 0.019,fontWeight: FontWeight.bold),),
-                                            ]),
-                                        Row(
-                                          children: [
-                                            Checkbox(
-                                              value: selectedCheckbox == 1,
-                                              onChanged: (bool? value) {
-                                                setState(() {
-                                                  pendingPoNUMber.clear();
-                                                  errorMessage ="";
+        body:  Container(
+          //color: Colors.black,
+          child: Form(
 
-                                                  if (value != null && value) {
-                                                    selectedCheckbox = 1;
-                                                  } else {
-                                                    // Toggle between 1 and 2
-                                                    selectedCheckbox = selectedCheckbox == 1 ? 2 : 1;
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                            Text("PO"),
-                                            Checkbox(
-                                              value: selectedCheckbox == 3,
-                                              onChanged: (bool? value) {
-                                                setState(() {
-                                                  poNUMber.clear();
-                                                  errorMessage ="";
-                                                  //  checkOrderNo ="";
-                                                  if (value != null && value) {
-                                                    selectedCheckbox = 3;
-                                                  } else {
-                                                    selectedCheckbox = selectedCheckbox == 3 ? 1 : 3;
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                            const Text("GSM"),
-                                            Checkbox(
-                                              value: selectedCheckbox == 2,
-                                              onChanged: (bool? value) {
-                                                setState(() {
-                                                  poNUMber.clear();
-                                                  errorMessage ="";
-                                                  //  checkOrderNo ="";
-                                                  if (value != null && value) {
-                                                    selectedCheckbox = 2;
-                                                  } else {
-                                                    // Toggle between 2 and 1
-                                                    selectedCheckbox = selectedCheckbox == 2 ? 1 : 2;
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                            Text("Pending"),
-                                          ],
-                                        ),
-
-
-                                      ],
-                                    ),
-                                    //poNumber textformfield
-                                    Column(
-                                      children: [
-                                        Visibility(
-                                          visible: selectedCheckbox == 1 || selectedCheckbox == 3 ,
-                                          child: SizedBox(
-                                            width: 140,
-                                            height: 36,
-                                            child: TypeAheadFormField<String>(
-                                              textFieldConfiguration: TextFieldConfiguration(
-                                                controller: poNUMber,focusNode: _suppliernameFocusNode,
-                                                style: const TextStyle(fontSize: 13),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    errorMessage = null;
-
-                                                  });
-                                                },
-                                                inputFormatters: [
-                                                  UpperCaseTextFormatter(),
-                                                ],
-                                                decoration: InputDecoration(
-                                                  // suffixIcon: Icon(Icons.search),
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  labelText: "PO Number",
-                                                  labelStyle: TextStyle(fontSize: 13),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                  ),
-                                                ),
-                                              ),
-                                              suggestionsCallback: (pattern) async {
-                                                List<String> suggestions;
-                                                if (pattern.isNotEmpty) {
-                                                  suggestions = data
-                                                      .where((item) =>
-                                                  (item['poNo']?.toString()?.toLowerCase() ?? '')
-                                                      .startsWith(pattern.toLowerCase()) &&
-                                                      (selectedCheckbox != 1 || !item['prodName'].toString().startsWith('GSM')))
-                                                      .map((item) => item['poNo'].toString())
-                                                      .toSet() // Remove duplicates using a Set
-                                                      .toList();
-
-                                                  suggestions.removeWhere((existingInvoiceNo) =>
-                                                  isMachineNameExists(existingInvoiceNo) &&
-                                                      existingInvoiceNo != poNUMber.text);
-
-                                                  suggestions = suggestions.take(5).toList();
-                                                } else {
-                                                  suggestions = [];
-                                                }
-                                                return suggestions;
-                                              },
-
-                                              itemBuilder: (context, suggestion) {
-                                                return ListTile(
-                                                  title: Text(suggestion),
-                                                );
-                                              },
-                                              onSuggestionSelected: (suggestion) {
-                                                setState(() {
-                                                  selectedInvoiceNo = suggestion;
-                                                  poNUMber.text = suggestion;
-                                                  if (isMachineNameExists(poNUMber.text)) {
-                                                    setState(() {
-                                                      errorMessage = '* This PO Number is Already invoiced';
-                                                    });
-                                                  }
-                                                });
-                                                print('Selected Invoice Number: $selectedInvoiceNo');
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                        Visibility(
-                                          visible: selectedCheckbox ==2,
-
-                                          child: SizedBox(
-                                            width: 140,
-                                            height: 36,
-                                            child: TypeAheadFormField<String>(
-                                              textFieldConfiguration: TextFieldConfiguration(
-                                                controller: pendingPoNUMber,
-                                                style: const TextStyle(fontSize: 13),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    errorMessage = null; // Reset error message when the user types
-                                                  });
-                                                },
-                                                inputFormatters: [
-                                                  UpperCaseTextFormatter(),
-                                                ],
-                                                decoration: InputDecoration(
-                                                  // suffixIcon: Icon(Icons.search),
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  labelText: "Pending PO Number",
-                                                  labelStyle: TextStyle(fontSize: 12),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                  ),
-                                                ),
-                                              ),
-                                              suggestionsCallback: (pattern) async {
-                                                List<String> suggestions;
-                                                if (pattern.isNotEmpty) {
-                                                  suggestions = dataPending
-                                                      .where((item) =>
-                                                      (item['pendingOrderNo']?.toString()?.toLowerCase() ?? '')
-                                                          .startsWith(pattern.toLowerCase()))
-                                                      .map((item) => item['pendingOrderNo'].toString())
-                                                      .toSet() // Remove duplicates using a Set
-                                                      .toList();
-                                                  suggestions.removeWhere((existingInvoiceNo) =>
-                                                  isMachineNameExists(existingInvoiceNo) &&
-                                                      existingInvoiceNo != pendingPoNUMber.text);
-                                                  suggestions = suggestions.take(5).toList();
-                                                } else {
-                                                  suggestions = [];
-                                                }
-                                                return suggestions;
-                                              },
-                                              itemBuilder: (context, suggestion) {
-                                                return ListTile(
-                                                  title: Text(suggestion),
-                                                );
-                                              },
-                                              onSuggestionSelected: (suggestion) {
-                                                if (isMachineNameExists(suggestion)) {
-                                                  setState(() {
-                                                    errorMessage = '* This Order already exists';
-                                                  });
-                                                } else {
-                                                  errorMessage = null;
-                                                }
-
-                                                setState(() {
-                                                  selectedPoInvoiceNo = suggestion;
-                                                  pendingPoNUMber.text = suggestion;
-                                                });
-                                                print('Selected Invoice Number: $selectedPoInvoiceNo');
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    //pending po textformfield
-
-
-                                  ],),
-
-                                Padding(
-                                  padding: const EdgeInsets.only(top:8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      SizedBox(
-                                        width: 140,
-                                        child: TextFormField(style: TextStyle(fontSize: 13),
-                                          readOnly: true, // Set the field as read-only
-                                          onTap: () async {
-                                            DateTime? pickDate = await showDatePicker(
-                                              context: context,
-                                              initialDate: DateTime.now(),
-                                              firstDate: DateTime(
-                                                  1900),
-                                              lastDate: DateTime.now(),
-                                            );
-                                            if (pickDate == null)
-                                              return;
-                                            {
-                                              setState(() {
-                                                purchaseDate.text =
-                                                    DateFormat(
-                                                        'dd-MM-yyyy')
-                                                        .format(
-                                                        pickDate);
-                                                errorMessage=null;
-
-                                              });
-                                            }
-                                          },
-                                          controller: purchaseDate, // Set the initial value of the field to the selected date
-                                          decoration: InputDecoration(
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            labelText: "Purchase Date",
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 5,),
-                                      SizedBox(
-                                        width: 140,
-                                        child: TextFormField(
-                                          // readOnly: invoiceEditable,
-                                          controller: invoiceNo,
-                                          style: TextStyle(fontSize: 13),
-                                          inputFormatters: [
-                                            UpperCaseTextFormatter(), // Apply the formatter
-                                          ],
-                                          onChanged: (value){
-                                            setState(() {
-                                              errorMessage = null; // Reset error message when user types
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            labelText: "Invoice Number",
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-
-                                      ),
-                                    ],),
-                                ),
-                              ]
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      // width: 720,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          width: double.infinity, // Set the width to full page width
-                          padding: EdgeInsets.all(16.0), // Add padding for spacing
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            border: Border.all(color: Colors.grey), // Add a border for the box
-                            borderRadius: BorderRadius.circular(10.0), // Add border radius for rounded corners
-                          ),
-                          child: Wrap(
-                            children: [
-                              Column(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Center(
+                child: Column(
+                    children: [
+                      SizedBox(height: 15,),
+                      SizedBox(
+                        //width: 720,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            width: double.infinity, // Set the width to full page width
+                            padding: EdgeInsets.all(14.0), // Add padding for spacing
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: Colors.grey), // Add a border for the box
+                              borderRadius: BorderRadius.circular(10.0), // Add border radius for rounded corners
+                            ),
+                            child: Wrap(
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Supplier Details",style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize:16,
-                                        ),),
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 8.0),
-                                          child: Text(
-                                            errorMessage ?? '',
-                                            style: TextStyle(color: Colors.red,fontSize: 13),
-                                          ),
-                                        ),
-
-
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Wrap(
-                                      children: [
-                                        SizedBox(
-                                          width: 240,height: 70,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            controller:supCode,
-                                            style: TextStyle(fontSize: 13),
-                                            onChanged: (value) {
-                                              String capitalizedValue = capitalizeFirstLetter(value);
-                                              supCode.value = supCode.value.copyWith(
-                                                text: capitalizedValue,
-                                                selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                              );
-
-                                            },
-
-                                            decoration: InputDecoration(
-                                                labelText: "Supplier Code",
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10,),
-                                                )
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 60,),
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 36),
-                                          child:SizedBox(
-                                            width: 240,
-                                            height:50,
-                                            child: TypeAheadFormField<String>(
-                                              textFieldConfiguration: TextFieldConfiguration(
-                                                controller: supName,
-                                               // focusNode: _suppliernameFocusNode,
-                                                onChanged: (value) {
-                                                  String capitalizedValue = capitalizeFirstLetter(value);
-                                                  supName.value = supName.value.copyWith(
-                                                    text: capitalizedValue,
-                                                    selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                                  );
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Row(
+                                              children:[    const Icon(Icons.local_grocery_store, size:30),
+                                                Text("Purchase Entry",style: TextStyle(fontSize:screenWidth * 0.019,fontWeight: FontWeight.bold),),
+                                              ]),
+                                          Row(
+                                            children: [
+                                              Checkbox(
+                                                value: selectedCheckbox == 1,
+                                                onChanged: (bool? value) {
                                                   setState(() {
-                                                    errorMessage = null; // Reset error message when user types
+                                                    pendingPoNUMber.clear();
+                                                    errorMessage ="";
+
+                                                    if (value != null && value) {
+                                                      selectedCheckbox = 1;
+                                                    } else {
+                                                      // Toggle between 1 and 2
+                                                      selectedCheckbox = selectedCheckbox == 1 ? 2 : 1;
+                                                    }
                                                   });
                                                 },
-                                                style: const TextStyle(fontSize: 13),
-                                                decoration: InputDecoration(
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  labelText: "Supplier/Company Name",
-                                                  labelStyle: TextStyle(fontSize: 16,color: Colors.black),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                  ),
-                                                ),
                                               ),
-                                              suggestionsCallback: (pattern) async {
-                                                if (pattern.isEmpty) {
-                                                  return [];
-                                                }
-                                                List<String> suggestions = dataSup
-                                                    .where((item) =>
-                                                (item['supName']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()) ||
-                                                    (item['supCode']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()))
-                                                    .map((item) => item['supName'].toString())
-                                                    .toSet()
-                                                    .toList();
-                                                return suggestions;
-                                              },
-                                              itemBuilder: (context, suggestion) {
-                                                Map<String, dynamic> customerData = dataSup.firstWhere(
-                                                      (item) => item['supName'].toString() == suggestion,
-                                                  orElse: () => Map<String, dynamic>(),
-                                                );
-                                                return ListTile(
-                                                  title: Text('${customerData['supName']} (${customerData['supCode']})'),
-                                                );
-                                              },
-                                              onSuggestionSelected: (suggestion) {
-                                                Map<String, dynamic> customerData = dataSup.firstWhere(
-                                                      (item) => item['supName'].toString() == suggestion,
-                                                  orElse: () => Map<String, dynamic>(),
-                                                );
-                                                setState(() {
-                                                  selectedCustomer = suggestion;
-                                                  supName.text = suggestion;
-                                                });
-                                                print('Selected Customer: $selectedCustomer, Customer Code: ${customerData['supCode']}');
-                                              },
-                                            ),
+                                              Text("PO"),
+                                              Checkbox(
+                                                value: selectedCheckbox == 3,
+                                                onChanged: (bool? value) {
+                                                  setState(() {
+                                                    poNUMber.clear();
+                                                    errorMessage ="";
+                                                    //  checkOrderNo ="";
+                                                    if (value != null && value) {
+                                                      selectedCheckbox = 3;
+                                                    } else {
+                                                      selectedCheckbox = selectedCheckbox == 3 ? 1 : 3;
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              const Text("GSM"),
+                                              Checkbox(
+                                                value: selectedCheckbox == 2,
+                                                onChanged: (bool? value) {
+                                                  setState(() {
+                                                    poNUMber.clear();
+                                                    errorMessage ="";
+                                                    //  checkOrderNo ="";
+                                                    if (value != null && value) {
+                                                      selectedCheckbox = 2;
+                                                    } else {
+                                                      // Toggle between 2 and 1
+                                                      selectedCheckbox = selectedCheckbox == 2 ? 1 : 2;
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              Text("Pending"),
+                                            ],
                                           ),
 
-                                          /* SizedBox(
-                                            width: 220,
-                                            height: 34,
-                                            child:
-                                            TypeAheadFormField<String>(
-                                              hideKeyboard: checkName,
-                                              textFieldConfiguration: TextFieldConfiguration(
-                                                controller: supName,
-                                                onChanged: (value) {
-                                                  // fetchData5();
-                                                  String capitalizedValue = capitalizeFirstLetter(value);
-                                                  supName.value = supName.value.copyWith(
-                                                    text: capitalizedValue,
-                                                    selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                                  );
-                                                },
-                                                style: const TextStyle(fontSize: 13),
-                                                decoration: InputDecoration(
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  labelText: "Supplier Name", // Update label
-                                                  labelStyle: TextStyle(fontSize: 13, color: Colors.black),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
+
+                                        ],
+                                      ),
+                                      //poNumber textformfield
+                                      Column(
+                                        children: [
+                                          Visibility(
+                                            visible: selectedCheckbox == 1 || selectedCheckbox == 3 ,
+                                            child: SizedBox(
+                                              width: 150,
+                                              height: 36,
+                                              child: TypeAheadFormField<String>(
+                                                textFieldConfiguration: TextFieldConfiguration(
+                                                  controller: poNUMber,focusNode: _suppliernameFocusNode,
+                                                  style: const TextStyle(fontSize: 13),
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      errorMessage = null;
+
+                                                    });
+                                                  },
+                                                  inputFormatters: [
+                                                    UpperCaseTextFormatter(),
+                                                  ],
+                                                  decoration: InputDecoration(
+                                                    // suffixIcon: Icon(Icons.search),
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    labelText: "PO Number",
+                                                    labelStyle: TextStyle(fontSize: 13),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
                                                   ),
                                                 ),
+                                                suggestionsCallback: (pattern) async {
+                                                  List<String> suggestions;
+                                                  if (pattern.isNotEmpty) {
+                                                    suggestions = data
+                                                        .where((item) =>
+                                                    (item['poNo']?.toString()?.toLowerCase() ?? '')
+                                                        .startsWith(pattern.toLowerCase()) &&
+                                                        (selectedCheckbox != 1 || !item['prodName'].toString().startsWith('GSM')))
+                                                        .map((item) => item['poNo'].toString())
+                                                        .toSet() // Remove duplicates using a Set
+                                                        .toList();
+
+                                                    suggestions.removeWhere((existingInvoiceNo) =>
+                                                    isMachineNameExists(existingInvoiceNo) &&
+                                                        existingInvoiceNo != poNUMber.text);
+
+                                                    suggestions = suggestions.take(5).toList();
+                                                  } else {
+                                                    suggestions = [];
+                                                  }
+                                                  return suggestions;
+                                                },
+
+                                                itemBuilder: (context, suggestion) {
+                                                  return ListTile(
+                                                    title: Text(suggestion),
+                                                  );
+                                                },
+                                                onSuggestionSelected: (suggestion) {
+                                                  setState(() {
+                                                    selectedInvoiceNo = suggestion;
+                                                    poNUMber.text = suggestion;
+                                                    if (isMachineNameExists(poNUMber.text)) {
+                                                      setState(() {
+                                                        errorMessage = '* This PO Number is Already invoiced';
+                                                      });
+                                                    }
+                                                  });
+                                                  print('Selected Invoice Number: $selectedInvoiceNo');
+                                                },
                                               ),
-                                              suggestionsCallback: (pattern) async {
-                                                if (pattern.isEmpty) {
-                                                  return [];
-                                                }
-                                                List<String> suggestions = data
-                                                    .where((item) {
-                                                  String empName = item['supName']?.toString()?.toLowerCase() ?? '';
-                                                  String empId = item['supCode']?.toString()?.toLowerCase() ?? '';
-                                                  return empName.contains(pattern.toLowerCase()) || empId.contains(pattern.toLowerCase());
-                                                })
-                                                    .map<String>((item) =>
-                                                '${item['supName']} (${item['supCode']})') // Modify this line to match your data structure
-                                                    .toSet() // Remove duplicates using a Set
-                                                    .toList();
-                                                return suggestions;
-                                              },
-                                              itemBuilder: (context, suggestion) {
-                                                return ListTile(
-                                                  title: Text(suggestion),
-                                                );
-                                              },
-                                              onSuggestionSelected: (suggestion) {
-                                                String selectedEmpName = suggestion.split(' ')[0];
-                                                String selectedEmpID = suggestion.split('(')[1].split(')')[0];
-                                                setState(() {
-                                                  selectedCustomer = selectedEmpName;
-                                                  supName.text = selectedEmpName;
-                                                  checkName = true;
-                                                });
-                                                print('Selected Customer: $selectedCustomer, ID: $selectedEmpID');
-                                              },
                                             ),
-                                          ),*/
-                                        ),
-                                        SizedBox(width: 60,),
+                                          ),
+                                          Visibility(
+                                            visible: selectedCheckbox ==2,
+
+                                            child: SizedBox(
+                                              width: 140,
+                                              height: 36,
+                                              child: TypeAheadFormField<String>(
+                                                textFieldConfiguration: TextFieldConfiguration(
+                                                  controller: pendingPoNUMber,
+                                                  style: const TextStyle(fontSize: 13),
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      errorMessage = null; // Reset error message when the user types
+                                                    });
+                                                  },
+                                                  inputFormatters: [
+                                                    UpperCaseTextFormatter(),
+                                                  ],
+                                                  decoration: InputDecoration(
+                                                    // suffixIcon: Icon(Icons.search),
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    labelText: "Pending PO Number",
+                                                    labelStyle: TextStyle(fontSize: 12),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
+                                                  ),
+                                                ),
+                                                suggestionsCallback: (pattern) async {
+                                                  List<String> suggestions;
+                                                  if (pattern.isNotEmpty) {
+                                                    suggestions = dataPending
+                                                        .where((item) =>
+                                                        (item['pendingOrderNo']?.toString()?.toLowerCase() ?? '')
+                                                            .startsWith(pattern.toLowerCase()))
+                                                        .map((item) => item['pendingOrderNo'].toString())
+                                                        .toSet() // Remove duplicates using a Set
+                                                        .toList();
+                                                    suggestions.removeWhere((existingInvoiceNo) =>
+                                                    isMachineNameExists(existingInvoiceNo) &&
+                                                        existingInvoiceNo != pendingPoNUMber.text);
+                                                    suggestions = suggestions.take(5).toList();
+                                                  } else {
+                                                    suggestions = [];
+                                                  }
+                                                  return suggestions;
+                                                },
+                                                itemBuilder: (context, suggestion) {
+                                                  return ListTile(
+                                                    title: Text(suggestion),
+                                                  );
+                                                },
+                                                onSuggestionSelected: (suggestion) {
+                                                  if (isMachineNameExists(suggestion)) {
+                                                    setState(() {
+                                                      errorMessage = '* This Order already exists';
+                                                    });
+                                                  } else {
+                                                    errorMessage = null;
+                                                  }
+
+                                                  setState(() {
+                                                    selectedPoInvoiceNo = suggestion;
+                                                    pendingPoNUMber.text = suggestion;
+                                                  });
+                                                  print('Selected Invoice Number: $selectedPoInvoiceNo');
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      //pending po textformfield
+
+
+                                    ],),
+
+                                  Padding(
+                                    padding: const EdgeInsets.only(top:8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
                                         SizedBox(
-                                          width: 240,height: 70,
-                                          child: TextFormField(
-                                            readOnly: selectedCheckbox != 3,
-                                            controller: supAddress,
-                                            style: TextStyle(fontSize: 13),
+                                          width: 140,
+                                          child: TextFormField(style: TextStyle(fontSize: 13),
+                                            readOnly: true, // Set the field as read-only
+                                            onTap: () async {
+                                              DateTime? pickDate = await showDatePicker(
+                                                context: context,
+                                                initialDate: DateTime.now(),
+                                                firstDate: DateTime(
+                                                    1900),
+                                                lastDate: DateTime.now(),
+                                              );
+                                              if (pickDate == null)
+                                                return;
+                                              {
+                                                setState(() {
+                                                  purchaseDate.text =
+                                                      DateFormat(
+                                                          'dd-MM-yyyy')
+                                                          .format(
+                                                          pickDate);
+                                                  errorMessage=null;
+
+                                                });
+                                              }
+                                            },
+                                            controller: purchaseDate, // Set the initial value of the field to the selected date
                                             decoration: InputDecoration(
                                               filled: true,
                                               fillColor: Colors.white,
-                                              labelText: "Supplier Address",
+                                              labelText: "Purchase Date",
                                               border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
+                                                borderRadius: BorderRadius.circular(8),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Wrap(
-                                      children: [
+                                        SizedBox(width: 5,),
                                         SizedBox(
-                                          width: 240,height: 70,
+                                          width: 140,
                                           child: TextFormField(
-                                            readOnly: selectedCheckbox != 3,
-                                            controller: pincode,
-                                            //initialValue: supplierInfo['supAddress'].toString()??'',
-                                            onChanged: (value) {
-                                              String capitalizedValue = capitalizeFirstLetter(value);
-                                              pincode.value = pincode.value.copyWith(
-                                                text: capitalizedValue,
-                                                //selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                              );
+                                            // readOnly: invoiceEditable,
+                                            controller: invoiceNo,
+                                            style: TextStyle(fontSize: 13),
+                                            inputFormatters: [
+                                              UpperCaseTextFormatter(), // Apply the formatter
+                                            ],
+                                            onChanged: (value){
                                               setState(() {
                                                 errorMessage = null; // Reset error message when user types
                                               });
                                             },
-                                            style: TextStyle(fontSize: 13),
-
                                             decoration: InputDecoration(
                                               filled: true,
                                               fillColor: Colors.white,
-                                              labelText: "Pincode",
-                                              hintText: "Pincode",
+                                              labelText: "Invoice Number",
                                               border: OutlineInputBorder(
                                                 borderRadius: BorderRadius.circular(10),
                                               ),
                                             ),
                                           ),
+
                                         ),
-                                        SizedBox(width: 60,),
-                                        SizedBox(
-                                          width: 240,height: 70,
-                                          child: TextFormField(
-                                            readOnly: selectedCheckbox != 3,
-                                            controller: supMobile,
-                                            //initialValue: supplierInfo['supMobile'].toString()??'',
-                                            style: TextStyle(fontSize: 13),
-                                            onChanged: (value){
-                                            },
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              prefixText: "+91 ",
-                                              labelText: "Supplier Mobile",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10,),
+                                      ],),
+                                  ),
+                                ]
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        // width: 720,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            width: double.infinity, // Set the width to full page width
+                            padding: EdgeInsets.all(16.0), // Add padding for spacing
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              border: Border.all(color: Colors.grey), // Add a border for the box
+                              borderRadius: BorderRadius.circular(10.0), // Add border radius for rounded corners
+                            ),
+                            child: Wrap(
+                              children: [
+                                Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Supplier Details",style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize:16,
+                                          ),),
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 8.0),
+                                            child: Text(
+                                              errorMessage ?? '',
+                                              style: TextStyle(color: Colors.red,fontSize: 13),
+                                            ),
+                                          ),
+
+
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Wrap(
+                                        children: [
+                                          SizedBox(
+                                            width: 240,height: 70,
+                                            child: TextFormField(
+                                              readOnly: true,
+                                              controller:supCode,
+                                              style: TextStyle(fontSize: 13),
+                                              onChanged: (value) {
+                                                String capitalizedValue = capitalizeFirstLetter(value);
+                                                supCode.value = supCode.value.copyWith(
+                                                  text: capitalizedValue,
+                                                  selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                );
+
+                                              },
+
+                                              decoration: InputDecoration(
+                                                  labelText: "Supplier Code",
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10,),
+                                                  )
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        SizedBox(width: 60,),
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 38),
-                                          child: SizedBox(
-                                            width: 240,height:38,
-                                            child: DropdownButtonHideUnderline(
-                                              child: DropdownButtonFormField<String>(
-                                                decoration: InputDecoration(
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                ),
-                                                value: payType,
-                                                hint:Text("Payment Type",style:TextStyle(fontSize: 13),),
-                                                items: <String>['Cash','Cheque','NEFT','RTGS']
-                                                    .map<DropdownMenuItem<String>>((String value) {
-                                                  return DropdownMenuItem<String>(
-                                                    value: value,
-                                                    child: Text(
-                                                      value,
-                                                      style: TextStyle(fontSize: 13),
+                                          SizedBox(width: 60,),
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 36),
+                                            child:SizedBox(
+                                              width: 240,
+                                              height:50,
+                                              child: TypeAheadFormField<String>(
+                                                textFieldConfiguration: TextFieldConfiguration(
+                                                  controller: supName,
+                                                 // focusNode: _suppliernameFocusNode,
+                                                  onChanged: (value) {
+                                                    String capitalizedValue = capitalizeFirstLetter(value);
+                                                    supName.value = supName.value.copyWith(
+                                                      text: capitalizedValue,
+                                                      selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                    );
+                                                    setState(() {
+                                                      errorMessage = null; // Reset error message when user types
+                                                    });
+                                                  },
+                                                  style: const TextStyle(fontSize: 13),
+                                                  decoration: InputDecoration(
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    labelText: "Supplier/Company Name",
+                                                    labelStyle: TextStyle(fontSize: 16,color: Colors.black),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
                                                     ),
+                                                  ),
+                                                ),
+                                                suggestionsCallback: (pattern) async {
+                                                  if (pattern.isEmpty) {
+                                                    return [];
+                                                  }
+                                                  List<String> suggestions = dataSup
+                                                      .where((item) =>
+                                                  (item['supName']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()) ||
+                                                      (item['supCode']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()))
+                                                      .map((item) => item['supName'].toString())
+                                                      .toSet()
+                                                      .toList();
+                                                  return suggestions;
+                                                },
+                                                itemBuilder: (context, suggestion) {
+                                                  Map<String, dynamic> customerData = dataSup.firstWhere(
+                                                        (item) => item['supName'].toString() == suggestion,
+                                                    orElse: () => Map<String, dynamic>(),
                                                   );
-                                                }).toList(),
-                                                // Step 5.
-                                                onChanged: (String? newValue) {
+                                                  return ListTile(
+                                                    title: Text('${customerData['supName']} (${customerData['supCode']})'),
+                                                  );
+                                                },
+                                                onSuggestionSelected: (suggestion) {
+                                                  Map<String, dynamic> customerData = dataSup.firstWhere(
+                                                        (item) => item['supName'].toString() == suggestion,
+                                                    orElse: () => Map<String, dynamic>(),
+                                                  );
                                                   setState(() {
-                                                    payType = newValue!;
+                                                    selectedCustomer = suggestion;
+                                                    supName.text = suggestion;
                                                   });
+                                                  print('Selected Customer: $selectedCustomer, Customer Code: ${customerData['supCode']}');
                                                 },
                                               ),
                                             ),
+
+                                            /* SizedBox(
+                                              width: 220,
+                                              height: 34,
+                                              child:
+                                              TypeAheadFormField<String>(
+                                                hideKeyboard: checkName,
+                                                textFieldConfiguration: TextFieldConfiguration(
+                                                  controller: supName,
+                                                  onChanged: (value) {
+                                                    // fetchData5();
+                                                    String capitalizedValue = capitalizeFirstLetter(value);
+                                                    supName.value = supName.value.copyWith(
+                                                      text: capitalizedValue,
+                                                      selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                    );
+                                                  },
+                                                  style: const TextStyle(fontSize: 13),
+                                                  decoration: InputDecoration(
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    labelText: "Supplier Name", // Update label
+                                                    labelStyle: TextStyle(fontSize: 13, color: Colors.black),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
+                                                  ),
+                                                ),
+                                                suggestionsCallback: (pattern) async {
+                                                  if (pattern.isEmpty) {
+                                                    return [];
+                                                  }
+                                                  List<String> suggestions = data
+                                                      .where((item) {
+                                                    String empName = item['supName']?.toString()?.toLowerCase() ?? '';
+                                                    String empId = item['supCode']?.toString()?.toLowerCase() ?? '';
+                                                    return empName.contains(pattern.toLowerCase()) || empId.contains(pattern.toLowerCase());
+                                                  })
+                                                      .map<String>((item) =>
+                                                  '${item['supName']} (${item['supCode']})') // Modify this line to match your data structure
+                                                      .toSet() // Remove duplicates using a Set
+                                                      .toList();
+                                                  return suggestions;
+                                                },
+                                                itemBuilder: (context, suggestion) {
+                                                  return ListTile(
+                                                    title: Text(suggestion),
+                                                  );
+                                                },
+                                                onSuggestionSelected: (suggestion) {
+                                                  String selectedEmpName = suggestion.split(' ')[0];
+                                                  String selectedEmpID = suggestion.split('(')[1].split(')')[0];
+                                                  setState(() {
+                                                    selectedCustomer = selectedEmpName;
+                                                    supName.text = selectedEmpName;
+                                                    checkName = true;
+                                                  });
+                                                  print('Selected Customer: $selectedCustomer, ID: $selectedEmpID');
+                                                },
+                                              ),
+                                            ),*/
                                           ),
-                                        ),
-                                      ],
+                                          SizedBox(width: 60,),
+                                          SizedBox(
+                                            width: 240,height: 70,
+                                            child: TextFormField(
+                                              readOnly: selectedCheckbox != 3,
+                                              controller: supAddress,
+                                              style: TextStyle(fontSize: 13),
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                labelText: "Supplier Address",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text("Product Details",style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize:16,
-                                    ),),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Wrap(
+                                        children: [
+                                          SizedBox(
+                                            width: 240,height: 70,
+                                            child: TextFormField(
+                                              readOnly: selectedCheckbox != 3,
+                                              controller: pincode,
+                                              //initialValue: supplierInfo['supAddress'].toString()??'',
+                                              onChanged: (value) {
+                                                String capitalizedValue = capitalizeFirstLetter(value);
+                                                pincode.value = pincode.value.copyWith(
+                                                  text: capitalizedValue,
+                                                  //selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                );
+                                                setState(() {
+                                                  errorMessage = null; // Reset error message when user types
+                                                });
+                                              },
+                                              style: TextStyle(fontSize: 13),
+
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                labelText: "Pincode",
+                                                hintText: "Pincode",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 60,),
+                                          SizedBox(
+                                            width: 240,height: 70,
+                                            child: TextFormField(
+                                              readOnly: selectedCheckbox != 3,
+                                              controller: supMobile,
+                                              //initialValue: supplierInfo['supMobile'].toString()??'',
+                                              style: TextStyle(fontSize: 13),
+                                              onChanged: (value){
+                                              },
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                prefixText: "+91 ",
+                                                labelText: "Supplier Mobile",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10,),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 60,),
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 38),
+                                            child:
+                                            SizedBox(
+                                              width: 240,height:38,
+                                              child: DropdownButtonHideUnderline(
+                                                child: DropdownButtonFormField<String>(
+                                                  decoration: InputDecoration(
+                                                    filled: true,
+                                                    fillColor: Colors.white,
+                                                  ),
+                                                  value: payType,
+                                                  hint:Text("Payment Type",style:TextStyle(fontSize: 13),),
+                                                  items: <String>['Cash','Cheque','NEFT','RTGS']
+                                                      .map<DropdownMenuItem<String>>((String value) {
+                                                    return DropdownMenuItem<String>(
+                                                      value: value,
+                                                      child: Text(
+                                                        value,
+                                                        style: TextStyle(fontSize: 13),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  // Step 5.
+                                                  onChanged: (String? newValue) {
+                                                    setState(() {
+                                                      payType = newValue!;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 5),
-                                child: Column(
-                                  children: [
-                                    if ( selectedCheckbox == 3)
-                                    SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: FocusTraversalGroup(
-                                        policy: OrderedTraversalPolicy(),
-                                        child: Table(
-                                          border: TableBorder.all(color: Colors.black54),
-                                          columnWidths: const <int, TableColumnWidth>{
-                                            0: FixedColumnWidth(110),
-                                            1: FixedColumnWidth(150),
-                                            2: FixedColumnWidth(80),
-                                            3: FixedColumnWidth(60),
-                                            4: FixedColumnWidth(100),
-                                            5: FixedColumnWidth(80),
-                                            6: FixedColumnWidth(100),
-                                            7: FixedColumnWidth(60),
-                                            8: FixedColumnWidth(100),
-                                            9: FixedColumnWidth(120),
-                                            10: FixedColumnWidth(110),
-                                          },
-                                          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                          children: [
-                                            // Table header row
-                                            TableRow(
-                                              children: [
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Center(
-                                                      child: Column(
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("Product Details",style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize:16,
+                                      ),),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 5),
+                                  child: Column(
+                                    children: [
+                                      if ( selectedCheckbox == 3)
+                                      SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: FocusTraversalGroup(
+                                          policy: OrderedTraversalPolicy(),
+                                          child: Table(
+                                            border: TableBorder.all(color: Colors.black54),
+                                            columnWidths: const <int, TableColumnWidth>{
+                                              0: FixedColumnWidth(110),
+                                              1: FixedColumnWidth(150),
+                                              2: FixedColumnWidth(80),
+                                              3: FixedColumnWidth(60),
+                                              4: FixedColumnWidth(100),
+                                              5: FixedColumnWidth(80),
+                                              6: FixedColumnWidth(100),
+                                              7: FixedColumnWidth(60),
+                                              8: FixedColumnWidth(100),
+                                              9: FixedColumnWidth(120),
+                                              10: FixedColumnWidth(100),
+                                            },
+                                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                            children: [
+                                              // Table header row
+                                              TableRow(
+                                                children: [
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 8),
+                                                            Text('Product Code', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                            SizedBox(height: 8),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
                                                         children: [
                                                           SizedBox(height: 8),
-                                                          Text('Product Code', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold)),
                                                           SizedBox(height: 8),
                                                         ],
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Unit', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('S.No', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Weight', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Rate', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Gst %', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Gst Amt', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color: Colors.blue.shade100,
-                                                    child: const Column(
-                                                      children: [
-                                                        SizedBox(height: 8),
-                                                        Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                        SizedBox(height: 8),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            // Table data rows
-                                            for (var i = 0; i < controllers2.length; i++)
-                                              TableRow(
-                                                children: [
-                                                  for (var j = 0; j < 10; j++)
-                                                    TableCell(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.all(8.0),
-                                                        child: j == 3
-                                                            ? TextFormField(
-                                                          style: TextStyle(fontSize: 13),
-                                                          controller: controllers2[i][j],
-                                                          inputFormatters: [
-                                                          ],
-                                                          decoration: const InputDecoration(
-                                                            filled: true,
-                                                            fillColor: Colors.white,
-                                                          ),
-                                                          onChanged: (value) {
-                                                            final int rowIndex = i;
-                                                            final int colIndex = j;
-                                                            final String key = _getKeyForColumn(colIndex);
-                                                            updateFieldValidation();
-                                                            setState(() {
-                                                              rowData[rowIndex][key] = value;
-                                                              errorMessage = ''; // Clear the error message when the user types in the table
-                                                            });
-                                                          },
-                                                        )
-                                                            : j == 2
-                                                            ? TextFormField(
-                                                          enabled: false, // Set this to false to make it read-only
-
-                                                          style: TextStyle(fontSize: 13),
-                                                          controller: controllers2[i][j],
-                                                          decoration: const InputDecoration(
-                                                            filled: true,
-                                                            fillColor: Colors.white,
-                                                          ),
-                                                          onChanged: (value) {
-                                                            final int rowIndex = i;
-                                                            final int colIndex = j;
-                                                            final String key = _getKeyForColumn(colIndex);
-
-                                                            updateFieldValidation();
-                                                            setState(() {
-                                                              rowData[rowIndex][key] = value;
-                                                            });
-                                                          },
-                                                        )
-                                                            : (j == 0 || j == 1)  ? TypeAheadFormField<String>(
-                                                            textFieldConfiguration: TextFieldConfiguration(
-                                                              controller: controllers2[i][j],
-                                                              style: TextStyle(fontSize: 13),
-                                                              inputFormatters: [
-                                                                UpperCaseTextFormatter(),
-                                                              ],
-                                                              decoration: const InputDecoration(
-                                                                filled: true,
-                                                                fillColor: Colors.white,
-                                                              ),
-
-                                                              onChanged: (value) async {
-                                                                final int rowIndex = i;
-                                                                final int colIndex = j;
-                                                                final String key = _getKeyForColumn(colIndex);
-
-                                                                updateFieldValidation();
-                                                                setState(() {
-                                                                  rowData[rowIndex][key] = value;
-                                                                });
-
-                                                                // Fetch unit based on prodCode and prodName
-                                                                final prodCode = controllers2[rowIndex][0].text;
-                                                                final prodName = controllers2[rowIndex][1].text;
-                                                                final unit = await fetchUnitInPO(prodCode, prodName);
-
-                                                                // Update the unit controller
-                                                                controllers2[rowIndex][2].text = unit;
-                                                                setState(() {
-                                                                  rowData[rowIndex][key] = value;
-                                                                  errorMessage = ''; // Clear the error message when the user types in the table
-                                                                });
-                                                              },
-                                                            ),
-                                                            suggestionsCallback: (pattern) async {
-                                                              return await fetchSuggestions(pattern);
-                                                            },
-                                                            itemBuilder: (context, suggestion) {
-                                                              return ListTile(
-                                                                title: Text(suggestion),
-                                                              );
-                                                            },
-                                                            // ...
-
-                                                            onSuggestionSelected: (suggestion) async {
-                                                              final int rowIndex = i;
-                                                              final int colIndex = j;
-                                                              final String key = _getKeyForColumn(colIndex);
-
-                                                              final match = RegExp(r'^(.+?) - (.+)$').firstMatch(suggestion);
-                                                              if (match != null) {
-                                                                final productCode = match.group(1)?.trim();
-                                                                final productName = match.group(2)?.trim();
-                                                                final selectedProductKey = '$productCode-$productName';
-
-                                                                if (controllers2.any((row) => row[0].text == productCode && row != controllers2[rowIndex])) {
-                                                                  showWarningMessage('Product with code $productCode already selected in another row!');
-                                                                  setState(() {
-                                                                    controllers2[rowIndex][0].text = ''; // Clear the product code
-                                                                    controllers2[rowIndex][1].text = ''; // Clear the product code
-                                                                  });
-                                                                } else {
-                                                                  if (selectedProducts.isNotEmpty) {
-                                                                    final previousProductName = selectedProducts.last.split('-').last;
-
-                                                                    if ((previousProductName.startsWith('GSM') && !productName!.startsWith('GSM')) ||
-                                                                        (!previousProductName.startsWith('GSM') && productName!.startsWith('GSM'))) {
-                                                                      showWarningMessage('Product name mismatched Please check!');
-                                                                      setState(() {
-                                                                        controllers2[rowIndex][0].text = '';
-                                                                        controllers2[rowIndex][1].text = '';
-                                                                        // Clear the product code
-                                                                      });
-                                                                      return;
-                                                                    }
-                                                                  }
-
-                                                                  selectedProducts.add(selectedProductKey);
-                                                                  setState(() {
-                                                                    controllers2[rowIndex][0].text = productCode!;
-                                                                    controllers2[rowIndex][1].text = productName!;
-                                                                  });
-
-                                                                  // Fetch unit based on prodCode and prodName
-                                                                  final unit = await fetchUnitInPO(productCode!, productName!);
-
-                                                                  controllers2[rowIndex][2].text = unit;
-                                                                }
-                                                              }
-                                                            }
-                                                        ):
-                                                        TextFormField(
-                                                          style: TextStyle(fontSize: 13,
-                                                            color: (j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9 ) ? Colors.black : Colors.grey, // Set the text color
-                                                          ),
-                                                          controller: controllers2[i][j],
-                                                          inputFormatters: [
-                                                            UpperCaseTextFormatter(),
-                                                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                                                            if (j == 7)
-                                                              FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
-                                                          ],
-                                                          decoration: const InputDecoration(
-                                                            filled: true,
-                                                            fillColor: Colors.white,
-                                                          ),
-                                                          onChanged: (value) async {
-                                                            final int rowIndex2 = i;
-                                                            final int colIndex2 = j;
-                                                            final String key = _getKeyForColumn(colIndex2);
-
-                                                            setState(() {
-                                                              double weight= double.tryParse(controllers2[rowIndex2][4].text) ?? 0.0;
-                                                              double rate = double.tryParse(controllers2[rowIndex2][5].text) ?? 0.0;
-                                                              double gst = double.tryParse(controllers2[rowIndex2][7].text) ?? 0.0;
-
-
-                                                              double amount = weight * rate;
-                                                              double gstAmt = (amount * gst) / 100;
-                                                              double total = amount + gstAmt;
-
-                                                              controllers2[rowIndex2][6].text = amount.toStringAsFixed(2);
-                                                              controllers2[rowIndex2][8].text = gstAmt.toStringAsFixed(2);
-                                                              controllers2[rowIndex2][9].text = total.toStringAsFixed(2);
-                                                              grandTotalGsm = calculateGrandTotalGsm();
-                                                              print("grandTotalGsm $grandTotalGsm");
-                                                            });
-
-                                                          }
-                                                        ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Unit', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
                                                       ),
                                                     ),
+                                                  ),
                                                   TableCell(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.all(8.0),
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
                                                         children: [
-                                                          IconButton(
-                                                            icon: Icon(Icons.remove_circle_outline),
-                                                            color: Colors.red.shade600,
-                                                            onPressed: () {
-                                                              showDialog(
-                                                                context: context,
-                                                                builder: (BuildContext context) {
-                                                                  return AlertDialog(
-                                                                    title: Text('Confirmation'),
-                                                                    content: Text('Are you sure you want to remove this row?'),
-                                                                    actions: <Widget>[
-                                                                      TextButton(
-                                                                        child: Text('Cancel'),
-                                                                        onPressed: () {
-                                                                          Navigator.of(context).pop(); // Close the alert box
-                                                                        },
-                                                                      ),
-                                                                      TextButton(
-                                                                        child: Text('Remove'),
-                                                                        onPressed: () {
-                                                                          if (controllers2.length == 1) {
-                                                                            // If there is only one row, clear the data instead of removing the row
-                                                                            clearAllRows();
-                                                                            Navigator.of(context).pop();
-                                                                          } else {
-                                                                            // If there are multiple rows, remove the entire row
-                                                                            removeRow2(i);
-                                                                            Navigator.of(context).pop();
-                                                                          }
-                                                                          //Navigator.of(context).pop(); // Close the alert box// Close the alert box
-                                                                        },
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
-                                                              );
-                                                            },
-                                                          ),
-                                                          Visibility(
-                                                            visible: i == controllers2.length - 1,
-                                                            child: Row(
-                                                              mainAxisAlignment: MainAxisAlignment.center,
-                                                              children: [
-
-                                                                IconButton(
-                                                                  icon: const Icon(Icons.add_circle_outline, color: Colors.green),
-                                                                  onPressed: () {
-
-                                                                    if (controllers2[i][0].text.isNotEmpty && controllers2[i][1].text.isNotEmpty && controllers2[i][2].text.isNotEmpty && controllers2[i][3].text.isNotEmpty) {
-                                                                      addRow2();
-                                                                    } else {
-                                                                      showWarningMessage(' Fields cannot be empty!');
-                                                                    }
-
-
-                                                                  },
-                                                                )
-
-                                                              ],
-                                                            ),
-                                                          ),
+                                                          SizedBox(height: 8),
+                                                          Text('S.No', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Weight', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Rate', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Gst %', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Gst Amt', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color: Colors.blue.shade100,
+                                                      child: const Column(
+                                                        children: [
+                                                          SizedBox(height: 8),
+                                                          Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                          SizedBox(height: 8),
                                                         ],
                                                       ),
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                          ],
-
-                                        ),
-                                      ),
-                                    ),
-                                    if ( selectedCheckbox == 1 || selectedCheckbox == 2 )
-                                    SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: FocusTraversalGroup(
-                                        policy: OrderedTraversalPolicy(),
-                                        child: Table(
-                                          border: TableBorder.all(
-                                              color: Colors.black54
-                                          ),
-                                          defaultColumnWidth: const FixedColumnWidth(140.0),
-                                          columnWidths:  const <int, TableColumnWidth>{
-                                            // 0: FixedColumnWidth(175),
-                                            // 1: FixedColumnWidth(175),
-                                            2: FixedColumnWidth(100),
-                                            3: FixedColumnWidth(100),
-                                            4: FixedColumnWidth(100),
-                                            5: FixedColumnWidth(100),
-                                            6: FixedColumnWidth(100),
-                                            7: FixedColumnWidth(100),
-                                            8: FixedColumnWidth(115),
-                                            9: FixedColumnWidth(0),
-                                            10: FixedColumnWidth(0),
-                                            11: FixedColumnWidth(60),
-
-
-                                          },
-                                          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                          children: [
-                                            // Table header row
-                                            TableRow(
-                                              children: [
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height:15 ),
-                                                          Text('Product Code',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height:15),
-                                                          Text('Product Name',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height:15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height:15),
-                                                          Text('Unit',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height:15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height:15),
-                                                          Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height:15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height: 15),
-                                                          Text(' Rate ',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height: 15),
-                                                          Text('Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height: 15),
-                                                          Text('GST (%)',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height: 15),
-                                                          Text('GST Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height: 15),
-                                                          Text('Total',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Visibility(
-                                                  visible:false,
-                                                  child: TableCell(
-                                                    child: Container(
-                                                      color:Colors.blue.shade200,
-                                                      child: const Center(
-                                                        child: Column(
-                                                          children: [
-                                                            SizedBox(height: 15),
-                                                            Text('R qty',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                            SizedBox(height: 15),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Visibility(
-
-                                                  visible:false,
-                                                  child: TableCell(
-                                                    child: Container(
-                                                      color:Colors.blue.shade200,
-                                                      child: Center(
-                                                        child: Column(
-                                                          children: [
-                                                            const SizedBox(height: 15),
-                                                            Text('A qty',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                            const SizedBox(height: 15),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: const Center(
-                                                      child: Column(
-                                                        children: [
-                                                          SizedBox(height: 15),
-                                                          Text('Action',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            // Table data rows
-                                            for (var i = 0; i < controllers.length; i++)
-                                              TableRow(
-                                                children: [
-                                                  for (var j = 0; j < 11; j++)
-                                                    j==4? TableCell(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.all(8.0),
-                                                        child: TextFormField(
-                                                            style: TextStyle(fontSize: 13,
-                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                              // Table data rows
+                                              for (var i = 0; i < controllers2.length; i++)
+                                                TableRow(
+                                                  children: [
+                                                    for (var j = 0; j < 10; j++)
+                                                      TableCell(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: j == 3
+                                                              ? TextFormField(
+                                                            style: const TextStyle(fontSize: 13),
+                                                            controller: controllers2[i][j],
+                                                            decoration: const InputDecoration(
+                                                              filled: true,
+                                                              fillColor: Colors.white,
                                                             ),
-                                                            controller: controllers[i][j],
+                                                            onChanged: (value) {
+                                                              final int rowIndex = i;
+                                                              final int colIndex = j;
+                                                              final String key = _getKeyForColumn(colIndex);
+                                                              updateFieldValidation();
+                                                              setState(() {
+                                                                rowData[rowIndex][key] = value;
+                                                                errorMessage = ''; // Clear the error message when the user types in the table
+                                                              });
+                                                            },
+                                                          )
+                                                              : j == 2
+                                                              ? TextFormField(
+                                                            enabled: false, // Set this to false to make it read-only
+
+                                                            style: const TextStyle(fontSize: 13),
+                                                            controller: controllers2[i][j],
+                                                            decoration: const InputDecoration(
+                                                              filled: true,
+                                                              fillColor: Colors.white,
+                                                            ),
+                                                            onChanged: (value) {
+                                                              final int rowIndex = i;
+                                                              final int colIndex = j;
+                                                              final String key = _getKeyForColumn(colIndex);
+
+                                                              updateFieldValidation();
+                                                              setState(() {
+                                                                rowData[rowIndex][key] = value;
+                                                              });
+                                                            },
+                                                          )
+                                                              : (j == 0 || j == 1)  ? TypeAheadFormField<String>(
+                                                              textFieldConfiguration: TextFieldConfiguration(
+                                                                controller: controllers2[i][j],
+                                                                style: TextStyle(fontSize: 13),
+                                                                inputFormatters: [
+                                                                  UpperCaseTextFormatter(),
+                                                                ],
+                                                                decoration: const InputDecoration(
+                                                                  filled: true,
+                                                                  fillColor: Colors.white,
+                                                                ),
+
+                                                                onChanged: (value) async {
+                                                                  final int rowIndex = i;
+                                                                  final int colIndex = j;
+                                                                  final String key = _getKeyForColumn(colIndex);
+
+                                                                  updateFieldValidation();
+                                                                  setState(() {
+                                                                    rowData[rowIndex][key] = value;
+                                                                  });
+
+                                                                  final prodCode = controllers2[rowIndex][0].text;
+                                                                  final prodName = controllers2[rowIndex][1].text;
+                                                                  final unit = await fetchUnitInPO(prodCode, prodName);
+
+                                                                  controllers2[rowIndex][2].text = unit;
+                                                                  setState(() {
+                                                                    rowData[rowIndex][key] = value;
+                                                                    errorMessage = ''; // Clear the error message when the user types in the table
+                                                                  });
+                                                                },
+                                                              ),
+                                                              suggestionsCallback: (pattern) async {
+                                                                return await fetchSuggestions(pattern);
+                                                              },
+                                                              itemBuilder: (context, suggestion) {
+                                                                return ListTile(
+                                                                  title: Text(suggestion),
+                                                                );
+                                                              },
+
+                                                              onSuggestionSelected: (suggestion) async {
+                                                                final int rowIndex = i;
+                                                                final int colIndex = j;
+                                                                final String key = _getKeyForColumn(colIndex);
+
+                                                                final match = RegExp(r'^(.+?) - (.+)$').firstMatch(suggestion);
+                                                                if (match != null) {
+                                                                  final productCode = match.group(1)?.trim();
+                                                                  final productName = match.group(2)?.trim();
+                                                                  final selectedProductKey = '$productCode-$productName';
+
+                                                                  if (controllers2.any((row) => row[0].text == productCode && row[3].text == controllers2[i][3].text && row != controllers2[rowIndex])) {
+                                                                    showWarningMessage('Product with code $productCode and sNo ${controllers2[i][3].text} already selected in another row!');
+                                                                    setState(() {
+                                                                      controllers2[rowIndex][0].text = ''; // Clear the product code
+                                                                      controllers2[rowIndex][1].text = ''; // Clear the product name
+                                                                    });
+                                                                  } else {
+                                                                    if (selectedProducts.isNotEmpty) {
+                                                                      final previousProductName = selectedProducts.last.split('-').last;
+
+                                                                      if ((previousProductName.startsWith('GSM') && !productName!.startsWith('GSM')) ||
+                                                                          (!previousProductName.startsWith('GSM') && productName!.startsWith('GSM'))) {
+                                                                        showWarningMessage('Product name mismatched Please check!');
+                                                                        setState(() {
+                                                                          controllers2[rowIndex][0].text = '';
+                                                                          controllers2[rowIndex][1].text = '';
+                                                                          // Clear the product code
+                                                                        });
+                                                                        return;
+                                                                      }
+                                                                    }
+
+                                                                    selectedProducts.add(selectedProductKey);
+                                                                    setState(() {
+                                                                      controllers2[rowIndex][0].text = productCode!;
+                                                                      controllers2[rowIndex][1].text = productName!;
+                                                                    });
+
+                                                                    // Fetch unit based on prodCode and prodName
+                                                                    final unit = await fetchUnitInPO(productCode!, productName!);
+
+                                                                    controllers2[rowIndex][2].text = unit;
+                                                                  }
+                                                                }
+                                                              }
+                                                          ):
+                                                          TextFormField(
+                                                            style: TextStyle(fontSize: 13,
+                                                              color: (j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9 ) ? Colors.black : Colors.grey, // Set the text color
+                                                            ),
+                                                            controller: controllers2[i][j],
                                                             inputFormatters: [
                                                               UpperCaseTextFormatter(),
                                                               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
@@ -2803,721 +2484,1142 @@ class _PurchaseState extends State<Purchase> {
                                                               filled: true,
                                                               fillColor: Colors.white,
                                                             ),
-
-                                                            textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                            enabled: (j == 3 || j == 6 || j == 4),
                                                             onChanged: (value) async {
-                                                              final int rowIndex = i;
-                                                              final int colIndex = j;
-                                                              final String key = _getKeyForColumn(colIndex);
-                                                              final productName= await fetchProductName(value);
-                                                              final productCode= await fetchProductCode(value);
-                                                              updateFieldValidation();
+                                                              final int rowIndex2 = i;
+                                                              final int colIndex2 = j;
+                                                              final String key = _getKeyForColumn(colIndex2);
+
                                                               setState(() {
-                                                                rowData[rowIndex][key] = value;
-                                                                if (colIndex == 0) {
-                                                                  controllers[i][1].clear();
-                                                                } else if (colIndex == 1) {
-                                                                  controllers[i][0].clear();
-                                                                }
-
-                                                                if (productName.isNotEmpty) {
-                                                                  controllers[i][1].text = productName;
-                                                                }
-                                                                if (productCode.isNotEmpty) {
-                                                                  controllers[i][0].text = productCode;
-                                                                }
-                                                                isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                  controllers[rowIndex][1].clear();
-                                                                  errorMessage = 'You already entered the\n product code $value.';
-                                                                  return;
-                                                                }
-                                                                if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                  errorMessage = 'You already entered the\n product Name $value.';
-                                                                  controllers[rowIndex][0].clear();
-                                                                  return;
-                                                                }
-                                                                errorMessage = '';
+                                                                double weight= double.tryParse(controllers2[rowIndex2][4].text) ?? 0.0;
+                                                                double rate = double.tryParse(controllers2[rowIndex2][5].text) ?? 0.0;
+                                                                double gst = double.tryParse(controllers2[rowIndex2][7].text) ?? 0.0;
 
 
+                                                                double amount = weight * rate;
+                                                                double gstAmt = (amount * gst) / 100;
+                                                                double total = amount + gstAmt;
 
-
-                                                                if( !rowData[i]['prodName'].startsWith('GSM')){
-                                                                  if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
-                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                    double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                    double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
-
-
-                                                                    double amount = quantity * rate;
-                                                                    double gstAmt = (amount * gst) / 100;
-                                                                    double total = amount + gstAmt;
-                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                        duration: const Duration(seconds: 2),
-                                                                      ));
-
-                                                                      setState(() {
-                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                      });
-                                                                      return;
-                                                                    }
-
-
-                                                                    controllers[rowIndex][5].text = amount.toStringAsFixed(2);
-                                                                    controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
-                                                                    controllers[rowIndex][8].text = total.toStringAsFixed(2);
-                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                    int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
-                                                                    int? pendingqty = receiveqty-editedqty;
-                                                                    setState(() {
-
-                                                                      qty = receiveqty!;
-                                                                      recieved= editedqty;
-                                                                      pending= pendingqty;
-
-
-                                                                      print("  Qty $qty");
-                                                                      print(" received Qty $recieved");
-                                                                      print(" pending Qty  $pending");
-                                                                      // editqty = editedqty;
-                                                                    });
-                                                                    controllers[rowIndex][10].text = pendingqty.toString();
-                                                                    //grandTotalValue = calculateGrandTotal();
-                                                                    print("grandTotalValue0 $grandTotalValue");
-
-                                                                  }}
+                                                                controllers2[rowIndex2][6].text = amount.toStringAsFixed(2);
+                                                                controllers2[rowIndex2][8].text = gstAmt.toStringAsFixed(2);
+                                                                controllers2[rowIndex2][9].text = total.toStringAsFixed(2);
+                                                                grandTotalGsm = calculateGrandTotalGsm();
+                                                                print("grandTotalGsm $grandTotalGsm");
                                                               });
-                                                              setState(() {
-                                                                fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                calculateQTY = fetchingQTY-editingQTY;
-                                                                print("calculateQty $calculateQTY");
 
-                                                              });
                                                             }
+                                                          ),
                                                         ),
                                                       ),
-                                                    ) :
-                                                    j==4? TableCell(
+                                                    TableCell(
                                                       child: Padding(
                                                         padding: const EdgeInsets.all(8.0),
-                                                        child: TextFormField(
-                                                            style: TextStyle(fontSize: 13,
-                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
-                                                            ),
-                                                            controller: controllers[i][j],
-                                                            inputFormatters: [UpperCaseTextFormatter(),
-                                                              if (j == 7)
-                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                                                            ],
-                                                            decoration: const InputDecoration(
-                                                              filled: true,
-                                                              fillColor: Colors.white,
-                                                            ),
-
-                                                            textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                            enabled: (j == 3 || j == 6 || j == 4),                                                            onChanged: (value) async {
-                                                              final int rowIndex = i;
-                                                              final int colIndex = j;
-                                                              final String key = _getKeyForColumn(colIndex);
-                                                              final productName= await fetchProductName(value);
-                                                              final productCode= await fetchProductCode(value);
-
-
-                                                              updateFieldValidation();
-                                                              setState(() {
-                                                                rowData[rowIndex][key] = value;
-                                                                if (colIndex == 0) {
-                                                                  controllers[i][1].clear();
-                                                                } else if (colIndex == 1) {
-                                                                  controllers[i][0].clear();
-                                                                }
-
-                                                                if (productName.isNotEmpty) {
-                                                                  controllers[i][1].text = productName;
-                                                                }
-                                                                if (productCode.isNotEmpty) {
-                                                                  controllers[i][0].text = productCode;
-                                                                }
-                                                                isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                  controllers[rowIndex][1].clear();
-                                                                  errorMessage = 'You already entered the\n product code $value.';
-                                                                  return;
-                                                                }
-                                                                if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                  errorMessage = 'You already entered the\n product Name $value.';
-                                                                  controllers[rowIndex][0].clear();
-                                                                  return;
-                                                                }
-                                                                errorMessage = '';
-
-
-                                                                if(!rowData[i]['prodName'].startsWith('GSM')){
-                                                                  if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
-                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                    double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                    double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
-
-                                                                    double amount = quantity * rate;
-                                                                    double gstAmt = (amount * gst) / 100;
-                                                                    double total = amount + gstAmt;
-                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                        duration: Duration(seconds: 2),
-                                                                      ));
-
-                                                                      setState(() {
-                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                      });
-                                                                      return;
-                                                                    }
-
-                                                                    controllers[rowIndex][5].text = amount.toStringAsFixed(2);
-                                                                    controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
-                                                                    controllers[rowIndex][8].text = total.toStringAsFixed(2);
-                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                    int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
-                                                                    int? pendingqty = receiveqty-editedqty;
-                                                                    setState(() {
-
-                                                                      qty = receiveqty!;
-                                                                      recieved= editedqty;
-                                                                      pending= pendingqty;
-
-
-                                                                      print("  Qty $qty");
-                                                                      print(" received Qty $recieved");
-                                                                      print(" pending Qty  $pending");
-                                                                      // editqty = editedqty;
-                                                                    });
-                                                                    controllers[rowIndex][10].text = pendingqty.toString();
-                                                                   // grandTotalValue = calculateGrandTotal();
-                                                                    print("grandTotalValue1 $grandTotalValue");
-
-                                                                  }}
-                                                              });
-                                                              setState(() {
-                                                                fetchingQTY = int.parse(controllers[rowIndex][9].text);
-                                                                editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                calculateQTY = fetchingQTY-editingQTY;
-                                                                print("calculateQty $calculateQTY");
-
-                                                              });
-
-                                                            }
-                                                        ),
-                                                      ),
-                                                    )
-                                                        :  TableCell(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.all(8.0),
-                                                        child: TextFormField(
-                                                            style: TextStyle(fontSize: 13,
-                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
-                                                            ),
-                                                            controller: controllers[i][j],
-                                                            // enabled: !(j == 6 || j == 8 || j == 9) || (rowData[i]['unit'] != 'Kg' && rowData[i]['unit'] != 'Nos'), // Set enabled based on conditions for controllers[i][6], [8], and [9]
-
-                                                            inputFormatters: [UpperCaseTextFormatter(),
-                                                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')
-                                                              ),
-                                                              if (j == 7)
-                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
-                                                            ],
-
-                                                            decoration: const InputDecoration(
-                                                              filled: true,
-                                                              fillColor: Colors.white,
-                                                            ),
-
-                                                            textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                            enabled: (j == 3 || j == 6 || j == 4),                                                            onChanged: (value) async {
-                                                              final int rowIndex = i;
-                                                              final int colIndex = j;
-                                                              final String key = _getKeyForColumn(colIndex);
-                                                              final productName= await fetchProductName(value);
-                                                              final productCode= await fetchProductCode(value);
-
-
-                                                              updateFieldValidation();
-                                                              setState(() {
-                                                                rowData[rowIndex][key] = value;
-                                                                if (colIndex == 0) {
-                                                                  controllers[i][1].clear();
-                                                                } else if (colIndex == 1) {
-                                                                  controllers[i][0].clear();
-                                                                }
-
-                                                                if (productName.isNotEmpty) {
-                                                                  controllers[i][1].text = productName;
-                                                                }
-                                                                if (productCode.isNotEmpty) {
-                                                                  controllers[i][0].text = productCode;
-                                                                }
-                                                                isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                  controllers[rowIndex][1].clear();
-                                                                  errorMessage = 'You already entered the\n product code $value.';
-                                                                  return;
-                                                                }
-                                                                if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                  errorMessage = 'You already entered the\n product Name $value.';
-                                                                  controllers[rowIndex][0].clear();
-                                                                  return;
-                                                                }
-                                                                errorMessage = '';
-
-
-                                                                if( !rowData[i]['prodName'].startsWith('GSM')){
-                                                                  if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
-                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                    double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                    double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
-
-                                                                    double amount = quantity * rate;
-                                                                    double gstAmt = (amount * gst) / 100;
-                                                                    double total = amount + gstAmt;
-                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                        duration: Duration(seconds: 2),
-                                                                      ));
-
-                                                                      setState(() {
-                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                      });
-                                                                      return;
-                                                                    }
-
-                                                                    controllers[rowIndex][5].text = amount.toStringAsFixed(2);
-                                                                    controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
-                                                                    controllers[rowIndex][8].text = total.toStringAsFixed(2);
-                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                    int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
-                                                                    int? pendingqty = receiveqty-editedqty;
-                                                                    setState(() {
-
-                                                                      qty = receiveqty!;
-                                                                      recieved= editedqty;
-                                                                      pending= pendingqty;
-
-
-                                                                      print("  Qty $qty");
-                                                                      print(" received Qty $recieved");
-                                                                      print(" pending Qty  $pending");
-                                                                      // editqty = editedqty;
-                                                                    });
-                                                                    controllers[rowIndex][11].text = pending.toString();
-                                                                    //grandTotalValue = calculateGrandTotal();
-                                                                    print("grandTotalValue2 $grandTotalValue");
-
-                                                                  }}
-                                                                                                                     });
-                                                              setState(() {
-                                                                fetchingQTY = int.parse(controllers[rowIndex][9].text);
-                                                                editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                calculateQTY = fetchingQTY-editingQTY;
-                                                                print("calculateQty $calculateQTY");
-
-                                                              });
-                                                            }
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  TableCell(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.all(8.0),
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-
-                                                          //  if (controllers.length ==controllers.length && i != controllers.length - 1) // Render "Add" button only in the last row
-                                                          IconButton(
-                                                              icon: const Icon(Icons.remove_circle_outline),
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            IconButton(
+                                                              icon: Icon(Icons.remove_circle_outline),
                                                               color: Colors.red.shade600,
                                                               onPressed: () {
-                                                                if (_formKey
-                                                                    .currentState!
-                                                                    .validate()) {
-                                                                  if (invoiceNo
-                                                                      .text
-                                                                      .isEmpty) {
-                                                                    setState(() {
-                                                                      errorMessage =
-                                                                      "* Enter a invoiceNo";
-                                                                    });
-                                                                  }
-                                                                  else {
+                                                                showDialog(
+                                                                  context: context,
+                                                                  builder: (BuildContext context) {
+                                                                    return AlertDialog(
+                                                                      title: Text('Confirmation'),
+                                                                      content: Text('Are you sure you want to remove this row?'),
+                                                                      actions: <Widget>[
+                                                                        TextButton(
+                                                                          child: Text('Cancel'),
+                                                                          onPressed: () {
+                                                                            Navigator.of(context).pop(); // Close the alert box
+                                                                          },
+                                                                        ),
+                                                                        TextButton(
+                                                                          child: Text('Remove'),
+                                                                          onPressed: () {
+                                                                            if (controllers2.length == 1) {
+                                                                              // If there is only one row, clear the data instead of removing the row
+                                                                              clearAllRows();
+                                                                              Navigator.of(context).pop();
+                                                                            } else {
+                                                                              // If there are multiple rows, remove the entire row
+                                                                              removeRow2(i);
+                                                                              Navigator.of(context).pop();
+                                                                            }
+                                                                            //Navigator.of(context).pop(); // Close the alert box// Close the alert box
+                                                                          },
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                );
+                                                              },
+                                                            ),
+                                                            Visibility(
+                                                              visible: i == controllers2.length - 1,
+                                                              child: Row(
+                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                children: [
+                                                                  IconButton(
+                                                                    icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                                                                    onPressed: () {
 
-                                                                    if (controllers.length > 1) {
-                                                                      showDialog(
-                                                                        context: context,
-                                                                        builder: (
-                                                                            BuildContext context) {
-                                                                          return AlertDialog(
-                                                                            title: Text('Confirmation'),
-                                                                            content: Text('Are you sure you want to remove this row?'),
-                                                                            actions: <Widget>[TextButton(child: Text('Cancel'),
-                                                                              onPressed: () {Navigator.of(context).pop();},),
-                                                                              TextButton(child: Text('Remove'),
-                                                                                onPressed: () {removeRow(i);Navigator.of(context).pop(); },),],);
-                                                                        },
-                                                                      );
-                                                                    } else {
-                                                                      print(
-                                                                          'Cannot remove the first row. At least one row is required.');
-                                                                    }
-                                                                  }
-                                                                }
-                                                              }),
-                                                          ///addrow                                                      // if (i == controllers.length - 1&&allFieldsFilled) // Render "Add" button only in the last row
-                                                        ],
+                                                                      if (controllers2[i][0].text.isNotEmpty && controllers2[i][1].text.isNotEmpty && controllers2[i][2].text.isNotEmpty && controllers2[i][3].text.isNotEmpty) {
+                                                                        addRow2();
+                                                                      } else {
+                                                                        showWarningMessage(' Fields cannot be empty!');
+                                                                      }
+                                                                    },
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                            ],
+
+                                          ),
+                                        ),
+                                      ),
+                                      if ( selectedCheckbox == 1 || selectedCheckbox == 2 )
+                                      SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: FocusTraversalGroup(
+                                          policy: OrderedTraversalPolicy(),
+                                          child: Table(
+                                            border: TableBorder.all(
+                                                color: Colors.black54
+                                            ),
+                                            defaultColumnWidth: const FixedColumnWidth(140.0),
+                                            columnWidths:  const <int, TableColumnWidth>{
+                                              // 0: FixedColumnWidth(175),
+                                              // 1: FixedColumnWidth(175),
+                                              2: FixedColumnWidth(100),
+                                              3: FixedColumnWidth(100),
+                                              4: FixedColumnWidth(100),
+                                              5: FixedColumnWidth(100),
+                                              6: FixedColumnWidth(100),
+                                              7: FixedColumnWidth(100),
+                                              8: FixedColumnWidth(115),
+                                              9: FixedColumnWidth(50),
+                                              10: FixedColumnWidth(50),
+                                              11: FixedColumnWidth(60),
+
+
+                                            },
+                                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                            children: [
+                                              // Table header row
+                                              TableRow(
+                                                children: [
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15 ),
+                                                            Text('Product Code',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Product Name',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Unit',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text(' Rate ',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('GST (%)',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('GST Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Total',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Visibility(
+                                                    visible:false,
+                                                    child: TableCell(
+                                                      child: Container(
+                                                        color:Colors.blue.shade200,
+                                                        child: const Center(
+                                                          child: Column(
+                                                            children: [
+                                                              SizedBox(height: 15),
+                                                              Text('R qty',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                              SizedBox(height: 15),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Visibility(
+
+                                                    visible:false,
+                                                    child: TableCell(
+                                                      child: Container(
+                                                        color:Colors.blue.shade200,
+                                                        child: const Center(
+                                                          child: Column(
+                                                            children: [
+                                                              SizedBox(height: 15),
+                                                              Text('A qty',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                              SizedBox(height: 15),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Action',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                          ],
+                                              // Table data rows
+                                              for (var i = 0; i < controllers.length; i++)
+                                                TableRow(
+                                                  children: [
+                                                    for (var j = 0; j < 11; j++)
+                                                      j==4? TableCell(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: TextFormField(
+                                                              style: TextStyle(fontSize: 13,
+                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                              ),
+                                                              controller: controllers[i][j],
+                                                              inputFormatters: [
+                                                                UpperCaseTextFormatter(),
+                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                                if (j == 7)
+                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
+                                                              ],
+                                                              decoration: const InputDecoration(
+                                                                filled: true,
+                                                                fillColor: Colors.white,
+                                                              ),
+
+                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                              enabled: (j == 3 || j == 6 || j == 4),
+                                                              onChanged: (value) async {
+                                                                final int rowIndex = i;
+                                                                final int colIndex = j;
+                                                                final String key = _getKeyForColumn(colIndex);
+                                                                final productName= await fetchProductName(value);
+                                                                final productCode= await fetchProductCode(value);
+                                                                updateFieldValidation();
+                                                                setState(() {
+                                                                  rowData[rowIndex][key] = value;
+                                                                  if (colIndex == 0) {
+                                                                    controllers[i][1].clear();
+                                                                  } else if (colIndex == 1) {
+                                                                    controllers[i][0].clear();
+                                                                  }
+
+                                                                  if (productName.isNotEmpty) {
+                                                                    controllers[i][1].text = productName;
+                                                                  }
+                                                                  if (productCode.isNotEmpty) {
+                                                                    controllers[i][0].text = productCode;
+                                                                  }
+                                                                  isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
+                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                    controllers[rowIndex][1].clear();
+                                                                    errorMessage = 'You already entered the\n product code $value.';
+                                                                    return;
+                                                                  }
+                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                    errorMessage = 'You already entered the\n product Name $value.';
+                                                                    controllers[rowIndex][0].clear();
+                                                                    return;
+                                                                  }
+                                                                  errorMessage = '';
+
+
+
+
+                                                                  if( !rowData[i]['prodName'].startsWith('GSM')){
+                                                                    if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
+                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                      double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                      double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
+
+
+                                                                      double amount = quantity * rate;
+                                                                      double gstAmt = (amount * gst) / 100;
+                                                                      double total = amount + gstAmt;
+                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                          duration: const Duration(seconds: 2),
+                                                                        ));
+
+                                                                        setState(() {
+                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                        });
+                                                                        return;
+                                                                      }
+
+                                                                      controllers[rowIndex][5].text = amount.toStringAsFixed(2);
+                                                                      controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                                      controllers[rowIndex][8].text = total.toStringAsFixed(2);
+
+                                                                      setState(() {
+                                                                        grandTotalValue = calculateGrandTotal2();
+                                                                        print("grandTotalGsm $grandTotalValue");
+                                                                      });
+
+                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                      int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
+                                                                      int? pendingqty = receiveqty-editedqty;
+                                                                      setState(() {
+
+                                                                        qty = receiveqty!;
+                                                                        recieved= editedqty;
+                                                                        pending= pendingqty;
+
+
+                                                                        print("  Qty $qty");
+                                                                        print(" received Qty $recieved");
+                                                                        print(" pending Qty  $pending");
+                                                                        // editqty = editedqty;
+                                                                      });
+                                                                      controllers[rowIndex][10].text = pendingqty.toString();
+                                                                      print("grandTotalValue0 $grandTotalValue");
+
+                                                                    }}
+                                                                });
+                                                                setState(() {
+                                                                  fetchingQTY = int.parse(controllers[rowIndex][9].text);
+                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
+                                                                  calculateQTY = fetchingQTY-editingQTY;
+                                                                  print("calculateQty $calculateQTY");
+
+                                                                });
+                                                              }
+                                                          ),
+                                                        ),
+                                                      ) :
+                                                      j==4? TableCell(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: TextFormField(
+                                                              style: TextStyle(fontSize: 13,
+                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                              ),
+                                                              controller: controllers[i][j],
+                                                              inputFormatters: [UpperCaseTextFormatter(),
+                                                                if (j == 7)
+                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                              ],
+                                                              decoration: const InputDecoration(
+                                                                filled: true,
+                                                                fillColor: Colors.white,
+                                                              ),
+
+                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                              enabled: (j == 3 || j == 6 || j == 4),                                                            onChanged: (value) async {
+                                                                final int rowIndex = i;
+                                                                final int colIndex = j;
+                                                                final String key = _getKeyForColumn(colIndex);
+                                                                final productName= await fetchProductName(value);
+                                                                final productCode= await fetchProductCode(value);
+
+
+                                                                updateFieldValidation();
+                                                                setState(() {
+                                                                  rowData[rowIndex][key] = value;
+                                                                  if (colIndex == 0) {
+                                                                    controllers[i][1].clear();
+                                                                  } else if (colIndex == 1) {
+                                                                    controllers[i][0].clear();
+                                                                  }
+
+                                                                  if (productName.isNotEmpty) {
+                                                                    controllers[i][1].text = productName;
+                                                                  }
+                                                                  if (productCode.isNotEmpty) {
+                                                                    controllers[i][0].text = productCode;
+                                                                  }
+                                                                  isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
+                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                    controllers[rowIndex][1].clear();
+                                                                    errorMessage = 'You already entered the\n product code $value.';
+                                                                    return;
+                                                                  }
+                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                    errorMessage = 'You already entered the\n product Name $value.';
+                                                                    controllers[rowIndex][0].clear();
+                                                                    return;
+                                                                  }
+                                                                  errorMessage = '';
+
+
+                                                                  if(!rowData[i]['prodName'].startsWith('GSM')){
+                                                                    if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
+                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                      double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                      double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
+
+                                                                      double amount = quantity * rate;
+                                                                      double gstAmt = (amount * gst) / 100;
+                                                                      double total = amount + gstAmt;
+                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                          duration: Duration(seconds: 2),
+                                                                        ));
+
+                                                                        setState(() {
+                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                        });
+                                                                        return;
+                                                                      }
+
+                                                                      controllers[rowIndex][5].text = amount.toStringAsFixed(2);
+                                                                      controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                                      controllers[rowIndex][8].text = total.toStringAsFixed(2);
+
+                                                                      setState(() {
+                                                                        grandTotalValue = calculateGrandTotal2();
+                                                                        print("grandTotalGsm $grandTotalValue");
+                                                                      });
+
+                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                      int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
+                                                                      int? pendingqty = receiveqty-editedqty;
+                                                                      setState(() {
+
+                                                                        qty = receiveqty!;
+                                                                        recieved= editedqty;
+                                                                        pending= pendingqty;
+
+
+                                                                        print("  Qty $qty");
+                                                                        print(" received Qty $recieved");
+                                                                        print(" pending Qty  $pending");
+                                                                        // editqty = editedqty;
+                                                                      });
+                                                                      controllers[rowIndex][10].text = pendingqty.toString();
+                                                                     // grandTotalValue = calculateGrandTotal();
+                                                                      print("grandTotalValue1 $grandTotalValue");
+
+                                                                    }}
+                                                                });
+                                                                setState(() {
+                                                                  fetchingQTY = int.parse(controllers[rowIndex][9].text);
+                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
+                                                                  calculateQTY = fetchingQTY-editingQTY;
+                                                                  print("calculateQty $calculateQTY");
+
+                                                                });
+
+                                                              }
+                                                          ),
+                                                        ),
+                                                      ) :
+                                                      TableCell(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: TextFormField(
+                                                              style: TextStyle(fontSize: 13,
+                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                              ),
+                                                              controller: controllers[i][j],
+                                                              // enabled: !(j == 6 || j == 8 || j == 9) || (rowData[i]['unit'] != 'Kg' && rowData[i]['unit'] != 'Nos'), // Set enabled based on conditions for controllers[i][6], [8], and [9]
+
+                                                              inputFormatters: [UpperCaseTextFormatter(),
+                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')
+                                                                ),
+                                                                if (j == 7)
+                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
+                                                              ],
+
+                                                              decoration: const InputDecoration(
+                                                                filled: true,
+                                                                fillColor: Colors.white,
+                                                              ),
+
+                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                              enabled: (j == 3 || j == 6 || j == 4),                                                            onChanged: (value) async {
+                                                                final int rowIndex = i;
+                                                                final int colIndex = j;
+                                                                final String key = _getKeyForColumn(colIndex);
+                                                                final productName= await fetchProductName(value);
+                                                                final productCode= await fetchProductCode(value);
+
+
+                                                                updateFieldValidation();
+                                                                setState(() {
+                                                                  rowData[rowIndex][key] = value;
+                                                                  if (colIndex == 0) {
+                                                                    controllers[i][1].clear();
+                                                                  } else if (colIndex == 1) {
+                                                                    controllers[i][0].clear();
+                                                                  }
+
+                                                                  if (productName.isNotEmpty) {
+                                                                    controllers[i][1].text = productName;
+                                                                  }
+                                                                  if (productCode.isNotEmpty) {
+                                                                    controllers[i][0].text = productCode;
+                                                                  }
+                                                                  isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
+                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                    controllers[rowIndex][1].clear();
+                                                                    errorMessage = 'You already entered the\n product code $value.';
+                                                                    return;
+                                                                  }
+                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                    errorMessage = 'You already entered the\n product Name $value.';
+                                                                    controllers[rowIndex][0].clear();
+                                                                    return;
+                                                                  }
+                                                                  errorMessage = '';
+
+
+                                                                  if( !rowData[i]['prodName'].startsWith('GSM')){
+                                                                    if (colIndex == 3 || colIndex == 4 || colIndex == 6) {
+                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                      double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                      double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
+
+                                                                      double amount = quantity * rate;
+                                                                      double gstAmt = (amount * gst) / 100;
+                                                                      double total = amount + gstAmt;
+                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                          duration: Duration(seconds: 2),
+                                                                        ));
+
+                                                                        setState(() {
+                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                        });
+                                                                        return;
+                                                                      }
+
+                                                                      controllers[rowIndex][5].text = amount.toStringAsFixed(2);
+                                                                      controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                                      controllers[rowIndex][8].text = total.toStringAsFixed(2);
+                                                                      setState(() {
+                                                                        grandTotalValue = calculateGrandTotal2();
+                                                                        print("grandTotalGsm $grandTotalValue");
+                                                                      });
+
+
+                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                      int? receiveqty = int.parse(controllers[rowIndex][9].text);//10
+                                                                      int? pendingqty = receiveqty-editedqty;
+                                                                      setState(() {
+
+                                                                        qty = receiveqty!;
+                                                                        recieved= editedqty;
+                                                                        pending= pendingqty;
+
+
+                                                                        print("  Qty $qty");
+                                                                        print(" received Qty $recieved");
+                                                                        print(" pending Qty  $pending");
+                                                                        // editqty = editedqty;
+                                                                      });
+                                                                      controllers[rowIndex][10].text = pending.toString();
+                                                                      print("grandTotalValue2 $grandTotalValue");
+
+                                                                    }}
+                                                                                                                       });
+                                                                setState(() {
+                                                                  fetchingQTY = int.parse(controllers[rowIndex][9].text);
+                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
+                                                                  calculateQTY = fetchingQTY-editingQTY;
+                                                                  print("calculateQty $calculateQTY");
+
+                                                                });
+                                                              }
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      TableCell(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+
+                                                              //  if (controllers.length ==controllers.length && i != controllers.length - 1) // Render "Add" button only in the last row
+                                                              IconButton(
+                                                                  icon: const Icon(Icons.remove_circle_outline),
+                                                                  color: Colors.red.shade600,
+                                                                  onPressed: () {
+                                                                    if (_formKey
+                                                                        .currentState!
+                                                                        .validate()) {
+                                                                      if (invoiceNo
+                                                                          .text
+                                                                          .isEmpty) {
+                                                                        setState(() {
+                                                                          errorMessage =
+                                                                          "* Enter a invoiceNo";
+                                                                        });
+                                                                      }
+                                                                      else {
+
+                                                                        if (controllers.length > 1) {
+                                                                          showDialog(
+                                                                            context: context,
+                                                                            builder: (
+                                                                                BuildContext context) {
+                                                                              return AlertDialog(
+                                                                                title: Text('Confirmation'),
+                                                                                content: Text('Are you sure you want to remove this row?'),
+                                                                                actions: <Widget>[TextButton(child: Text('Cancel'),
+                                                                                  onPressed: () {Navigator.of(context).pop();},),
+                                                                                  TextButton(child: Text('Remove'),
+                                                                                    onPressed: () {removeRow(i);Navigator.of(context).pop(); },),],);
+                                                                            },
+                                                                          );
+                                                                        } else {
+                                                                          print(
+                                                                              'Cannot remove the first row. At least one row is required.');
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }),
+                                                              ///addrow                                                      // if (i == controllers.length - 1&&allFieldsFilled) // Render "Add" button only in the last row
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
 
-                                    SizedBox(height: 10,),
-                                    Wrap(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            IconButton(
-                                              icon: Icon(Icons.arrow_left_sharp ),
-                                              onPressed: () {
-                                                onArrowButtonClick();
-                                              },
-                                            ),
-                                            Visibility(
-                                              visible: isTextFormFieldsVisible,
-                                              child: Row(
-                                                children: [
-                                                  SizedBox(
-                                                    width: 70,
-                                                    height: 30,
-                                                    child: TextFormField(
-                                                      controller: tcsController,
-                                                      keyboardType: TextInputType.number,
-                                                      decoration: const InputDecoration(labelText: 'Tcs'),
-                                                      onChanged: (_) {
-                                                        updateGrandTotal();
-                                                      },
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  SizedBox(
-                                                    width: 70,
-                                                    height: 30,
-                                                    child: TextFormField(
-                                                      controller: discountController,
-                                                      keyboardType: TextInputType.number,
-                                                      decoration: const InputDecoration(labelText: 'Dis'),
-                                                      onChanged: (_) {
-                                                        updateGrandTotal();
-                                                      },
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                ],
+                                      SizedBox(height: 10,),
+                                      Wrap(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(Icons.arrow_left_sharp ),
+                                                onPressed: () {
+                                                  onArrowButtonClick();
+                                                },
                                               ),
-                                            ),
-                                            selectedCheckbox != 3
-                                                ? Text("Grand Total ₹ $grandTotalValue", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
-                                                : Text("Grand Total ₹ $grandTotalGsm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        /* Padding(
-                                          padding: const EdgeInsets.only(top:20),
-                                          child: Text(
-                                            errorMessage ?? '',
-                                            style: TextStyle(color: Colors.red,fontSize: 15),
+                                              Visibility(
+                                                visible: isTextFormFieldsVisible,
+                                                child: Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 70,
+                                                      height: 30,
+                                                      child: TextFormField(
+                                                        controller: tcsController,
+                                                        keyboardType: TextInputType.number,
+                                                        decoration: const InputDecoration(
+                                                          labelText: 'charge',
+                                                          labelStyle: TextStyle(fontSize: 10), // Set the font size for the label
+                                                        ),
+                                                        style: TextStyle(fontSize: 10), // Set the font size for the input text
+                                                        onChanged: (_) {
+                                                          updateGrandTotal();
+                                                        },
+
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    SizedBox(
+                                                      width: 70,
+                                                      height: 30,
+                                                      child: TextFormField(
+                                                        controller: discountController,
+                                                        keyboardType: TextInputType.number,
+                                                        decoration: const InputDecoration(
+                                                          labelText: 'Dis',
+                                                          labelStyle: TextStyle(fontSize: 10), // Set the font size for the label
+                                                        ),
+                                                        style: TextStyle(fontSize: 10),                                                      onChanged: (_) {
+                                                          updateGrandTotal();
+                                                        },
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                  ],
+                                                ),
+                                              ),
+                                              selectedCheckbox != 3
+                                                  ?
+                                              Text("Grand Total ₹ ${grandTotalValue.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
+                                                  :
+                                              Text("Grand Total ₹ ${grandTotalGsm.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+
+                                            ],
                                           ),
-                                        ),*/
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          /* Padding(
+                                            padding: const EdgeInsets.only(top:20),
+                                            child: Text(
+                                              errorMessage ?? '',
+                                              style: TextStyle(color: Colors.red,fontSize: 15),
+                                            ),
+                                          ),*/
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(40.0),
-                      child:
-                      Wrap(
-                        children: [
-                          Visibility(
-                            visible: selectedCheckbox != 3,
-                            child:MaterialButton(
-                              color: Colors.green.shade600,
-                              onPressed: () async {
-                                bool hasDuplicateProdCode = false;
-                                bool hasNewProdCode = false;
-                                if (isMachineNameExists(poNUMber.text)) {
-                                  setState(() {
-                                    errorMessage = '* This PO Number is Already invoiced';
-                                  });
-                                }
-                                else if (isMachineNameExists(pendingPoNUMber.text)) {
-                                  setState(() {
-                                    errorMessage = '* This PendingPo Number is Already invoiced';
-                                  });
-                                }
-                                else if (purchaseDate.text.isEmpty) {
-                                  setState(() {
-                                    errorMessage = '* Enter a Purchase Date';
-                                  });
-                                }
-                                else if (invoiceNo.text.isEmpty) {
-                                  setState(() {
-                                    errorMessage = '* Enter a Invoice Number';
-                                  });
-                                }
-                                else {
-                                  if (_formKey.currentState!.validate())
-                                  {
-                                    for (var i = 0; i < controllers.length; i++) {
-                                      String enteredProdCode = controllers[i][0].text;
-                                      bool isDuplicate = await checkForDuplicate(enteredProdCode);
-                                      if (isDuplicate) {
-                                        hasDuplicateProdCode = true;
-                                      } else {
-                                        hasNewProdCode = true;
-                                      }
-                                    }
-                                    if (hasDuplicateProdCode && hasNewProdCode) {
-                                      for (int i = 0; i < controllers.length; i++) {
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child:
+                        Wrap(
+                          children: [
+                            Visibility(
+                              visible: selectedCheckbox != 3,
+                              child:MaterialButton(
+                                color: Colors.green.shade600,
+                                onPressed: () async {
+                                  bool hasDuplicateProdCode = false;
+                                  bool hasNewProdCode = false;
+                                  if (isMachineNameExists(poNUMber.text)) {
+                                    setState(() {
+                                      errorMessage = '* This PO Number is Already invoiced';
+                                    });
+                                  }
+                                  else if (isMachineNameExists(pendingPoNUMber.text)) {
+                                    setState(() {
+                                      errorMessage = '* This PendingPo Number is Already invoiced';
+                                    });
+                                  }
+                                  else if (purchaseDate.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Purchase Date';
+                                    });
+                                  }
+                                  else if (invoiceNo.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Invoice Number';
+                                    });
+                                  }
+                                  else {
+                                    if (_formKey.currentState!.validate())
+                                    {
+                                      for (var i = 0; i < controllers.length; i++) {
                                         String enteredProdCode = controllers[i][0].text;
                                         bool isDuplicate = await checkForDuplicate(enteredProdCode);
                                         if (isDuplicate) {
+                                          hasDuplicateProdCode = true;
+                                        } else {
+                                          hasNewProdCode = true;
+                                        }
+                                      }
+                                      if (hasDuplicateProdCode && hasNewProdCode) {
+                                        for (int i = 0; i < controllers.length; i++) {
+                                          String enteredProdCode = controllers[i][0].text;
+                                          bool isDuplicate = await checkForDuplicate(enteredProdCode);
+                                          if (isDuplicate) {
+                                            await addRawMaterial(
+                                              controllers[i][0].text,
+                                              controllers[i][1].text,
+                                              controllers[i][2].text,
+                                              int.parse(controllers[i][3].text),
+                                              date.toIso8601String(),
+                                            );
+                                          }
+                                          else {
+                                            Map<String, dynamic> dataToInsertRaw = {
+                                              'date': date.toString(),
+                                              'prodCode': controllers[i][0].text,
+                                              'prodName': controllers[i][1].text,
+                                              'unit': controllers[i][2].text,
+                                              'qty': controllers[i][3].text,
+                                            };
+                                            await insertDataRaw(dataToInsertRaw);
+                                          }
+                                        }
+                                      }
+                                      else if (hasDuplicateProdCode) {
+                                        for (int i = 0; i < controllers.length; i++) {
                                           await addRawMaterial(
-                                            controllers[i][0].text,
-                                            controllers[i][1].text,
-                                            controllers[i][2].text,
-                                            int.parse(controllers[i][3].text),
-                                            date.toIso8601String(),
+                                              controllers[i][0].text,
+                                              controllers[i][1].text,
+                                              controllers[i][2].text,
+                                              int.parse(controllers[i][3].text),
+                                              date.toIso8601String()
                                           );
-                                        }
-                                        else {
-                                          Map<String, dynamic> dataToInsertRaw = {
-                                            'date': date.toString(),
-                                            'prodCode': controllers[i][0].text,
-                                            'prodName': controllers[i][1].text,
-                                            'unit': controllers[i][2].text,
-                                            'qty': controllers[i][3].text,
-                                          };
-                                          await insertDataRaw(dataToInsertRaw);
+
                                         }
                                       }
-                                    }
-                                    else if (hasDuplicateProdCode) {
-                                      for (int i = 0; i < controllers.length; i++) {
-                                        await addRawMaterial(
-                                            controllers[i][0].text,
-                                            controllers[i][1].text,
-                                            controllers[i][2].text,
-                                            int.parse(controllers[i][3].text),
-                                            date.toIso8601String()
-                                        );
-
+                                      else if (hasNewProdCode) {
+                                        submitItemDataToRaw();
                                       }
+
+                                      setState(() {
+                                        isDataSaved = true;
+                                      });
+                                      submitItemDataToDatabase();
+
+
+                                      for (var i = 0; i < controllers.length; i++) {
+                                        int fetchingQty = int.parse(controllers[i][9].text);
+                                        int editingQty = int.parse(controllers[i][3].text);
+
+                                        if (fetchingQty != editingQty) {
+                                          // Handle pendingToDatabase for this row
+                                          await pendingToDatabase();
+                                          List<Map<String, dynamic>> rowsDataToInsert = [];
+                                          rowsDataToInsert.add(datapendingInsert);
+                                          List<Future<void>> insertFutures = [];
+                                          for (var j = 0; j < rowsDataToInsert.length; j++) {
+                                            insertFutures.add(insertDataPendingReport(rowsDataToInsert[j]));
+                                          }
+                                          for (var i = 0; i < datapendingInsertList.length; i++) {
+                                            insertFutures.add(insertDataPendingReport(datapendingInsertList[i]));
+                                            await Future.wait(insertFutures);
+                                          }
+                                          await Future.wait(insertFutures);
+                                        }
+                                        // else {
+                                        //   submitItemDataToDatabase();
+                                        // }
+                                      }
+                                      List<Future<void>> insertFutures = [];
+
+
+                                      setState(() {
+                                        isDataSaved = true;
+                                      });
+
                                     }
-                                    else if (hasNewProdCode) {
-                                      submitItemDataToRaw();
+                                    else {
+                                      setState(() {
+                                        errorMessage =
+                                        '* Fill all fields in the table';
+                                      });
                                     }
-
-                                    setState(() {
-                                      isDataSaved = true;
-                                    });
-                                    submitItemDataToDatabase();
-
-                                    List<Map<String, dynamic>> rowsDataToInsert = [];
-
-                                    if(fetchingQTY != editingQTY){
-                                      rowsDataToInsert.add(datapendingInsert);
-                                      await pendingToDatabase();
-                                    }
-                                    List<Future<void>> insertFutures = [];
-                                    for (var i = 0; i < datapendingInsertList.length; i++) {
-                                      insertFutures.add(insertDataPendingReport(datapendingInsertList[i]));
-                                      await Future.wait(insertFutures);
-                                    }
-
-                                    setState(() {
-                                      isDataSaved = true;
-                                    });
-
                                   }
-                                  else {
-                                    setState(() {
-                                      errorMessage =
-                                      '* Fill all fields in the table';
-                                    });
-                                  }
-                                }
-                              },
-                              child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                                },
+                                child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                              ),
                             ),
-                          ),
 
-                          Visibility(
-                            visible: selectedCheckbox == 3,
-                            child: MaterialButton(
-                              color: Colors.green.shade600,
-                              onPressed: () async {
-                                bool hasDuplicateProdCode2 = false;
-                                bool hasNewProdCode2 = false;
-                                if (_formKey.currentState!.validate())
-                                  {
-                                    for (var i = 0; i < controllers2.length; i++) {
-                                      String enteredProdCode = controllers2[i][0].text;
-                                      String enteredSNo = controllers2[i][3].text;
-                                      bool isDuplicate2 = await checkForDuplicateGsm(enteredProdCode,enteredSNo);
-                                      if (isDuplicate2) {
-                                        hasDuplicateProdCode2 = true;
-                                      } else {
-                                        hasNewProdCode2 = true;
-                                      }
-                                    }
-                                    if (hasDuplicateProdCode2 && hasNewProdCode2) {
-                                      for (int i = 0; i < controllers2.length; i++) {
+                            Visibility(
+                              visible: selectedCheckbox == 3,
+                              child: MaterialButton(
+                                color: Colors.green.shade600,
+                                onPressed: () async {
+                                  bool hasDuplicateProdCode2 = false;
+                                  bool hasNewProdCode2 = false;
+                                  if (isMachineNameExists(poNUMber.text)) {
+                                    setState(() {
+                                      errorMessage = '* This PO Number is Already invoiced';
+                                    });
+                                  }
+                                  else if (isMachineNameExists(pendingPoNUMber.text)) {
+                                    setState(() {
+                                      errorMessage = '* This PendingPo Number is Already invoiced';
+                                    });
+                                  }
+                                  else if (poNUMber.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Po Number';
+                                    });
+                                  }
+                                  else if (purchaseDate.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Purchase Date';
+                                    });
+                                  }
+                                  else if (invoiceNo.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Invoice Number';
+                                    });
+                                  }
+                                  else{
+
+                                    if (_formKey.currentState!.validate()
+                                        &&
+                                        !controllers2.any((controller) =>
+                                        controller[0].text.isEmpty ||
+                                            controller[1].text.isEmpty ||
+                                            controller[2].text.isEmpty ||
+                                            controller[3].text.isEmpty ||
+                                            controller[5].text.isEmpty ||
+                                            controller[6].text.isEmpty ||
+                                            controller[7].text.isEmpty ||
+                                            controller[8].text.isEmpty ||
+                                            controller[9].text.isEmpty
+
+                                        )
+                                    )
+                                    {
+                                      for (var i = 0; i < controllers2.length; i++) {
                                         String enteredProdCode = controllers2[i][0].text;
                                         String enteredSNo = controllers2[i][3].text;
-                                        bool isDuplicate = await checkForDuplicateGsm(enteredProdCode,enteredSNo);                                        if (isDuplicate) {
+                                        bool isDuplicate2 = await checkForDuplicateGsm(enteredProdCode,enteredSNo);
+                                        if (isDuplicate2) {
+                                          hasDuplicateProdCode2 = true;
+                                        } else {
+                                          hasNewProdCode2 = true;
+                                        }
+                                      }
+                                      /*if (hasDuplicateProdCode2 && hasNewProdCode2) {
+                                        for (int i = 0; i < controllers2.length; i++) {
+                                          String enteredProdCode = controllers2[i][0].text;
+                                          String enteredSNo = controllers2[i][3].text;
+                                          bool isDuplicate = await checkForDuplicateGsm(enteredProdCode,enteredSNo);                                        if (isDuplicate) {
+                                            await addRawMaterialGsm(
+                                              controllers2[i][0].text,
+                                              controllers2[i][1].text,
+                                              controllers2[i][2].text,
+                                              int.parse(controllers2[i][3].text),
+                                              date.toIso8601String(),
+                                              controllers2[i][4].text,
+                                            );
+                                          }
+                                          else {
+                                            Map<String, dynamic> dataToInsertRawGsm = {
+                                              'date': date.toString(),
+                                              'prodCode': controllers2[i][0].text,
+                                              'prodName': controllers2[i][1].text,
+                                              'unit': controllers2[i][2].text,
+                                              'sNo': controllers2[i][3].text,
+                                              "totalweight":controllers2[i][4].text,
+                                            };
+                                            await insertDataRawGsm(dataToInsertRawGsm);
+                                          }
+                                        }
+                                      }
+                                      else if (hasDuplicateProdCode2) {
+                                        for (int i = 0; i < controllers2.length; i++) {
                                           await addRawMaterialGsm(
-                                            controllers2[i][0].text,
-                                            controllers2[i][1].text,
-                                            controllers2[i][2].text,
-                                            int.parse(controllers2[i][3].text),
-                                            date.toIso8601String(),
-                                            controllers2[i][4].text,
+                                              controllers2[i][0].text,
+                                              controllers2[i][1].text,
+                                              controllers2[i][2].text,
+                                              int.parse(controllers2[i][3].text),
+                                              date.toIso8601String(),
+                                              controllers2[i][4].text
                                           );
                                         }
-                                        else {
-                                          Map<String, dynamic> dataToInsertRawGsm = {
-                                            'date': date.toString(),
-                                            'prodCode': controllers2[i][0].text,
-                                            'prodName': controllers2[i][1].text,
-                                            'unit': controllers2[i][2].text,
-                                            'sNo': controllers2[i][3].text,
-                                            "totalweight":controllers2[i][4].text,
-                                          };
-                                          await insertDataRawGsm(dataToInsertRawGsm);
-                                        }
                                       }
-                                    }
-                                    else if (hasDuplicateProdCode2) {
-                                      for (int i = 0; i < controllers2.length; i++) {
-                                        await addRawMaterialGsm(
-                                            controllers2[i][0].text,
-                                            controllers2[i][1].text,
-                                            controllers2[i][2].text,
-                                            int.parse(controllers2[i][3].text),
-                                            date.toIso8601String(),
-                                            controllers2[i][4].text
-                                        );
+                                      else*/
+                                        if (hasNewProdCode2) {
+                                        submitItemDataToRawGsm();
                                       }
+                                      setState(() {
+                                        isDataSaved = true;
+                                      });
+                                      await submitItemDataToDatabaseGsm();
                                     }
-                                    else if (hasNewProdCode2) {
-                                      submitItemDataToRawGsm();
+                                    else {
+                                      setState(() {
+                                        errorMessage =
+                                        '* Fill all fields in the table';
+                                      });
                                     }
-                                    setState(() {
-                                      isDataSaved = true;
-                                    });
-                                    await submitItemDataToDatabaseGsm();
                                   }
-                              },
-                              child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                                },
+                                child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 20,),
-                          MaterialButton(
-                            color: Colors.blue.shade600,
-                            onPressed: (){
-                              /*  Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) =>const Home()));*/// Close the alert box
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Confirmation'),
-                                    content: const Text('Do you want to Reset?'),
-                                    actions: <Widget>[
+                            SizedBox(width: 20,),
+                            MaterialButton(
+                              color: Colors.blue.shade600,
+                              onPressed: (){
+                                /*  Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) =>const Home()));*/// Close the alert box
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Confirmation'),
+                                      content: const Text('Do you want to Reset?'),
+                                      actions: <Widget>[
 
-                                      TextButton(
-                                        child: const Text('Yes'),
-                                        onPressed: () {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) =>const Purchase()));// Close the alert box
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text('No'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(); // Close the alert box
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: const Text("RESET",style: TextStyle(color: Colors.white),),),
-                          SizedBox(width: 20,),
-                          MaterialButton(
-                            color: Colors.red.shade600,
-                            onPressed: (){
-                              /* Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) =>Home()));*/
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Confirmation'),
-                                    content: Text('Do you want to cancel?'),
-                                    actions: <Widget>[
+                                        TextButton(
+                                          child: const Text('Yes'),
+                                          onPressed: () {
+                                            Navigator.push(context,
+                                                MaterialPageRoute(builder: (context) =>const Purchase()));// Close the alert box
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text('No'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(); // Close the alert box
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: const Text("RESET",style: TextStyle(color: Colors.white),),),
+                            SizedBox(width: 20,),
+                            MaterialButton(
+                              color: Colors.red.shade600,
+                              onPressed: (){
+                                /* Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) =>Home()));*/
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Confirmation'),
+                                      content: Text('Do you want to cancel?'),
+                                      actions: <Widget>[
 
-                                      TextButton(
-                                        child: const Text('Yes'),
-                                        onPressed: () {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) =>Home()));// Close the alert box
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text('No'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(); // Close the alert box
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Text("CANCEL",style: TextStyle(color: Colors.white),),)
-                        ],
+                                        TextButton(
+                                          child: const Text('Yes'),
+                                          onPressed: () {
+                                            Navigator.push(context,
+                                                MaterialPageRoute(builder: (context) =>Home()));// Close the alert box
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text('No'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(); // Close the alert box
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text("CANCEL",style: TextStyle(color: Colors.white),),)
+                          ],
+                        ),
                       ),
-                    ),
-                  ]),
+                    ]),
+              ),
             ),
           ),
         ) );
@@ -3564,20 +3666,18 @@ String _getKeyForColumn(int columnIndex) {
     case 3:
       return 'qty';
     case 4:
-      return 'totalWeight';
-    case 5:
       return 'rate';
-    case 6:
+    case 5:
       return 'amt';
-    case 7:
+    case 6:
       return 'gst';
-    case 8:
+    case 7:
       return 'amtGST';
-    case 9:
+    case 8:
       return 'total';
-    case 10:
+    case 9:
       return 'rQty';
-    case 11:
+    case 10:
       return 'aQty';
     default:
       return '';

@@ -19,14 +19,14 @@ class RowData {
   RowData();
 }
 
-class BalanaceSheet extends StatefulWidget {
-  const BalanaceSheet({Key? key}) : super(key: key);
+class PurchaseBalanceSheet extends StatefulWidget {
+  const PurchaseBalanceSheet({Key? key}) : super(key: key);
 
   @override
-  State<BalanaceSheet> createState() => _BalanaceSheetState();
+  State<PurchaseBalanceSheet> createState() => _PurchaseBalanceSheetState();
 }
 
-class _BalanaceSheetState extends State<BalanaceSheet> {
+class _PurchaseBalanceSheetState extends State<PurchaseBalanceSheet> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DateTime selectedDate = DateTime.now();
   TextEditingController invoiceNo=TextEditingController();
@@ -34,16 +34,16 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   List<List<TextEditingController>> controllers = [];
   String selectedCustCode = '';
 
-
+  String? payType;
 
 
   String?errorMessage;
   List<Map<String, dynamic>> data = [];
   List<Map<String, dynamic>> filteredData = [];
 
-  TextEditingController custName= TextEditingController();
-  TextEditingController custCode= TextEditingController();
-  TextEditingController bankName= TextEditingController();
+  TextEditingController supName= TextEditingController();
+  TextEditingController supCode= TextEditingController();
+  TextEditingController transId= TextEditingController();
   TextEditingController chequeno= TextEditingController();
   TextEditingController balance= TextEditingController();
   TextEditingController debit= TextEditingController();
@@ -64,7 +64,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   double? dedamt; /// for dedecution AMt
   double? chequeamt; /// For cheque amt
   double? receivedamt;
-  double? initialAmt; // Initial amount (cheque amount before deductions)
+  double? initialAmt;
 
   ///For Intialamt
 
@@ -150,7 +150,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   List<List<TextEditingController>> controllerstable =[];
   void _resetForm() {
     _formKey.currentState!.reset();
-    custName.clear();
+    supName.clear();
     invoiceNo.clear();
     chequeAmt.clear();
     deductionAmt.clear();
@@ -165,7 +165,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   ///for suggestion invoice field.... starts
   Future<void> fetchDataSuggestion() async {
     try {
-      final Uri url = Uri.parse('http://localhost:3309/get_balancesheet_for_suggestion/');
+      final Uri url = Uri.parse('http://localhost:3309/get_balancesheet_for_suggestion_purchase/');
       final Map<String, String> queryParams = {};
       if (invoiceNo.text != null) {
         queryParams['invoiceNo'] = invoiceNo.text;
@@ -203,8 +203,8 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
 
       if (searchText.isEmpty) {
         filteredData = data;
-        custName.clear();
-        custCode.clear();
+        supName.clear();
+        supCode.clear();
         grandTotal.clear();
         balance.clear();
         filteredData = data;
@@ -224,8 +224,8 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
         if (filteredData.isNotEmpty) {
           for (var i = 0; i < rowData.length; i++){
             Map<String, dynamic> order = filteredData.first;
-            custName.text = order['custName']?.toString() ?? '';
-            custCode.text = order['custCode']?.toString() ?? '';
+            supName.text = order['supName']?.toString() ?? '';
+            supCode.text = order['supCode']?.toString() ?? '';
 
 
 
@@ -235,8 +235,8 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
           }
         } else {
           for (var i = 0; i < rowData.length; i++) {
-            custName.clear();
-            custCode.clear();
+            supName.clear();
+            supCode.clear();
             balance.clear();
             grandTotal.clear();
 
@@ -250,7 +250,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   List<Map<String, dynamic>> data3 = [];
   Future<void> fetchData3() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:3309/checkinvoiveNo_forbalancesheet'));
+      final response = await http.get(Uri.parse('http://localhost:3309/checkinvoiveNo_forbalancesheet_purchase'));
       if (response.statusCode == 200) {
         final List<dynamic> rows = jsonDecode(response.body);
         rows.sort((a, b) {
@@ -304,8 +304,8 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
     setState(() {
       if (query.isNotEmpty) {
         filteredData3 = data3.where((item) {
-          final custName = item[''].toString().toLowerCase();
-          return custName.contains(query.toLowerCase());
+          final supName = item[''].toString().toLowerCase();
+          return supName.contains(query.toLowerCase());
         }).toList();
       } else {
 
@@ -367,7 +367,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
   }
   Map<String, dynamic> dataToInsert = {};
   Future<void> insertData(List<Map<String, dynamic>> rowsDataToInsert) async {
-    const String apiUrl = 'http://localhost:3309/balanace_sheet';
+    const String apiUrl = 'http://localhost:3309/balanace_sheet_purchase';
     try {
       for (var dataToInsert in rowsDataToInsert) {
         final response = await http.post(
@@ -572,11 +572,13 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
       if (invoiceNos.isEmpty) {
         setState(() {
           controllers.clear();
+          grandTotal.clear(); // Clear grandTotal when invoiceNos is empty
+
         });
         return;
       }
 
-      final url = Uri.parse('http://localhost:3309/balance_sheet_values_get_for_table?invoiceNos=${invoiceNos.join(',')}');
+      final url = Uri.parse('http://localhost:3309/balance_sheet_values_purchase?invoiceNos=${invoiceNos.join(',')}');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -592,15 +594,16 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
             Map<String, dynamic> row = {
               'invoiceNo': rows[i]['invoiceNo'],
               'grandTotal': rows[i]['grandTotal'],
-              'custCode': rows[i]["custCode"],
-              'custName': rows[i]["custName"],
+              'supCode': rows[i]["supCode"],
+              'supName': rows[i]["supName"],
             };
             print('Response Fetch Data: $responseData');
             print('Rows: $rows');
-            custCode.text = row["custCode"].toString() ?? "";
-            custName.text = row["custName"].toString() ?? "";
+            supCode.text = row["supCode"].toString() ?? "";
+            supName.text = row["supName"].toString() ?? "";
+            grandTotal.text = row["grandTotal"].toString() ?? "";
 
-            if (selectedCustCode.isNotEmpty && row["custCode"] != selectedCustCode) {
+            if (selectedCustCode.isNotEmpty && row["supCode"] != selectedCustCode) {
               // Display an error in an alert dialog
               showDialog(
                 context: context,
@@ -612,7 +615,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                       TextButton(
                         onPressed: () {
                           Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => BalanaceSheet()));
+                              MaterialPageRoute(builder: (context) => PurchaseBalanceSheet()));
                         },
                         child: Text('OK'),
                       ),
@@ -622,8 +625,8 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
               );
 
               setState(() {
-                custCode.clear();
-                custName.clear();
+                supCode.clear();
+                supName.clear();
                 invoiceNo.clear();
                 grandTotal.clear();
               });
@@ -632,12 +635,14 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
             }
 
             // Set the selected custCode for future comparison
-            selectedCustCode = row["custCode"];
+            selectedCustCode = row["supCode"];
 
             setState(() {
               if (invoiceNo.text.isEmpty) {
-                custCode.clear();
-                custName.clear();
+                supCode.clear();
+                supName.clear();
+                grandTotal.clear();
+
               }
             });
             for (int j = 0; j < 5; j++) {
@@ -686,6 +691,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
     invoiceNo.addListener(() {
       fetchDataByOrderNumber(selectedInvoiceNo);
       fetchDataSuggestion();//
+
     });
     return RawKeyboardListener(
       focusNode: FocusNode(),
@@ -695,7 +701,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
         }
       },
       child: MyScaffold(
-          route: 'balancesheet_entry',backgroundColor: Colors.white,
+          route: 'balancesheet_entry_purchase',backgroundColor: Colors.white,
           body:Form(
             key: _formKey,
             child: Column(
@@ -715,11 +721,11 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                Icon(Icons.balance,size: 30,),SizedBox(width: 10,),
+                                Icon(Icons.account_balance_wallet_outlined,size: 30,),SizedBox(width: 10,),
                                 Text("Balance Sheet",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
                               ],
                             ),
@@ -762,15 +768,15 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                                           errorMessage = null;
                                                           if(invoiceNo.text.isEmpty)
                                                           {
-                                                            //custName.clear();
+
                                                             chequeno.clear();
-                                                            bankName.clear();
+                                                            transId.clear();
                                                             chequeAmt.clear();
                                                             receivedAmt.clear();
                                                             deductionAmt.clear();
                                                             grandTotal.clear();
                                                             balance.clear();
-                                                            invoiceNo.text = '';
+
 
                                                           }
                                                           // Reset error message when the user types
@@ -786,14 +792,13 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                                         labelText: "Invoice Number",
                                                         labelStyle: TextStyle(fontSize: 13),
                                                         border: OutlineInputBorder(
-                                                          borderRadius: BorderRadius.circular(10),
-                                                        ),
+                                                          borderRadius: BorderRadius.circular(10),),
                                                         suffixIcon: invoiceNo.text.isNotEmpty
                                                             ? IconButton(
                                                           icon: Icon(Icons.clear),
                                                           onPressed: () {
                                                             Navigator.push(context,
-                                                                MaterialPageRoute(builder: (context) =>const BalanaceSheet()));// Close the alert box
+                                                                MaterialPageRoute(builder: (context) =>const PurchaseBalanceSheet()));// Close the alert box
                                                           },
                                                         )
                                                             : null,
@@ -903,7 +908,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                     SizedBox(
                                       width: 220,height: 70,
                                       child: TextFormField(
-                                        controller: custCode,
+                                        controller: supCode,
                                         readOnly: true,
                                         style: TextStyle(fontSize: 13),
                                         onChanged: (value) {
@@ -917,7 +922,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         decoration: InputDecoration(
                                           filled: true,
                                           fillColor: Colors.white,
-                                          labelText: "Customer Code",
+                                          labelText: "Supplier Code",
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(10),
                                           ),
@@ -927,13 +932,13 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                     SizedBox(
                                       width: 220,height: 70,
                                       child: TextFormField(
-                                        controller: custName,
+                                        controller: supName,
                                         readOnly: true,
                                         style: TextStyle(fontSize: 13),
                                         onChanged: (value) {
                                           balance.clear();
                                           String capitalizedValue = capitalizeFirstLetter(value);
-                                          custName.value = custName.value.copyWith(
+                                          supName.value = supName.value.copyWith(
                                             text: capitalizedValue,
                                             selection: TextSelection.collapsed(offset: capitalizedValue.length),
                                           );
@@ -948,14 +953,14 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         decoration: InputDecoration(
                                           filled: true,
                                           fillColor: Colors.white,
-                                          labelText: "Customer/Company Name",
+                                          labelText: "Supplier/Company Name",
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(10),
                                           ),
                                         ),
                                       ),
                                     ), /// Company Name
-                                    SizedBox(
+                                    /*SizedBox(
                                       width: 220,height: 70,
                                       child: TextFormField(
                                         controller: chequeno,
@@ -980,85 +985,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                           ),
                                         ),
                                       ),
-                                    ),/// Ceque Number
-                                    SizedBox(
-                                      width: 220,height: 70,
-                                      child: TextFormField(
-                                        controller: bankName,
-                                        style: TextStyle(fontSize: 13),
-                                        onChanged: (value) {
-                                          String capitalizedValue = capitalizeFirstLetter(value);
-                                          bankName.value = bankName.value.copyWith(
-                                            text: capitalizedValue,
-                                            selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                          );
-                                          setState(() {
-                                            errorMessage = null; // Reset error message when user types
-                                          });
-                                        },
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')), // Allow only alphabetic characters
-                                        ],
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          labelText: "Name of Bank",
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                      ),
-                                    ), /// Bank name
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Wrap(
-                                  spacing: 36.0, // Set the horizontal spacing between the children
-                                  runSpacing: 20.0,
-                                  children: [
-
-                                    SizedBox(
-                                      width: 220,
-                                      height: 70,
-                                      child: TextFormField(
-
-                                        onChanged: (value) {
-                                          setState(() {
-                                            updateBalanceAmount();
-                                          });
-                                          setState(() {
-                                            if (value.isEmpty) {
-                                              // If receivedAmt is empty, clear related fields and return
-                                              receivedAmt.clear();
-                                              errorMessage = null; // Reset error message
-                                              return;
-                                            }
-
-                                          });
-                                        },
-                                        controller: chequeAmt,
-                                        style: TextStyle(fontSize: 13),
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          labelText: "Cheque Amount",
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
-                                        ],
-                                      ),
-
-                                    ),/// Cheque Amount
-
+                                    ),*//// Ceque Number
                                     SizedBox(
                                       width: 220,
                                       height: 70,
@@ -1083,9 +1010,194 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                           ),
                                         ),
                                       ),
-                                    ),  /// Invoice Amount
+                                    ),
+                                    SizedBox(
+                                      width: 240,height:38,
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButtonFormField<String>(
+                                          decoration: InputDecoration(
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          value: payType,
+                                          hint:Text("Payment Type",style:TextStyle(fontSize: 13),),
+                                          items: <String>['RTGS','NEFT','Cash',]
+                                              .map<DropdownMenuItem<String>>((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(
+                                                value,
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          // Step 5.
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              payType = newValue!;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                     /// Bank name
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Wrap(
+                                  spacing: 36.0, // Set the horizontal spacing between the children
+                                  runSpacing: 20.0,
+                                  children: [
+                                    SizedBox(
+                                      width: 220,height: 70,
+                                      child: TextFormField(
+                                        controller: transId,
+                                        style: TextStyle(fontSize: 13),
+                                        onChanged: (value) {
+                                          String capitalizedValue = capitalizeFirstLetter(value);
+                                          transId.value = transId.value.copyWith(
+                                            text: capitalizedValue,
+                                            selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                          );
+                                          setState(() {
+                                            errorMessage = null; // Reset error message when user types
+                                          });
+                                        },
+                                        inputFormatters: [
+                                          UpperCaseTextFormatter(),
+                                        ],
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: "Transaction Id",
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 220,
+                                      height: 70,
+                                      child: TextFormField(
+                                        onChanged: (value) {
+                                          setState(() {
+                                            updateBalanceAmount();
+                                          });
+                                          setState(() {
+                                            receivedamt = double.tryParse(value) ?? 0.0;
+
+                                            // Ensure received amount is not greater than cheque amount
+                                            if (receivedamt != null && chequeamt != null && receivedamt! > chequeamt!) {
+                                              chequeAmt.text = chequeamt.toString();
+                                              receivedamt = chequeamt;
+                                            }
+
+                                            for (int i = 0; i < controllers.length; i++) {
+                                              if (i == 0) {
+                                                controllers[i][2].text = receivedamt.toString();
+                                                double invoiceAmount = double.tryParse(controllers[i][1].text) ?? 0.0;
+                                                controllers[i][3].text = ((receivedamt ?? 0.0) - invoiceAmount).toString();
+                                              } else {
+                                                double previousChequeAmt = double.tryParse(controllers[i - 1][2].text) ?? 0.0;
+                                                double previousInvoiceAmt = double.tryParse(controllers[i - 1][1].text) ?? 0.0;
+                                                double newChequeAmt = previousChequeAmt - previousInvoiceAmt;
+                                                controllers[i][2].text = newChequeAmt.toString();
+
+                                                double currentInvoiceAmount = double.tryParse(controllers[i][1].text) ?? 0.0;
+                                                double balanceAmount = newChequeAmt - currentInvoiceAmount;
+
+                                                // Check for null before assigning to controllers[i][3].text
+                                                controllers[i][3].text = (balanceAmount ?? 0.0).toString();
+                                              }
+                                            }
+                                          });
+
+                                          setState(() {
+                                            if (value.isEmpty) {
+                                              // If receivedAmt is empty, clear related fields and return
+                                              for (int i = 0; i < controllers.length; i++) {
+                                                controllers[i][2].text = '';
+                                                controllers[i][3].text = '';
+                                              }
+                                              errorMessage = null; // Reset error message
+                                              return;
+                                            }
+
+                                            double chequeAmtValue = double.tryParse(chequeAmt.text) ?? 0.0;
+                                            double receivedAmtValue = double.tryParse(receivedAmt.text) ?? 0.0;
+
+                                            // Check if deductionAmt is greater than or equal to chequeAmt
+                                            if (receivedAmtValue >= chequeAmtValue) {
+                                              errorMessage = ' Received Amount should be less than Cheque Amount';
+                                              // Clear deductionAmt field
+                                              receivedAmt.text = '';
+
+
+                                              return;
+                                            } else {
+                                              errorMessage = null; // Reset error message when user types
+                                            }
+
+                                            double receivedamt = chequeAmtValue - receivedAmtValue;
+                                            // receivedAmt.text = receivedamt.toStringAsFixed(2);
+                                          });
+
+
+                                        },
+                                        controller: chequeAmt,
+                                        style: TextStyle(fontSize: 13),
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: "Paid Amount",
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(RegExp(r'^[0-9!@#\$%^&*(),.?":{}|<>]*$')),
+                                        ],
+                                      ),
+                                    ),
 
                                     SizedBox(
+                                      width: 220,height: 70,
+                                      child: TextFormField(
+                                        controller: balance,
+                                        style: TextStyle(fontSize: 13),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            /*   double grandTotalValue = double.tryParse(grandTotal.text) ?? 0.0;
+                                          double chequeAmtValue = double.tryParse(chequeAmt.text) ?? 0.0;
+                                          double balanceValue = grandTotalValue - chequeAmtValue;
+                                          balance.text = balanceValue.toStringAsFixed(2);*/
+
+                                            errorMessage = null; // Reset error message when user types
+                                          });
+                                        },
+                                        inputFormatters: [
+                                          UpperCaseTextFormatter(),
+                                        ],
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: "Balance Amount",
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                    ),   /// Balance
+                                    /// Invoice Amount
+
+                                    /*SizedBox(
                                       width: 220,height: 38,
                                       child: Container(
                                         padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
@@ -1120,7 +1232,6 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         ),
                                       ),
                                     ), /// Deduction Type
-
                                     SizedBox(
                                       width: 220,
                                       child: TextFormField(
@@ -1168,12 +1279,12 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                           FilteringTextInputFormatter.allow(RegExp(r'^[0-9!@#\$%^&*(),.?":{}|<>]*$')),
                                         ],
                                       ),
-                                    ), ///deductionAmt
+                                    ),*/ ///deductionAmt
 
                                   ],
                                 ),
                               ),
-                              Wrap(
+                            /*  Wrap(
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
@@ -1271,10 +1382,10 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         style: TextStyle(fontSize: 13),
                                         onChanged: (value) {
                                           setState(() {
-                                            /*   double grandTotalValue = double.tryParse(grandTotal.text) ?? 0.0;
+                                            *//*   double grandTotalValue = double.tryParse(grandTotal.text) ?? 0.0;
                                             double chequeAmtValue = double.tryParse(chequeAmt.text) ?? 0.0;
                                             double balanceValue = grandTotalValue - chequeAmtValue;
-                                            balance.text = balanceValue.toStringAsFixed(2);*/
+                                            balance.text = balanceValue.toStringAsFixed(2);*//*
 
                                             errorMessage = null; // Reset error message when user types
                                           });
@@ -1296,7 +1407,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
 
                                   SizedBox(width: 10,),
 
-                                ],)
+                                ],)*/
                             ],
                           ),
 
@@ -1339,7 +1450,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                 child: Column(
                                   children: [
                                     SizedBox(height: 15),
-                                    Text('Received Cheque Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('Cheque Amount', style: TextStyle(fontWeight: FontWeight.bold)),
                                     SizedBox(height: 15),
                                   ],
                                 ),
@@ -1481,23 +1592,14 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                   });
                                   return;
                                 }
-                                else if (custName.text.isEmpty) {
+                                else if (supName.text.isEmpty) {
                                   setState(() {
                                     errorMessage = '* Enter a Customer Name';
                                   });
-                                }   else if (chequeno.text.isEmpty) {
-                                  setState(() {
-                                    errorMessage = '* Enter a Cheque Number';
-                                  });
                                 }
-                                else if (chequeno.text.length != 6) {
+                                else if (transId.text.isEmpty) {
                                   setState(() {
-                                    errorMessage = '* Enter a Valid Cheque Number';
-                                  });
-                                }
-                                else if (bankName.text.isEmpty) {
-                                  setState(() {
-                                    errorMessage = '* Enter a Bank Name';
+                                    errorMessage = '* Enter Transaction Id';
                                   });
                                 }
                                 else if (chequeAmt.text.isEmpty) {
@@ -1505,7 +1607,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                     errorMessage = '* Enter a Cheque Amount';
                                   });
                                 }
-                                else if (Process == null) {
+                               /* else if (Process == null) {
                                   setState(() {
                                     errorMessage = '* Select a Deduction Type';
                                   });
@@ -1514,12 +1616,12 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                   setState(() {
                                     errorMessage = '* Enter a deduction Amount';
                                   });
-                                }
-                                else if (receivedAmt.text.isEmpty) {
+                                }*/
+                             /*   else if (receivedAmt.text.isEmpty) {
                                   setState(() {
                                     errorMessage = '* Enter a Received Amount';
                                   });
-                                }
+                                }*/
                                 else {
                                   double grandTotalAmt = double.tryParse(grandTotal.text) ?? 0;
                                   double chequeAmount = double.tryParse(chequeAmt.text) ?? 0;
@@ -1531,7 +1633,6 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                     calculatedAmt = grandTotalAmt - chequeAmount;
                                   }
 
-                                  // Determine whether it's a credit or debit
                                   String creditOrDebit = chequeAmount >= grandTotalAmt ? "Db" : "Cr";
 
 
@@ -1542,24 +1643,20 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                     Map<String, dynamic> dataToInsert = {
                                       "invoiceNo": invoiceNo.text,
                                       'date': selectedDate.toString(),
-                                      'custCode':custCode.text,
-                                      'custName': custName.text,
+                                      'supCode':supCode.text,
+                                      'supName': supName.text,
                                       'chequeAmt': chequeAmt.text,
-                                      'deductionAmt':deductionAmt.text,
-                                      'receivedAmt':receivedAmt.text,
                                       "grandTotal": grandTotal.text,
-                                      'deductionType':Process,
+                                      'payType':payType,
                                       'chequeNo':chequeno.text,
-                                      'bankName':bankName.text,
+                                      'transId':transId.text,
                                       'credit': creditOrDebit == "Db" ? calculatedAmt.toStringAsFixed(2) : "0.00",
                                       'debit': creditOrDebit == "Cr" ? calculatedAmt.toStringAsFixed(2) : "0.00",
                                       'individual_invoice':controllers[i][0].text,
                                       'individual_Amt':controllers[i][1].text,
                                       'individual_cheque':controllers[i][2].text,
                                       'individual_balance':controllers[i][3].text,
-
                                     };
-
                                     rowsDataToInsert.add(dataToInsert);
                                   }
                                   try {
@@ -1575,7 +1672,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                               child: const Text('OK'),
                                               onPressed: () {
                                                 Navigator.push(context,
-                                                    MaterialPageRoute(builder: (context) =>BalanaceSheet()));// Close the alert box
+                                                    MaterialPageRoute(builder: (context) =>PurchaseBalanceSheet()));// Close the alert box
                                               },
                                             ),
                                           ],
@@ -1616,7 +1713,7 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                         child: const Text('Yes'),
                                         onPressed: () {
                                           Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) =>const BalanaceSheet()));// Close the alert box
+                                              MaterialPageRoute(builder: (context) =>const PurchaseBalanceSheet()));// Close the alert box
                                         },
                                       ),
                                       TextButton(

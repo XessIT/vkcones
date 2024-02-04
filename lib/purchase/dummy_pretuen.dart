@@ -19,7 +19,6 @@ class Purchase extends StatefulWidget {
 class _PurchaseState extends State<Purchase> {
   final _formKey = GlobalKey<FormState>();
   final  selectedDate = DateTime.now();
-  final ScrollController _scrollController = ScrollController();
 
   final  date = DateTime.now();
   List<List<TextEditingController>> controllers = [];
@@ -70,89 +69,105 @@ class _PurchaseState extends State<Purchase> {
 
 
 
-/*
-  void addRow() {
-    setState(() {
-      List<TextEditingController> rowControllers = [];
-      List<FocusNode> rowFocusNodes = [];
 
-      for (int j = 0; j < 12; j++) {
-        rowControllers.add(TextEditingController());
-        rowFocusNodes.add(FocusNode());
-      }
-
-      controllers.add(rowControllers);
-      focusNodes.add(rowFocusNodes);
-
-      isRowFilled.add(false);
-
-      Map<String, dynamic> row = {
-        'prodCode': '',
-        'prodName': '',
-        'unit':'',
-        'qty': '',
-        'rate':'',
-        'amt':'',
-        'gst':'',
-        'amtGST':'',
-        'total':'',
-        'rQty':'',
-        'aQty':'',
-      };
-
-      rowData.add(row);
-
-      Future.delayed(Duration.zero, () {
-        FocusScope.of(context).requestFocus(rowFocusNodes[0]);
-      });
-    });
-    grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-  }
-*/
 
   List<Map<String, dynamic>> datapendingInsertList = [];
 
+/*
   void removeRow(int rowIndex) {
     if (rowIndex >= 0 && rowIndex < controllers.length) {
-      DateTime now=DateTime.now();
-      String year=(now.year%100).toString();
-      String month=now.month.toString().padLeft(2,'0');
+      DateTime now = DateTime.now();
+      String year = (now.year % 100).toString();
+      String month = now.month.toString().padLeft(2, '0');
       if (poNumber.isEmpty) {
         poNumber = 'PP$year$month/001';
       }
-      // Retrieve the data from the row being removed
       Map<String, dynamic> removedRowData = {
-        "poNo":poNUMber.text,
-        "date":date.toString(),
-        "invoiceNo":invoiceNo.text.trim(),
-        "pendingOrderNo":poNumber,
+        "poNo": poNumber,
+        "date": date.toString(),
+        "invoiceNo": invoiceNo.text.trim(),
+        "pendingOrderNo": poNumber,
         "supCode": supCode.text,
-        "supName":supName.text,
+        "supName": supName.text,
         "prodCode": controllers[rowIndex][0].text,
         "prodName": controllers[rowIndex][1].text,
-        "qty": controllers[rowIndex][10].text,
-        "pincode":pincode.text,
-        "deliveryDate":"",
+        'qty': controllers[rowIndex][10].text.isNotEmpty ? controllers[rowIndex][10].text : '0',
+        "pincode": pincode.text,
+        "deliveryDate": "",
         'unit': controllers[rowIndex][2].text,
       };
 
-      // Remove the row from your local data structure (controllers)
       controllers.removeAt(rowIndex);
+      rowslenth = controllers.length;
+      rowslenth2 = controllers.length;
 
-      // Add the removed data to the pending data list
-      datapendingInsertList.add(removedRowData);
+      List<Map<String, dynamic>> rowDataToInsert = [removedRowData];
+      datapendingInsertList.addAll(rowDataToInsert);
+
       focusNodes.removeAt(rowIndex);
       isRowFilled.removeAt(rowIndex);
-      // Trigger a rebuild of the UI to reflect the changes
       setState(() {
         grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+        for (int i = rowIndex; i < controllers.length; i++) {
+          int fetchedIndex = i + 1;
+          controllers[i][10].text = fetchedQuantities[fetchedIndex].toString();
+          fetchedQuantities[i] = fetchedQuantities[fetchedIndex]!;
+        }
+      });
+    } else {
+      print("Invalid index: $rowIndex");
+    }
+  }
+*/
+  void removeRow(int rowIndex) {
+    if (rowIndex >= 0 && rowIndex < controllers.length) {
+      DateTime now = DateTime.now();
+      String year = (now.year % 100).toString();
+      String month = now.month.toString().padLeft(2, '0');
+      if (poNumber.isEmpty) {
+        poNumber = 'PP$year$month/001';
+      }
+      Map<String, dynamic> removedRowData = {
+        "poNo": poNumber,
+        "date": date.toString(),
+        "invoiceNo": invoiceNo.text.trim(),
+        "pendingOrderNo": poNumber,
+        "supCode": supCode.text,
+        "supName": supName.text,
+        "prodCode": controllers[rowIndex][0].text,
+        "prodName": controllers[rowIndex][1].text,
+        'qty': controllers[rowIndex][10].text.isNotEmpty ? controllers[rowIndex][10].text : '0',
+        "pincode": pincode.text,
+        "deliveryDate": "",
+        'unit': controllers[rowIndex][2].text,
+      };
+
+      controllers.removeAt(rowIndex);
+      rowslenth = controllers.length;
+      rowslenth2 = controllers.length;
+
+      List<Map<String, dynamic>> rowDataToInsert = [removedRowData];
+      datapendingInsertList.addAll(rowDataToInsert);
+
+      focusNodes.removeAt(rowIndex);
+      isRowFilled.removeAt(rowIndex);
+      setState(() {
+        grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+        for (int i = rowIndex; i < controllers.length; i++)
+        {
+          int fetchedIndex = i + 1;
+          controllers[i][10].text = fetchedQuantities[fetchedIndex].toString();
+          fetchedQuantities[i] = fetchedQuantities[fetchedIndex]!;
+          rowData[i]['prodName'] = controllers[i][1].text;
+        }
       });
     } else {
       print("Invalid index: $rowIndex");
     }
   }
 
-
+  int? rowslenth=0;
+  int? rowslenth2=0;
 /*
   void removeRow(int index) {
     setState(() {
@@ -167,6 +182,7 @@ class _PurchaseState extends State<Purchase> {
     });
   }
 */
+
   void clearAllRows() {
     setState(() {
       rowData.clear();
@@ -242,6 +258,7 @@ class _PurchaseState extends State<Purchase> {
       );
     }
   }
+  TextEditingController PONUMBER=TextEditingController();
   void filterDatapending(String searchText) {
     setState(() {
       if (searchText.isEmpty) {
@@ -256,6 +273,8 @@ class _PurchaseState extends State<Purchase> {
           Map<String, dynamic> order = filteredData.first;
           supCode.text = order['supCode']?.toString() ?? '';
           supName.text = order['supName']?.toString() ?? '';
+          PONUMBER.text = order['poNo']?.toString() ?? '';
+          print(PONUMBER.text);
           //  invoiceNo.text = order['invoiceNo']?.toString() ?? '';
         } else {
           supCode.clear();supName.clear();
@@ -385,10 +404,12 @@ class _PurchaseState extends State<Purchase> {
         if (i >= controllers.length) {
           controllers.add(List.generate(11, (j) => TextEditingController()));
         }
+
         String datepass =DateTime.now().toString();
         print("Inserting data for row $i");
         Map<String, dynamic> datapendingInsert = {
-          "poNo":poNUMber.text,
+          "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
+          //"poNo":poNUMber,
           "date":datepass.toString(),
           "invoiceNo":invoiceNo.text,
           "pendingOrderNo":poNumber,
@@ -396,12 +417,13 @@ class _PurchaseState extends State<Purchase> {
           "supName":supName.text,
           "prodCode": controllers[i][0].text,
           "prodName": controllers[i][1].text,
-          "qty": controllers[i][11].text,
+          'qty':controllers[i][11].text.isNotEmpty?controllers[i][11].text:'0',
           "pincode":pincode.text,
           "deliveryDate":"",
           'unit': controllers[i][2].text,
         };
         insertFutures.add(insertDataPendingReport(datapendingInsert));
+
         Future.microtask(() {
           setState(() {
             alertVisible=true;
@@ -412,7 +434,8 @@ class _PurchaseState extends State<Purchase> {
             builder: (BuildContext context) {
               return AlertDialog(
                   title: const Text("PO Number"),
-                  content:  poNUMber.text.isNotEmpty?Text("${poNUMber.text} had partially purchased, Pending PO is ${poNumber.toString()} "):Text("$pendingPoNUMber had partially purchase, Pending PO Number is ${poNumber.toString()}    "),
+                  //content:  poNUMber.text.isNotEmpty?Text("${poNUMber.text} had Partially purchased, Pending PO is ${poNumber.toString()} "):Text("$pendingPoNUMber had partially purchase, Pending PO Number is ${poNumber.toString()}    "),
+                  content: const Text("Partially purchased"),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () {
@@ -607,7 +630,9 @@ class _PurchaseState extends State<Purchase> {
       Map<String, dynamic> dataToInsertSupItem2 = {
         'invoiceNo':invoiceNo.text,
         "date":date.toString(),
-        "poNo":poNUMber.text.isEmpty? pendingPoNUMber.text:poNUMber.text,
+        // "poNo":poNUMber.text,
+        //        "poNo":poNUMber.text.isEmpty? pendingPoNUMber.text:poNUMber.text,
+        "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
         'purchaseDate': formattedPurchaseDate,
         /*"supName": supplierInfo["supName"].toString(),
         "supCode": supplierInfo["supCode"].toString(),
@@ -824,10 +849,13 @@ class _PurchaseState extends State<Purchase> {
 
   String selectedInvoiceNo = '';
   String selectedPoInvoiceNo = '';
-
+  final FocusNode _suppliernameFocusNode = FocusNode();
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_suppliernameFocusNode);
+    });
     fetchDataPendingPo();
     fetchData();//add Row
     fetchData2();
@@ -1137,11 +1165,23 @@ class _PurchaseState extends State<Purchase> {
                                                 });
                                               },
                                             ),
-                                            Text("PO Number              "),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
+                                            Text("PO"),
+                                            Checkbox(
+                                              value: selectedCheckbox == 3,
+                                              onChanged: (bool? value) {
+                                                setState(() {
+                                                  poNUMber.clear();
+                                                  errorMessage ="";
+                                                  //  checkOrderNo ="";
+                                                  if (value != null && value) {
+                                                    selectedCheckbox = 3;
+                                                  } else {
+                                                    selectedCheckbox = selectedCheckbox == 3 ? 1 : 3;
+                                                  }
+                                                });
+                                              },
+                                            ),
+                                            const Text("GSM"),
                                             Checkbox(
                                               value: selectedCheckbox == 2,
                                               onChanged: (bool? value) {
@@ -1158,26 +1198,29 @@ class _PurchaseState extends State<Purchase> {
                                                 });
                                               },
                                             ),
-                                            Text("Pending PO Number"),
+                                            Text("Pending"),
                                           ],
                                         ),
+
+
                                       ],
                                     ),
                                     //poNumber textformfield
                                     Column(
                                       children: [
                                         Visibility(
-                                          visible: selectedCheckbox ==1,
+                                          visible: selectedCheckbox == 1 || selectedCheckbox == 3 ,
                                           child: SizedBox(
                                             width: 140,
                                             height: 36,
                                             child: TypeAheadFormField<String>(
                                               textFieldConfiguration: TextFieldConfiguration(
-                                                controller: poNUMber,
+                                                controller: poNUMber,focusNode: _suppliernameFocusNode,
                                                 style: const TextStyle(fontSize: 13),
                                                 onChanged: (value) {
                                                   setState(() {
-                                                    errorMessage = null; // Reset error message when the user types
+                                                    errorMessage = null;
+
                                                   });
                                                 },
                                                 inputFormatters: [
@@ -1199,27 +1242,38 @@ class _PurchaseState extends State<Purchase> {
                                                 if (pattern.isNotEmpty) {
                                                   suggestions = data
                                                       .where((item) =>
-                                                      (item['poNo']?.toString()?.toLowerCase() ?? '')
-                                                          .startsWith(pattern.toLowerCase()))
+                                                  (item['poNo']?.toString()?.toLowerCase() ?? '')
+                                                      .startsWith(pattern.toLowerCase()) &&
+                                                      (selectedCheckbox != 1 || !item['prodName'].toString().startsWith('GSM')))
                                                       .map((item) => item['poNo'].toString())
                                                       .toSet() // Remove duplicates using a Set
                                                       .toList();
+
+                                                  suggestions.removeWhere((existingInvoiceNo) =>
+                                                  isMachineNameExists(existingInvoiceNo) &&
+                                                      existingInvoiceNo != poNUMber.text);
+
                                                   suggestions = suggestions.take(5).toList();
                                                 } else {
                                                   suggestions = [];
                                                 }
                                                 return suggestions;
                                               },
+
                                               itemBuilder: (context, suggestion) {
                                                 return ListTile(
                                                   title: Text(suggestion),
                                                 );
                                               },
                                               onSuggestionSelected: (suggestion) {
-
                                                 setState(() {
                                                   selectedInvoiceNo = suggestion;
                                                   poNUMber.text = suggestion;
+                                                  if (isMachineNameExists(poNUMber.text)) {
+                                                    setState(() {
+                                                      errorMessage = '* This PO Number is Already invoiced';
+                                                    });
+                                                  }
                                                 });
                                                 print('Selected Invoice Number: $selectedInvoiceNo');
                                               },
@@ -1265,6 +1319,9 @@ class _PurchaseState extends State<Purchase> {
                                                       .map((item) => item['pendingOrderNo'].toString())
                                                       .toSet() // Remove duplicates using a Set
                                                       .toList();
+                                                  suggestions.removeWhere((existingInvoiceNo) =>
+                                                  isMachineNameExists(existingInvoiceNo) &&
+                                                      existingInvoiceNo != pendingPoNUMber.text);
                                                   suggestions = suggestions.take(5).toList();
                                                 } else {
                                                   suggestions = [];
@@ -1279,7 +1336,7 @@ class _PurchaseState extends State<Purchase> {
                                               onSuggestionSelected: (suggestion) {
                                                 if (isMachineNameExists(suggestion)) {
                                                   setState(() {
-                                                    errorMessage = '* PoNo already exists';
+                                                    errorMessage = '* This Order already exists';
                                                   });
                                                 } else {
                                                   errorMessage = null;
@@ -1401,6 +1458,13 @@ class _PurchaseState extends State<Purchase> {
                                           fontWeight: FontWeight.bold,
                                           fontSize:16,
                                         ),),
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 8.0),
+                                          child: Text(
+                                            errorMessage ?? '',
+                                            style: TextStyle(color: Colors.red,fontSize: 13),
+                                          ),
+                                        ),
 
 
                                       ],
@@ -1540,7 +1604,6 @@ class _PurchaseState extends State<Purchase> {
                                                 onChanged: (String? newValue) {
                                                   setState(() {
                                                     payType = newValue!;
-                                                    errorMessage ="";
                                                   });
                                                 },
                                               ),
@@ -1569,855 +1632,796 @@ class _PurchaseState extends State<Purchase> {
                                 child: Column(
                                   children: [
                                     SingleChildScrollView(
-                                      child:Scrollbar(
-                                        thumbVisibility: true,
-                                        controller: _scrollController,
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          controller: _scrollController,
-                                          child: FocusTraversalGroup(
-                                            policy: OrderedTraversalPolicy(),
-                                            child: Table(
-                                              border: TableBorder.all(
-                                                  color: Colors.black54
-                                              ),
-                                              defaultColumnWidth: const FixedColumnWidth(140.0),
-                                              columnWidths: const <int, TableColumnWidth>{
-                                                // 0: FixedColumnWidth(175),
-                                                // 1: FixedColumnWidth(175),
-                                                2: FixedColumnWidth(100),
-                                                3: FixedColumnWidth(100),
-                                                4: FixedColumnWidth(100),
-                                                5: FixedColumnWidth(100),
-                                                6: FixedColumnWidth(100),
-                                                7: FixedColumnWidth(128),
-                                                8: FixedColumnWidth(115),
-                                                9: FixedColumnWidth(115),
-                                                10: FixedColumnWidth(0),
-                                                11: FixedColumnWidth(0),
+                                      scrollDirection: Axis.horizontal,
+                                      child: FocusTraversalGroup(
+                                        policy: OrderedTraversalPolicy(),
+                                        child: Table(
+                                          border: TableBorder.all(
+                                              color: Colors.black54
+                                          ),
+                                          defaultColumnWidth: const FixedColumnWidth(140.0),
+                                          columnWidths:  <int, TableColumnWidth>{
+                                            // 0: FixedColumnWidth(175),
+                                            // 1: FixedColumnWidth(175),
+                                            2: FixedColumnWidth(100),
+                                            3: FixedColumnWidth(100),
+                                            4: selectedCheckbox == 3 ? const FixedColumnWidth(100) : const FixedColumnWidth(0),
+                                            5: FixedColumnWidth(100),
+                                            6: FixedColumnWidth(100),
+                                            7: FixedColumnWidth(80),
+                                            8: FixedColumnWidth(115),
+                                            9: FixedColumnWidth(115),
+                                            10: FixedColumnWidth(0),
+                                            11: FixedColumnWidth(0),
+                                            12: FixedColumnWidth(60),
 
-                                              },
-                                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                          },
+                                          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                          children: [
+                                            // Table header row
+                                            TableRow(
                                               children: [
-                                                // Table header row
-                                                TableRow(
-                                                  children: [
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height:15 ),
-                                                              Text('Product Code',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height: 15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height:15),
-                                                              Text('Product Name',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height:15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height:15),
-                                                              Text('Unit',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height:15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height:15),
-                                                              Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height:15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ), TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height:15),
-                                                              Text('Total Weight',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height:15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 15),
-                                                              Text(' Rate ',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height: 15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 15),
-                                                              Text('Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height: 15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 15),
-                                                              Text('GST (%)',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height: 15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 15),
-                                                              Text('GST Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height: 15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 15),
-                                                              Text('Total',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height: 15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Visibility(
-                                                      visible:false,
-                                                      child: TableCell(
-                                                        child: Container(
-                                                          color:Colors.blue.shade200,
-                                                          child: Center(
-                                                            child: Column(
-                                                              children: [
-                                                                const SizedBox(height: 15),
-                                                                Text('R qty',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                                const SizedBox(height: 15),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Visibility(
-
-                                                      visible:false,
-                                                      child: TableCell(
-                                                        child: Container(
-                                                          color:Colors.blue.shade200,
-                                                          child: Center(
-                                                            child: Column(
-                                                              children: [
-                                                                const SizedBox(height: 15),
-                                                                Text('A qty',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                                const SizedBox(height: 15),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        color:Colors.blue.shade200,
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              const SizedBox(height: 15),
-                                                              Text('Action',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                              const SizedBox(height: 15),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                // Table data rows
-                                                for (var i = 0; i < controllers.length; i++)
-                                                  TableRow(
-                                                    children: [
-                                                      for (var j = 0; j < 12; j++)
-                                                        j==10? TableCell(
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.all(8.0),
-                                                            child: Visibility(
-                                                              visible:false,
-                                                              child: TextFormField(
-                                                                  style: TextStyle(fontSize: 13,
-                                                                    color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['unit'] == 'Kg' || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
-                                                                  ),
-                                                                  controller: controllers[i][10],
-                                                                  inputFormatters: [UpperCaseTextFormatter()],
-                                                                  decoration: const InputDecoration(
-                                                                    filled: true,
-                                                                    fillColor: Colors.white,
-                                                                  ),
-
-                                                                  textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                                  enabled: j == 0 || j == 1 || j == 5 || rowData[i]['unit'] == 'Kg' || j == 3 || j == 7 ,
-                                                                  onChanged: (value) async {
-                                                                    final int rowIndex = i;
-                                                                    final int colIndex = j;
-                                                                    final String key = _getKeyForColumn(colIndex);
-                                                                    final productName= await fetchProductName(value);
-                                                                    final productCode= await fetchProductCode(value);
-                                                                    updateFieldValidation();
-                                                                    setState(() {
-                                                                      rowData[rowIndex][key] = value;
-                                                                      if (colIndex == 0) {
-                                                                        controllers[i][1].clear();
-                                                                      } else if (colIndex == 1) {
-                                                                        controllers[i][0].clear();
-                                                                      }
-
-                                                                      if (productName.isNotEmpty) {
-                                                                        controllers[i][1].text = productName;
-                                                                      }
-                                                                      if (productCode.isNotEmpty) {
-                                                                        controllers[i][0].text = productCode;
-                                                                      }
-                                                                      isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                      if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                        controllers[rowIndex][1].clear();
-                                                                        errorMessage = 'You already entered the\n product code $value.';
-                                                                        return;
-                                                                      }
-                                                                      if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                        errorMessage = 'You already entered the\n product Name $value.';
-                                                                        controllers[rowIndex][0].clear();
-                                                                        return;
-                                                                      }
-                                                                      errorMessage = '';
-
-
-
-
-                                                                      if( rowData[i]['unit'] != 'Kg'){
-                                                                        if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
-                                                                          double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                          double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                          double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-
-                                                                          double amount = quantity * rate;
-                                                                          double gstAmt = (amount * gst) / 100;
-                                                                          double total = amount + gstAmt;
-                                                                          if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                              content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                              duration: Duration(seconds: 2),
-                                                                            ));
-
-                                                                            setState(() {
-                                                                              controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                            });
-                                                                            return;
-                                                                          }
-
-
-                                                                          controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                          /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                          controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                          controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                          int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                          int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                          int? pendingqty = receiveqty-editedqty;
-                                                                          setState(() {
-
-                                                                            qty = receiveqty!;
-                                                                            recieved= editedqty;
-                                                                            pending= pendingqty;
-
-
-                                                                            print("  Qty $qty");
-                                                                            print(" received Qty $recieved");
-                                                                            print(" pending Qty  $pending");
-                                                                            // editqty = editedqty;
-                                                                          });
-                                                                          controllers[rowIndex][11].text = pendingqty.toString();
-                                                                          grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                        }}else{
-                                                                        if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
-                                                                          double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                          double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                          double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                          double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                          double amount = totweight * rate;
-                                                                          double gstAmt = (amount * gst) / 100;
-                                                                          double total = amount + gstAmt;
-                                                                          if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                              content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                              duration: Duration(seconds: 2),
-                                                                            ));
-
-                                                                            setState(() {
-                                                                              controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                            });
-                                                                            return;
-                                                                          }
-
-                                                                          controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                          controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                          controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                          int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                          int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                          int? pendingqty = receiveqty-editedqty;
-                                                                          setState(() {
-
-                                                                            qty = receiveqty!;
-                                                                            recieved= editedqty;
-                                                                            pending= pendingqty;
-
-
-                                                                            print("  Qty $qty");
-                                                                            print(" received Qty $recieved");
-                                                                            print(" pending Qty  $pending");
-                                                                            // editqty = editedqty;
-                                                                          });
-                                                                          controllers[rowIndex][11].text = pendingqty.toString();
-                                                                          grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                        }
-
-
-                                                                      }
-
-                                                                    });
-                                                                    setState(() {
-                                                                      fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                      editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                      calculateQTY = fetchingQTY-editingQTY;
-                                                                      print("calculateQty $calculateQTY");
-
-                                                                    });
-                                                                  }
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ) :
-                                                        j==11? TableCell(
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.all(8.0),
-                                                            child: Visibility(
-                                                              visible:false,
-                                                              child: TextFormField(
-                                                                  style: TextStyle(fontSize: 13,
-                                                                    color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['unit'] == 'Kg' || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
-                                                                  ),
-                                                                  controller: controllers[i][11],
-                                                                  inputFormatters: [UpperCaseTextFormatter()],
-                                                                  decoration: const InputDecoration(
-                                                                    filled: true,
-                                                                    fillColor: Colors.white,
-                                                                  ),
-
-                                                                  textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                                  enabled: j == 0 || j == 1 || j == 5 || rowData[i]['unit'] ==
-                                                                      'Kg' || j == 3 || j == 6 ,
-                                                                  onChanged: (value) async {
-                                                                    final int rowIndex = i;
-                                                                    final int colIndex = j;
-                                                                    final String key = _getKeyForColumn(colIndex);
-                                                                    final productName= await fetchProductName(value);
-                                                                    final productCode= await fetchProductCode(value);
-
-
-                                                                    updateFieldValidation();
-                                                                    setState(() {
-                                                                      rowData[rowIndex][key] = value;
-                                                                      if (colIndex == 0) {
-                                                                        controllers[i][1].clear();
-                                                                      } else if (colIndex == 1) {
-                                                                        controllers[i][0].clear();
-                                                                      }
-
-                                                                      if (productName.isNotEmpty) {
-                                                                        controllers[i][1].text = productName;
-                                                                      }
-                                                                      if (productCode.isNotEmpty) {
-                                                                        controllers[i][0].text = productCode;
-                                                                      }
-                                                                      isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                      if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                        controllers[rowIndex][1].clear();
-                                                                        errorMessage = 'You already entered the\n product code $value.';
-                                                                        return;
-                                                                      }
-                                                                      if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                        errorMessage = 'You already entered the\n product Name $value.';
-                                                                        controllers[rowIndex][0].clear();
-                                                                        return;
-                                                                      }
-                                                                      errorMessage = '';
-
-
-                                                                      if( rowData[i]['unit'] != 'Kg'){
-                                                                        if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
-                                                                          double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                          double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                          double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                          double amount = quantity * rate;
-                                                                          double gstAmt = (amount * gst) / 100;
-                                                                          double total = amount + gstAmt;
-                                                                          if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                              content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                              duration: Duration(seconds: 2),
-                                                                            ));
-
-                                                                            setState(() {
-                                                                              controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                            });
-                                                                            return;
-                                                                          }
-
-                                                                          controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                          /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                          controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                          controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                          int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                          int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                          int? pendingqty = receiveqty-editedqty;
-                                                                          setState(() {
-
-                                                                            qty = receiveqty!;
-                                                                            recieved= editedqty;
-                                                                            pending= pendingqty;
-
-
-                                                                            print("  Qty $qty");
-                                                                            print(" received Qty $recieved");
-                                                                            print(" pending Qty  $pending");
-                                                                            // editqty = editedqty;
-                                                                          });
-                                                                          controllers[rowIndex][11].text = pendingqty.toString();
-                                                                          grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                        }}else{
-                                                                        if (colIndex == 4 || colIndex == 5 || colIndex == 7||colIndex == 3 ) {
-                                                                          double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                          double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                          double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                          double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                          double amount = totweight * rate;
-                                                                          double gstAmt = (amount * gst) / 100;
-                                                                          double total = amount + gstAmt;
-                                                                          if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                              content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                              duration: Duration(seconds: 2),
-                                                                            ));
-
-                                                                            setState(() {
-                                                                              controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                            });
-                                                                            return;
-                                                                          }
-
-                                                                          controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                          /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                          controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                          controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                          int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                          int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                          int? pendingqty = receiveqty-editedqty;
-                                                                          setState(() {
-
-                                                                            qty = receiveqty!;
-                                                                            recieved= editedqty;
-                                                                            pending= pendingqty;
-
-
-                                                                            print("  Qty $qty");
-                                                                            print(" received Qty $recieved");
-                                                                            print(" pending Qty  $pending");
-                                                                            // editqty = editedqty;
-                                                                          });
-                                                                          controllers[rowIndex][11].text = pendingqty.toString();
-                                                                          grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                        }
-
-
-                                                                      }
-                                                                    });
-                                                                    setState(() {
-                                                                      fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                      editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                      calculateQTY = fetchingQTY-editingQTY;
-                                                                      print("calculateQty $calculateQTY");
-
-                                                                    });
-
-                                                                  }
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        )
-                                                            :  TableCell(
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.all(8.0),
-                                                            child: TextFormField(
-                                                                style: TextStyle(fontSize: 13,
-                                                                  color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['unit'] == 'Kg' || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
-                                                                ),
-                                                                controller: controllers[i][j],
-                                                                // enabled: !(j == 6 || j == 8 || j == 9) || (rowData[i]['unit'] != 'Kg' && rowData[i]['unit'] != 'Nos'), // Set enabled based on conditions for controllers[i][6], [8], and [9]
-
-                                                                inputFormatters: [UpperCaseTextFormatter()],
-                                                                decoration: const InputDecoration(
-                                                                  filled: true,
-                                                                  fillColor: Colors.white,
-                                                                ),
-
-                                                                textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                                enabled: j == 0 || j == 1 || j == 5 || rowData[i]['unit'] == 'Kg' || j == 3 || j == 7 ,
-                                                                onChanged: (value) async {
-                                                                  final int rowIndex = i;
-                                                                  final int colIndex = j;
-                                                                  final String key = _getKeyForColumn(colIndex);
-                                                                  final productName= await fetchProductName(value);
-                                                                  final productCode= await fetchProductCode(value);
-
-
-                                                                  updateFieldValidation();
-                                                                  setState(() {
-                                                                    rowData[rowIndex][key] = value;
-                                                                    if (colIndex == 0) {
-                                                                      controllers[i][1].clear();
-                                                                    } else if (colIndex == 1) {
-                                                                      controllers[i][0].clear();
-                                                                    }
-
-                                                                    if (productName.isNotEmpty) {
-                                                                      controllers[i][1].text = productName;
-                                                                    }
-                                                                    if (productCode.isNotEmpty) {
-                                                                      controllers[i][0].text = productCode;
-                                                                    }
-                                                                    isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                    if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                      controllers[rowIndex][1].clear();
-                                                                      errorMessage = 'You already entered the\n product code $value.';
-                                                                      return;
-                                                                    }
-                                                                    if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                      errorMessage = 'You already entered the\n product Name $value.';
-                                                                      controllers[rowIndex][0].clear();
-                                                                      return;
-                                                                    }
-                                                                    errorMessage = '';
-
-
-                                                                    if( rowData[i]['unit'] != 'Kg'){
-                                                                      if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
-                                                                        double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                        double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                        double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                        double amount = quantity * rate;
-                                                                        double gstAmt = (amount * gst) / 100;
-                                                                        double total = amount + gstAmt;
-                                                                        if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                            content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                            duration: Duration(seconds: 2),
-                                                                          ));
-
-                                                                          setState(() {
-                                                                            controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                          });
-                                                                          return;
-                                                                        }
-
-                                                                        controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                        /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                        controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                        controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                        int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                        int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                        int? pendingqty = receiveqty-editedqty;
-                                                                        setState(() {
-
-                                                                          qty = receiveqty!;
-                                                                          recieved= editedqty;
-                                                                          pending= pendingqty;
-
-
-                                                                          print("  Qty $qty");
-                                                                          print(" received Qty $recieved");
-                                                                          print(" pending Qty  $pending");
-                                                                          // editqty = editedqty;
-                                                                        });
-                                                                        controllers[rowIndex][11].text = pendingqty.toString();
-                                                                        grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                      }}else{
-                                                                      if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
-                                                                        double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                        double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                        double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                        double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                        double amount = totweight * rate;
-                                                                        double gstAmt = (amount * gst) / 100;
-                                                                        double total = amount + gstAmt;
-                                                                        if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                            content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                            duration: Duration(seconds: 2),
-                                                                          ));
-
-                                                                          setState(() {
-                                                                            controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                          });
-                                                                          return;
-                                                                        }
-
-
-                                                                        controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                        /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                        controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                        controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                        int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                        int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                        int? pendingqty = receiveqty-editedqty;
-                                                                        setState(() {
-
-                                                                          qty = receiveqty!;
-                                                                          recieved= editedqty;
-                                                                          pending= pendingqty;
-
-                                                                          print("  Qty $qty");
-                                                                          print(" received Qty $recieved");
-                                                                          print(" pending Qty  $pending");
-                                                                          // editqty = editedqty;
-                                                                        });
-                                                                        controllers[rowIndex][11].text = pendingqty.toString();
-                                                                        grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                      }
-
-
-                                                                    }                                                              });
-                                                                  setState(() {
-                                                                    fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                    editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                    calculateQTY = fetchingQTY-editingQTY;
-                                                                    print("calculateQty $calculateQTY");
-
-                                                                  });
-                                                                }
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      /*TableCell(
-                                                      child: Wrap(
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
                                                         children: [
-                                                          Center(
-                                                            child: IconButton(
-                                                              icon: Icon(Icons.remove_circle_outline),
-                                                              color: Colors.red.shade600,
-                                                              onPressed: () {
-                                                                showDialog(
-                                                                  context: context,
-                                                                  builder: (BuildContext context) {
-                                                                    return AlertDialog(
-                                                                      title: Text('Confirmation'),
-                                                                      content: Text('Are you sure you want to remove this Product?'),
-                                                                      actions: <Widget>[
-                                                                        TextButton(
-                                                                          child: Text('No', style: TextStyle(color: Colors.red.shade500)),
-                                                                          onPressed: () {
-                                                                            Navigator.of(context).pop(); // Close the alert box
-                                                                          },
-                                                                        ),
-                                                                        TextButton(
-                                                                          child: Text('Yes', style: TextStyle(color: Colors.blue.shade500)),
-                                                                          onPressed: () {
-                                                                            try {
-                                                                              removeRow(i); // Remove the row
-                                                                              Navigator.of(context).pop(); // Close the alert box
-                                                                              // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => PurchaseReturn()));
-                                                                            } catch (e) {
-                                                                              print('Navigation Error: $e');
-                                                                            }// Close the alert box
-                                                                          },
-                                                                        ),
-                                                                      ],
-                                                                    );
-                                                                  },
-                                                                );
-                                                              },
-                                                            ),
-                                                          ),
+                                                          const SizedBox(height:15 ),
+                                                          Text('Product Code',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height: 15),
                                                         ],
                                                       ),
-                                                    ),*/
-                                                      TableCell(
-                                                        child: Padding(
-                                                          padding: const EdgeInsets.all(8.0),
-                                                          child: Row(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            children: [
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height:15),
+                                                          Text('Product Name',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height:15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height:15),
+                                                          Text('Unit',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height:15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height:15),
+                                                          Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height:15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
 
-                                                              //  if (controllers.length ==controllers.length && i != controllers.length - 1) // Render "Add" button only in the last row
-                                                              IconButton(
-                                                                  icon: Icon(Icons.remove_circle_outline),
-                                                                  color: Colors.red.shade600,
-                                                                  onPressed: () {
-                                                                    if (_formKey
-                                                                        .currentState!
-                                                                        .validate()) {
-                                                                      if (invoiceNo
-                                                                          .text
-                                                                          .isEmpty) {
-                                                                        setState(() {
-                                                                          errorMessage =
-                                                                          "* Enter a invoiceNo";
-                                                                        });
-                                                                      }
-                                                                      else {
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height:15),
+                                                          selectedCheckbox == 3 ?
+                                                          Text('Total Weight',style: TextStyle(fontWeight: FontWeight.bold),)
+                                                              : Text('',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height:15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 15),
+                                                          Text(' Rate ',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height: 15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 15),
+                                                          Text('Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height: 15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 15),
+                                                          Text('GST (%)',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height: 15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 15),
+                                                          Text('GST Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height: 15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 15),
+                                                          Text('Total',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height: 15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Visibility(
+                                                  visible:false,
+                                                  child: TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: Center(
+                                                        child: Column(
+                                                          children: [
+                                                            const SizedBox(height: 15),
+                                                            Text('R qty',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            const SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Visibility(
 
-                                                                        if (controllers.length > 1) {
-                                                                          showDialog(
-                                                                            context: context,
-                                                                            builder: (
-                                                                                BuildContext context) {
-                                                                              return AlertDialog(
-                                                                                title: Text(
-                                                                                    'Confirmation'),
-                                                                                content: Text(
-                                                                                    'Are you sure you want to remove this row?'),
-                                                                                actions: <
-                                                                                    Widget>[
-                                                                                  TextButton(
-                                                                                    child: Text(
-                                                                                        'Cancel'),
-                                                                                    onPressed: () {
-                                                                                      Navigator
-                                                                                          .of(
-                                                                                          context)
-                                                                                          .pop(); // Close the alert box
-                                                                                    },
-                                                                                  ),
-                                                                                  TextButton(
-                                                                                    child: Text(
-                                                                                        'Remove'),
-                                                                                    onPressed: () {
-                                                                                      setState(() {
-                                                                                        removeRow(i); // Remove the row
-
-                                                                                      });
-                                                                                      Navigator
-                                                                                          .of(
-                                                                                          context)
-                                                                                          .pop(); // Close the alert box
-                                                                                    },
-                                                                                  ),
-                                                                                ],
-                                                                              );
-                                                                            },
-                                                                          );
-                                                                        } else {
-                                                                          print(
-                                                                              'Cannot remove the first row. At least one row is required.');
-                                                                        }
-                                                                      }
-                                                                    }
-                                                                  }),
-                                                              ///addrow                                                      // if (i == controllers.length - 1&&allFieldsFilled) // Render "Add" button only in the last row
-                                                              /*
-                                                            Visibility(
-                                                              visible: i == controllers.length-1 && isRowFilled[i],
-                                                              child: Align(
-                                                                alignment: Alignment.center,
-                                                                child: Row(
-                                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                                  children: [
-                                                                    IconButton(
-                                                                      icon: Icon(Icons.add_circle_outline,color: Colors.green,),
-                                                                      onPressed: () {
-                                                                        addRow();
-                                                                      },
-                                                                    ),
-                                                                  ],
-                                                                ),
+                                                  visible:false,
+                                                  child: TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: Center(
+                                                        child: Column(
+                                                          children: [
+                                                            const SizedBox(height: 15),
+                                                            Text('A qty',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            const SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                TableCell(
+                                                  child: Container(
+                                                    color:Colors.blue.shade200,
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 15),
+                                                          Text('Action',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                          const SizedBox(height: 15),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            // Table data rows
+                                            for (var i = 0; i < controllers.length; i++)
+                                              TableRow(
+                                                children: [
+                                                  for (var j = 0; j < 12; j++)
+                                                    j==4? TableCell(
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: Visibility(
+                                                          visible: selectedCheckbox == 3, // Show only when GSM checkbox is selected
+                                                          child: TextFormField(
+                                                              style: TextStyle(fontSize: 13,
+                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
                                                               ),
-                                                            ),
-                                      */
-                                                            ],
+                                                              controller: controllers[i][j],
+                                                              inputFormatters: [
+                                                                UpperCaseTextFormatter(),
+                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                                if (j == 7)
+                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
+                                                              ],
+                                                              decoration: const InputDecoration(
+                                                                filled: true,
+                                                                fillColor: Colors.white,
+                                                              ),
+
+                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                              enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
+                                                              onChanged: (value) async {
+                                                                final int rowIndex = i;
+                                                                final int colIndex = j;
+                                                                final String key = _getKeyForColumn(colIndex);
+                                                                final productName= await fetchProductName(value);
+                                                                final productCode= await fetchProductCode(value);
+                                                                updateFieldValidation();
+                                                                setState(() {
+                                                                  rowData[rowIndex][key] = value;
+                                                                  if (colIndex == 0) {
+                                                                    controllers[i][1].clear();
+                                                                  } else if (colIndex == 1) {
+                                                                    controllers[i][0].clear();
+                                                                  }
+
+                                                                  if (productName.isNotEmpty) {
+                                                                    controllers[i][1].text = productName;
+                                                                  }
+                                                                  if (productCode.isNotEmpty) {
+                                                                    controllers[i][0].text = productCode;
+                                                                  }
+                                                                  isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
+                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                    controllers[rowIndex][1].clear();
+                                                                    errorMessage = 'You already entered the\n product code $value.';
+                                                                    return;
+                                                                  }
+                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                    errorMessage = 'You already entered the\n product Name $value.';
+                                                                    controllers[rowIndex][0].clear();
+                                                                    return;
+                                                                  }
+                                                                  errorMessage = '';
+
+
+
+
+                                                                  if( !rowData[i]['prodName'].startsWith('GSM')){
+                                                                    if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
+                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
+                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+
+
+                                                                      double amount = quantity * rate;
+                                                                      double gstAmt = (amount * gst) / 100;
+                                                                      double total = amount + gstAmt;
+                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                          duration: const Duration(seconds: 2),
+                                                                        ));
+
+                                                                        setState(() {
+                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                        });
+                                                                        return;
+                                                                      }
+
+
+                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
+                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
+                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
+                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
+                                                                      int? pendingqty = receiveqty-editedqty;
+                                                                      setState(() {
+
+                                                                        qty = receiveqty!;
+                                                                        recieved= editedqty;
+                                                                        pending= pendingqty;
+
+
+                                                                        print("  Qty $qty");
+                                                                        print(" received Qty $recieved");
+                                                                        print(" pending Qty  $pending");
+                                                                        // editqty = editedqty;
+                                                                      });
+                                                                      controllers[rowIndex][11].text = pendingqty.toString();
+                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                                    }}else{
+                                                                    if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
+                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+
+                                                                      double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
+                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+
+                                                                      double amount = totweight * rate;
+                                                                      double gstAmt = (amount * gst) / 100;
+                                                                      double total = amount + gstAmt;
+                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                          duration: Duration(seconds: 2),
+                                                                        ));
+
+                                                                        setState(() {
+                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                        });
+                                                                        return;
+                                                                      }
+
+                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
+                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
+                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
+                                                                      int? pendingqty = receiveqty-editedqty;
+                                                                      setState(() {
+
+                                                                        qty = receiveqty!;
+                                                                        recieved= editedqty;
+                                                                        pending= pendingqty;
+
+
+                                                                        print("  Qty $qty");
+                                                                        print(" received Qty $recieved");
+                                                                        print(" pending Qty  $pending");
+                                                                        // editqty = editedqty;
+                                                                      });
+                                                                      controllers[rowIndex][11].text = pending.toString();
+                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                                    }
+                                                                  }
+                                                                });
+                                                                setState(() {
+                                                                  fetchingQTY = int.parse(controllers[rowIndex][10].text);
+                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
+                                                                  calculateQTY = fetchingQTY-editingQTY;
+                                                                  print("calculateQty $calculateQTY");
+
+                                                                });
+                                                              }
                                                           ),
                                                         ),
                                                       ),
-                                                    ],
+                                                    ) :
+                                                    j==4? TableCell(
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: Visibility(
+                                                          visible: selectedCheckbox == 3, // Show only when GSM checkbox is selected
+                                                          child: TextFormField(
+                                                              style: TextStyle(fontSize: 13,
+                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                              ),
+                                                              controller: controllers[i][j],
+                                                              inputFormatters: [UpperCaseTextFormatter(),
+                                                                if (j == 7)
+                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                              ],
+                                                              decoration: const InputDecoration(
+                                                                filled: true,
+                                                                fillColor: Colors.white,
+                                                              ),
+
+                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                              enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
+                                                              onChanged: (value) async {
+                                                                final int rowIndex = i;
+                                                                final int colIndex = j;
+                                                                final String key = _getKeyForColumn(colIndex);
+                                                                final productName= await fetchProductName(value);
+                                                                final productCode= await fetchProductCode(value);
+
+
+                                                                updateFieldValidation();
+                                                                setState(() {
+                                                                  rowData[rowIndex][key] = value;
+                                                                  if (colIndex == 0) {
+                                                                    controllers[i][1].clear();
+                                                                  } else if (colIndex == 1) {
+                                                                    controllers[i][0].clear();
+                                                                  }
+
+                                                                  if (productName.isNotEmpty) {
+                                                                    controllers[i][1].text = productName;
+                                                                  }
+                                                                  if (productCode.isNotEmpty) {
+                                                                    controllers[i][0].text = productCode;
+                                                                  }
+                                                                  isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
+                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                    controllers[rowIndex][1].clear();
+                                                                    errorMessage = 'You already entered the\n product code $value.';
+                                                                    return;
+                                                                  }
+                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                    errorMessage = 'You already entered the\n product Name $value.';
+                                                                    controllers[rowIndex][0].clear();
+                                                                    return;
+                                                                  }
+                                                                  errorMessage = '';
+
+
+                                                                  if(!rowData[i]['prodName'].startsWith('GSM')){
+                                                                    if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
+                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
+                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+
+                                                                      double amount = quantity * rate;
+                                                                      double gstAmt = (amount * gst) / 100;
+                                                                      double total = amount + gstAmt;
+                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                          duration: Duration(seconds: 2),
+                                                                        ));
+
+                                                                        setState(() {
+                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                        });
+                                                                        return;
+                                                                      }
+
+                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
+                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
+                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
+                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
+                                                                      int? pendingqty = receiveqty-editedqty;
+                                                                      setState(() {
+
+                                                                        qty = receiveqty!;
+                                                                        recieved= editedqty;
+                                                                        pending= pendingqty;
+
+
+                                                                        print("  Qty $qty");
+                                                                        print(" received Qty $recieved");
+                                                                        print(" pending Qty  $pending");
+                                                                        // editqty = editedqty;
+                                                                      });
+                                                                      controllers[rowIndex][11].text = pendingqty.toString();
+                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                                    }}else{
+                                                                    if (colIndex == 4 || colIndex == 5 || colIndex == 7||colIndex == 3 ) {
+                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+
+                                                                      double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
+                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+
+                                                                      double amount = totweight * rate;
+                                                                      double gstAmt = (amount * gst) / 100;
+                                                                      double total = amount + gstAmt;
+                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                          duration: Duration(seconds: 2),
+                                                                        ));
+
+                                                                        setState(() {
+                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                        });
+                                                                        return;
+                                                                      }
+
+                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
+                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
+                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
+                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
+                                                                      int? pendingqty = receiveqty-editedqty;
+                                                                      setState(() {
+
+                                                                        qty = receiveqty!;
+                                                                        recieved= editedqty;
+                                                                        pending= pendingqty;
+
+
+                                                                        print("  Qty $qty");
+                                                                        print(" received Qty $recieved");
+                                                                        print(" pending Qty  $pending");
+                                                                        // editqty = editedqty;
+                                                                      });
+                                                                      controllers[rowIndex][11].text = pending.toString();
+                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                                    }
+
+
+                                                                  }
+                                                                });
+                                                                setState(() {
+                                                                  fetchingQTY = int.parse(controllers[rowIndex][10].text);
+                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
+                                                                  calculateQTY = fetchingQTY-editingQTY;
+                                                                  print("calculateQty $calculateQTY");
+
+                                                                });
+
+                                                              }
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                        :  TableCell(
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: TextFormField(
+                                                            style: TextStyle(fontSize: 13,
+                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                            ),
+                                                            controller: controllers[i][j],
+                                                            // enabled: !(j == 6 || j == 8 || j == 9) || (rowData[i]['unit'] != 'Kg' && rowData[i]['unit'] != 'Nos'), // Set enabled based on conditions for controllers[i][6], [8], and [9]
+
+                                                            inputFormatters: [UpperCaseTextFormatter(),
+                                                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')
+                                                              ),
+                                                              if (j == 7)
+                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
+                                                            ],
+
+                                                            decoration: const InputDecoration(
+                                                              filled: true,
+                                                              fillColor: Colors.white,
+                                                            ),
+
+                                                            textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                            enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
+                                                            onChanged: (value) async {
+                                                              final int rowIndex = i;
+                                                              final int colIndex = j;
+                                                              final String key = _getKeyForColumn(colIndex);
+                                                              final productName= await fetchProductName(value);
+                                                              final productCode= await fetchProductCode(value);
+
+
+                                                              updateFieldValidation();
+                                                              setState(() {
+                                                                rowData[rowIndex][key] = value;
+                                                                if (colIndex == 0) {
+                                                                  controllers[i][1].clear();
+                                                                } else if (colIndex == 1) {
+                                                                  controllers[i][0].clear();
+                                                                }
+
+                                                                if (productName.isNotEmpty) {
+                                                                  controllers[i][1].text = productName;
+                                                                }
+                                                                if (productCode.isNotEmpty) {
+                                                                  controllers[i][0].text = productCode;
+                                                                }
+                                                                isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
+                                                                if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                  controllers[rowIndex][1].clear();
+                                                                  errorMessage = 'You already entered the\n product code $value.';
+                                                                  return;
+                                                                }
+                                                                if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                  errorMessage = 'You already entered the\n product Name $value.';
+                                                                  controllers[rowIndex][0].clear();
+                                                                  return;
+                                                                }
+                                                                errorMessage = '';
+
+
+                                                                if( !rowData[i]['prodName'].startsWith('GSM')){
+                                                                  if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
+                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                    double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
+                                                                    double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+
+                                                                    double amount = quantity * rate;
+                                                                    double gstAmt = (amount * gst) / 100;
+                                                                    double total = amount + gstAmt;
+                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                        duration: Duration(seconds: 2),
+                                                                      ));
+
+                                                                      setState(() {
+                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                      });
+                                                                      return;
+                                                                    }
+
+                                                                    controllers[rowIndex][6].text = amount.toStringAsFixed(2);
+                                                                    /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
+                                                                    controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
+                                                                    controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                    int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
+                                                                    int? pendingqty = receiveqty-editedqty;
+                                                                    setState(() {
+
+                                                                      qty = receiveqty!;
+                                                                      recieved= editedqty;
+                                                                      pending= pendingqty;
+
+
+                                                                      print("  Qty $qty");
+                                                                      print(" received Qty $recieved");
+                                                                      print(" pending Qty  $pending");
+                                                                      // editqty = editedqty;
+                                                                    });
+                                                                    controllers[rowIndex][11].text = pending.toString();
+                                                                    grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                                  }}else{
+                                                                  if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
+                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+
+                                                                    double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                    double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
+                                                                    double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+
+                                                                    double amount = totweight * rate;
+                                                                    double gstAmt = (amount * gst) / 100;
+                                                                    double total = amount + gstAmt;
+                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
+                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
+                                                                        duration: Duration(seconds: 2),
+                                                                      ));
+
+                                                                      setState(() {
+                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
+                                                                      });
+                                                                      return;
+                                                                    }
+
+
+                                                                    controllers[rowIndex][6].text = amount.toStringAsFixed(2);
+                                                                    /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
+                                                                    controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
+                                                                    controllers[rowIndex][9].text = total.toStringAsFixed(2);
+                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
+                                                                    int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
+                                                                    int? pendingqty = receiveqty-editedqty;
+                                                                    setState(() {
+
+                                                                      qty = receiveqty!;
+                                                                      recieved= editedqty;
+                                                                      pending= pendingqty;
+
+
+                                                                      print("  Qty $qty");
+                                                                      print(" received Qty $recieved");
+                                                                      print(" pending Qty  $pending");
+                                                                      // editqty = editedqty;
+                                                                    });
+                                                                    controllers[rowIndex][11].text = pending.toString();
+                                                                    grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                                                                  }
+
+
+                                                                }                                                              });
+                                                              setState(() {
+                                                                fetchingQTY = int.parse(controllers[rowIndex][10].text);
+                                                                editingQTY =int.parse(controllers[rowIndex][3].text);
+                                                                calculateQTY = fetchingQTY-editingQTY;
+                                                                print("calculateQty $calculateQTY");
+
+                                                              });
+                                                            }
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  TableCell(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(8.0),
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+
+                                                          //  if (controllers.length ==controllers.length && i != controllers.length - 1) // Render "Add" button only in the last row
+                                                          IconButton(
+                                                              icon: const Icon(Icons.remove_circle_outline),
+                                                              color: Colors.red.shade600,
+                                                              onPressed: () {
+                                                                if (_formKey
+                                                                    .currentState!
+                                                                    .validate()) {
+                                                                  if (invoiceNo
+                                                                      .text
+                                                                      .isEmpty) {
+                                                                    setState(() {
+                                                                      errorMessage =
+                                                                      "* Enter a invoiceNo";
+                                                                    });
+                                                                  }
+                                                                  else {
+
+                                                                    if (controllers.length > 1) {
+                                                                      showDialog(
+                                                                        context: context,
+                                                                        builder: (
+                                                                            BuildContext context) {
+                                                                          return AlertDialog(
+                                                                            title: Text('Confirmation'),
+                                                                            content: Text('Are you sure you want to remove this row?'),
+                                                                            actions: <Widget>[TextButton(child: Text('Cancel'),
+                                                                              onPressed: () {Navigator.of(context).pop();},),
+                                                                              TextButton(child: Text('Remove'),
+                                                                                onPressed: () {removeRow(i);Navigator.of(context).pop(); },),],);
+                                                                        },
+                                                                      );
+                                                                    } else {
+                                                                      print(
+                                                                          'Cannot remove the first row. At least one row is required.');
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }),
+                                                          ///addrow                                                      // if (i == controllers.length - 1&&allFieldsFilled) // Render "Add" button only in the last row
+/*
+                                                          Visibility(
+                                                            visible: i == controllers.length-1 && isRowFilled[i],
+                                                            child: Align(
+                                                              alignment: Alignment.center,
+                                                              child: Row(
+                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                children: [
+                                                                  IconButton(
+                                                                    icon: Icon(Icons.add_circle_outline,color: Colors.green,),
+                                                                    onPressed: () {
+                                                                      addRow();
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+*/
+                                                        ],
+                                                      ),
+                                                    ),
                                                   ),
-                                              ],
-                                            ),
-                                          ),
+                                                ],
+                                              ),
+                                          ],
                                         ),
-                                      ),),
+                                      ),
+                                    ),
                                     SizedBox(height: 10,),
                                     Wrap(
                                       children: [
@@ -2467,13 +2471,13 @@ class _PurchaseState extends State<Purchase> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        Padding(
+                                        /* Padding(
                                           padding: const EdgeInsets.only(top:20),
                                           child: Text(
                                             errorMessage ?? '',
                                             style: TextStyle(color: Colors.red,fontSize: 15),
                                           ),
-                                        ),
+                                        ),*/
                                       ],
                                     ),
                                   ],
@@ -2521,31 +2525,37 @@ class _PurchaseState extends State<Purchase> {
                                   errorMessage = '* Enter a Invoice Number';
                                 });
                               }
-                              else if (payType == null) {
-                                setState(() {
-                                  errorMessage = '* Select a Payment Type';
-                                });
-                              }
                               else {
-                                if (_formKey.currentState!.validate() &&
-                                    /*poNo.text.isNotEmpty &&
-                                  purchaseDate.text.isNotEmpty &&
-                                  invoiceNo.text.isNotEmpty &&
-                                  payType != null &&*/
+                                if (_formKey.currentState!.validate()
+                                    &&
                                     !controllers.any((controller) =>
                                     controller[0].text.isEmpty ||
                                         controller[1].text.isEmpty ||
                                         controller[2].text.isEmpty ||
                                         controller[3].text.isEmpty ||
-                                        // controller[4].text.isEmpty ||
                                         controller[5].text.isEmpty ||
                                         controller[6].text.isEmpty ||
                                         controller[7].text.isEmpty ||
                                         controller[8].text.isEmpty ||
-                                        controller[9].text.isEmpty ||
-                                        controller[10].text.isEmpty
+                                        controller[9].text.isEmpty
 
-                                    )) {
+                                    )
+                                    || selectedCheckbox == 3 &&
+                                    !controllers.any((controller) =>
+                                    controller[0].text.isEmpty ||
+                                        controller[1].text.isEmpty ||
+                                        controller[2].text.isEmpty ||
+                                        controller[3].text.isEmpty ||
+                                        controller[4].text.isEmpty ||
+                                        controller[5].text.isEmpty ||
+                                        controller[6].text.isEmpty ||
+                                        controller[7].text.isEmpty ||
+                                        controller[8].text.isEmpty ||
+                                        controller[9].text.isEmpty
+                                    )
+                                )
+
+                                {
                                   for (var i = 0; i < controllers.length; i++) {
                                     String enteredProdCode = controllers[i][0]
                                         .text;
@@ -2560,8 +2570,7 @@ class _PurchaseState extends State<Purchase> {
 
                                   if (hasDuplicateProdCode && hasNewProdCode) {
                                     // Case: Both duplicate and new product codes
-                                    for (int i = 0; i <
-                                        controllers.length; i++) {
+                                    for (int i = 0; i < controllers.length; i++) {
                                       String enteredProdCode = controllers[i][0]
                                           .text;
                                       bool isDuplicate = await checkForDuplicate(
@@ -2615,17 +2624,20 @@ class _PurchaseState extends State<Purchase> {
                                     rowsDataToInsert.add(datapendingInsert);
                                     await pendingToDatabase();
                                   }
-                                  // ///delete row pending store to pending database
                                   List<Future<void>> insertFutures = [];
                                   for (var i = 0; i < datapendingInsertList.length; i++) {
                                     insertFutures.add(insertDataPendingReport(datapendingInsertList[i]));
                                     await Future.wait(insertFutures);
-                                    datapendingInsertList.clear();}
+                                  }
+
+                                  // datapendingInsertList.clear();
+
                                   setState(() {
                                     isDataSaved = true;
                                   });
 
-                                } else {
+                                }
+                                else {
                                   setState(() {
                                     errorMessage =
                                     '* Fill all fields in the table';

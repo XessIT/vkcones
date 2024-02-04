@@ -17,6 +17,7 @@ purchaseView extends StatefulWidget {
   String? supAddress;
   String? pincode;
   String? payType;
+  String? weight;
 
 
   purchaseView({Key? key, required this.invoiceNo,
@@ -26,6 +27,7 @@ purchaseView extends StatefulWidget {
     required this.supName,
     required this.supAddress,
     required this.pincode,
+    required this.weight,
     required this.payType, required amtGST, required total, required qty, required prodName, required rate, required prodCode,
   }) : super(key: key);
 
@@ -634,14 +636,14 @@ class _purchaseViewState extends State<purchaseView> {
                                                                   ),
                                                                   TableCell(
                                                                     child: Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .all(
-                                                                          8.0),
+                                                                      padding: const EdgeInsets.all(8.0),
                                                                       child: Center(
-                                                                          child: Text(
-                                                                              entry
-                                                                                  .value['qty']
-                                                                                  .toString())),
+                                                                        child: Text(
+                                                                          entry.value['qty'] != null
+                                                                              ? entry.value['qty'].toString()
+                                                                              : '${entry.value['totalWeight'].toString()} Kg',
+                                                                        ),
+                                                                      ),
                                                                     ),
                                                                   ),
 
@@ -731,7 +733,7 @@ class _purchaseViewState extends State<purchaseView> {
 
                                                     return Column(
                                                       children: [
-                                                       /* Row(
+                                                        Row(
                                                           mainAxisAlignment: MainAxisAlignment.end,
                                                           children: [
                                                             Text("Purchase Total: ${purchaseTotal}", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -740,7 +742,7 @@ class _purchaseViewState extends State<purchaseView> {
                                                                 child: Text("   ")),
 
                                                           ],
-                                                        ),*/
+                                                        ),
                                                       ],
                                                     );
                                                   }
@@ -749,10 +751,10 @@ class _purchaseViewState extends State<purchaseView> {
 
 
                                               SizedBox(height: 10,),
-                                              Align(
+                                              const Align(
                                                 alignment:Alignment.topLeft,
                                                 child:Padding(
-                                                  padding: const EdgeInsets.only(left:14),
+                                                  padding: EdgeInsets.only(left:14),
                                                   child: Text("Return Details",style: TextStyle(fontSize: 17,fontWeight: FontWeight.bold),
                                                   ),
                                                 ),
