@@ -1561,6 +1561,19 @@ class _PurchaseState extends State<Purchase> {
                                           Row(
                                               children:[    const Icon(Icons.local_grocery_store, size:30),
                                                 Text("Purchase Entry",style: TextStyle(fontSize:screenWidth * 0.019,fontWeight: FontWeight.bold),),
+                                                IconButton(
+                                                  icon: Icon(Icons.refresh),
+                                                  onPressed: () {
+                                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Purchase()));
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.arrow_back),
+                                                  onPressed: () {
+                                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                                    Navigator.pop(context);
+                                                  },
+                                                )
                                               ]),
                                           Row(
                                             children: [
@@ -3276,7 +3289,7 @@ class _PurchaseState extends State<Purchase> {
                                           ),
                                         ],
                                       ),
-                                      Row(
+                                      const Row(
                                         mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
                                           /* Padding(

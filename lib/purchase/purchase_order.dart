@@ -1085,7 +1085,20 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                       const Text(" Sales Order Entry", style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 25
-                                      ),), // Add a Spacer to push the IconButton to the right
+                                      ),),
+                                      IconButton(
+                                        icon: Icon(Icons.refresh),
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>const Purchaseorder()));
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.arrow_back),
+                                        onPressed: () {
+                                          // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                          Navigator.pop(context);
+                                        },
+                                      ),// Add a Spacer to push the IconButton to the right
                                       IconButton(
                                         icon: Icon(Icons.edit,color: Colors.black), // You can change the icon as needed
                                         onPressed: () {

@@ -661,6 +661,19 @@ class _PoCreationState extends State<PoCreation> {
                                         children: [
                                           const Icon(Icons.local_grocery_store, size:30),
                                           Text("Purchase Order",style: TextStyle(fontSize:22,fontWeight: FontWeight.bold),),
+                                          IconButton(
+                                            icon: Icon(Icons.refresh),
+                                            onPressed: () {
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=>PoCreation()));
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.arrow_back),
+                                            onPressed: () {
+                                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                              Navigator.pop(context);
+                                            },
+                                          )
                                         ]
                                     ),
                                     Container(
