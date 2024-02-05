@@ -526,7 +526,10 @@ class _OverallProductionState extends State<OverallProduction> {
                                   DataColumn(label: Center(child: Text("Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
                                   DataColumn(label: Center(child: Text("Item Group",style: TextStyle(fontWeight: FontWeight.bold),))),
                                   DataColumn(label: Center(child: Text("Item Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                                  DataColumn(label: Center(child: Text("Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  DataColumn(label: Center(child: Text("Total Cones",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  DataColumn(label: Center(child: Text("Damaged Cones",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                  DataColumn(label: Center(child: Text("Prodused Cones",style: TextStyle(fontWeight: FontWeight.bold),))),
+
                                 ],
                                 source: _YourDataTableSource(filteredData,context,generatedButton),
                               ),
@@ -627,10 +630,11 @@ class _YourDataTableSource extends DataTableSource {
         DataCell(Center(child: Text("${row["machineName"]}"))),
         DataCell(Center(child: Text("${row["itemGroup"]}"))),
         DataCell(Center(child: Text("${row["itemName"]}"))),
+        DataCell(Center(child: Text("${row["num_of_cones"]}"))),
+        DataCell(Center(child: Text("${row["damage"]}"))),
         DataCell(Center(child: Text("${row["qty"]}"))),
       ],
     );
-
   }
 
   @override

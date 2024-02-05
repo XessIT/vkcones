@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:vinayaga_project/main.dart';
 import 'package:http/http.dart' as http;
 import '../home.dart';
+
 class ProductionEntry extends StatefulWidget {
   const ProductionEntry({Key? key}) : super(key: key);
   @override
@@ -15,9 +16,13 @@ class _ProductionEntryState extends State<ProductionEntry> {
   final _formKey = GlobalKey<FormState>();
   DateTime selectedDate = DateTime.now();
   TextEditingController qty=TextEditingController();
+  TextEditingController roundqty=TextEditingController();
   TextEditingController unitController=TextEditingController();
   TextEditingController itemGroupcontroll=TextEditingController();
   TextEditingController itemNamecontroll=TextEditingController();
+  TextEditingController saleorderdate = TextEditingController();
+  TextEditingController damgecone = TextEditingController();
+  TextEditingController totalcone = TextEditingController();
   List<Map<String, dynamic>> suggesstiondata = [];
   List<Map<String, dynamic>> suggesstiondataitemName = [];
   String selectedInvoiceNo='';
@@ -50,7 +55,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
     }
   }
 
- // String? selecteditemname;
+  // String? selecteditemname;
   List<String> itemNames = [];
   Future<void> getitemname(String itemGroup) async {
     try {
@@ -59,7 +64,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         final List<dynamic> units = responseData;
-       /* final Set<String> uniqueItemNames =
+        /* final Set<String> uniqueItemNames =
         units.map((item) => item['itemName'] as String).toSet();
         itemNames = uniqueItemNames.toList(); // Convert back to List
         itemNames.sort();*/
@@ -72,7 +77,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
           print('Item Names: $itemNames');
           setState(() {
           });
-      //    selecteditemname = null;
+          //    selecteditemname = null;
         });
       } else {
         print('Error: ${response.statusCode}');
@@ -95,7 +100,6 @@ class _ProductionEntryState extends State<ProductionEntry> {
         print('Unit in filterUnitData: $unit');
         callUnit = unit;
         setState(() {
-
           print('CallUnit: $callUnit');
         });
       } else {
@@ -185,11 +189,12 @@ class _ProductionEntryState extends State<ProductionEntry> {
     return false;
   }
 
-  Future<void> updateqtyinProduction(String machineName,String itemGroup, String itemName,int qtyIncrement,String date) async {
+  Future<void> updateqtyinProduction(String machineName,String itemGroup, String itemName,int totalconesIncrement,int qtyIncrement,String date) async {
     final String url = 'http://localhost:3309/dummy_production_qty_increament/update/$machineName/$itemGroup/$itemName/$date';
     final Map<String, String> headers = {'Content-Type': 'application/json'};
     final Map<String, dynamic> body = {
       'qtyIncrement': qtyIncrement.toString(),
+      'totalconesIncrement': qtyIncrement.toString(),
     };
     try {
       final http.Response response = await http.put(
@@ -207,11 +212,12 @@ class _ProductionEntryState extends State<ProductionEntry> {
     }
   }
 
-  Future<void> updateStock(String itemGroup, String itemName,int qtyIncrement) async {
+  Future<void> updateStock(String itemGroup, String itemName,int qtyIncrement,int totalconesIncrement) async {
     final String url = 'http://localhost:3309/stock/update/$itemGroup/$itemName';
     final Map<String, String> headers = {'Content-Type': 'application/json'};
     final Map<String, dynamic> body = {
-      'qtyIncrement': qtyIncrement.toString(), // Convert qtyIncrement to String
+      'qtyIncrement': qtyIncrement.toString(),
+      'totalconesIncrement': totalconesIncrement.toString(),// Convert qtyIncrement to String
     };
     try {
       final http.Response response = await http.put(
@@ -275,13 +281,11 @@ class _ProductionEntryState extends State<ProductionEntry> {
   Map<String, dynamic> dataToInsert = {};
   Future<void> insertData(Map<String, dynamic> dataToInsert) async {
     const String apiUrl = 'http://localhost:3309/production_entry';
-
     try {
       String machineName = dataToInsert['machineName'];
       String itemGroup = dataToInsert['itemGroup'];
       String itemName = dataToInsert['itemName'];
       String date =dataToInsert['date'];
-
       List<Map<String, dynamic>> unitEntries = await fetchUnitEntries();
       bool isDuplicate = unitEntries.any((entry) =>
       entry['machineName'] == machineName &&
@@ -301,7 +305,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
                 TextButton(
                   onPressed: () {
                     final formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
-                    updateqtyinProduction(selectedmachine.toString(), itemGroupcontroll.text, itemNamecontroll.text, int.parse(qty.text), formattedDate);
+                    updateqtyinProduction(selectedmachine.toString(), itemGroupcontroll.text, itemNamecontroll.text, int.parse(roundqty.text),int.parse(qty.text), formattedDate);
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductionEntry()));
                   },
                   child: Text("yes"),
@@ -373,13 +377,10 @@ class _ProductionEntryState extends State<ProductionEntry> {
     entry['itemGroup'] == itemGroup &&
         entry['itemName'] == itemName
     );
-
-
     if (isDuplicate) {
       print('Duplicate entry, not inserted');
       return;
     }
-
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -401,7 +402,59 @@ class _ProductionEntryState extends State<ProductionEntry> {
     getmachine();
     getitem();
     filtermachineNameFinish(machineType);
+    saleorderdate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    damgecone.addListener(updateQuantity);
   }
+  String saleorderDate = ''; // Initialize with an empty string or handle nullability accordingly
+  String selectedMachine = ''; // Initialize with an empty string or handle nullability accordingly
+  String itemGroup = ''; // Initialize with an empty string or handle nullability accordingly
+  String itemName = ''; // Initialize with an empty string or handle nullability accordingly
+
+
+
+
+  void updateQuantity() {
+    int totalCone = int.tryParse(totalcone.text) ?? 0;
+    int damageCone = int.tryParse(damgecone.text) ?? 0;
+    int quantity = totalCone - damageCone;
+
+    // Update the qtyController text with the calculated quantity
+    qty.text = quantity.toString();
+
+    // Calculate the number of units each equivalent to 500 cones
+    int units = quantity ~/ 500;
+
+    // Update the roundqty controller text
+    roundqty.text = units.toString();
+  }
+
+
+
+
+
+  Future<double> fetchProductionQuantity(String createDate, String machineName, String itemGroup, String itemName) async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_production_quantity?createDate=$createDate&machineName=$machineName&itemGroup=$itemGroup&itemName=$itemName');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        double productionQty = double.tryParse(responseData['productionQty'].toString()) ?? 0.0;
+        setState(() {
+          totalcone.text = productionQty.toString();
+        });
+        return productionQty;
+      } else {
+        print('Error fetching production quantity: ${response.statusCode}');
+        return 0.0;
+      }
+    } catch (error) {
+      print('Error fetching production quantity: $error');
+      return 0.0;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
@@ -437,9 +490,41 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                             child: Text("Production Entry",style: TextStyle(fontSize:25,fontWeight: FontWeight.bold),),
                                           ),
                                         ]),
-                                    Text(
-                                      DateFormat('dd-MM-yyyy').format(selectedDate),
-                                      style: TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
+                                    SizedBox(
+                                      width: 140,
+                                      child: TextFormField(style: TextStyle(fontSize: 13),
+                                        readOnly: true, // Set the field as read-only
+                                        onTap: () async {
+                                          DateTime? pickDate = await showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now(),
+                                            firstDate: DateTime(
+                                                1900),
+                                            lastDate: DateTime.now(),
+                                          );
+                                          if (pickDate == null)
+                                            return;
+                                          {
+                                            setState(() {
+                                              saleorderdate.text =
+                                                  DateFormat(
+                                                      'dd-MM-yyyy')
+                                                      .format(
+                                                      pickDate);
+                                              errormessage=null;
+                                            });
+                                          }
+                                        },
+                                        controller: saleorderdate, // Set the initial value of the field to the selected date
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: "Date",
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -466,6 +551,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                     Text(errormessage??"",style: TextStyle(color: Colors.red)),],),
                                 SizedBox(height: 30,),
                                 Wrap(
+                                    spacing: 10,
                                     children: [
                                       //machine name
                                       Padding(
@@ -497,18 +583,13 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                                       selectedmachine = newValue;
                                                       //    errormsg =null;
                                                     });
-
-
                                                   },
                                                 ),
                                               ),
                                             ),
-
-
                                           ],
                                         ),
                                       ),
-                                      SizedBox(width: 10,),
                                       //Item Group
                                       Padding(
                                         padding: const EdgeInsets.all(15.0),
@@ -553,43 +634,9 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                                 },
                                               ),
                                             ),
-/*
-                                            SizedBox(
-                                              width: 200,
-                                              height: 40,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  border: Border.all(color: Colors.grey),
-                                                  borderRadius: BorderRadius.circular(5),),
-                                                child: DropdownButtonHideUnderline(
-                                                  child: DropdownButtonFormField<String>(
-                                                    hint: const Text("Item Group"),
-                                                    value: selectedItemGroup, // Use selectedSize to store the selected value
-                                                    items: itemGroups.map((String value) {
-                                                      return DropdownMenuItem<String>(
-                                                        value: value,
-                                                        child: Text(
-                                                          value,
-                                                          style: const TextStyle(fontSize: 15),
-                                                        ),);
-                                                    }).toList(),
-                                                    onChanged: (String? newValue) {
-                                                      setState(() {
-                                                        selectedItemGroup = newValue;
-                                                        selecteditemname = null;
-                                                        getitemname(newValue!);
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-*/
                                           ],
                                         ),
                                       ),
-                                      SizedBox(width: 5,),
                                       //Item Name
                                       Padding(
                                         padding: const EdgeInsets.all(15.0),
@@ -629,49 +676,14 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                                   setState(() {
                                                     itemNamecontroll.text = suggestion;
                                                   });
-                                                  print('Selected Item Group: $suggestion');
+                                                  // Call fetchProductionQuantity with the selected criteria
                                                 },
                                               ),
                                             ),
-/*
-                                            SizedBox(
-                                              width: 200,
-                                              height: 40,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  border: Border.all(color: Colors.grey),
-                                                  borderRadius: BorderRadius.circular(5),),
-                                                child: DropdownButtonHideUnderline(
-                                                  child: DropdownButtonFormField<String>(
-                                                    hint: const Text("Item Name",style: TextStyle(fontSize: 15),),
-                                                    value: selecteditemname, // Use selectedSize to store the selected value
-                                                    items: itemNames.map((String value) {
-                                                      return DropdownMenuItem<String>(
-                                                        value: value,
-                                                        child: Text(
-                                                          value,
-                                                          style: const TextStyle(fontSize: 12),
-                                                        ),
-                                                      );
-                                                    }).toList(),
-                                                    onChanged: (String? newValue) {
-                                                      setState(() {
-                                                        selecteditemname = newValue;
-                                                        filterUnitData(selectedItemGroup!, newValue!);
 
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-*/
                                           ],
                                         ),
                                       ),
-                                      SizedBox(width: 5,),
-
                                       Padding(
                                         padding: const EdgeInsets.all(15.0),
                                         child: Column(
@@ -680,7 +692,10 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                             SizedBox(
                                               width: 200, height: 70,
                                               child: TextFormField(
-                                                controller: qty,
+                                                controller: totalcone,
+                                                onChanged: (value){
+                                                  qty.clear();
+                                                },
                                                 style: const TextStyle(fontSize: 13),
                                                 keyboardType: TextInputType.number,
                                                 inputFormatters: <TextInputFormatter>[
@@ -690,11 +705,10 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                                 decoration: InputDecoration(
                                                   filled: true,
                                                   fillColor: Colors.white,
-                                                  labelText: "Quantity",
+                                                  labelText: "Total Cones",
                                                   border: OutlineInputBorder(
                                                     borderRadius: BorderRadius.circular(10),
                                                   ),
-
                                                 ),
                                               ),
                                             ),
@@ -702,7 +716,107 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                         ),
                                       ),
                                     ]),
+                                Wrap(
+                                  spacing: 10,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: 200, height: 70,
+                                            child: TextFormField(
+                                              controller: damgecone,
+                                              style: const TextStyle(fontSize: 13),
+                                              keyboardType: TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter.digitsOnly,
+                                                LengthLimitingTextInputFormatter(7)
+                                              ],
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                labelText: "Damage",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: 200, height: 70,
+                                            child: TextFormField(
+                                              readOnly: true,
+                                              controller: qty,
+                                              onChanged: (value){
+                                                updateQuantity();
+                                              },
+                                              style: const TextStyle(fontSize: 13),
+                                              keyboardType: TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter.digitsOnly,
+                                                LengthLimitingTextInputFormatter(7)
+                                              ],
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                labelText: "Quantity",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
 
+                                    Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: 200, height: 70,
+                                            child: TextFormField(
+                                              readOnly: true,
+                                              controller: roundqty,
+                                              style: const TextStyle(fontSize: 13),
+                                              keyboardType: TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter.digitsOnly,
+                                                LengthLimitingTextInputFormatter(7)
+                                              ],
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                labelText: "Pack",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: SizedBox(
+                                          width: 200, height: 70,
+                                          child: const Text("")),
+                                    ),
+                                  ],),
                                 Padding(
                                   padding: const EdgeInsets.all(20.0),
                                   child:
@@ -745,25 +859,27 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                                 'itemGroup':itemGroupcontroll.text,
                                                 'itemName':itemNamecontroll.text,
                                                 'qty':qty.text.trim(),
+                                                'num_of_cones':totalcone.text,
+                                                'damage':damgecone.text,
                                                 'createDate':DateTime.now().toString(),
                                               };
                                               insertData(dataToInsert);//p
                                               insertData2(dataToInsert2);//s
                                               bool isDuplicate = await checkForDuplicate(itemGroupcontroll.text!, itemNamecontroll.text!,);
                                               bool isDuplicateProduction = await checkForDuplicateProduction(itemGroupcontroll.text!, itemNamecontroll.text!, selectedmachine.toString(), selectedDate.toString());
-                                             if(isDuplicateProduction){
-                                               updateqtyinProduction(selectedmachine.toString(), itemGroupcontroll.text, itemNamecontroll.text,int.parse(qty.text),selectedDate.toString());
-                                             }
+                                              if(isDuplicateProduction){
+                                                updateqtyinProduction(selectedmachine.toString(), itemGroupcontroll.text, itemNamecontroll.text,int.parse(roundqty.text),int.parse(qty.text),selectedDate.toString());
+                                              }
                                               if (isDuplicate) {
-                                                updateStock(itemGroupcontroll.text!, itemNamecontroll.text!, int.parse(qty.text));
+                                                updateStock(itemGroupcontroll.text!, itemNamecontroll.text!, int.parse(roundqty.text), int.parse(qty.text));
                                               }else {
                                                 final dataToInsert2 = {
-                                                  'date': DateTime.now().toString(),
+                                                  'date':selectedDate.toString(),
                                                   'itemGroup': itemGroupcontroll.text,
                                                   'itemName': itemNamecontroll.text,
                                                   'unit':callUnit,
-                                                  'qty': qty.text,
-                                                  // 'modifyDate':"",
+                                                  'qty': roundqty.text,
+                                                  'num_of_cones': qty.text,
                                                 };
                                                 insertData2(dataToInsert2); //s
                                               }

@@ -2129,6 +2129,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                       'itemName': rowData[i].itemName,
                                       'unit': callUnit,
                                       'qty': '0',
+                                      'totalcones': '0',
                                     };
                                     await insertDataStock(dataToInsert2); //s
                                   }
@@ -2313,6 +2314,7 @@ class _PurchaseorderState extends State<Purchaseorder> {
                                     'itemName': rowData[i].itemName,
                                     'unit': callUnit,
                                     'qty': '0',
+                                    'totalcones': '0',
                                     //   'modifyDate': "",
                                   };
                                   await insertDataStock(dataToInsert2);

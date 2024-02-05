@@ -813,11 +813,12 @@ app.get('/get_stock_quantity', (req, res) => {
 app.put('/stock/update/:itemGroup/:itemName', (req, res) => {
   const itemGroup = req.params.itemGroup;
   const itemName = req.params.itemName;
+  const { totalconesIncrement } = req.body;
   const { qtyIncrement } = req.body;
 
   console.log('Values before update:', req.body);
-  const sql = 'UPDATE stock SET  qty=qty+? WHERE itemGroup=? AND itemName=? ';
-  const values = [qtyIncrement, itemGroup, itemName];
+  const sql = 'UPDATE stock SET  qty=qty+?,totalcones=totalcones+? WHERE itemGroup=? AND itemName=? ';
+  const values = [qtyIncrement, totalconesIncrement, itemGroup, itemName];
 
 //  const sql = 'UPDATE production_entry SET saleInvNo=? WHERE itemGroup=? AND itemName=?';
  // const values = [saleInvNo, itemGroup, itemName];
@@ -937,12 +938,14 @@ app.put('/dummy_production_qty_increament/update/:machineName/:itemGroup/:itemNa
   const itemGroup = req.params.itemGroup;
   const itemName = req.params.itemName;
   const date = req.params.date;
+  const { totalconesIncrement } = req.body;
   const { qtyIncrement } = req.body;
+
 
   console.log('Values before update Production:', req.body);
 
-  const sql = 'UPDATE production_entry SET qty = CAST(qty AS SIGNED)  + ? WHERE machineName = ? AND itemGroup = ? AND itemName = ? AND date = ?';
-  const values = [qtyIncrement, machineName, itemGroup, itemName, date];
+  const sql = 'UPDATE production_entry SET qty = CAST(qty AS SIGNED)  + ?, totalcones = CAST(totalcones AS SIGNED)  + ? WHERE machineName = ? AND itemGroup = ? AND itemName = ? AND date = ?';
+  const values = [totalconesIncrement, qtyIncrement, machineName, itemGroup, itemName, date];
 
   console.log('SQL Query:', sql);
   console.log('SQL Values:', values);
@@ -1495,6 +1498,7 @@ app.get('/balance_sheet_values_get_for_table', (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 });
+
 app.get('/get_balancesheet_for_suggestion', (req, res) => {
   const sql = `
     SELECT DISTINCT s.invoiceNo
@@ -3190,6 +3194,7 @@ app.post('/fetchProductCode', (req, res) => {
     }
   });
 });
+
 app.post('/fetchUnitInPO', (req, res) => {
   const { prodCode, prodName } = req.body;
   const query = `SELECT unit FROM prodcode_entry WHERE prodCode = ? AND prodName = ?`;
@@ -3226,10 +3231,10 @@ app.post('/updatePurchaseRqty', async (req, res) => {
 });
 
 app.post('/updateRawMaterial', async (req, res) => {
-  const { prodCode, prodName, qty, unit, modifyDate } = req.body;
+  const { prodCode, prodName, qty,totalweight, unit, modifyDate } = req.body;
 
-  const sql = 'UPDATE raw_material SET qty = qty - ?, modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ?';
-  const values = [qty, modifyDate, prodCode, prodName, unit];
+  const sql = 'UPDATE raw_material SET qty = qty - ?, totalweight =totalweight - ?, modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ?';
+  const values = [qty,totalweight, modifyDate, prodCode, prodName, unit];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -5285,11 +5290,15 @@ app.get('/pending_sale_item_view', (req, res) => {
     res.json(result);
   });
 });
-app.post('/RawMaterialupdatedailywork', async (req, res) => {
-  const { prodName, qty, totalweight, modifyDate } = req.body;
 
-  const sql = 'UPDATE raw_material SET  qty = qty - ?, totalweight = totalweight - ?, modifyDate = ? WHERE  prodName = ?';
-  const values = [ qty, totalweight, modifyDate, prodName];
+
+
+//good
+/*app.post('/updateRawMaterial_daily_work', async (req, res) => {
+  const { prodName, id, totalweight, modifyDate } = req.body;
+
+  const sql = 'UPDATE raw_material SET  totalweight =totalweight - ?, modifyDate = ? WHERE prodName = ? AND id = ?';
+  const values = [totalweight, modifyDate, prodName, id];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -5299,7 +5308,45 @@ app.post('/RawMaterialupdatedailywork', async (req, res) => {
       res.send('raw_material updated successfully');
     }
   });
+});*/
+
+app.post('/updateRawMaterial_daily_work', async (req, res) => {
+  const { prodName, id, sNo, totalweight, modifyDate } = req.body;
+
+  const sqlUpdate = 'UPDATE raw_material SET totalweight = totalweight - ?, modifyDate = ? WHERE prodName = ? AND id = ? AND sNo = ?';
+  const valuesUpdate = [totalweight, modifyDate, prodName, id, sNo];
+
+  db.query(sqlUpdate, valuesUpdate, async (err, updateResult) => {
+    if (err) {
+      console.error('Error updating raw_material entry:', err);
+      res.status(500).send('Internal Server Error: Unable to update raw_material entry');
+    } else {
+      console.log('Update Result:', updateResult);
+
+      if (updateResult.affectedRows === 0) {
+        console.log('No rows were updated. Check if the provided data matches any existing records.');
+        res.status(400).send('Bad Request: No rows were updated.');
+        return;
+      }
+
+      // Check if totalweight is 0 after the update and delete the row if true
+      const deleteSql = 'DELETE FROM raw_material WHERE prodName = ? AND id = ? AND sNo = ? AND totalweight = 0';
+      const deleteValues = [prodName, id, sNo];
+
+      db.query(deleteSql, deleteValues, (deleteErr, deleteResult) => {
+        if (deleteErr) {
+          console.error('Error deleting row with totalweight 0:', deleteErr);
+          res.status(500).send('Internal Server Error: Unable to delete row with totalweight 0');
+        } else {
+          console.log('Delete Result:', deleteResult);
+          res.send('raw_material updated successfully');
+        }
+      });
+    }
+  });
 });
+
+
 app.get('/get_daily_work_status', (req, res) => {
  const sql = 'SELECT * FROM daily_work_status';
   db.query(sql, (err, result) => {
@@ -6773,6 +6820,18 @@ app.get('/getprodname', (req, res) => {
   });
 });
 
+app.get('/getgsm_printing', (req, res) => {
+  const sql = 'SELECT DISTINCT gsm FROM winding_printing_production ORDER BY gsm'; // Modify to your table name
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
 
 app.post('/fetchweightinraw', (req, res) => {
   const { prodName } = req.body;
@@ -7040,19 +7099,18 @@ app.post('/updatewithoutprinting_production', async (req, res) => {
 
 //update winding_printing production
 app.post('/updateproductiondailywork', async (req, res) => {
-  const { gsm, numofcones, status, date } = req.body;
+  const { gsm, itemGroup, itemName, numofcones, status, date } = req.body;
   // Check if a record with the specified GSM value already exists
-  const checkSql = 'SELECT * FROM winding_printing_production WHERE gsm = ? AND status = ?';
-  db.query(checkSql, [gsm, status], (checkErr, checkResult) => {
+  const checkSql = 'SELECT * FROM winding_printing_production WHERE itemGroup = ? AND itemName = ? AND gsm = ? AND status = ?';
+  db.query(checkSql, [itemGroup, itemName, gsm, status], (checkErr, checkResult) => {
     if (checkErr) {
       console.error('Error checking if record exists:', checkErr);
       res.status(500).send('Internal Server Error');
     } else {
       if (checkResult.length > 0) {
         // Update the existing record
-        const updateSql = 'UPDATE winding_printing_production SET numofcones = numofcones + ?, date = ? WHERE gsm = ? AND status = ?';
-        const updateValues = [numofcones, date, gsm, status];
-
+        const updateSql = 'UPDATE winding_printing_production SET numofcones = numofcones + ?, date = ? WHERE itemGroup = ? AND itemName = ? AND gsm = ? AND status = ?';
+        const updateValues = [numofcones, date, itemGroup, itemName, gsm, status];
         db.query(updateSql, updateValues, (updateErr, updateResult) => {
           if (updateErr) {
             console.error('Error updating entry:', updateErr);
@@ -7063,8 +7121,8 @@ app.post('/updateproductiondailywork', async (req, res) => {
         });
       } else {
         // Insert a new record
-        const insertSql = 'INSERT INTO winding_printing_production (gsm, numofcones, status, date) VALUES (?, ?, ?, ?)';
-        const insertValues = [gsm, numofcones, status, date];
+        const insertSql = 'INSERT INTO winding_printing_production (date, gsm, itemGroup, itemName, numofcones, status) VALUES (?, ?, ?, ?, ?, ?)';
+        const insertValues = [date, gsm, itemGroup, itemName, numofcones, status];
 
         db.query(insertSql, insertValues, (insertErr, insertResult) => {
           if (insertErr) {
@@ -7123,10 +7181,10 @@ app.post('/update_finishing_dailywork', async (req, res) => {
 
 //decrese the withprinting cones after
 app.post('/updatewithprinting_production', async (req, res) => {
-  const { gsm, numofcones, status, date } = req.body;
+  const { gsm, itemGroup, itemName, numofcones, status, date } = req.body;
 
-  const sql = 'UPDATE winding_printing_production SET  numofcones = numofcones - ? , date = ? WHERE  gsm = ? AND status = "with printing"';
-  const values = [ numofcones, date, gsm, status,];
+  const sql = 'UPDATE winding_printing_production SET  numofcones = numofcones - ? , date = ? WHERE  gsm = ? AND itemGroup = ? AND itemName = ? AND status = "with printing"';
+  const values = [ numofcones, date, gsm, itemGroup, itemName, status,];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -7142,7 +7200,7 @@ app.post('/updatewithprinting_production', async (req, res) => {
 app.post('/fetch_raw_material', (req, res) => {
   const { gsm } = req.body;
 
-  const query = `SELECT qty, totalweight FROM raw_material WHERE prodName = ?`;
+  const query = `SELECT sNo, totalweight FROM raw_material WHERE prodName = ?`;
 
   db.query(query, [gsm], (err, results) => {
     if (err) {
@@ -7150,8 +7208,8 @@ app.post('/fetch_raw_material', (req, res) => {
       res.status(500).send('Internal Server Error');
     } else {
       if (results.length > 0) {
-        const { qty, totalweight } = results[0];
-        res.json({ qty, totalweight });
+        const { sNo, totalweight } = results[0];
+        res.json({ sNo, totalweight });
       } else {
         res.status(404).send('Data not found');
       }
@@ -7307,6 +7365,7 @@ app.post('/Raw_materil_UnitInPO', (req, res) => {
 });
 
 
+
 app.post('/Raw_materil_Qty', (req, res) => {
   const { prodCode, prodName } = req.body;
   const query = 'SELECT qty FROM raw_material WHERE prodCode = ? AND prodName = ?';
@@ -7317,7 +7376,6 @@ app.post('/Raw_materil_Qty', (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
       return;
     }
-
     if (results.length > 0) {
       res.json({ qty: results[0].qty });
     } else {
@@ -7416,82 +7474,56 @@ app.get('/gethand_billDC', (req, res) => {
   });
 });
 
+//30/01/24
+//get finishing qtyt form DWS
+app.get('/get_production_quantity', (req, res) => {
+  const createDate = req.query.createDate;
+  const machineName = req.query.machineName;
+  const itemGroup = req.query.itemGroup;
+  const itemName = req.query.itemName;
 
-// balance sheet purchase
-app.get('/checkinvoiveNo_forbalancesheet_purchase', (req, res) => {
-  const sql = 'select * from balance_sheet_purchase'; // Modify to your table name
+  const query = 'SELECT productionQty FROM daily_work_status WHERE createDate = ? AND machineName = ? AND itemGroup = ? AND itemName = ?';
 
-  db.query(sql, (err, results) => {
+  db.query(query, [createDate, machineName, itemGroup, itemName], (err, result) => {
     if (err) {
-      console.error('Error fetching data:', err);
-      res.status(500).json({ error: 'Error fetching data' });
+      console.log('Error executing MySQL query:', err);
+      res.status(500).send('Internal Server Error');
     } else {
-      res.status(200).json(results);
-    }
-  });
-});
-app.get('/get_balancesheet_for_suggestion_purchase', (req, res) => {
-  const sql = `
-    SELECT DISTINCT p.invoiceNo
-    FROM purchase p
-    LEFT JOIN balance_sheet_purchase b ON p.invoiceNo = b.individual_invoice
-    WHERE b.individual_invoice IS NULL;
-  `;
-
-  db.query(sql, (err, result) => {
-    if (err) {
-      console.error('Error fetching data:', err);
-      res.status(500).json({ error: 'Error fetching data' });
-    } else {
-      console.log('Data fetched successfully');
-      res.status(200).json(result);
-    }
-  });
-});
-app.post('/balanace_sheet_purchase', (req, res) => {
-  const { dataToInsert } = req.body; // Assuming you send the data to insert in the request body
-
-  const sql = 'INSERT INTO balance_sheet_purchase SET ?';// Modify to your table name
-
-  db.query(sql, [dataToInsert], (err, result) => { // Wrap dataToInsert in an array
-    if (err) {
-      console.error('Error inserting data:', err);
-      res.status(500).json({ error: 'Error inserting data' });
-    } else {
-      console.log('Data inserted successfully');
-      res.status(200).json({ message: 'Data inserted successfully' });
-    }
-  });
-});
-app.get('/balance_sheet_values_purchase', (req, res) => {
-  try {
-    const invoiceNosParam = req.query.invoiceNos;
-
-    if (!invoiceNosParam) {
-      return res.status(400).json({ error: 'Bad Request', message: 'Order numbers not provided.' });
-    }
-
-    const invoiceNos = invoiceNosParam.split(',');
-
-    const query = `
-    SELECT distinct invoiceNo,grandTotal,supName,supCode FROM purchase WHERE invoiceNo in (?)
-    `;
-
-    db.query(query, [invoiceNos], (error, results) => {
-      if (error) {
-        console.error('Error executing query:', error);
-        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+      if (result.length > 0) {
+        const productionQuantity = result[0].productionQty; // Fix the field name here
+        res.status(200).json({ num_of_production: productionQuantity }); // Fix the field name here
       } else {
-        res.json(results);
+        res.status(404).send('Production quantity not found for the specified criteria');
       }
-    });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error', message: error.message });
-  }
+    }
+  });
 });
-app.get('/getPurchaseBalance', (req, res) => {
-  const sql = 'select * from balance_sheet_purchase'; // Modify to your table name
+
+
+
+
+
+app.post('/production_qty_DWS', (req, res) => {
+  const { createDate, machineName, itemGroup, itemName } = req.body;
+  const query = 'SELECT productionQty FROM daily_work_status WHERE createDate = ? AND machineName = ? itemGroup = ? AND itemGroup = ?';
+
+  db.query(query, [createDate, machineName, itemGroup, itemGroup], (error, results) => {
+    if (error) {
+      console.error('MySQL Error: ' + error);
+      res.status(500).json({ message: 'Internal Server Error' });
+      return;
+    }
+
+    if (results.length > 0) {
+      res.json({ qty: results[0].qty });
+    } else {
+      res.json({ qty: '' }); // Return an empty string if no match found
+    }
+  });
+});
+
+/*app.get('/get_serial_no', (req, res) => {
+  const sql = 'SELECT sNo FROM raw_material'; // Modify to your table name
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -7501,7 +7533,64 @@ app.get('/getPurchaseBalance', (req, res) => {
       res.status(200).json(results);
     }
   });
+});*/
+
+
+app.post('/Raw_materil_weight', (req, res) => {
+  const { id,prodName, sNo } = req.body;
+  const query = 'SELECT totalweight FROM raw_material WHERE id = ? AND prodName = ? AND sNo = ?';
+
+  db.query(query, [id, prodName, sNo], (error, results) => {
+    if (error) {
+      console.error('MySQL Error: ' + error);
+      res.status(500).json({ message: 'Internal Server Error' });
+      return;
+    }
+    if (results.length > 0) {
+      res.json({ totalweight: results[0].totalweight });
+    } else {
+      res.json({ totalweight: '' }); // Return an empty string if no match found
+    }
+  });
 });
+
+
+
+app.post('/fetch_sno_raw', (req, res) => {
+  const { prodName } = req.body;
+  const query = `SELECT sNo FROM raw_material WHERE prodName = ?`;
+
+  db.query(query, [prodName], (error, results) => {
+    if (error) {
+      console.error('MySQL Error: ' + error);
+      res.status(500).json({ message: 'Internal Server Error' });
+      return;
+    }
+
+    if (results.length > 0) {
+      res.json({ sNo: results[0].sNo });
+    } else {
+      res.json({ sNo: '' }); // Return an empty string if no match found
+    }
+  });
+});
+
+app.get('/get_serialnum_gsm', (req, res) => {
+  const prodName = req.query.prodName;
+
+  const sql = 'SELECT id, sNo FROM raw_material WHERE prodName = ?';
+
+  db.query(sql, [prodName], (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.json(result);
+  });
+});
+
+
+
+
 
 // Starting the server
 app.listen(app.get('port'), () => {

@@ -161,7 +161,22 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                                 child: pw.Text('Item  Name',
                                     style: pw.TextStyle(fontSize: 8,
                                         fontWeight: pw.FontWeight.bold)),)
-                          ),   pw.Container(
+                          ),
+                          pw.Container(
+                              padding: pw.EdgeInsets.all(8.0),
+                              child: pw.Center(
+                                child: pw.Text('Prodused Cones',
+                                    style: pw.TextStyle(fontSize: 8,
+                                        fontWeight: pw.FontWeight.bold)),)
+                          ),
+                          pw.Container(
+                              padding: pw.EdgeInsets.all(8.0),
+                              child: pw.Center(
+                                child: pw.Text('Damage',
+                                    style: pw.TextStyle(fontSize: 8,
+                                        fontWeight: pw.FontWeight.bold)),)
+                          ),
+                          pw.Container(
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(
                                 child: pw.Text('Quantity',
@@ -210,6 +225,19 @@ class _ProductionReportPdfState extends State<ProductionReportPdf> {
                               child: pw.Text(data['itemName'],
                                   style: pw.TextStyle(fontSize: 8)),),
                           ),
+                          pw.Container(
+                            padding: pw.EdgeInsets.all(8.0),
+                            child: pw.Center(
+                              child: pw.Text(data['num_of_cones'],
+                                  style: pw.TextStyle(fontSize: 8)),),
+                          ),
+                          pw.Container(
+                            padding: pw.EdgeInsets.all(8.0),
+                            child: pw.Center(
+                              child: pw.Text(data['damage'],
+                                  style: pw.TextStyle(fontSize: 8)),),
+                          ),
+
                           pw.Container(
                             padding: pw.EdgeInsets.all(8.0),
                             child: pw.Center(

@@ -441,6 +441,7 @@ class _MachineViewState extends State<MachineView> {
                           SizedBox(
                             width: 220, height: 70,
                             child: TextFormField(
+                              readOnly: true,
                               onChanged: (value) {
                                 String capitalizedValue = capitalizeFirstLetter(value);
                                 machineModelcontroller.value = machineModelcontroller.value.copyWith(
@@ -477,6 +478,7 @@ class _MachineViewState extends State<MachineView> {
                           SizedBox(
                             width: 220, height: 70,
                             child: TextFormField(
+                              readOnly: true,
                               onChanged: (value) {
 
                                 String capitalizedValue = capitalizeFirstLetter(value);
@@ -516,6 +518,7 @@ class _MachineViewState extends State<MachineView> {
                           SizedBox(
                             width: 220,height: 70,
                             child: TextFormField(
+                              readOnly: true,
                               onChanged: (value) {
 
                                 String capitalizedValue = capitalizeFirstLetter(value);
@@ -553,6 +556,7 @@ class _MachineViewState extends State<MachineView> {
                           SizedBox(
                             width: 220,height: 70,
                             child: TextFormField(
+                              readOnly: true,
                               onChanged: (value) {
 
                                 String capitalizedValue = capitalizeFirstLetter(value);
@@ -593,6 +597,7 @@ class _MachineViewState extends State<MachineView> {
                           SizedBox(
                             width: 220, height: 70,
                             child: TextFormField(
+                              readOnly: true,
                               onChanged: (value) {
 
                                 String capitalizedValue = capitalizeFirstLetter(value);
@@ -626,8 +631,8 @@ class _MachineViewState extends State<MachineView> {
                           SizedBox(
                             width: 220, height: 70,
                             child: TextFormField(
-                              style: TextStyle(fontSize: 13),
                               readOnly: true,
+                              style: TextStyle(fontSize: 13),
                               onTap: () async {
                                 DateTime? pickedDate = await showDatePicker(
                                   context: context,
@@ -661,6 +666,7 @@ class _MachineViewState extends State<MachineView> {
                           SizedBox(
                             width: 220, height: 70,
                             child: TextFormField(
+                              readOnly: true,
                               style: TextStyle(fontSize: 13),
 
                               onTap: () async {

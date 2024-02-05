@@ -926,7 +926,7 @@ class _YourDataTableSource extends DataTableSource {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              /*IconButton(icon: Icon(Icons.edit ,color:Colors. blue,),onPressed: (){
+              IconButton(icon: Icon(Icons.remove_red_eye ,color:Colors. blue,),onPressed: (){
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>MachineView(
                   customerData:data,
                   id: row["id"],
@@ -940,7 +940,7 @@ class _YourDataTableSource extends DataTableSource {
                   purchaseDate:row["purchaseDate"],
                   warrantyDate:row["warrantyDate"],
                 )));
-              },),*/
+              },),
 
               Center(
                 child: IconButton(

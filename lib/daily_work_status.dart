@@ -11,26 +11,29 @@ import 'package:http/http.dart'as http;
 import 'package:vinayaga_project/purchase/customer_order_edit.dart';
 import '../../main.dart';
 import '../home.dart';
-import 'master/balanacesheet_entry.dart';
+
 
 
 class RowData {
   String? prodgsm;
   String? itemGroup;
   String? itemName;
+  String? serialNo;
   int? quantity;
   List<String> itemNames = [];
+  List<String> serialnos = [];
+  Map<String, String> idSNoMap;
   TextEditingController weights=TextEditingController();
   TextEditingController totalqty=TextEditingController();
   TextEditingController numofproduction=TextEditingController();
   TextEditingController finishwight=TextEditingController();
   TextEditingController finishreel=TextEditingController();
   TextEditingController finisedwgt=TextEditingController();
-  TextEditingController remainreel=TextEditingController();
-  TextEditingController remainwgt=TextEditingController();
+  //TextEditingController serialNo=TextEditingController();
+  TextEditingController weight=TextEditingController();
   TextEditingController qtyController = TextEditingController();
 
-  RowData({this.itemGroup,this.itemName,this.quantity});
+  RowData({this.itemGroup,this.itemName,this.quantity,required this.idSNoMap});
 
 }
 class DailyWorkStatus extends StatefulWidget {
@@ -46,6 +49,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   bool visibleprinting =true;
   // DateTime toDate = DateTime.now();
   TextEditingController controller= TextEditingController();
+
+
 
   Future<List<Map<String, dynamic>>> fetchDuplicateEntry() async {
     try {
@@ -112,9 +117,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
 
 
-  void _cancelForm() {
-    print('Form cancelled!');
-  }
+
 //  List<String> supplierSuggestions = [];
   TextEditingController person1 = TextEditingController();
   TextEditingController person1code = TextEditingController();
@@ -134,6 +137,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   TextEditingController reelsgsm = TextEditingController();
   TextEditingController toDateController = TextEditingController();
   TextEditingController fromDateController = TextEditingController();
+  TextEditingController selectedID = TextEditingController();
+  TextEditingController selectedSno = TextEditingController();
   bool isExtraProductionVisible = false;
 
 
@@ -181,9 +186,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
           print("machine Name -$machiNameFinishing");
         });
         if (responseData is List<dynamic>) {
-
           print('machine Data:');
-
         } else {
           print('Error: Response data is not a List');
           print('Response Body: $responseData');
@@ -197,8 +200,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   }
 
 
-  Future<void> updateRawMaterial( String prodName,int qty,int totalweight,String modifyDate) async {
-    final Uri url = Uri.parse('http://localhost:3309/RawMaterialupdatedailywork'); // Replace with your actual backend URL
+  Future<void> updateRawMaterial(String prodName, int id,String sNo, int totalweight, String modifyDate) async {
+    final Uri url = Uri.parse('http://localhost:3309/updateRawMaterial_daily_work');
 
     final response = await http.post(
       url,
@@ -207,15 +210,16 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       },
       body: jsonEncode(<String, dynamic>{
         'prodName': prodName,
-        'qty': qty,
-        'totalweight':totalweight,
-        'modifyDate':date.toString(),
+        'id': id,
+        'sNo':sNo,// Use the null-aware operator to provide an empty string if id is null
+        'totalweight': totalweight,
+        'modifyDate': modifyDate,
       }),
     );
     if (response.statusCode == 200) {
       print('Raw material Update successful');
     } else {
-      print('Failed to update. Status code: ${response.statusCode}');
+      print('Failed to update. Status code: ${response.statusCode}, Response body: ${response.body}');
       throw Exception('Failed to update');
     }
   }
@@ -225,8 +229,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     super.initState();
     showProductionQuantity();
     getgsm();
+    getfinishinggsm();
     getitem();
     getitemname();
+
+
     getitemgroup();
     addRow();
     // TODO: implement initState
@@ -255,8 +262,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   }
 
   List<String> gsmname = [];
+  List<String> printinggsm = [];
+
   List<String> gsm = [];
   List<Map<String, dynamic>> suggesstiondata = [];
+  List<Map<String, dynamic>> suggesstiondatagsm = [];
 
 
   Future<void> getgsm() async {
@@ -279,6 +289,25 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     }
   }
 
+  Future<void> getfinishinggsm() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/getgsm_printing/');
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> printinggsm = responseData;
+        setState(() {
+          suggesstiondatagsm = printinggsm.cast<Map<String, dynamic>>();
+          print('Item Groups: $printinggsm');
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
   Future<void> getitem() async {
     try {
       final url = Uri.parse('http://localhost:3309/getprodname/');
@@ -290,7 +319,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
         tempgstgsm.map((item) => item['prodName'] as String).toSet();
         gsm = uniquegetgsm.toList();
         gsm.sort();
-
         setState(() {
           print('Item Groups: $getgsm');
         });
@@ -330,21 +358,16 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     }
   }
 
-
-
-
   bool validateGSM(String gsm) {
     // Implement your GSM validation logic here
     // For example, check if it matches a certain pattern or condition
     return false; // Return true if GSM is invalid
   }
-
   List<RowData> rowData = [];
-
   List<String> itemGroups = [];
   List<String> itemNames = [];
   bool isFirstRowRemovalEnabled = false;
-  int selectedCheckbox = 1;
+  int selectedCheckbox = 2;
 
   TextEditingController totalreel=TextEditingController();
   TextEditingController totalwgt=TextEditingController();
@@ -355,7 +378,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
   void addRow() {
     setState(() {
-      rowData.add(RowData());
+      rowData.add(RowData(idSNoMap: {}));
     });
   }
 
@@ -435,6 +458,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     }
   }
 
+
+
+
+
+
   Future<void> getitemname() async {
     try {
       final url = Uri.parse('http://localhost:3309/getitemname/');
@@ -460,12 +488,39 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
 
 
+  List<String> serilnumber = [];
+  Future<void> getserialno(String s) async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_serial_no/');
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> tempItemName = responseData;
+        final Set<String> uniqueItemNames =
+        tempItemName.map((item) => item['sNo'] as String).toSet();
+        serilnumber = uniqueItemNames.toList();
+        serilnumber.sort();
+        setState(() {
+          print('Item Groups: $serilnumber');
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+
+
+
+
+
 
 
 //update without and with printing
-  Future<void> updateprodution( String gsm, String numofproduction,String status,String date) async {
+  Future<void> updateprodution( String itemGroup, String itemName, String gsm, String numofproduction, String status, String date) async {
     final Uri url = Uri.parse('http://localhost:3309/updateproductiondailywork'); // Replace with your actual backend URL
-
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -473,6 +528,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       },
       body: jsonEncode(<String, dynamic>{
         'gsm': gsm,
+        'itemGroup': itemGroup,
+        'itemName': itemName,
         'numofcones': numofproduction,
         'status':status,
         'date':date,
@@ -564,7 +621,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   }
 
   //finishing decrese production
-  Future<void> updatewithprintingtofinishing( String gsm, String numofproduction,String status,String date) async {
+  Future<void> updatewithprintingtofinishing( String gsm, String itemGroup, String itemName, String numofproduction,String status,String date) async {
     final Uri url = Uri.parse('http://localhost:3309/updatewithprinting_production'); // Replace with your actual backend URL
 
     final response = await http.post(
@@ -574,6 +631,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       },
       body: jsonEncode(<String, dynamic>{
         'gsm': gsm,
+        'itemGroup': itemGroup,
+        'itemName': itemName,
         'numofcones': numofproduction,
         'status':status,
         'date':date,
@@ -590,6 +649,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   Map<String, dynamic> dataToInsertorditem = {};
 
   bool isDuplicate= false;
+
+  DateTime eod = DateTime.now();
+
+  String? selectedSNo;
+  String? selectedId;
 
   Future<void> insertDataorderitem(Map<String, dynamic> dataToInsertorditem) async {
     const String apiUrl = 'http://localhost:3309/daily_work_status_entry'; // Replace with your server details
@@ -639,6 +703,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       );
       if (response.statusCode == 200) {
         showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -646,9 +711,72 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
               content: Text("Saved Succesfully"),
               actions: <Widget>[
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>DailyWorkStatus()));
+                    setState(() async {
+                      for (var i = 0; i < rowData.length; i++) {
+                        if (isDuplicate==false){
+                          if (deptType == "Winding" ) {
+                            await updateprodution(
+                              rowData[i].itemGroup ?? "",
+                              rowData[i].itemName ?? "",
+                              rowData[i].prodgsm ?? "",
+                              rowData[i].numofproduction.text,
+                              selectedCheckbox == 1 ? "without printing" : "with printing",
+                              DateTime.now().toString(),
+                            );
+                            /*  await updateprodution(
+                          rowData[i].prodgsm ?? "",
+                          rowData[i].itemGroup ?? "",
+                          rowData[i].itemName ?? "",
+                          rowData[i].numofproduction.text,
+                        selectedCheckbox == 1 ? "without printing" : "with printing",
+                        DateTime.now().toString(),
+                        );*/
+                            await updateRawMaterial(
+                              rowData[i].prodgsm ?? "",
+                              int.parse(selectedID.text ?? ""),
+                              selectedSno.text,
+                              int.parse(rowData[i].weight.text),
+                              DateTime.now().toString(),
+                            );
+                          }
+                          else if (deptType == "Printing")
+                          {
+                            await updatePrintingProduction(
+                              rowData[i].prodgsm ?? "",
+                              rowData[i].numofproduction.text,
+                              "with printing",
+                              DateTime.now().toString(),
+                            );
+                            await updatewithoupriniting(
+                              rowData[i].prodgsm ?? "",
+                              rowData[i].numofproduction.text,
+                              "without printing",
+                              DateTime.now().toString(),
+                            );
+                          }
+                          else if (deptType == "Finishing") {
+                            /*  await updatefinishingprodution(
+                        rowData[i].totalqty.text,
+                        rowData[i].itemGroup ?? "",
+                        rowData[i].itemName ?? "",
+                        DateTime.now().toString(),
+                        );*/
+                            await updatewithprintingtofinishing(
+                              rowData[i].prodgsm ?? "",
+                              rowData[i].itemGroup ?? "",
+                              rowData[i].itemName ?? "",
+                              rowData[i].numofproduction.text,
+                              "with printing",
+                              DateTime.now().toString(),
+                            );
+                          }
+                        }
+                      }
+                    });
                   },
+
                   child: Text("OK"),
                 ),
               ],
@@ -665,8 +793,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       throw Exception('Error: $e');
     }
   }
-  DateTime eod = DateTime.now();
-
   Future<void> submititemDataToDatabase() async {
     List<Future<void>> insertFutures = [];
 
@@ -692,58 +818,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
         "fromDate": fromDate.toString(),
         "toDate": DateTime.now().toString(),
         "gsm": rowData[i].prodgsm,
-        "finish_reel": rowData[i].finishreel.text,
-        "finish_weight": rowData[i].finishwight.text,
+        'finish_reel':rowData[i].serialNo,
+        'finish_weight':rowData[i].weight.text,
+        "itemGroup": rowData[i].itemGroup,
+        "itemName": rowData[i].itemName,
         "num_of_production": rowData[i].numofproduction.text,
       };
       insertFutures.add(insertDataorderitem(dataToInsertorditem));
-    }
-    for (var i = 0; i < rowData.length; i++) {
-      if (isDuplicate==false){
-        if (deptType == "Winding" ) {
-          await updateprodution(
-            rowData[i].prodgsm ?? "",
-            rowData[i].numofproduction.text,
-            selectedCheckbox == 1 ? "without printing" : "with printing",
-            DateTime.now().toString(),
-          );
-          await updateRawMaterial(
-            rowData[i].prodgsm ?? "",
-            int.parse(rowData[i].finishreel.text),
-            int.parse(rowData[i].finishwight.text),
-            DateTime.now().toString(),
-          );
-        }
-        else if (deptType == "Printing")
-        {
-          await updatePrintingProduction(
-            rowData[i].prodgsm ?? "",
-            rowData[i].numofproduction.text,
-            "with printing",
-            DateTime.now().toString(),
-          );
-          await updatewithoupriniting(
-            rowData[i].prodgsm ?? "",
-            rowData[i].numofproduction.text,
-            "without printing",
-            DateTime.now().toString(),
-          );
-        }
-        else if (deptType == "Finishing") {
-          await updatefinishingprodution(
-            rowData[i].totalqty.text,
-            rowData[i].itemGroup ?? "",
-            rowData[i].itemName ?? "",
-            DateTime.now().toString(),
-          );
-          await updatewithprintingtofinishing(
-            rowData[i].prodgsm ?? "",
-            rowData[i].numofproduction.text,
-            "with printing",
-            DateTime.now().toString(),
-          );
-        }
-      }
     }
     try {
       await Future.wait(insertFutures);
@@ -753,89 +834,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     }
   }
 
-/*  Future<void> submititemDataToDatabase() async {
-    List<Future<void>> insertFutures = [];
-
-    for (var i = 0; i < rowData.length; i++) {
-      DateTime selectedDateWithoutTime = DateTime(eod.year, eod.month, eod.day);
-      setState(() {
-        controller.text = DateFormat('yyyy-MM-dd').format(selectedDateWithoutTime);
-        print(controller.text);
-      });
-      Map<String, dynamic> dataToInsertorditem = {
-        "machineType": deptType.toString(),
-        "shiftType": shiftType.toString(),
-        "person1": person1.text,
-        "person2": person2.text,
-        "person3": person3.text,
-        "op_code": person1code.text,
-        "ass_code1": person2code.text,
-        "ass_code2": person3code.text,
-        "machineName": selectedmachinefinishing.toString(),
-        "productionQty": productionQuantityController.text,
-        "extraproduction": extraproductionamt.text,
-        "createDate": DateFormat('yyyy-MM-dd').format(selectedDateWithoutTime),
-        "fromDate": fromDate.toString(),
-        "toDate": DateTime.now().toString(),
-        "gsm": rowData[i].prodgsm,
-        "finish_reel": rowData[i].finishreel.text,
-        "finish_weight": rowData[i].finishwight.text,
-        "num_of_production": rowData[i].numofproduction.text,
-      };
-
-      insertFutures.add(insertDataorderitem(dataToInsertorditem));
-
-      if (!isDuplicate) {
-        if (deptType == "Winding") {
-          await updateprodution(
-            rowData[i].prodgsm ?? "",
-            rowData[i].numofproduction.text,
-            selectedCheckbox == 1 ? "without printing" : "with printing",
-            DateTime.now().toString(),
-          );
-          await updateRawMaterial(
-            rowData[i].prodgsm ?? "",
-            int.parse(rowData[i].finishreel.text),
-            int.parse(rowData[i].finishwight.text),
-            DateTime.now().toString(),
-          );
-        } else if (deptType == "Printing") {
-          await updatePrintingProduction(
-            rowData[i].prodgsm ?? "",
-            rowData[i].numofproduction.text,
-            "with printing",
-            DateTime.now().toString(),
-          );
-          await updatewithoupriniting(
-            rowData[i].prodgsm ?? "",
-            rowData[i].numofproduction.text,
-            "without printing",
-            DateTime.now().toString(),
-          );
-        } else if (deptType == "Finishing") {
-          await updatefinishingprodution(
-            rowData[i].totalqty.text,
-            rowData[i].itemGroup ?? "",
-            rowData[i].itemName ?? "",
-            DateTime.now().toString(),
-          );
-          await updatewithprintingtofinishing(
-            rowData[i].prodgsm ?? "",
-            rowData[i].numofproduction.text,
-            "with printing",
-            DateTime.now().toString(),
-          );
-        }
-      }
-    }
-
-    try {
-      await Future.wait(insertFutures);
-      print('All data inserted successfully');
-    } catch (e) {
-      print('Error inserting data: $e');
-    }
-  }*/
 
 
 
@@ -859,22 +857,16 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     if (productionQuantityController.text.isNotEmpty) {
       int productionQty = int.parse(productionQuantityController.text);
 
-      // Check if the selected machine type is "Winding"
       bool isWindingMachine = deptType == "Winding";
 
-      // Check if the selected machine type is "Finishing"
       bool isFinishingMachine = deptType == "Finishing";
 
-      // Check if the selected machine type is "Printing"
       bool isPrintingMachine = deptType == "Printing";
 
-      // Set visibility based on the conditions for different machine types
       isExtraProductionVisible = (isWindingMachine && productionQty >= 22000) ||
           (isFinishingMachine && productionQty >= 13500) ||
           (isPrintingMachine && productionQty >= 13500);
 
-      // Example calculation for "Winding": 40 + (each 500 above 22000) * 40
-      // Example calculation for "Finishing" or "Printing": 20
       int extraProductionAmount = isExtraProductionVisible
           ? (isWindingMachine
           ? (productionQty >= 22000 ? 40 : 0)
@@ -883,9 +875,9 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
           : 0))
           : 0;
 
+
       extraproductionamt.text = extraProductionAmount.toString();
     } else {
-      // Reset extraproductionamt if productionQuantityController is empty
       extraproductionamt.text = '';
     }
   }
@@ -907,7 +899,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       print("data of raw material- $data");
 
       setState(() {
-        rawQTY = data['qty'];
+        rawQTY = data['sNo'];
         rawWeight = data['totalweight'];
         print("{{{{$rawQTY $rawWeight}}}");
         print("{$rawWeight}");
@@ -970,6 +962,104 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     }
   }
 
+  String? rawmatirealqty;
+  bool checkboxvisible = true;
+
+
+  Future<String> fetchqty(String prodName,String id,String sNo) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:3309/Raw_materil_weight'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'prodName': prodName,'id': id,'sNo': sNo}),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['totalweight'].toString();
+    } else {
+      throw Exception('Failed to fetch weight from Raw_material');
+    }
+  }
+
+
+  List<String> serialnos = [];
+
+
+
+
+
+  Future<void> fetchserialno(String prodName, int index) async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_serialnum_gsm?prodName=$prodName');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> units = responseData;
+
+        // Extract unique item names and ids from the response
+        final Map<String, String> idSNoMap = Map.fromIterable(units,
+          key: (item) => item['id'].toString(),
+          value: (item) => item['sNo'].toString(),
+        );
+        setState(() {
+          // Update the id and sNo for the specified row
+          if (index >= 0 && index < rowData.length) {
+            rowData[index].idSNoMap = idSNoMap;
+
+          }
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+
+  /* Future<void> fetchserialno(String prodName, int index) async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_serialnum_gsm?prodName=$prodName');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> units = responseData;
+
+        // Extract unique item names from the response
+        final Set<String> uniqueItemNames = units.map((item) => item['sNo'] as String).toSet();
+        setState(() {
+          // Update the item names for the specified row
+          if (index >= 0 && index < rowData.length) {
+            rowData[index].serialnos = uniqueItemNames.toList();
+            // Optionally, you can reset the selected item name for the specific row here
+            // rowData[index].itemName = null;
+          }
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }*/
+// Function to reset rowData values
+  void resetRowDataValues() {
+    for (var i = 0; i < rowData.length; i++) {
+      setState(() {
+        rowData[i].prodgsm = ""; // Add any other fields you want to reset
+        rowData[i].serialNo ="";
+        rowData[i].weight.clear();
+        rowData[i].itemGroup = "";
+        rowData[i].itemName = "";
+        rowData[i].numofproduction.clear();
+        productionQuantityController.clear();
+        // Add any other fields you want to reset in each row
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -1027,6 +1117,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 initialDate: eod,
                                                 firstDate: DateTime(2000),
                                                 // Set the range of selectable dates
+
                                                 lastDate: eod , //eod,
                                               ).then((date) {
                                                 if (date != null) {
@@ -1047,6 +1138,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     person2code.clear();
                                                     person3.clear();
                                                     person3code.clear();
+                                                    resetRowDataValues();
                                                   });
                                                 }
                                               });
@@ -1069,15 +1161,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                       ],),
                                     ),
                                     // Text("${person1.text} ${person2.text} ${person3.text} test"),
-
                                   ],
                                 ),
                               ],
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height:10),
+                      ),                      const SizedBox(height:10),
                       Container(
                         width: double.infinity, // Set the width to full page width
                         padding: const EdgeInsets.all(8.0),
@@ -1109,34 +1199,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                           child: Row(
                                             children: [
                                               Checkbox(
-                                                value: selectedCheckbox == 1,
-                                                onChanged: (bool? value) {
-                                                  setState(() {
-                                                    shiftType=null;
-                                                    selectedmachinefinishing = null;
-                                                    person1.clear();
-                                                    person1code.clear();
-                                                    person2.clear();
-                                                    person2code.clear();
-                                                    person3.clear();
-                                                    person3code.clear();
-                                                    if (value != null && value) {
-                                                      selectedCheckbox = 1;
-                                                    } else {
-                                                      // Toggle between 1 and 2
-                                                      selectedCheckbox = selectedCheckbox == 1 ? 2 : 1;
-                                                    }
-                                                  });
-                                                },
-                                              ),
-                                              Text("Without Printing"),
-                                            ],
-                                          ),),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left:20),
-                                          child: Row(
-                                            children: [
-                                              Checkbox(
                                                 value: selectedCheckbox == 2,
                                                 onChanged: (bool? value) {
                                                   setState(() {
@@ -1148,6 +1210,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     person2code.clear();
                                                     person3.clear();
                                                     person3code.clear();
+                                                    resetRowDataValues();
+                                                    checkboxvisible=true;
                                                     if (value != null && value) {
                                                       selectedCheckbox = 2;
                                                     } else {
@@ -1158,6 +1222,38 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 },
                                               ),
                                               Text("With Printing"),
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left:20),
+                                          child: Row(
+                                            children: [
+                                              Checkbox(
+                                                value: selectedCheckbox == 1,
+                                                onChanged: (bool? value) {
+                                                  setState(() {
+                                                    shiftType=null;
+                                                    selectedmachinefinishing = null;
+                                                    person1.clear();
+                                                    person1code.clear();
+                                                    person2.clear();
+                                                    person2code.clear();
+                                                    person3.clear();
+                                                    person3code.clear();
+                                                    checkboxvisible=false;
+                                                    resetRowDataValues();
+
+                                                    if (value != null && value) {
+                                                      selectedCheckbox = 1;
+                                                    } else {
+                                                      // Toggle between 1 and 2
+                                                      selectedCheckbox = selectedCheckbox == 1 ? 2 : 1;
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              Text("Without Printing"),
                                             ],
                                           ),
                                         ),
@@ -1199,6 +1295,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 );
                                               }).toList(),
                                               onChanged: (String? newValue) {
+                                                resetRowDataValues();
                                                 setState(() {
                                                   deptType = newValue!;
                                                   showProductionQuantity();
@@ -1233,7 +1330,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   reelsgsm.clear();
                                                   extraproductionamt.clear();
                                                   // Set a default value for shiftType
-                                                });},),),),
+                                                });},
+                                            ),),),
                                       ],
                                     ),
                                   ),
@@ -1413,18 +1511,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                         onChanged: (value) {
                                           setState(() {
                                             if (value.isNotEmpty) {
-
                                               int productionQty = int.parse(value);
-
                                               // Check if the selected machine type is "Winding"
                                               bool isWindingMachine = deptType == "Winding";
-
                                               // Check if the selected machine type is "Finishing"
                                               bool isFinishingMachine = deptType == "Finishing";
-
                                               // Check if the selected machine type is "Printing"
                                               bool isPrintingMachine = deptType == "Printing";
-
                                               // Set visibility based on the conditions for different machine types
                                               isExtraProductionVisible = (isWindingMachine && productionQty >= 22000) ||
                                                   (isFinishingMachine && productionQty >= 13500) ||
@@ -1439,7 +1532,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   ? 20 + ((productionQty - 13500) ~/ 500) * 20
                                                   : 0))
                                                   : 0;
-
                                               errormsg = null;
                                               extraproductionamt.text = extraProductionAmount.toString();
                                             } else {
@@ -1610,8 +1702,9 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                     style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
                                 )),
                             const SizedBox(height: 20,),
+                            //Winding table
                             Visibility(
-                              visible: deptType != "Finishing",
+                              visible: deptType != "Finishing" && deptType != "Printing",
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: FocusTraversalGroup(
@@ -1619,13 +1712,16 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                     padding:  EdgeInsets.only(left: 0),
                                     child: Table(
                                       border: TableBorder.all(color: Colors.black54),
-                                      defaultColumnWidth:  FixedColumnWidth(170.0),
-                                      columnWidths:  <int, TableColumnWidth>{
-                                        0: FixedColumnWidth(250),
-                                        if(deptType =="Printing")
-                                          1: FixedColumnWidth(0),
-                                        if(deptType =="Printing")
-                                          2: FixedColumnWidth(0),
+                                      defaultColumnWidth:  const FixedColumnWidth(130.0),
+                                      columnWidths:   <int, TableColumnWidth>{
+                                        0: const FixedColumnWidth(200),
+                                        1: checkboxvisible==false? FixedColumnWidth(0): FixedColumnWidth(100),
+                                        //if(selectedCheckbox==
+                                        2: checkboxvisible==false? FixedColumnWidth(0): FixedColumnWidth(100),
+                                        3:  FixedColumnWidth(120),
+                                        4:  FixedColumnWidth(200),
+                                        5: FixedColumnWidth(130),
+                                        6: FixedColumnWidth(100),
                                       },
                                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                       children: [
@@ -1645,41 +1741,77 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                             ),
                                           ),
                                           Visibility(
-                                            visible: deptType != "Printing",
+                                            visible: checkboxvisible,
                                             child: TableCell(
                                               child: Container(
                                                 color: Colors.blue.shade100,
-                                                child: Center(child: Column(
-                                                  children: [
-                                                    Column(
+                                                child: Center(
+                                                    child: Column(
                                                       children: [
-                                                        Text('Finished No. \n of Reels', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child:checkboxvisible==true? Text("S.No", style: TextStyle(fontWeight: FontWeight.bold))
+                                                              : Text("", style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        ),
                                                       ],
-                                                    ),
-                                                  ],
-                                                )),
+                                                    )),
                                               ),
                                             ),
                                           ),
                                           Visibility(
-                                            visible: deptType != "Printing",
+                                            visible: checkboxvisible,
                                             child: TableCell(
                                               child: Container(
                                                 color: Colors.blue.shade100,
-                                                child: Center(child: Column(
-                                                  children: [
-                                                    Text('Finished Total \n  Weight', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                  ],
-                                                )),
+                                                child: Center(
+                                                    child: Column(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: Text('Weight', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        ),
+                                                      ],
+                                                    )),
                                               ),
                                             ),
                                           ),
                                           TableCell(
                                             child: Container(
                                               color: Colors.blue.shade100,
-                                              child: Center(child: Column(
+                                              child: Center(
+                                                  child: Column(
+                                                    children: [
+                                                      Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      ),
+                                                    ],
+                                                  )),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Container(
+                                              color: Colors.blue.shade100,
+                                              child: Center(
+                                                  child: Column(
+                                                    children: [
+                                                      Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      ),
+                                                    ],
+                                                  )),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Container(
+                                              color: Colors.blue.shade100,
+                                              child: const Center(child: Column(
                                                 children: [
-                                                  Text('No. of Cones \n Produced', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                  Padding(
+                                                    padding: EdgeInsets.all(8.0),
+                                                    child: Text('Produced Cones', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                  ),
                                                 ],
                                               )),
                                             ),
@@ -1704,7 +1836,71 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                         for (var i = 0; i < rowData.length; i++)
                                           TableRow(children: [
                                             //GSM
+
                                             TableCell(
+                                              child: SizedBox(
+                                                height: 60,
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(5.0),
+                                                    child: TypeAheadFormField<String?>(
+                                                      textFieldConfiguration: TextFieldConfiguration(
+                                                        onChanged: (value) {},
+                                                        controller: TextEditingController(text: rowData[i].prodgsm),
+                                                        decoration: InputDecoration(
+                                                          filled: true,
+                                                          fillColor: Colors.white,
+                                                          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                        ),
+                                                        inputFormatters: [CapitalizeInputFormatter()],
+                                                      ),
+                                                      suggestionsCallback: (pattern) async {
+                                                        return suggesstiondata
+                                                            .where((item) => (item['prodName']?.toString()?.toLowerCase() ?? '').startsWith('gsm'))
+                                                            .map((item) => item['prodName'].toString())
+                                                            .toList();
+                                                      },
+                                                      itemBuilder: (context, suggestion) {
+                                                        return ListTile(
+                                                          title: Text(suggestion!),
+                                                        );
+                                                      },
+                                                      onSuggestionSelected: (String? suggestion) async {
+                                                        if (gsm.contains(suggestion)) {
+                                                          await fetchserialno(suggestion!, i);
+                                                          setState(() {
+                                                            print(rowData[i].serialNo);
+                                                            rowData[i].prodgsm = suggestion;
+                                                            rowData[i].weight.clear();
+                                                          });
+                                                          withoutprintingValueGet(rowData[i].prodgsm!);
+                                                          withprintingValueGet(rowData[i].prodgsm!);
+                                                          print('Selected prodName: $suggestion');
+                                                          try {
+                                                            setState(() {
+                                                              // Store the serial number in the map based on prodName
+                                                            });
+                                                          } catch (error) {
+                                                            // Log any error during weight fetching
+                                                            print('Error fetching weight: $error');
+                                                          }
+                                                        } else {
+                                                          // Clear the itemGroup field if the suggestion is not in the itemGroups list
+                                                          setState(() {
+                                                            rowData[i].itemGroup = null;
+                                                          });
+                                                          // Show an error message
+                                                        }
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                            /* TableCell(
                                               child: SizedBox(
                                                 height: 60,
                                                 child: Container(
@@ -1715,7 +1911,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                       child: TypeAheadFormField<String?>(
                                                           textFieldConfiguration: TextFieldConfiguration(
                                                             onChanged: (value){
-
                                                             },
                                                             controller: TextEditingController(text: rowData[i].prodgsm),
                                                             decoration: InputDecoration(
@@ -1740,18 +1935,21 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           },
                                                           onSuggestionSelected: (String? suggestion) async {
                                                             if (gsm.contains(suggestion)) {
+
                                                               setState(() {
+                                                               // rowData[i].serialNo = serialNo;
                                                                 rowData[i].prodgsm = suggestion;
                                                               });
-                                                              rawMaterialValueGet( rowData[i].prodgsm!);
-                                                              withoutprintingValueGet( rowData[i].prodgsm!);
                                                               withprintingValueGet( rowData[i].prodgsm!);
                                                               // Log to verify the suggestion and prodName
                                                               print('Selected prodName: $suggestion');
                                                               try {
                                                                 // Call the fetchweight function with the selected prodName
                                                                 String weight = await fetchweight(suggestion!);
-
+                                                                String serialNo = await fetchsNo(suggestion!);
+                                                                setState(() {
+                                                                   rowData[i].serialNo = serialNo;
+                                                                });
                                                                 // Log to verify the retrieved weight
                                                                 print('Retrieved weight: $weight');
 
@@ -1764,7 +1962,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                                 print('Error fetching weight: $error');
                                                               }
                                                             } else {
-                                                              // Clear the itemGroup field if the suggestion is not in the itemGroups list
                                                               setState(() {
                                                                 rowData[i].itemGroup = null;
                                                               });
@@ -1775,94 +1972,304 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                            //TOTAL REELS
-                                            TableCell(
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                                height: 60,
-                                                color: Colors.blue.shade100,
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: TextFormField(
-                                                    controller: rowData[i].finishreel,
-                                                    keyboardType: TextInputType.number,
-                                                    onChanged: (value) {
-                                                      /*  if (rawQTY! < int.parse(value)) {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext context) {
-                                                            return AlertDialog(
-                                                              title: Text("Invalid Reel"),
-                                                              content: Column(
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: [
-                                                                  Text("Available Reels is $rawQTY, cannot enter $value"),
-                                                                  SizedBox(height: 10),
-                                                                  Text("Please correct your input."),
-                                                                ],
-                                                              ),
-                                                              actions: <Widget>[
-                                                                TextButton(
-                                                                  onPressed: () {
-                                                                    Navigator.of(context).pop();
-                                                                  },
-                                                                  child: Text('OK'),
-                                                                ),
-                                                              ],
+                                            ),*/
+                                            //SERIAL NO
+                                            Visibility(
+                                              visible: checkboxvisible,
+                                              child: TableCell(
+                                                child: SingleChildScrollView(
+                                                  child: Container(
+                                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                    height: 60,
+                                                    color: Colors.blue.shade100,
+                                                    child: Padding(
+                                                      padding: EdgeInsets.all(5.0),
+                                                      child: TypeAheadFormField<String?>(
+                                                        textFieldConfiguration: TextFieldConfiguration(
+                                                          controller: TextEditingController(text: rowData[i].serialNo),
+                                                          decoration: InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                          ),
+                                                          inputFormatters: [CapitalizeInputFormatter()],
+                                                        ),
+                                                        suggestionsCallback: (pattern) {
+                                                          if (rowData[i].idSNoMap != null && rowData[i].idSNoMap.isNotEmpty) {
+                                                            // Filter suggestions based on both id and sNo
+                                                            return rowData[i].idSNoMap.entries
+                                                                .where((entry) => entry.key.toLowerCase().contains(pattern.toLowerCase()) || entry.value.toLowerCase().contains(pattern.toLowerCase()))
+                                                                .map((entry) => '${entry.key} - ${entry.value}')
+                                                                .toList();
+                                                          } else {
+                                                            return [];
+                                                          }
+                                                        },
+                                                        itemBuilder: (context, suggestion) {
+                                                          return ListTile(
+                                                            title: Text(suggestion!),
+                                                          );
+                                                        },
+                                                        onSuggestionSelected: (String? suggestion) async {
+                                                          List<String> parts = suggestion!.split(' - ');
+                                                          String selectedId = parts[0];
+                                                          String selectedSNo = parts[1];
+                                                          bool alreadySelected = rowData.sublist(0, i).any((row) =>
+                                                          row.prodgsm == rowData[i].prodgsm &&
+                                                              rowData[i].serialNo == suggestion
+                                                          );
+                                                          if (alreadySelected) {
+                                                            // Show the alert dialog
+                                                            showDialog(
+                                                              context: context,
+                                                              builder: (BuildContext context) {
+                                                                return AlertDialog(
+                                                                  title: Text('Alert'),
+                                                                  content: Text('Already Exist the Products'),
+                                                                  actions: [
+                                                                    TextButton(
+                                                                      onPressed: () {
+                                                                        Navigator.of(context).pop();
+                                                                        rowData[i].serialNo='';
+                                                                        rowData[i].weight.clear();
+                                                                      },
+                                                                      child: Text('OK'),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              },
                                                             );
-                                                          },
-                                                        );
-                                                        setState(() {
-                                                          _formKey.currentState!.reset();
-                                                        });
-                                                      }*/
-                                                      setState(() {
-                                                        // rowData[i].quantity = int.tryParse(value) ?? 0;
-                                                      });
-                                                    },
+                                                          } else {
+                                                            // Continue with the rest of your logic
+                                                            setState(() {
+                                                              rowData[i].serialNo = selectedId + ' - ' + selectedSNo;
+                                                              selectedID.text = selectedId;
+                                                              selectedSno.text = selectedSNo;
+                                                              rowData[i].weight.clear();
+                                                            });
 
-                                                    inputFormatters: <TextInputFormatter>[
-                                                      FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(5)
-                                                    ],
-                                                    decoration: const InputDecoration(
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      enabledBorder: OutlineInputBorder(
-                                                        borderSide: BorderSide(color: Colors.grey),
+                                                            if (rowData[i].prodgsm != null && rowData[i].serialNo != null) {
+                                                              try {
+                                                                String weight = await fetchqty(rowData[i].prodgsm!, selectedId!, selectedSNo!);
+                                                                setState(() {
+                                                                  rowData[i].weight.text = weight;
+                                                                });
+                                                              } catch (error) {
+                                                                print('Error fetching weight: $error');
+                                                              }
+                                                            } else {
+                                                              // Clear the itemGroup field if the suggestion is not in the itemGroups list
+                                                              setState(() {
+                                                                rowData[i].serialNo = null;
+                                                              });
+                                                              // Show an error message
+                                                            }
+                                                          }
+                                                        },
+
+
+
                                                       ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                            //FINISHED T REEL
-                                            TableCell(
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                                height: 60,
-                                                color: Colors.blue.shade100,
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: TextFormField(
-                                                    controller: rowData[i].finishwight,
-                                                    keyboardType: TextInputType.number,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        // rowData[i].quantity = int.tryParse(value) ?? 0;
-                                                      });
-                                                    },
-                                                    inputFormatters: <TextInputFormatter>[
-                                                      FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(5)
-                                                    ],
-                                                    decoration: const InputDecoration(
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      enabledBorder: OutlineInputBorder(
-                                                        borderSide: BorderSide(color: Colors.grey),
+
+
+
+
+
+
+                                            /*Visibility(
+                                              visible: checkboxvisible,
+                                              child: TableCell(
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  height: 60,
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(5.0),
+                                                    child: TextFormField(
+                                                      controller: rowData[i].serialNo,
+                                                      keyboardType: TextInputType.number,
+                                                      onChanged: (value) async {
+                                                        String weight = await fetchqty(rowData[i].prodgsm!, value);
+                                                        // Check if the current product and serial number combination has already been selected
+                                                        bool alreadySelected = rowData.sublist(0, i).any((row) =>
+                                                        row.prodgsm == rowData[i].prodgsm &&
+                                                            row.serialNo.text == value
+                                                        );
+                                                        if (alreadySelected) {
+                                                          // Show the alert dialog
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (BuildContext context) {
+                                                              return AlertDialog(
+                                                                title: Text('Alert'),
+                                                                content: Text('Already Exist the Products'),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () {
+                                                                      Navigator.of(context).pop();
+                                                                      rowData[i].serialNo.clear();
+                                                                      rowData[i].weight.clear();
+                                                                    },
+                                                                    child: Text('OK'),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          );
+                                                        }
+                                                        // Update the state with the weight and other necessary actions
+                                                        setState(() {
+                                                          if (weight == "null") {
+                                                            rowData[i].weight.text = '0';
+                                                          } else if (weight.isEmpty) {
+                                                            rowData[i].weight.text = '0';
+                                                          } else {
+                                                            rowData[i].weight.text = weight;
+                                                          }
+                                                        });
+                                                      },
+                                                      inputFormatters: <TextInputFormatter>[
+                                                        FilteringTextInputFormatter.digitsOnly,
+                                                        LengthLimitingTextInputFormatter(2)
+                                                      ],
+                                                      decoration: const InputDecoration(
+                                                        filled: true,
+                                                        fillColor: Colors.white,
+                                                        enabledBorder: OutlineInputBorder(
+                                                          borderSide: BorderSide(color: Colors.grey),
+                                                        ),
                                                       ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),*/
+                                            //FINISHED WEIGHT
+                                            Visibility(
+                                              visible: checkboxvisible,
+                                              child: TableCell(
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  height: 60,
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(5.0),
+                                                    child: TextFormField(
+                                                      controller: rowData[i].weight,
+                                                      keyboardType: TextInputType.number,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          // rowData[i].weight.text = value;
+                                                          print('Updated weight: ${rowData[i].weight.text}');
+                                                          // rowData[i].quantity = int.tryParse(value) ?? 0;
+                                                        });
+                                                      },
+                                                      inputFormatters: <TextInputFormatter>[
+                                                        FilteringTextInputFormatter.digitsOnly,
+                                                        LengthLimitingTextInputFormatter(3)
+                                                      ],
+                                                      decoration: const InputDecoration(
+                                                        filled: true,
+                                                        fillColor: Colors.white,
+                                                        enabledBorder: OutlineInputBorder(
+                                                          borderSide: BorderSide(color: Colors.grey),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            //itemGroup
+                                            TableCell(
+                                              child: SizedBox(
+                                                height: 60,
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                      padding: const EdgeInsets.all(5.0),
+                                                      child: TypeAheadFormField<String?>(
+                                                        textFieldConfiguration: TextFieldConfiguration(
+                                                          onChanged: (value){
+                                                          },
+                                                          controller: TextEditingController(text: rowData[i].itemGroup),
+                                                          decoration: InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                          ),
+                                                          inputFormatters: [CapitalizeInputFormatter()],
+                                                        ),
+                                                        suggestionsCallback: (pattern) async {
+                                                          return itemGroups.where((group) => group.toLowerCase().startsWith(pattern.toLowerCase()));
+                                                        },
+                                                        itemBuilder: (context, suggestion) {
+                                                          return ListTile(
+                                                            title: Text(suggestion!),
+                                                          );
+                                                        },
+                                                        onSuggestionSelected: (String? suggestion) async {
+                                                          if (itemGroups.contains(suggestion)) {
+                                                            setState(() {
+                                                              rowData[i].itemGroup = suggestion;
+                                                              rowData[i].itemName = null;
+                                                            });
+                                                          } else {
+                                                            // Clear the itemGroup field if the suggestion is not in the itemGroups list
+                                                            setState(() {
+                                                              rowData[i].itemGroup = null;
+                                                            });
+                                                            // Show an error messag
+                                                          }
+                                                        },
+                                                      )
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            //itemName
+                                            TableCell(
+                                              child: SingleChildScrollView(
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  height: 60,
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(5.0),
+                                                    child: TypeAheadFormField<String?>(
+                                                      textFieldConfiguration: TextFieldConfiguration(
+                                                        controller: TextEditingController(
+                                                            text: rowData[i].itemName),
+                                                        decoration: InputDecoration(
+                                                          filled: true,
+                                                          fillColor: Colors.white,
+                                                          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                        ),
+                                                        inputFormatters: [CapitalizeInputFormatter()],
+                                                      ),
+                                                      suggestionsCallback: (pattern) async {
+                                                        return itemNames.where((name) => name.toLowerCase().startsWith(pattern.toLowerCase()));
+                                                      },
+                                                      itemBuilder: (context, suggestion) {
+                                                        return ListTile(
+                                                          title: Text(suggestion!),
+                                                        );
+                                                      },
+                                                      onSuggestionSelected: (String? suggestion) async {
+                                                        setState(() {
+                                                          print('Selected Item: $suggestion');
+                                                          // Check if the selected item already exists in the previous row
+                                                          // If the selected item is unique, update rowData
+                                                          rowData[i].itemName = suggestion;
+                                                          rowData[i].numofproduction.text = "";
+                                                        });
+                                                      },
                                                     ),
                                                   ),
                                                 ),
@@ -1883,12 +2290,11 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                       setState(() {
                                                         if(deptType=="Printing")
                                                           if(int.parse(Numofcones!) < int.parse(value)){
-                                                            _formKey.currentState!.reset();
+                                                            // _formKey.currentState!.reset();
                                                             setState(() {
                                                               //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("available Reels is $Numofcones,not enter $value")));
                                                             });
                                                           }
-                                                        // Update the productionQuantityController based on the sum of numofproduction for all rows
                                                         int totalProduction = calculateTotalProduction();
                                                         productionQuantityController.text = totalProduction.toString();
 
@@ -1928,14 +2334,19 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     Visibility(
                                                       visible: i == rowData.length - 1 &&
                                                           rowData[i].prodgsm != null &&
-                                                          rowData[i].finishreel != null &&
-                                                          rowData[i].finishwight != null &&
+                                                          rowData[i].serialNo != null &&
+                                                          rowData[i].weight != null &&
+                                                          rowData[i].itemGroup != null &&
+                                                          rowData[i].itemGroup != null &&
                                                           rowData[i].numofproduction.text.isNotEmpty,
                                                       child: IconButton(
                                                         icon: Icon(Icons.add_circle_outline, color: Colors.green),
                                                         onPressed: () {
                                                           if (i > 0 &&
-                                                              rowData[i].prodgsm == rowData[i - 1].prodgsm
+                                                              rowData[i].prodgsm == rowData[i - 1].prodgsm &&
+                                                              rowData[i].serialNo == rowData[i - 1].serialNo &&
+                                                              rowData[i].itemGroup == rowData[i - 1].serialNo &&
+                                                              rowData[i].itemName == rowData[i - 1].itemName
                                                           ) {
                                                             showDialog(
                                                               context: context,
@@ -1997,8 +2408,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           }
                                                         },
                                                       ),
-
-
                                                     ),
                                                   ],
                                                 ),
@@ -2012,10 +2421,9 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                 ),
                               ),
                             ),
-                            //finishing table
-                            SizedBox(height: 20,),
+                            //Printing table
                             Visibility(
-                              visible: deptType == "Finishing",
+                              visible: deptType == "Printing" ,
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: FocusTraversalGroup(
@@ -2028,8 +2436,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                         0: FixedColumnWidth(200),
                                         1: FixedColumnWidth(150),
                                         2: FixedColumnWidth(200),
-                                        3: FixedColumnWidth(100),
-                                        4: FixedColumnWidth(100),
+                                        3: FixedColumnWidth(150),
                                       },
                                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                       children: [
@@ -2079,19 +2486,10 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                               color: Colors.blue.shade100,
                                               child: Center(child: Column(
                                                 children: [
-                                                  Text('No. of Cones \n Produced', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                ],
-                                              )),
-                                            ),
-                                          ),
-                                          TableCell(
-                                            child: Container(
-                                              color: Colors.blue.shade100,
-                                              child: Center(child: Column(
-                                                children: [
-                                                  SizedBox(height: 10),
-                                                  Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                  SizedBox(height: 10),
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(8.0),
+                                                    child: Text('Produced Cones', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                  ),
                                                 ],
                                               )),
                                             ),
@@ -2153,10 +2551,421 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                                 rowData[i].prodgsm = suggestion;
                                                               });
                                                               withprintingValueGet( rowData[i].prodgsm!);
-
                                                               // Log to verify the suggestion and prodName
                                                               print('Selected prodName: $suggestion');
+                                                              try {
+                                                                // Call the fetchweight function with the selected prodName
+                                                                String weight = await fetchweight(suggestion!);
 
+                                                                // Log to verify the retrieved weight
+                                                                print('Retrieved weight: $weight');
+
+                                                                // Update the corresponding TextField with the retrieved weight
+                                                                setState(() {
+                                                                  rowData[i].weights.text = weight;
+                                                                });
+                                                              } catch (error) {
+                                                                // Log any error during weight fetching
+                                                                print('Error fetching weight: $error');
+                                                              }
+                                                            } else {
+                                                              setState(() {
+                                                                rowData[i].itemGroup = null;
+                                                              });
+                                                              // Show an error message
+                                                            }
+                                                          }
+                                                      )
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: SizedBox(
+                                                height: 60,
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                      padding: const EdgeInsets.all(5.0),
+                                                      child: TypeAheadFormField<String?>(
+                                                        textFieldConfiguration: TextFieldConfiguration(
+                                                          onChanged: (value){
+                                                          },
+                                                          controller: TextEditingController(text: rowData[i].itemGroup),
+                                                          decoration: InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                          ),
+                                                          inputFormatters: [CapitalizeInputFormatter()],
+                                                        ),
+                                                        suggestionsCallback: (pattern) async {
+                                                          return itemGroups.where((group) => group.toLowerCase().startsWith(pattern.toLowerCase()));
+                                                        },
+                                                        itemBuilder: (context, suggestion) {
+                                                          return ListTile(
+                                                            title: Text(suggestion!),
+                                                          );
+                                                        },
+                                                        onSuggestionSelected: (String? suggestion) async {
+                                                          if (itemGroups.contains(suggestion)) {
+                                                            setState(() {
+                                                              rowData[i].itemGroup = suggestion;
+                                                              rowData[i].itemName = null;
+                                                            });
+                                                          } else {
+                                                            // Clear the itemGroup field if the suggestion is not in the itemGroups list
+                                                            setState(() {
+                                                              rowData[i].itemGroup = null;
+                                                            });
+                                                            // Show an error messag
+                                                          }
+                                                        },
+                                                      )
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: SingleChildScrollView(
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  height: 60,
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(5.0),
+                                                    child: TypeAheadFormField<String?>(
+                                                      textFieldConfiguration: TextFieldConfiguration(
+                                                        controller: TextEditingController(
+                                                            text: rowData[i].itemName),
+                                                        decoration: InputDecoration(
+                                                          filled: true,
+                                                          fillColor: Colors.white,
+                                                          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                        ),
+                                                        inputFormatters: [CapitalizeInputFormatter()],
+                                                      ),
+                                                      suggestionsCallback: (pattern) async {
+                                                        return itemNames.where((name) => name.toLowerCase().startsWith(pattern.toLowerCase()));
+                                                      },
+                                                      itemBuilder: (context, suggestion) {
+                                                        return ListTile(
+                                                          title: Text(suggestion!),
+                                                        );
+                                                      },
+                                                      onSuggestionSelected: (String? suggestion) async {
+                                                        bool alreadySelected = rowData.sublist(0, i).any((row) =>
+                                                        row.prodgsm == rowData[i].prodgsm &&
+                                                            row.itemGroup == rowData[i].itemGroup &&
+                                                            row.itemName == suggestion
+                                                        );
+                                                        if (alreadySelected) {
+                                                          // Show the alert dialog
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (BuildContext context) {
+                                                              return AlertDialog(
+                                                                title: Text('Alert'),
+                                                                content: Text('Already Exist the Products'),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () {
+                                                                      setState(() {
+                                                                        rowData[i].prodgsm = "";  // Clear prodgsm field
+                                                                        rowData[i].itemGroup = "";  // Clear itemGroup field
+                                                                        rowData[i].itemName = "";
+                                                                        rowData[i].numofproduction.text = "";
+                                                                      });
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                    child: Text('OK'),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          );
+                                                        }
+                                                        setState(() {
+                                                          print('Selected Item: $suggestion');
+                                                          rowData[i].itemName = suggestion;
+                                                          rowData[i].numofproduction.text = "";
+                                                        });
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                height: 60,
+                                                color: Colors.blue.shade100,
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(5.0),
+                                                  child: TextFormField(
+                                                    controller: rowData[i].numofproduction,
+                                                    keyboardType: TextInputType.number,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        // Update the productionQuantityController based on the sum of numofproduction for all rows
+                                                        int totalProduction = calculateTotalProduction();
+                                                        productionQuantityController.text = totalProduction.toString();
+
+                                                        // Update the extraproductionamt based on the productionQty and conditions
+                                                        updateExtraProductionAmount();
+
+                                                        // Convert numofproduction to int
+                                                        int numofproductionValue = int.tryParse(value) ?? 0;
+
+                                                        // Calculate totalqty only if numofproduction is a multiple of 500
+                                                        int totalQty = numofproductionValue ~/ 500;
+                                                        rowData[i].totalqty.text = totalQty.toString();
+                                                      });
+                                                      errormsg="";
+                                                    },
+                                                    inputFormatters: <TextInputFormatter>[
+                                                      FilteringTextInputFormatter.digitsOnly,
+                                                      LengthLimitingTextInputFormatter(5)
+                                                    ],
+                                                    decoration: const InputDecoration(
+                                                      filled: true,
+                                                      fillColor: Colors.white,
+                                                      enabledBorder: OutlineInputBorder(
+                                                        borderSide: BorderSide(color: Colors.grey),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Visibility(
+                                                      visible: true,
+                                                      child: IconButton(
+                                                        icon: Icon(Icons.remove_circle_outline, color: Colors.red),
+                                                        onPressed: i > 0 ? () => deleteRow(i) : null,
+                                                      ),
+                                                    ),
+                                                    Visibility(
+                                                      visible: i == rowData.length - 1 &&
+                                                          rowData[i].prodgsm != null &&
+                                                          rowData[i].itemGroup != null &&
+                                                          rowData[i].itemName != null &&
+                                                          rowData[i].numofproduction != null &&
+                                                          rowData[i].totalqty.text.isNotEmpty,
+                                                      child: IconButton(
+                                                        icon: Icon(Icons.add_circle_outline, color: Colors.green),
+                                                        onPressed: () {
+                                                          if (i > 0 &&
+                                                              rowData[i].prodgsm == rowData[i - 1].prodgsm &&
+                                                              rowData[i].itemGroup == rowData[i - 1].itemGroup &&
+                                                              rowData[i].itemName == rowData[i - 1].itemName) {
+                                                            showDialog(
+                                                              context: context,
+                                                              builder: (BuildContext context) {
+                                                                return AlertDialog(
+                                                                  title: Text('Alert'),
+                                                                  content: Text('Already Exist the Products'),
+                                                                  actions: [
+                                                                    TextButton(
+                                                                      onPressed: () {
+                                                                        Navigator.of(context).pop();
+                                                                      },
+                                                                      child: Text('OK'),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              },
+                                                            );
+                                                          } else {
+                                                            // Check if the quantity is 0
+                                                            if (rowData[i].numofproduction.text == '0' && rowData[i].totalqty.text == '0')
+                                                            {
+                                                              showDialog(
+                                                                context: context,
+                                                                builder: (BuildContext context) {
+                                                                  return AlertDialog(
+                                                                    title: Text('Alert'),
+                                                                    content: Text('Quantity cannot be 0'),
+                                                                    actions: [
+                                                                      TextButton(
+                                                                        onPressed: () {
+                                                                          Navigator.of(context).pop();
+                                                                        },
+                                                                        child: Text('OK'),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+                                                            } else {
+                                                              // Quantity is not 0, add the row
+                                                              addRow();
+                                                              serialnumber++;
+                                                              if (i ==  0) {
+                                                                // Enable the first row removal once a second row is added
+                                                                setState(() {
+                                                                  //   isFirstRowRemovalEnabled = true;
+                                                                });
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                      ),
+
+
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          ]
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            //finishing table
+                            Visibility(
+                              visible: deptType == "Finishing" ,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: FocusTraversalGroup(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 0),
+                                    child: Table(
+                                      border: TableBorder.all(color: Colors.black54),
+                                      defaultColumnWidth: const FixedColumnWidth(150.0),
+                                      columnWidths: const <int, TableColumnWidth>{
+                                        0: FixedColumnWidth(200),
+                                        1: FixedColumnWidth(150),
+                                        2: FixedColumnWidth(200),
+                                        3: FixedColumnWidth(150),
+                                      },
+                                      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                      children: [
+                                        TableRow(children: [
+
+                                          TableCell(
+                                            child: Container(
+                                              color: Colors.blue.shade100,
+                                              child: Center(
+                                                  child: Column(
+                                                    children: [
+                                                      Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: Text('GSM', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      ),
+                                                    ],
+                                                  )),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Container(
+                                              color: Colors.blue.shade100,
+                                              child: Center(
+                                                  child: Column(
+                                                    children: [
+                                                      SizedBox(height: 10),
+                                                      Text('Item Group', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      SizedBox(height: 10),
+                                                    ],
+                                                  )),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Container(
+                                              color: Colors.blue.shade100,
+                                              child: Center(child: Column(
+                                                children: [
+                                                  SizedBox(height: 10),
+                                                  Text('Item Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                  SizedBox(height: 10),
+                                                ],
+                                              )),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Container(
+                                              color: Colors.blue.shade100,
+                                              child: Center(child: Column(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(8.0),
+                                                    child: Text('Produced Cones', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                  ),
+                                                ],
+                                              )),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Container(
+                                              color: Colors.blue.shade100,
+                                              child: Center(
+                                                child: Column(
+                                                  children: [
+                                                    SizedBox(height: 10),
+                                                    Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                    SizedBox(height: 10),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ]),
+
+                                        for (var i = 0; i < rowData.length; i++)
+                                          TableRow(children: [
+                                            TableCell(
+                                              child: SizedBox(
+                                                height: 60,
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                  color: Colors.blue.shade100,
+                                                  child: Padding(
+                                                      padding: const EdgeInsets.all(5.0),
+                                                      child: TypeAheadFormField<String?>(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+                                                            onChanged: (value){
+                                                            },
+                                                            controller: TextEditingController(text: rowData[i].prodgsm),
+                                                            decoration: InputDecoration(
+                                                              filled: true,
+                                                              fillColor: Colors.white,
+                                                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                                            ),
+                                                            inputFormatters: [CapitalizeInputFormatter()],
+                                                          ),
+                                                          suggestionsCallback: (pattern) async {
+                                                            return suggesstiondata
+                                                                .where((item) =>
+                                                                (item['prodName']?.toString()?.toLowerCase() ?? '')
+                                                                    .startsWith('gsm'))
+                                                                .map((item) => item['prodName'].toString())
+                                                                .toList();
+                                                          },
+                                                          itemBuilder: (context, suggestion) {
+                                                            return ListTile(
+                                                              title: Text(suggestion!),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (String? suggestion) async {
+                                                            if (gsm.contains(suggestion)) {
+                                                              setState(() {
+                                                                rowData[i].prodgsm = suggestion;
+                                                              });
+                                                              withprintingValueGet( rowData[i].prodgsm!);
+                                                              // Log to verify the suggestion and prodName
+                                                              print('Selected prodName: $suggestion');
                                                               try {
                                                                 // Call the fetchweight function with the selected prodName
                                                                 String weight = await fetchweight(suggestion!);
@@ -2292,41 +3101,9 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
                                                         // Convert numofproduction to int
                                                         int numofproductionValue = int.tryParse(value) ?? 0;
-
                                                         // Calculate totalqty only if numofproduction is a multiple of 500
                                                         int totalQty = numofproductionValue ~/ 500;
                                                         rowData[i].totalqty.text = totalQty.toString();
-                                                      });
-                                                    },
-                                                    inputFormatters: <TextInputFormatter>[
-                                                      FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(5)
-                                                    ],
-                                                    decoration: const InputDecoration(
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      enabledBorder: OutlineInputBorder(
-                                                        borderSide: BorderSide(color: Colors.grey),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            TableCell(
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                                height: 60,
-                                                color: Colors.blue.shade100,
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: TextFormField(
-                                                    readOnly: true,
-                                                    controller: rowData[i].totalqty,
-                                                    keyboardType: TextInputType.number,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        //  rowData[i].quantity = int.tryParse(value) ?? 0;
                                                       });
                                                     },
                                                     inputFormatters: <TextInputFormatter>[
@@ -2438,19 +3215,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                 ),
                               ),
                             ),
-
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  SizedBox(
-                                    height: 10,
-                                    width: 10,
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -2463,6 +3227,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                               fromDate = date;
                               showProductionQuantity();
                               if (_formKey.currentState!.validate()) {
+
                                 if (deptType == null) {
                                   setState(() {
                                     errormsg = "* Select a Machine Type";
@@ -2477,13 +3242,16 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                     errormsg = "* Select a Machine Name";
                                   });
                                 }
-                                else if (productionQuantityController.text.isEmpty) {
+                                else if (productionQuantityController.text
+                                    .isEmpty) {
                                   setState(() {
                                     errormsg = "* Fill All fields in Table";
                                   });
                                 }
-                                else{
-                                  await submititemDataToDatabase();
+                                else {
+                                  setState(() async {
+                                    await submititemDataToDatabase();
+                                  });
                                 }
                               }
                             },
@@ -2560,6 +3328,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
         ) );
   }
 }
+
+
 
 
 

@@ -181,7 +181,12 @@ class _StockeportPDFState extends State<StockeportPDF> {
                             pw.Container(
                                 padding: pw.EdgeInsets.all(8.0),
                                 child: pw.Center(
-                                  child: pw.Text('Available Stock', style: pw.TextStyle(fontSize: 8,font:font,fontWeight: pw.FontWeight.bold)),)
+                                  child: pw.Text('Total Cones', style: pw.TextStyle(fontSize: 8,font:font,fontWeight: pw.FontWeight.bold)),)
+                            ),
+                            pw.Container(
+                                padding: pw.EdgeInsets.all(8.0),
+                                child: pw.Center(
+                                  child: pw.Text('Total Packs', style: pw.TextStyle(fontSize: 8,font:font,fontWeight: pw.FontWeight.bold)),)
                             ),
 
 
@@ -205,6 +210,11 @@ class _StockeportPDFState extends State<StockeportPDF> {
                               padding: pw.EdgeInsets.all(8.0),
                               child: pw.Center(
                                 child: pw.Text(data['itemName'].toString(), style: pw.TextStyle(fontSize: 8,font:font1)),),
+                            ),
+                            pw.Container(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Center(
+                                child: pw.Text(data['totalcones'].toString(), style: pw.TextStyle(fontSize: 8,font:font1)),),
                             ),
                             pw.Container(
                               padding: const pw.EdgeInsets.all(8.0),
