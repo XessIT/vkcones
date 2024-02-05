@@ -517,6 +517,19 @@ class _ShiftCreationState extends State<ShiftCreation> {
                                             fontWeight: FontWeight.bold,
                                             fontSize: 20
                                         ),),
+                                        IconButton(
+                                          icon: Icon(Icons.refresh),
+                                          onPressed: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context)=> ShiftCreation()));
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.arrow_back),
+                                          onPressed: () {
+                                            // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                            Navigator.pop(context);
+                                          },
+                                        ),
                                       ],
                                     ),
                                     SizedBox(height: 20,),

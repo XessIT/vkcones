@@ -83,8 +83,25 @@ String? paymentype;
           child: Column(
             children: [
               SizedBox(height: 20,),
-              Text("Sales Order Entry",style: TextStyle(color: Colors.black,
-                  fontWeight: FontWeight.bold,fontSize: 20),),
+              Row(
+                children: [
+                  Text("Sales Order Entry",style: TextStyle(color: Colors.black,
+                      fontWeight: FontWeight.bold,fontSize: 20),),
+                  IconButton(
+                    icon: Icon(Icons.refresh),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> SalesOrderEntry()));
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             SizedBox(height: 20,),
               Wrap(
                   children: [

@@ -1000,7 +1000,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Padding(
+                                     Padding(
                                       padding: EdgeInsets.only(top:15.0),
                                       child: Padding(
                                           padding: EdgeInsets.only(left:15.0),
@@ -1008,6 +1008,19 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                             children: [
                                               Icon(Icons.engineering,size: 30,),SizedBox(width: 10,),
                                               Text("Daily Work Status",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
+                                              IconButton(
+                                                icon: Icon(Icons.refresh),
+                                                onPressed: () {
+                                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> DailyWorkStatus()));
+                                                },
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.arrow_back),
+                                                onPressed: () {
+                                                  // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
                                             ],
                                           )
                                       ),

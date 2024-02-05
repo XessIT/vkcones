@@ -224,7 +224,7 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                         ),
                         child: Column(
                           children: [
-                            const Row(
+                             Row(
                               children: [
                                 Icon(Icons.report,),
                                 SizedBox(width:10,),
@@ -234,6 +234,19 @@ class _PurchaseOrderReportState extends State<PurchaseOrderReport> {
                                     fontSize:20,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.refresh),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> PurchaseOrderReport()));
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_back),
+                                  onPressed: () {
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                    Navigator.pop(context);
+                                  },
                                 ),
                               ],
                             ),

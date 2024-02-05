@@ -399,6 +399,19 @@ class _QuotationEntryState extends State<QuotationEntry> {
                                       fontWeight: FontWeight.bold,
                                       fontSize: 25,
                                     ),),
+                                    IconButton(
+                                      icon: Icon(Icons.refresh),
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=> QuotationEntry()));
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.arrow_back),
+                                      onPressed: () {
+                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                        Navigator.pop(context);
+                                      },
+                                    ),
                                   ],
                                 ),
                                 SizedBox(height: 5,),

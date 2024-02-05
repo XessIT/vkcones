@@ -260,7 +260,7 @@ class _SalesReportState extends State<SalesReport> {
                         ),
                         child: Column(
                           children: [
-                            const Row(
+                             Row(
                               children: [
                                 Icon(Icons.report,),
                                 SizedBox(width:10,),
@@ -270,6 +270,19 @@ class _SalesReportState extends State<SalesReport> {
                                     fontSize:20,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.refresh),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> SalesReport()));
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_back),
+                                  onPressed: () {
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                    Navigator.pop(context);
+                                  },
                                 ),
                               ],
                             ),

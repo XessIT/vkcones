@@ -671,6 +671,19 @@ class _Raw_materialState extends State<Raw_material> {
                                         children: [
                                           const Icon(Icons.local_grocery_store, size:30),
                                           Text("Raw Material",style: TextStyle(fontSize:22,fontWeight: FontWeight.bold),),
+                                          IconButton(
+                                            icon: Icon(Icons.refresh),
+                                            onPressed: () {
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=> Raw_material()));
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.arrow_back),
+                                            onPressed: () {
+                                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                              Navigator.pop(context);
+                                            },
+                                          ),
                                         ]
                                     ),
                                     Container(

@@ -727,6 +727,19 @@ class _PurchaseBalanceSheetState extends State<PurchaseBalanceSheet> {
                               children: [
                                 Icon(Icons.account_balance_wallet_outlined,size: 30,),SizedBox(width: 10,),
                                 Text("Balance Sheet",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
+                                IconButton(
+                                  icon: Icon(Icons.refresh),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> PurchaseBalanceSheet()));
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_back),
+                                  onPressed: () {
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                    Navigator.pop(context);
+                                  },
+                                ),
                               ],
                             ),
                           ),
