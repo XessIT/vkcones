@@ -589,8 +589,19 @@ class _NonrderSaleEntryState extends State<NonrderSaleEntry> {
                                           SizedBox(height: 15,),
                                           const Icon(Icons.local_grocery_store, size:30),
                                           Text("Non Order Sales Entry",style: TextStyle(fontSize:25,fontWeight: FontWeight.bold),),
-
-                                        ],
+                                          IconButton(
+                                            icon: Icon(Icons.refresh),
+                                            onPressed: () {
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=> NonrderSaleEntry()));
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.arrow_back),
+                                            onPressed: () {
+                                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                              Navigator.pop(context);
+                                            },
+                                          ),                                        ],
                                       ),
                                       Row(
                                         children: [

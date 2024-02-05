@@ -633,6 +633,19 @@ class _EmployeeProfileUpdateState extends State<EmployeeProfileUpdate> {
                             children: [
                               Icon(Icons.account_balance_sharp),SizedBox(width: 10,),
                               Text("Employee Entry",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
+                              IconButton(
+                                icon: Icon(Icons.refresh),
+                                onPressed: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> EmployeeProfileUpdate()));
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.arrow_back),
+                                onPressed: () {
+                                  // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                  Navigator.pop(context);
+                                },
+                              ),
                             ],
                           ),
                         ],

@@ -259,6 +259,19 @@ class _MachineEntryState extends State<MachineEntry> {
                                         children: [
                                           Icon(Icons.engineering,size: 30,),SizedBox(width: 10,),
                                           Text("Machine Entry",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
+                                          IconButton(
+                                            icon: Icon(Icons.refresh),
+                                            onPressed: () {
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=> MachineEntry()));
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.arrow_back),
+                                            onPressed: () {
+                                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                              Navigator.pop(context);
+                                            },
+                                          ),
                                         ],
                                       ),
                                     ),

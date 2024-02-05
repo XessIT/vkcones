@@ -715,12 +715,25 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Padding(
+                           Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Row(
                               children: [
                                 Icon(Icons.balance,size: 30,),SizedBox(width: 10,),
                                 Text("Balance Sheet",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
+                                IconButton(
+                                  icon: Icon(Icons.refresh),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const BalanaceSheet()));
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_back),
+                                  onPressed: () {
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                    Navigator.pop(context);
+                                  },
+                                ),
                               ],
                             ),
                           ),

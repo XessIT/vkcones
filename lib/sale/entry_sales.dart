@@ -2063,11 +2063,24 @@ class _EntrySalesState extends State<EntrySales> {
                                 Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Row(
+                                       Row(
                                         children: [
                                           SizedBox(height: 15,),
                                           Icon(Icons.local_grocery_store, size:30),
                                           Text("Sales Entry",style: TextStyle(fontSize:25,fontWeight: FontWeight.bold),),
+                                          IconButton(
+                                            icon: Icon(Icons.refresh),
+                                            onPressed: () {
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=> EntrySales()));
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.arrow_back),
+                                            onPressed: () {
+                                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                              Navigator.pop(context);
+                                            },
+                                          ),
                                         ],
                                       ),
                                       Row(

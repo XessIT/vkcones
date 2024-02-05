@@ -363,6 +363,19 @@ class _ProductCodeCreationState extends State<ProductCodeCreation> {
                                   children: [
                                     const Icon(Icons.edit, size:30),
                                     Text("Product Creation",style: TextStyle(fontSize:23,fontWeight: FontWeight.bold),),
+                                    IconButton(
+                                      icon: Icon(Icons.refresh),
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductCodeCreation()));
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.arrow_back),
+                                      onPressed: () {
+                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                        Navigator.pop(context);
+                                      },
+                                    )
                                   ],
                                 ),
                                 Text(

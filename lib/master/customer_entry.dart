@@ -207,10 +207,29 @@ String? customercode;
               child: Column(
                   children: [
                     SizedBox(height: 20,),
-                    Text("Customer Entry", style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),),
+                    Row(
+                      children: [
+                        Text("Customer Entry", style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.refresh),
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=> CustomerEntry()));
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.arrow_back),
+                          onPressed: () {
+                            // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
                     SizedBox(height: 50,),
                     SizedBox(height: 50,),
                     Padding(

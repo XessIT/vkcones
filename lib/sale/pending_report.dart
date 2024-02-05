@@ -845,7 +845,7 @@ class _PendingReportState extends State<PendingReport> {
                         ),
                         child: Column(
                           children: [
-                            const Row(
+                             Row(
                               children: [
                                 Icon(Icons.report,),
                                 SizedBox(width:10,),
@@ -855,6 +855,19 @@ class _PendingReportState extends State<PendingReport> {
                                     fontSize:20,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.refresh),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> PendingReport()));
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_back),
+                                  onPressed: () {
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                    Navigator.pop(context);
+                                  },
                                 ),
                               ],
                             ),

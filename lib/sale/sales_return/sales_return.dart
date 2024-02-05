@@ -912,6 +912,19 @@ class _SalesReturnState extends State<SalesReturn> {
                                         children: [
                                           const Icon(Icons.local_grocery_store, size:30),
                                           Text("Sales Return Entry",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold),),
+                                          IconButton(
+                                            icon: Icon(Icons.refresh),
+                                            onPressed: () {
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=> SalesReturn()));
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.arrow_back),
+                                            onPressed: () {
+                                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                              Navigator.pop(context);
+                                            },
+                                          ),
                                         ],
                                       ),
                                       Row(

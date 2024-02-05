@@ -851,6 +851,19 @@ class _PurchaseState extends State<SampleDC> {
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 25
                                             ),),
+                                            IconButton(
+                                              icon: Icon(Icons.refresh),
+                                              onPressed: () {
+                                                Navigator.push(context, MaterialPageRoute(builder: (context)=> SampleDC()));
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(Icons.arrow_back),
+                                              onPressed: () {
+                                                // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                                Navigator.pop(context);
+                                              },
+                                            ),
                                           ],
                                         ),
 
