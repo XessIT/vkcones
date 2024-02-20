@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:vinayaga_project/purchase/purchase_individual_report.dart';
 import 'package:vinayaga_project/purchase/purchase_overall_report.dart';
 import 'package:vinayaga_project/purchase/purchase_report_view.dart';
+import 'package:vinayaga_project/purchase/purchase_return.dart';
 
 import '../home.dart';
 import 'no_return_purchase_individual_pdf.dart';
@@ -235,6 +236,19 @@ class _PurchaseReportState extends State<PurchaseReport> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 22
                                 ),),
+                                IconButton(
+                                  icon: Icon(Icons.refresh),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> PurchaseReport()));
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_back),
+                                  onPressed: () {
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                    Navigator.pop(context);
+                                  },
+                                ),
                               ],),
                               Text(
                                 errorMessage ?? '',
@@ -707,9 +721,12 @@ class _YourDataTableSource extends DataTableSource {
                         weight: row["totalWeight"],
                         rate: row["rate"],
                         amtGST: row["amtGST"],
+                        gst: row["gst"],
                         total: row["total"],
                         grandTotal: row["grandTotal"],
                         payType: row["payType"],
+                        extraCharge: row["extraCharge"],
+                        discount: row["discount"],
 
                       ),
                     ),

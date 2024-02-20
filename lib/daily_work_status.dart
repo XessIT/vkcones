@@ -24,15 +24,16 @@ class RowData {
   List<String> serialnos = [];
   Map<String, String> idSNoMap;
   TextEditingController weights=TextEditingController();
+  TextEditingController numofpack=TextEditingController();
   TextEditingController totalqty=TextEditingController();
   TextEditingController numofproduction=TextEditingController();
   TextEditingController finishwight=TextEditingController();
   TextEditingController finishreel=TextEditingController();
   TextEditingController finisedwgt=TextEditingController();
-  //TextEditingController serialNo=TextEditingController();
   TextEditingController weight=TextEditingController();
   TextEditingController qtyController = TextEditingController();
-
+  TextEditingController selectedID = TextEditingController();
+  TextEditingController selectedSno = TextEditingController();
   RowData({this.itemGroup,this.itemName,this.quantity,required this.idSNoMap});
 
 }
@@ -82,6 +83,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
   DateTime date = DateTime.now();
   String? selectedmachinefinishing;
+
+  //fetch employee details
   Future<void> fetchData(String shiftType, String machName, DateTime desiredDate) async {
     final response = await http.get(
       Uri.parse('http://localhost:3309/fetch_daily_Work_status?shiftType=$shiftType&machName=$machName&desiredDate=$desiredDate'),
@@ -137,8 +140,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
   TextEditingController reelsgsm = TextEditingController();
   TextEditingController toDateController = TextEditingController();
   TextEditingController fromDateController = TextEditingController();
-  TextEditingController selectedID = TextEditingController();
-  TextEditingController selectedSno = TextEditingController();
+
   bool isExtraProductionVisible = false;
 
 
@@ -232,8 +234,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     getfinishinggsm();
     getitem();
     getitemname();
-
-
     getitemgroup();
     addRow();
     // TODO: implement initState
@@ -382,7 +382,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     });
   }
 
-  void deleteRow(int index) {
+  /* void deleteRow(int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -416,7 +416,127 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
         );
       },
     );
+  }*/
+
+
+  void deleteRow(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmation'),
+          content: Text('Are you sure you want to delete this row?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert dialog
+                setState(() {
+                  if (rowData.length == 1)  {
+                    // If it's the first row, clear input values instead of removing it
+                    rowData[index].prodgsm = null;
+                    rowData[index].serialNo = null;
+                    rowData[index].weight.text = "";
+                    rowData[index].itemGroup = null;
+                    rowData[index].itemName = null;
+                    rowData[index].numofproduction.text = "";
+                  } else {
+                    // Remove the row from the list for other rows
+                    rowData.removeAt(index);
+                  }
+                });
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
+
+
+  void deleteprintRow(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmation'),
+          content: Text('Are you sure you want to delete this row?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert dialog
+                setState(() {
+                  if (rowData.length == 1)  {
+                    // If it's the first row, clear input values instead of removing it
+                    rowData[index].prodgsm = null;
+                    rowData[index].itemGroup = null;
+                    rowData[index].itemName = null;
+                    rowData[index].numofproduction.text = "";
+                  } else {
+                    // Remove the row from the list for other rows
+                    rowData.removeAt(index);
+                  }
+                });
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  void deletefinishRow(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmation'),
+          content: Text('Are you sure you want to delete this row?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert dialog
+                setState(() {
+                  if (rowData.length == 1)  {
+                    // If it's the first row, clear input values instead of removing it
+                    rowData[index].prodgsm = null;
+                    rowData[index].itemGroup = null;
+                    rowData[index].itemName = null;
+                    rowData[index].numofproduction.text = "";
+                  } else {
+                    // Remove the row from the list for other rows
+                    rowData.removeAt(index);
+                  }
+                });
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
 
   void updateWeightsController(int index, String finishwightValue) {
@@ -597,7 +717,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
 
 
   //update finishing production
-  Future<void> updatefinishingprodution( String qty, String itemGroup,String itemName,String date) async {
+  Future<void> updatefinishingprodution( String qty, String totalcones, String itemGroup,String itemName,String date) async {
     final Uri url = Uri.parse('http://localhost:3309/update_finishing_dailywork'); // Replace with your actual backend URL
 
     final response = await http.post(
@@ -607,6 +727,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
       },
       body: jsonEncode(<String, dynamic>{
         'qty': qty,
+        'totalcones': totalcones,
         'itemGroup': itemGroup,
         'itemName':itemName,
         'date':date,
@@ -735,8 +856,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                         );*/
                             await updateRawMaterial(
                               rowData[i].prodgsm ?? "",
-                              int.parse(selectedID.text ?? ""),
-                              selectedSno.text,
+                              int.parse(rowData[i].selectedID.text),
+                              rowData[i].selectedSno.text,
                               int.parse(rowData[i].weight.text),
                               DateTime.now().toString(),
                             );
@@ -757,12 +878,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                             );
                           }
                           else if (deptType == "Finishing") {
-                            /*  await updatefinishingprodution(
-                        rowData[i].totalqty.text,
-                        rowData[i].itemGroup ?? "",
-                        rowData[i].itemName ?? "",
-                        DateTime.now().toString(),
-                        );*/
+                            await updatefinishingprodution(
+                              rowData[i].totalqty.text,
+                              rowData[i].numofproduction.text,
+                              rowData[i].itemGroup ?? "",
+                              rowData[i].itemName ?? "",
+                              DateTime.now().toString(),
+                            );
                             await updatewithprintingtofinishing(
                               rowData[i].prodgsm ?? "",
                               rowData[i].itemGroup ?? "",
@@ -776,7 +898,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                       }
                     });
                   },
-
                   child: Text("OK"),
                 ),
               ],
@@ -818,11 +939,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
         "fromDate": fromDate.toString(),
         "toDate": DateTime.now().toString(),
         "gsm": rowData[i].prodgsm,
-        'finish_reel':rowData[i].serialNo,
+        'finish_reel':  rowData[i].serialNo ,//rowData[i].selectedSno.text,
         'finish_weight':rowData[i].weight.text,
         "itemGroup": rowData[i].itemGroup,
         "itemName": rowData[i].itemName,
         "num_of_production": rowData[i].numofproduction.text,
+        "sNo_id": rowData[i].selectedID.text,
+        "id_sNo": rowData[i].serialNo,
       };
       insertFutures.add(insertDataorderitem(dataToInsertorditem));
     }
@@ -1059,6 +1182,129 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
     }
   }
 
+  Future<void> fetchUnitEntries(String selectedDate, String shiftType, String machName) async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:3309/daily_work_status_winding?selectedDate=$selectedDate&shiftType=$shiftType&machName=$machName'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        if (data.isNotEmpty) {
+          // Extract opOneName, assOne, asstwo from the first entry in the response
+          final Map<String, dynamic> entry = data[0];
+          final String opOneName = entry['opOneName'] ?? '';
+          final String assOne = entry['assOne'] ?? '';
+          final String asstwo = entry['asstwo'] ?? '';
+          final String empcode1 = entry['emp_code1'] ?? '';
+          final String empcode2 = entry['emp_code2'] ?? '';
+          final String empcode3 = entry['emp_code3'] ?? '';
+
+          // Update your state variables with the extracted values
+          setState(() {
+            person1.text = opOneName;
+            person2.text = assOne;
+            person3.text = asstwo;
+            person1code.text = empcode1;
+            person2code.text = empcode2;
+            person3code.text = empcode3;
+          });
+        }
+      } else {
+        throw Exception('Error loading unit entries: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load unit entries: $e');
+    }
+  }
+
+
+
+  Future<void> fetchprintingEntries(String selectedDate, String shiftType, String machName) async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:3309/daily_work_status_printing?selectedDate=$selectedDate&shiftType=$shiftType&machName=$machName'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        if (data.isNotEmpty) {
+          // Extract opOneName, assOne, asstwo from the first entry in the response
+          final Map<String, dynamic> entry = data[0];
+          final String opOneName = entry['opOneName'] ?? '';
+          final String assOne = entry['assOne'] ?? '';
+          //final String asstwo = entry['asstwo'] ?? '';
+          final String empcode1 = entry['emp_code1'] ?? '';
+          final String empcode2 = entry['emp_code2'] ?? '';
+
+          // Update your state variables with the extracted values
+          setState(() {
+            person1.text = opOneName;
+            person2.text = assOne;
+            person2code.text=empcode1;
+            person3code.text=empcode2;
+            // person3.text = asstwo;
+          });
+        }
+      } else {
+        throw Exception('Error loading unit entries: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load unit entries: $e');
+    }
+  }
+
+
+
+  Future<void> fetchfinishingEntries(String selectedDate, String shiftType, String machName) async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:3309/daily_work_status_finishing?selectedDate=$selectedDate&shiftType=$shiftType&machName=$machName'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        if (data.isNotEmpty) {
+          // Extract opOneName, assOne, asstwo from the first entry in the response
+          final Map<String, dynamic> entry = data[0];
+          final String opOneName = entry['opOneName'] ?? '';
+          final String assOne = entry['assOne'] ?? '';
+          final String empcode1 = entry['emp_code1'] ?? '';
+          final String empcode2 = entry['emp_code2'] ?? '';
+          //final String asstwo = entry['asstwo'] ?? '';
+
+          // Update your state variables with the extracted values
+          setState(() {
+            person1.text = opOneName;
+            person2.text = assOne;
+            person2code.text=empcode1;
+            person3code.text=empcode2;
+            //  person3.text = asstwo;
+          });
+        }
+      } else {
+        throw Exception('Error loading unit entries: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load unit entries: $e');
+    }
+  }
+
+  Future<void> getitemgroupinprint() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/getitemGroup/');
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> tempItemGroup = responseData;
+        final Set<String> uniqueItemGroups =
+        tempItemGroup.map((item) => item['itemGroup'] as String).toSet();
+        itemGroups = uniqueItemGroups.toList();
+        itemGroups.sort();
+
+        setState(() {
+          print('Item Groups: $itemGroups');
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -1090,7 +1336,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                     Padding(
+                                    Padding(
                                       padding: EdgeInsets.only(top:15.0),
                                       child: Padding(
                                           padding: EdgeInsets.only(left:15.0),
@@ -1111,6 +1357,13 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   Navigator.pop(context);
                                                 },
                                               ),
+                                              // IconButton(
+                                              //   icon: Icon(Icons.edit),
+                                              //   onPressed: () {
+                                              //     Navigator.push(context, MaterialPageRoute(builder: (context)=>DailyWorkStatusEdit()));
+                                              //     // Navigator.pop(context);
+                                              //   },
+                                              // ),
                                             ],
                                           )
                                       ),
@@ -1130,8 +1383,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 initialDate: eod,
                                                 firstDate: DateTime(2000),
                                                 // Set the range of selectable dates
-
-                                                lastDate: eod , //eod,
+                                                lastDate: DateTime.now(),  //eod,
                                               ).then((date) {
                                                 if (date != null) {
                                                   setState(() {
@@ -1464,6 +1716,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                 );
                                               }).toList(),
                                               onChanged: (String? newValue) async {
+
                                                 setState(() {
                                                   person1.clear();
                                                   person1code.clear();
@@ -1501,8 +1754,27 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                     },
                                                   );
                                                 } else {
+                                                  if(deptType=="Winding")
+                                                    fetchUnitEntries(
+                                                      DateFormat('yyyy-MM-dd').format(eod),
+                                                      shiftType!,
+                                                      selectedmachinefinishing!,
+                                                    );
+                                                  if(deptType=="Printing")
+                                                    fetchprintingEntries(
+                                                      DateFormat('yyyy-MM-dd').format(eod),
+                                                      shiftType!,
+                                                      selectedmachinefinishing!,
+                                                    );
+                                                  if(deptType=="Finishing")
+                                                    fetchfinishingEntries(
+                                                      DateFormat('yyyy-MM-dd').format(eod),
+                                                      shiftType!,
+                                                      selectedmachinefinishing!,
+                                                    );
+
                                                   // No duplicate entry, proceed to fetch data
-                                                  fetchData(shiftType.toString(), selectedmachinefinishing.toString(), fromDate);
+                                                  // fetchData(shiftType.toString(), selectedmachinefinishing.toString(), fromDate);
                                                 }
                                               },
                                             ),
@@ -1728,9 +2000,9 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                       defaultColumnWidth:  const FixedColumnWidth(130.0),
                                       columnWidths:   <int, TableColumnWidth>{
                                         0: const FixedColumnWidth(200),
-                                        1: checkboxvisible==false? FixedColumnWidth(0): FixedColumnWidth(100),
+                                        3: checkboxvisible==false? FixedColumnWidth(0): FixedColumnWidth(120),
                                         //if(selectedCheckbox==
-                                        2: checkboxvisible==false? FixedColumnWidth(0): FixedColumnWidth(100),
+                                        4: checkboxvisible==false? FixedColumnWidth(0): FixedColumnWidth(100),
                                         3:  FixedColumnWidth(120),
                                         4:  FixedColumnWidth(200),
                                         5: FixedColumnWidth(130),
@@ -1849,7 +2121,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                         for (var i = 0; i < rowData.length; i++)
                                           TableRow(children: [
                                             //GSM
-
                                             TableCell(
                                               child: SizedBox(
                                                 height: 60,
@@ -1913,80 +2184,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                               ),
                                             ),
 
-                                            /* TableCell(
-                                              child: SizedBox(
-                                                height: 60,
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                                  color: Colors.blue.shade100,
-                                                  child: Padding(
-                                                      padding: const EdgeInsets.all(5.0),
-                                                      child: TypeAheadFormField<String?>(
-                                                          textFieldConfiguration: TextFieldConfiguration(
-                                                            onChanged: (value){
-                                                            },
-                                                            controller: TextEditingController(text: rowData[i].prodgsm),
-                                                            decoration: InputDecoration(
-                                                              filled: true,
-                                                              fillColor: Colors.white,
-                                                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                                                            ),
-                                                            inputFormatters: [CapitalizeInputFormatter()],
-                                                          ),
-                                                          suggestionsCallback: (pattern) async {
-                                                            return suggesstiondata
-                                                                .where((item) =>
-                                                                (item['prodName']?.toString()?.toLowerCase() ?? '')
-                                                                    .startsWith('gsm'))
-                                                                .map((item) => item['prodName'].toString())
-                                                                .toList();
-                                                          },
-                                                          itemBuilder: (context, suggestion) {
-                                                            return ListTile(
-                                                              title: Text(suggestion!),
-                                                            );
-                                                          },
-                                                          onSuggestionSelected: (String? suggestion) async {
-                                                            if (gsm.contains(suggestion)) {
-
-                                                              setState(() {
-                                                               // rowData[i].serialNo = serialNo;
-                                                                rowData[i].prodgsm = suggestion;
-                                                              });
-                                                              withprintingValueGet( rowData[i].prodgsm!);
-                                                              // Log to verify the suggestion and prodName
-                                                              print('Selected prodName: $suggestion');
-                                                              try {
-                                                                // Call the fetchweight function with the selected prodName
-                                                                String weight = await fetchweight(suggestion!);
-                                                                String serialNo = await fetchsNo(suggestion!);
-                                                                setState(() {
-                                                                   rowData[i].serialNo = serialNo;
-                                                                });
-                                                                // Log to verify the retrieved weight
-                                                                print('Retrieved weight: $weight');
-
-                                                                // Update the corresponding TextField with the retrieved weight
-                                                                setState(() {
-                                                                  rowData[i].weights.text = weight;
-                                                                });
-                                                              } catch (error) {
-                                                                // Log any error during weight fetching
-                                                                print('Error fetching weight: $error');
-                                                              }
-                                                            } else {
-                                                              setState(() {
-                                                                rowData[i].itemGroup = null;
-                                                              });
-                                                              // Show an error message
-                                                            }
-                                                          }
-                                                      )
-                                                  ),
-                                                ),
-                                              ),
-                                            ),*/
-                                            //SERIAL NO
                                             Visibility(
                                               visible: checkboxvisible,
                                               child: TableCell(
@@ -2027,10 +2224,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           List<String> parts = suggestion!.split(' - ');
                                                           String selectedId = parts[0];
                                                           String selectedSNo = parts[1];
+
                                                           bool alreadySelected = rowData.sublist(0, i).any((row) =>
                                                           row.prodgsm == rowData[i].prodgsm &&
-                                                              rowData[i].serialNo == suggestion
+                                                              row.serialNo == suggestion
                                                           );
+
                                                           if (alreadySelected) {
                                                             // Show the alert dialog
                                                             showDialog(
@@ -2038,12 +2237,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                               builder: (BuildContext context) {
                                                                 return AlertDialog(
                                                                   title: Text('Alert'),
-                                                                  content: Text('Already Exist the Products'),
+                                                                  content: Text('Already exists in other rows'),
                                                                   actions: [
                                                                     TextButton(
                                                                       onPressed: () {
                                                                         Navigator.of(context).pop();
-                                                                        rowData[i].serialNo='';
+                                                                        rowData[i].serialNo = '';
                                                                         rowData[i].weight.clear();
                                                                       },
                                                                       child: Text('OK'),
@@ -2056,8 +2255,8 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                             // Continue with the rest of your logic
                                                             setState(() {
                                                               rowData[i].serialNo = selectedId + ' - ' + selectedSNo;
-                                                              selectedID.text = selectedId;
-                                                              selectedSno.text = selectedSNo;
+                                                              rowData[i].selectedID.text = selectedId;
+                                                              rowData[i].selectedSno.text = selectedSNo;
                                                               rowData[i].weight.clear();
                                                             });
 
@@ -2079,9 +2278,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                             }
                                                           }
                                                         },
-
-
-
                                                       ),
                                                     ),
                                                   ),
@@ -2089,79 +2285,6 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                               ),
                                             ),
 
-
-
-
-
-
-                                            /*Visibility(
-                                              visible: checkboxvisible,
-                                              child: TableCell(
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
-                                                  height: 60,
-                                                  color: Colors.blue.shade100,
-                                                  child: Padding(
-                                                    padding: EdgeInsets.all(5.0),
-                                                    child: TextFormField(
-                                                      controller: rowData[i].serialNo,
-                                                      keyboardType: TextInputType.number,
-                                                      onChanged: (value) async {
-                                                        String weight = await fetchqty(rowData[i].prodgsm!, value);
-                                                        // Check if the current product and serial number combination has already been selected
-                                                        bool alreadySelected = rowData.sublist(0, i).any((row) =>
-                                                        row.prodgsm == rowData[i].prodgsm &&
-                                                            row.serialNo.text == value
-                                                        );
-                                                        if (alreadySelected) {
-                                                          // Show the alert dialog
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (BuildContext context) {
-                                                              return AlertDialog(
-                                                                title: Text('Alert'),
-                                                                content: Text('Already Exist the Products'),
-                                                                actions: [
-                                                                  TextButton(
-                                                                    onPressed: () {
-                                                                      Navigator.of(context).pop();
-                                                                      rowData[i].serialNo.clear();
-                                                                      rowData[i].weight.clear();
-                                                                    },
-                                                                    child: Text('OK'),
-                                                                  ),
-                                                                ],
-                                                              );
-                                                            },
-                                                          );
-                                                        }
-                                                        // Update the state with the weight and other necessary actions
-                                                        setState(() {
-                                                          if (weight == "null") {
-                                                            rowData[i].weight.text = '0';
-                                                          } else if (weight.isEmpty) {
-                                                            rowData[i].weight.text = '0';
-                                                          } else {
-                                                            rowData[i].weight.text = weight;
-                                                          }
-                                                        });
-                                                      },
-                                                      inputFormatters: <TextInputFormatter>[
-                                                        FilteringTextInputFormatter.digitsOnly,
-                                                        LengthLimitingTextInputFormatter(2)
-                                                      ],
-                                                      decoration: const InputDecoration(
-                                                        filled: true,
-                                                        fillColor: Colors.white,
-                                                        enabledBorder: OutlineInputBorder(
-                                                          borderSide: BorderSide(color: Colors.grey),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),*/
                                             //FINISHED WEIGHT
                                             Visibility(
                                               visible: checkboxvisible,
@@ -2341,7 +2464,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                       visible: true,
                                                       child: IconButton(
                                                         icon: Icon(Icons.remove_circle_outline, color: Colors.red),
-                                                        onPressed: i > 0 ? () => deleteRow(i) : null,
+                                                        onPressed:  () => deleteRow(i) ,
                                                       ),
                                                     ),
                                                     Visibility(
@@ -2350,7 +2473,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                           rowData[i].serialNo != null &&
                                                           rowData[i].weight != null &&
                                                           rowData[i].itemGroup != null &&
-                                                          rowData[i].itemGroup != null &&
+                                                          rowData[i].itemName != null &&
                                                           rowData[i].numofproduction.text.isNotEmpty,
                                                       child: IconButton(
                                                         icon: Icon(Icons.add_circle_outline, color: Colors.green),
@@ -2446,9 +2569,9 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                       border: TableBorder.all(color: Colors.black54),
                                       defaultColumnWidth: const FixedColumnWidth(150.0),
                                       columnWidths: const <int, TableColumnWidth>{
-                                        0: FixedColumnWidth(200),
-                                        1: FixedColumnWidth(150),
-                                        2: FixedColumnWidth(200),
+                                        0: FixedColumnWidth(230),
+                                        1: FixedColumnWidth(170),
+                                        2: FixedColumnWidth(230),
                                         3: FixedColumnWidth(150),
                                       },
                                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -2763,7 +2886,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                       visible: true,
                                                       child: IconButton(
                                                         icon: Icon(Icons.remove_circle_outline, color: Colors.red),
-                                                        onPressed: i > 0 ? () => deleteRow(i) : null,
+                                                        onPressed:  () => deleteprintRow(i) ,
                                                       ),
                                                     ),
                                                     Visibility(
@@ -2862,12 +2985,12 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                         0: FixedColumnWidth(200),
                                         1: FixedColumnWidth(150),
                                         2: FixedColumnWidth(200),
-                                        3: FixedColumnWidth(150),
+                                        3: FixedColumnWidth(140),
+                                        4: FixedColumnWidth(100),
                                       },
                                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                       children: [
                                         TableRow(children: [
-
                                           TableCell(
                                             child: Container(
                                               color: Colors.blue.shade100,
@@ -2875,7 +2998,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                   child: Column(
                                                     children: [
                                                       Padding(
-                                                        padding: const EdgeInsets.all(8.0),
+                                                        padding: const EdgeInsets.all(10.0),
                                                         child: Text('GSM', style: TextStyle(fontWeight: FontWeight.bold)),
                                                       ),
                                                     ],
@@ -2913,8 +3036,21 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                               child: Center(child: Column(
                                                 children: [
                                                   Padding(
-                                                    padding: const EdgeInsets.all(8.0),
+                                                    padding: const EdgeInsets.all(10.0),
                                                     child: Text('Produced Cones', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                  ),
+                                                ],
+                                              )),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Container(
+                                              color: Colors.blue.shade100,
+                                              child: Center(child: Column(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(10.0),
+                                                    child: Text('Packs', style: TextStyle(fontWeight: FontWeight.bold)),
                                                   ),
                                                 ],
                                               )),
@@ -3082,6 +3218,36 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                         );
                                                       },
                                                       onSuggestionSelected: (String? suggestion) async {
+                                                        bool alreadySelected = rowData.sublist(0, i).any((row) =>
+                                                        row.prodgsm == rowData[i].prodgsm &&
+                                                            row.itemGroup == rowData[i].itemGroup &&
+                                                            row.itemName == suggestion
+                                                        );
+                                                        if (alreadySelected) {
+                                                          // Show the alert dialog
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (BuildContext context) {
+                                                              return AlertDialog(
+                                                                title: Text('Alert'),
+                                                                content: Text('Already Exist the Products'),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () {
+                                                                      setState(() {
+                                                                        rowData[i].prodgsm = "";  // Clear prodgsm field
+                                                                        rowData[i].itemGroup = "";  // Clear itemGroup field
+                                                                        rowData[i].numofproduction.text = "";
+                                                                      });
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                    child: Text('OK'),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          );
+                                                        }
                                                         setState(() {
                                                           print('Selected Item: $suggestion');
                                                           rowData[i].itemName = suggestion;
@@ -3117,6 +3283,37 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                         // Calculate totalqty only if numofproduction is a multiple of 500
                                                         int totalQty = numofproductionValue ~/ 500;
                                                         rowData[i].totalqty.text = totalQty.toString();
+
+                                                      });
+                                                    },
+                                                    inputFormatters: <TextInputFormatter>[
+                                                      FilteringTextInputFormatter.digitsOnly,
+                                                      LengthLimitingTextInputFormatter(5)
+                                                    ],
+                                                    decoration: const InputDecoration(
+                                                      filled: true,
+                                                      fillColor: Colors.white,
+                                                      enabledBorder: OutlineInputBorder(
+                                                        borderSide: BorderSide(color: Colors.grey),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0.5),
+                                                height: 60,
+                                                color: Colors.blue.shade100,
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(5.0),
+                                                  child: TextFormField(
+                                                    controller: rowData[i].totalqty,
+                                                    keyboardType: TextInputType.number,
+                                                    onChanged: (value) {
+                                                      setState(() {
+
                                                       });
                                                     },
                                                     inputFormatters: <TextInputFormatter>[
@@ -3144,7 +3341,7 @@ class _DailyWorkStatusState extends State<DailyWorkStatus> {
                                                       visible: true,
                                                       child: IconButton(
                                                         icon: Icon(Icons.remove_circle_outline, color: Colors.red),
-                                                        onPressed: i > 0 ? () => deleteRow(i) : null,
+                                                        onPressed: i > 0 ? () => deletefinishRow(i) : null,
                                                       ),
                                                     ),
                                                     Visibility(

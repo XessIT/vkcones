@@ -504,8 +504,6 @@ class _EntrySalesState extends State<EntrySales> {
       invoiceNumber = 'IN$year$month/001';
     }
     try{
-
-
       List<Future<void>> insertFutures = [];
       for (var i = 0; i < controllers.length; i++) {
         if (i >= controllers.length) {
@@ -547,7 +545,7 @@ class _EntrySalesState extends State<EntrySales> {
         insertFutures.add(insertDataSalesItem(dataToInsertPurchaseReturnItem));
         print("Data inserted for row $i");
         print('Inserting data: $dataToInsertPurchaseReturnItem');
-        updateStock(controllers[i][0].text, controllers[i][1].text, int.parse(controllers[i][2].text));
+        updateStock(controllers[i][0].text, controllers[i][1].text, int.parse(controllers[i][2].text), int.parse(controllers[i][4].text));
 
         //
         createInvoicePDF(invoiceNo:invoiceNumber.toString(),orderNo:orderNo.text.trim(),custCode:custCode.text,custName:custName.text,custAddress:custAddress.text,custMobile:custMobile.text,date:eod.toString(), grandtotal:grandTotal.text,pincode:pcpincode.text,gstin:gstin.text,transportNo:transNo.text);
@@ -1557,6 +1555,8 @@ class _EntrySalesState extends State<EntrySales> {
       }
     });
   }
+
+
   Future<void> fetchData2() async {
     try {
       final url = Uri.parse('http://localhost:3309/fetch_customer_details/');
@@ -1943,7 +1943,7 @@ class _EntrySalesState extends State<EntrySales> {
 
   List<String> itemGroups = [];
   List<String> itemNames = [];
-  Future<void> updateStock(String itemGroup, String itemName, int qty) async {
+  Future<void> updateStock(String itemGroup, String itemName, int qty, int totalcones) async {
     final Uri url = Uri.parse('http://localhost:3309/sales_to_update_Stock'); // Replace with your actual backend URL
     final response = await http.post(
       url,
@@ -1953,9 +1953,8 @@ class _EntrySalesState extends State<EntrySales> {
       body: jsonEncode(<String, dynamic>{
         'itemGroup': itemGroup,
         'itemName': itemName,
-        /*  'size': size,
-        'color': color,*/
         'qty': qty.toString(),
+        'totalcones': totalcones.toString(),
       }),
     );
 
@@ -2063,7 +2062,7 @@ class _EntrySalesState extends State<EntrySales> {
                                 Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                       Row(
+                                      Row(
                                         children: [
                                           SizedBox(height: 15,),
                                           Icon(Icons.local_grocery_store, size:30),

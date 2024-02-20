@@ -729,7 +729,7 @@ class _Other_workerState extends State<Other_worker> {
                                                       child: DropdownButton<String>(
                                                         value: dropdownvalue,
                                                         hint: Text("Shift type"),
-                                                        items: <String>['Shift Type','General',]
+                                                        items: <String>['Shift Type','Morning',]
                                                             .map<DropdownMenuItem<String>>((String value) {
                                                           return DropdownMenuItem<String>(
                                                             // enabled: false,

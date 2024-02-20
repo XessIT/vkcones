@@ -268,7 +268,7 @@ class _HomeState extends State<Home> {
 
                           buildDashboardItem(
                             title: '    Salary    ',
-                            icon: Icons.access_time,
+                            icon: Icons.money_off,
                             colors: [Colors.black26, Colors.blue],
                             onTap: () {
                               Navigator.push(

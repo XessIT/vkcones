@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +6,8 @@ import 'package:vinayaga_project/report/shift_overall_report.dart';
 import '../home.dart';
 import '../main.dart';
 import 'package:intl/intl.dart';
+
+
 
 
 class ShiftReport extends StatefulWidget {
@@ -108,14 +109,27 @@ class _ShiftReportState extends State<ShiftReport> {
         searchText = searchText.toLowerCase(); // Convert search text to lowercase once
 
         filteredData = data.where((item) {
-          String first_name = item['first_name']?.toString()?.toLowerCase() ?? '';
-          String emp_code = item['emp_code']?.toString()?.toLowerCase() ?? '';
-          String shiftType = item['shiftType']?.toString()?.toLowerCase() ?? '';
+          String startDateStr = item['fromDate']?.toString() ?? '';
+          String endDateStr = item['toDate']?.toString() ?? '';
+          DateTime? startDate = DateTime.tryParse(startDateStr);
+          DateTime? endDate = DateTime.tryParse(endDateStr);
 
-          return first_name.contains(searchText) ||
-              emp_code.contains(searchText) ||
-              shiftType.contains(searchText);
+          if (startDate != null && endDate != null) {
+            bool dateInRange = !startDate.isAfter(toDate!) && !endDate.isBefore(fromDate!);
+
+            String empName = item['first_name']?.toString()?.toLowerCase() ?? '';
+            String empCode = item['emp_code']?.toString()?.toLowerCase() ?? '';
+            String shiftType = item['shiftType']?.toString()?.toLowerCase() ?? '';
+            String searchTextLowerCase = searchController.text.toLowerCase();
+            bool matchesEmployeeName = empName.contains(searchTextLowerCase);
+            bool matchesEmployeeCode = empCode.contains(searchTextLowerCase);
+            bool matchesShiftType = shiftType.contains(searchTextLowerCase);
+
+            return dateInRange && (matchesEmployeeName || matchesShiftType);
+          }
+          return false;
         }).toList();
+
       }
 
       filteredData.sort((a, b) {
@@ -133,8 +147,6 @@ class _ShiftReportState extends State<ShiftReport> {
     print("Filtered Data Length: ${filteredData.length}");
   }
 
-
-
   void applyDateFilter() {
     setState(() {
       if (!isDateRangeValid) {
@@ -150,10 +162,12 @@ class _ShiftReportState extends State<ShiftReport> {
           bool dateInRange = !startDate.isAfter(toDate!) && !endDate.isBefore(fromDate!);
 
           String empName = item['first_name']?.toString()?.toLowerCase() ?? '';
+          String shiftType = item['shiftType']?.toString()?.toLowerCase() ?? '';
           String searchTextLowerCase = searchController.text.toLowerCase();
           bool matchesEmployeeName = empName.contains(searchTextLowerCase);
+          bool matchesShiftType = shiftType.contains(searchTextLowerCase);
 
-          return dateInRange && matchesEmployeeName;
+          return dateInRange && (matchesEmployeeName || matchesShiftType);
         }
         return false;
       }).toList();
@@ -453,7 +467,8 @@ class _ShiftReportState extends State<ShiftReport> {
                                             });
                                           } else {
                                             isDateRangeValid = true;
-                                            filterData(searchController.text);
+                                            applyDateFilter();
+                                            //  filterData(searchController.text);
                                           }
                                         },
                                         child: const Text("Generate", style: TextStyle(color: Colors.white)),

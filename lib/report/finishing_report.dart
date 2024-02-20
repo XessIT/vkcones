@@ -51,6 +51,8 @@ class _FinishingReportState extends State<FinishingReport> {
   List<String> itemGroupValues = [];
   List<String> invoiceNumber = [];
   String selectedCustomer="";
+
+
   Future<void> fetchData() async {
     try {
       final url = Uri.parse('http://localhost:3309/finishing_entry_get_report/');
@@ -118,6 +120,9 @@ class _FinishingReportState extends State<FinishingReport> {
     });
     print("Filtered Data Length: ${filteredData.length}");
   }
+
+
+
   void applyDateFilter() {
     setState(() {
       if (!isDateRangeValid) {

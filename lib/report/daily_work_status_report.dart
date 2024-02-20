@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:vinayaga_project/report/dailyWorkstatus_pdf.dart';
 
 import '../home.dart';
+import 'daily_work_report_view.dart';
 
 class DailyWorkStatusReport extends StatefulWidget {
   const DailyWorkStatusReport({Key? key}) : super(key: key);
@@ -45,6 +46,7 @@ class _DailyWorkStatusReportState extends State<DailyWorkStatusReport> {
   DateTime? fromDates;
   DateTime? toDate;
   TextEditingController searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   List<String> itemGroupValues = [];
   List<String> invoiceNumber = [];
@@ -495,36 +497,48 @@ class _DailyWorkStatusReportState extends State<DailyWorkStatusReport> {
 
                       const SizedBox(height: 20,),
                       filteredData.isEmpty? Text("No Data Available",style: (TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),):
-                      PaginatedDataTable(
-                        columnSpacing:30, rowsPerPage:25,
-                        columns: [
-                          const DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold,),))),
-                          const DataColumn(label: Center(child: Text("Shift Date",style: TextStyle(fontWeight: FontWeight.bold),))),
-                          const DataColumn(label: Center(child: Text("Department Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                          const DataColumn(label: Center(child: Text("Shift Type",style: TextStyle(fontWeight: FontWeight.bold),))),
-                          const DataColumn(label: Center(child: Text("Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
-                          const DataColumn(label: Center(child: Text("    Person 1",style: TextStyle(fontWeight: FontWeight.bold),))),
-                          const DataColumn(label: Center(child: Text("    Person 2",style: TextStyle(fontWeight: FontWeight.bold),))),
-                          const DataColumn(label: Center(child: Text("    Person 3",style: TextStyle(fontWeight: FontWeight.bold),))),
-                          const DataColumn(label: Center(child: Text("Finished reels",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
-                          const DataColumn(label: Center(child: Text("Finsihed Weight",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
-                          const DataColumn(label: Center(child: Text("Production\n Qty",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
-                          const DataColumn(label: Center(child: Text("Extra Production",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
+                      Scrollbar(
+                        thumbVisibility: true,
+                        controller: _scrollController,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _scrollController,
+                          child: SizedBox(
+                            width:1200,
+                            child: PaginatedDataTable(
+                              columnSpacing:30, rowsPerPage:25,
+                              columns: [
+                                const DataColumn(label: Center(child: Text("S.No",style: TextStyle(fontWeight: FontWeight.bold,),))),
+                                const DataColumn(label: Center(child: Text("Shift Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                const DataColumn(label: Center(child: Text("Department Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                const DataColumn(label: Center(child: Text("Shift Type",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                const DataColumn(label: Center(child: Text("Machine Name",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                const DataColumn(label: Center(child: Text("    Person 1",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                const DataColumn(label: Center(child: Text("    Person 2",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                const DataColumn(label: Center(child: Text("    Person 3",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                const DataColumn(label: Center(child: Text("Finished reels",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
+                                const DataColumn(label: Center(child: Text("Finsihed Weight",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
+                                const DataColumn(label: Center(child: Text("Production\n Qty",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
+                                const DataColumn(label: Center(child: Text("Extra Production",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
+                                const DataColumn(label: Center(child: Text("Action",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13),))),
 
 
 
 /*
-                                const DataColumn(label: Center(child: Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      const DataColumn(label: Center(child: Text("Grand Total",style: TextStyle(fontWeight: FontWeight.bold),))),
 */
-                          /* DataColumn(
-                                        label: const Center(child: Text("   Action", style: TextStyle(fontWeight: FontWeight.bold))),
-                                        onSort: (columnIndex, ascending) {
-                                        },
-                                        tooltip: "Action",
-                                      ),*/
+                                /* DataColumn(
+                                              label: const Center(child: Text("   Action", style: TextStyle(fontWeight: FontWeight.bold))),
+                                              onSort: (columnIndex, ascending) {
+                                              },
+                                              tooltip: "Action",
+                                            ),*/
 
-                        ],
-                        source: _YourDataTableSource(filteredData,context,generatedButton),
+                              ],
+                              source: _YourDataTableSource(filteredData,context,generatedButton),
+                            ),
+                          ),
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -627,6 +641,74 @@ class _YourDataTableSource extends DataTableSource {
         DataCell(Center(child: Text("${row["finish_weight"]}"))),
         DataCell(Center(child: Text("${row["productionQty"]}"))),
         DataCell(Center(child: Text("${row["extraproduction"]}"))),
+        DataCell(Center(child:Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Container(
+            height:50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                //  if(generatedButton == true)
+                IconButton(
+                  icon: const Icon(Icons.remove_red_eye_outlined),
+                  color: Colors.blue.shade600,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DailyWorkView(
+                          shiftType: row["shiftType"].toString(),
+                          machineName: row["machineName"].toString(),
+                          machineType: row["machineType"].toString(),
+                          deliveryDate: row["deliveryDate"]?.toString() ?? '', // Handle null case
+                          deliveryType: row["deliveryType"]?.toString() ?? '', // Handle null case
+                          operator: row["person1"].toString(),
+                          assistentone: row["person2"].toString(),
+                          assistenttwo: row["person3"].toString(),
+                          totalproduction: row["productionQty"].toString(),
+                          extraproduction: row["extraproduction"].toString(),
+                          qty: row["qty"].toString(),
+                          date: row["createDate"].toString(),
+                          //grandTotal:row["grandTotal"].toString(),
+                          customerData: datas,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                SizedBox(width: 10,),
+                //   if(generatedButton == true)
+                /*IconButton(
+                  icon: const Icon(Icons.print),
+                  color: Colors.blue.shade600,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CustomerOrderIndividualReport(
+                          orderNo: row["orderNo"].toString(),
+                          date: row["date"],
+                          customerName: row["custName"],
+                          customerMobile: row["custMobile"].toString(),
+                          customerAddress: row["custAddress"].toString(),
+                          customercode: row["custCode"].toString(),
+                          itemGroup: row["itemGroup"].toString(),
+                          deliveryType: row["deliveryType"]?.toString(),
+                          deliveryDate: row["deliveryDate"],
+                          itemName: row["itemName"].toString(),
+                          qty: row["qty"].toString(),
+                          GSTIN: row["gstin"].toString(),
+                        ),
+                      ),
+                    );
+                  },
+                ),*/
+
+              ],
+            ),
+          ),
+        ),)),
       ],
     );
   }

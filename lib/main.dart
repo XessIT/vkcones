@@ -32,6 +32,7 @@ import 'package:vinayaga_project/purchase/purchase_order_report.dart';
 //import 'package:vinayaga_project/purchase_report.dart';
 import 'package:vinayaga_project/purchase/purchase_return.dart';
 import 'package:vinayaga_project/purchase/purchase_return_report.dart';
+import 'package:vinayaga_project/purchase/selftest.dart';
 import 'package:vinayaga_project/report/Other_Worker_Report.dart';
 import 'package:vinayaga_project/report/balance_sheet_report.dart';
 import 'package:vinayaga_project/report/customer_report.dart';
@@ -130,7 +131,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'Vinayaga Cones',
       initialRoute: 'loginpage',
-      // routes: {'loginpage':(context)=> LoginPAge()},
+       routes: {'loginpage':(context)=> LoginPAge()},
       theme: ThemeData (
         primaryColor: Colors.indigo,
         hintColor: Colors.indigoAccent,
@@ -171,8 +172,7 @@ class _MyAppState extends State<MyApp> {
 
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            primary: Colors.white,
-            backgroundColor: Colors.red,
+            foregroundColor: Colors.white, backgroundColor: Colors.red,
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
             textStyle: const TextStyle(fontSize: 15),
           ),
@@ -180,7 +180,7 @@ class _MyAppState extends State<MyApp> {
 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: Colors.green.shade800,
+            backgroundColor: Colors.green.shade800,
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
             textStyle: const TextStyle(fontSize: 15),
           ),
@@ -372,6 +372,8 @@ class _MyAppState extends State<MyApp> {
         return const PurchaseBalanceSheet();
         case 'purchase_balance_report':
         return const PurchaseBalanceReport();
+      case 'Self':
+        return const Self();
 
     }
     return null;
@@ -496,6 +498,10 @@ class MyScaffold extends StatelessWidget {
           route: 'worker_entry',
         ),
         AdminMenuItem(
+          title: 'Production',
+          route: 'production_entry',
+        ),
+        AdminMenuItem(
           title: 'Raw_Material',
           route: 'raw_material_entry',
         ),
@@ -511,10 +517,7 @@ class MyScaffold extends StatelessWidget {
           title: 'Finishing Entry',
           route: 'finishing_entry',
         ),*/
-        // AdminMenuItem(
-        //   title: 'Production',
-        //   route: 'production_entry',
-        // ),
+
       ],
     ),
     AdminMenuItem(
@@ -679,6 +682,10 @@ class MyScaffold extends StatelessWidget {
           AdminMenuItem(
             title: 'View',
             route: 'view',
+          ),
+          AdminMenuItem(
+            title: 'Self',
+            route: 'Self',
           ),
         ]),
     // AdminMenuItem(

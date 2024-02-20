@@ -317,6 +317,96 @@ class _PoCreationState extends State<PoCreation> {
     }
   }
   Future<void> submitItem() async {
+    try {
+      String purchaseDateString = deliveryDate.text;
+      String formattedDeliveryDate = deliveryDate.text ?? '';
+
+      DateTime purchaseDateTime;
+      if (purchaseDateString != null && purchaseDateString.isNotEmpty) {
+        purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+      } else {
+        purchaseDateTime = DateTime.now();
+      }
+
+      DateTime now = DateTime.now();
+      String year = (now.year % 100).toString();
+      String month = now.month.toString().padLeft(2, '0');
+
+      List<Future<void>> insertFutures = [];
+      if (poNumber.isEmpty) {
+        poNumber = 'PO$year$month/001';
+      }
+
+      for (var i = 0; i < controllers.length; i++) {
+        Map<String, dynamic> dataToInsertSupItem1 = {
+          'deliveryDate': formattedDeliveryDate,
+          'prodCode': controllers[i][0].text,
+          'prodName': controllers[i][1].text,
+          'unit': controllers[i][2].text,
+          'qty': controllers[i][3].text,
+          'date': eod.toString(),
+          'poNo': poNumber,
+          'supName': supName.text,
+          'supCode': supCode.text,
+        };
+
+        await insertDataSupItem1(dataToInsertSupItem1);
+        print('Data inserted successfully for index $i');
+      }
+
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('PO'),
+            content: Text('Saved Successfully'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PoCreation()),
+                  );
+                },
+                child: Text('OK'),
+              ),
+              TextButton(
+                onPressed: () {
+                  String supplierName = supName.text;
+                  String supplierCode = supCode.text;
+                  String PoNo = generateId();
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PoentryPDF(
+                        poNo: generateId(),
+                        supCode: supplierCode,
+                        supName: supName.text,
+
+                        deliveryDate: formattedDeliveryDate,
+                        date: eod.toString(),
+                        supMobile: supMobile.text,
+                        supAddress: supAddress.text,
+                      ),
+                    ),
+                  );
+                },
+                child: Text('PRINT'),
+              ),
+            ],
+          );
+        },
+      );
+
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
+
+ /* Future<void> submitItem() async {
     String purchaseDateString = deliveryDate.text;
     String formattedDeliveryDate = deliveryDate.text ?? ''; // Provide a default value if null
 
@@ -416,7 +506,7 @@ class _PoCreationState extends State<PoCreation> {
     } catch (e) {
       print('Error inserting data: $e');
     }
-  }
+  }*/
   bool isDuplicateProductCode(String productCode, int currentRowIndex) {
     for (int i = 0; i < controllers.length; i++) {
       if (i != currentRowIndex &&
@@ -735,12 +825,6 @@ class _PoCreationState extends State<PoCreation> {
                                                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                                 ),
                                               ),
-                                              /*  poNumber.isEmpty ?
-                                          Align(
-                                            alignment: Alignment.topLeft,
-                                            alignment: Alignment.topLeft,
-                                            child: Text("PO000"),
-                                          ):*/
                                               Align(
                                                 alignment: Alignment.topLeft,
                                                 child: Text(poNumber.isEmpty ? "PO${DateTime.now().year % 100}${DateTime.now().month.toString().padLeft(2, '0')}/001" : poNumber),

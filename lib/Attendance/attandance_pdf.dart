@@ -89,6 +89,14 @@ class _AttendancePdfState extends State<AttendancePdf> {
 
     return ""; // Return a default value if there's an error
   }
+  bool isBetweenLunchOutTime(String lunchOutTime) {
+    if (lunchOutTime == "00:00:00") {
+      return false; // Handle the "00:00:00" case as needed
+    }
+
+    DateTime dummyDate = DateTime.parse("2000-01-01 $lunchOutTime");
+    return dummyDate.hour >= 16 && dummyDate.hour < 19;
+  }
 
   pw.Widget _buildFooter(pw.Context context, int currentPage, int totalPages) {
     // ... (rest of your code)
@@ -362,8 +370,12 @@ class _AttendancePdfState extends State<AttendancePdf> {
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(
-                                              formatTimeOrZero(data['lunch_out']),
-                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                              formatTimeOrZero(
+                                                (data['shiftType'] == "General" && isBetweenLunchOutTime(data['lunch_out']))
+                                                    ? "00:00:00"
+                                                    : data['lunch_out'],
+                                              ),
+                                              style: pw.TextStyle(fontSize: 8, font: font1),
                                             ),
                                           ),
                                         ),
@@ -380,8 +392,12 @@ class _AttendancePdfState extends State<AttendancePdf> {
                                           padding: pw.EdgeInsets.all(8.0),
                                           child: pw.Center(
                                             child: pw.Text(
-                                              formatTime(data['check_out']),
-                                              style: pw.TextStyle(fontSize: 8,font:font1),
+                                              formatTime(
+                                                (data['shiftType'] == "General" && isBetweenLunchOutTime(data['lunch_out']))
+                                                    ? data['lunch_out']
+                                                    : data['check_out'],
+                                              ),
+                                              style: pw.TextStyle(fontSize: 8, font: font1),
                                             ),
                                           ),
                                         ),

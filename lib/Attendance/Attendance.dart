@@ -272,8 +272,7 @@ class _AttendanceState extends State<Attendance> {
                           _showPasswordDialog(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.white, // Button color
-                          onPrimary: Colors.black, // Text color
+                          foregroundColor: Colors.black, backgroundColor: Colors.white, // Text color
                           padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8), // Adjust the border radius as needed

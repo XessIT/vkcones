@@ -6,54 +6,56 @@ import 'package:vinayaga_project/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:vinayaga_project/purchase/purchase_order_report.dart';
 
-
-
-class PurchaseView extends StatefulWidget {
-  String? orderNo;
-  String? customerMobile;
-  String? date;
-  String? customerName;
-  String? customercode;
-  String? customerAddress;
-  String? pincode;
-  String? itemGroup;
-  String? itemName;
+class DailyWorkView extends StatefulWidget {
+  String? machineType;
+  String? machineName;
+  String? shiftType;
+  String? assistentone;
+  String? assistenttwo;
+  String? operator;
+  String? totalproduction;
+  String? extraproduction;
   String? deliveryDate;
   String? deliveryType;
   String? qty;
+  String? date;
   String? totQty;
   String? GSTIN;
-  PurchaseView({Key? key,
-    required this.orderNo,
-    required this.date,
-    required this.customercode,
-    required this.customerMobile,
-    required this.customerName,
-    required this.pincode,
-    required this.GSTIN,
-    required this.totQty,
+  List<Map<String, dynamic>> customerData; // Add this line
+  DailyWorkView({
+    Key? key,
+    required this.assistentone,
+    required this.operator,
+    required this.assistenttwo,
+    required this.shiftType,
+    required this.machineName,
+    required this.machineType,
     required this.qty,
-    required this.itemName,
+    required this.date,
+    required this.extraproduction,
     required this.deliveryDate,
     required this.deliveryType,
-    required this.customerAddress,
-    required this.itemGroup,
-    required List<Map<String, dynamic>> customerData}) : super(key: key);
-
-  //dcViwe({Key? key,required this.dcNo, required this.date}) : super(key: key);
+    required this.totalproduction,
+    required this.customerData, // Add this line
+  }) : super(key: key);
 
   @override
-  State<PurchaseView> createState() => _PurchaseViewState();
+  State<DailyWorkView> createState() => _DailyWorkViewState();
 }
 
-class _PurchaseViewState extends State<PurchaseView> {
 
+class _DailyWorkViewState extends State<DailyWorkView> {
 
+  late List<Map<String, dynamic>> customerData;
+  @override
+  void initState() {
+    super.initState();
+    customerData = widget.customerData;
+  }
 
-
-  Future<List<Map<String, dynamic>>> fetchUnitEntries(String orderNo) async {
+  Future<List<Map<String, dynamic>>> fetchUnitEntries(String createDate,String shiftType,String machineName,String machineType) async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:3309/purchase_item_view?orderNo=$orderNo'));
+      final response = await http.get(Uri.parse('http://localhost:3309/daily_work_status_view?createDate=$createDate&shiftType=$shiftType&machineName=$machineName&machineType=$machineType'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.cast<Map<String, dynamic>>();
@@ -113,19 +115,7 @@ class _PurchaseViewState extends State<PurchaseView> {
   List<Map<String, dynamic>> customerdata = [];
 
 
-  Future<List<Map<String, dynamic>>> fetchEntries(String customercode) async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:3309/customer_view?custCode=$customercode'));
-      if (response.statusCode == 200) {
-        final List<dynamic> customerdata = json.decode(response.body);
-        return customerdata.cast<Map<String, dynamic>>();
-      } else {
-        throw Exception('Error loading unit entries: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to load unit entries: $e');
-    }
-  }
+
 
   TextEditingController custCodeController = TextEditingController();
   void filtercustData(String searchText) {
@@ -152,11 +142,8 @@ class _PurchaseViewState extends State<PurchaseView> {
     orderNo.addListener(() {
       filterData(orderNo.text);
     });
-    custCode.addListener(() {
-      filtercustData(custCode.text);
-    });
-    return  MyScaffold(route: "dcview",backgroundColor: Colors.white,
-
+    return  MyScaffold(
+        route: "dailywork",backgroundColor: Colors.white,
         body: Form(
             key: _formKey,
             child:SingleChildScrollView(
@@ -188,10 +175,10 @@ class _PurchaseViewState extends State<PurchaseView> {
                                         height: 30,
                                       ),
                                     ),
-                                    Container(constraints: BoxConstraints(maxWidth: 300),
-                                      child: const Text(" Sales Order Report ", style: TextStyle(
+                                    Container(constraints: BoxConstraints(maxWidth: 400),
+                                      child: const Text(" Daily Work Status Report ", style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 25
+                                          fontSize: 20
                                       ),),
                                     ),
                                   ],
@@ -206,31 +193,8 @@ class _PurchaseViewState extends State<PurchaseView> {
                                           child: Column(
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.only(right:30.0),
-                                                child: Text(widget.date.toString() != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse("${widget.date}")):"", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),),
-                                              ),
-                                              Divider(
-                                                color: Colors.grey.shade600,
-                                              ),
-                                              Wrap(
-                                                  children:[
-                                                    Column(
-                                                      children: [
-                                                        SizedBox(
-                                                          child:  Text("Order Number",style: TextStyle(fontWeight: FontWeight.bold),),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    Column(children: [
-                                                      Align(
-                                                        alignment: Alignment.topLeft,
-                                                        child://Text("009"),
-                                                        Text(widget.orderNo.toString(),style: TextStyle(
-                                                            color: Colors.black
-                                                        ),),
-                                                      ),
-                                                    ],),
-                                                  ]
+                                                padding: const EdgeInsets.only(right:0.0),
+                                                child: Text(widget.date.toString() != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse("${widget.date}").toLocal()):"", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),),
                                               ),
                                             ],
                                           ),
@@ -261,275 +225,183 @@ class _PurchaseViewState extends State<PurchaseView> {
                               alignment:Alignment.topLeft,
                               child:Padding(
                                 padding: const EdgeInsets.only(right:100),
-                                child: Text(" Customer Details",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                                child: Text("Employee Details",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
-
-
                             SizedBox(height: 20,),
-
                             Wrap(
                               runSpacing: 20,
                               spacing: 36,
                               children: [
                                 SizedBox(
                                   width: 220,
-                                  height: 50,
+                                  height: 30,
                                   child: TextFormField(
                                     readOnly: true,
-                                    initialValue: widget.customercode,
+                                    initialValue: widget.shiftType.toString(),
                                     style: TextStyle(
                                         fontSize: 13),
                                     keyboardType: TextInputType.text,
                                     decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
-                                        labelText: "Customer Code",
+                                        labelText: "Shift",
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8,),
                                         )
                                     ),
                                   ),
                                 ),
-
                                 SizedBox(
                                   width: 220,
-                                  height: 50,
+                                  height: 30,
                                   child: TextFormField(
                                     readOnly: true,
-                                    initialValue: widget.customerName,
+                                    initialValue: widget.machineType.toString(),
                                     style: TextStyle(
                                         fontSize: 13),
                                     keyboardType: TextInputType.text,
                                     decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
-                                        labelText: "Customer/Company Name",
+                                        labelText: "Machine",
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8,),
                                         )
                                     ),
                                   ),
                                 ),
-
                                 SizedBox(
                                   width: 220,
-                                  height: 50,
-                                  child: FutureBuilder<List<Map<String, dynamic>>>(
-                                    future: fetchEntries(widget.customercode.toString()),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState == ConnectionState.waiting) {
-                                        return Center(child: CircularProgressIndicator());
-                                      } else if (snapshot.hasError) {
-                                        return Center(child: Text('Error: ${snapshot.error}'));
-                                      } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-                                        // Extract the customer address from the snapshot data
-                                        String customerMobile = snapshot.data![0]["custMobile"].toString();
-                                        return SizedBox(
-                                          width: 200,
-                                          height: 30,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            initialValue: customerMobile,
-                                            style: TextStyle(fontSize: 13),
-                                            keyboardType: TextInputType.text,
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Customer Mobile",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        // Return a default widget when none of the conditions are met
-                                        return Container(); // Or any other widget you want to display
-                                      }
-                                    },
+                                  height: 30,
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    initialValue: widget.machineName.toString(),
+                                    style: TextStyle(
+                                        fontSize: 13),
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: "Machine Name",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8,),
+                                        )
+                                    ),
                                   ),
                                 ),
                                 SizedBox(
                                   width: 220,
-                                  height: 50,
-                                  child: FutureBuilder<List<Map<String, dynamic>>>(
-                                    future: fetchEntries(widget.customercode.toString()),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState == ConnectionState.waiting) {
-                                        return Center(child: CircularProgressIndicator());
-                                      } else if (snapshot.hasError) {
-                                        return Center(child: Text('Error: ${snapshot.error}'));
-                                      } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-                                        // Extract the customer address from the snapshot data
-                                        String customerAddress = snapshot.data![0]["custAddress"];
-                                        return SizedBox(
-                                          width: 218,
-                                          height: 70,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            initialValue: customerAddress,
-                                            style: TextStyle(fontSize: 13),
-                                            keyboardType: TextInputType.text,
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Customer Address",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        // Return a default widget when none of the conditions are met
-                                        return Container(); // Or any other widget you want to display
-                                      }
-                                    },
+                                  height: 30,
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    initialValue: widget.totalproduction.toString(),
+                                    style: TextStyle(
+                                        fontSize: 13),
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: "Production",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8,),
+                                        )
+                                    ),
                                   ),
-
                                 ),
-
-
-
-
+                              ],
+                            ),
+                            SizedBox(height: 20,),
+                            Wrap(
+                              runSpacing: 20,
+                              spacing: 36,
+                              children: [
+                                SizedBox(
+                                  width: 220,
+                                  height: 30,
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    initialValue: widget.operator.toString(),
+                                    style: TextStyle(
+                                        fontSize: 13),
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: "Person 1",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8,),
+                                        )
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 220,
+                                  height: 30,
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    initialValue: widget.assistentone.toString(),
+                                    style: TextStyle(
+                                        fontSize: 13),
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: "Person 2",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8,),
+                                        )
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 220,
+                                  height: 30,
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    initialValue: widget.assistenttwo.toString(),
+                                    style: TextStyle(
+                                        fontSize: 13),
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: "Person 3",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8,),
+                                        )
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 220,
+                                  height: 30,
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    initialValue: widget.extraproduction.toString(),
+                                    style: TextStyle(
+                                        fontSize: 13),
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: "Extra Production",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8,),
+                                        )
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
 
-                            Padding(
-                              padding: const EdgeInsets.only(top:30),
-                              child: Wrap(
-                                runSpacing: 20,
-                                spacing: 36,
-                                children: [
-                                  SizedBox(
-                                    width: 220,
-                                    height: 50,
-                                    child: FutureBuilder<List<Map<String, dynamic>>>(
-                                      future: fetchEntries(widget.customercode.toString()),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return Center(child: CircularProgressIndicator());
-                                        } else if (snapshot.hasError) {
-                                          return Center(child: Text('Error: ${snapshot.error}'));
-                                        } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-                                          // Extract the customer address from the snapshot data
-                                          String pincode = snapshot.data![0]["pincode"];
-                                          return SizedBox(
-                                            width: 218,
-                                            height: 70,
-                                            child: TextFormField(
-                                              readOnly: true,
-                                              initialValue: pincode,
-                                              style: TextStyle(fontSize: 13),
-                                              keyboardType: TextInputType.text,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                labelText: "Pincode",
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        } else {
-                                          // Return a default widget when none of the conditions are met
-                                          return Container(); // Or any other widget you want to display
-                                        }
-                                      },
-                                    ),
-
-                                  ),
-
-                                  SizedBox(
-                                    width: 220,
-                                    height: 50,
-                                    child: FutureBuilder<List<Map<String, dynamic>>>(
-                                      future: fetchEntries(widget.customercode.toString()),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return Center(child: CircularProgressIndicator());
-                                        } else if (snapshot.hasError) {
-                                          return Center(child: Text('Error: ${snapshot.error}'));
-                                        } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-                                          // Extract the customer address from the snapshot data
-                                          String GSTIN = snapshot.data![0]["gstin"];
-                                          return SizedBox(
-                                            width: 200,
-                                            height: 70,
-                                            child: TextFormField(
-                                              readOnly: true,
-                                              initialValue: GSTIN,
-                                              style: TextStyle(fontSize: 13),
-                                              keyboardType: TextInputType.text,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                labelText: "GSTIN",
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        } else {
-                                          // Return a default widget when none of the conditions are met
-                                          return Container(); // Or any other widget you want to display
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 220,
-                                    height: 50,
-                                    child: TextFormField(
-                                      readOnly: true,
-                                      initialValue: widget.deliveryType ?? '',
-                                      style: TextStyle(fontSize: 13),
-                                      keyboardType: TextInputType.text,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        labelText: "Delivery Type",
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 220,
-                                    height: 50,
-                                    child: TextFormField(
-                                      readOnly: true,
-                                      initialValue: widget.deliveryDate != null && widget.deliveryDate!.isNotEmpty
-                                          ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.deliveryDate!).toLocal())
-                                          : null,
-                                      style: TextStyle(fontSize: 13),
-                                      keyboardType: TextInputType.text,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        labelText: "Expected Delivery Date",
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            SizedBox(height: 10,),
 
                             Align(
                               alignment:Alignment.topLeft,
                               child:Padding(
                                 padding: const EdgeInsets.only(top:10),
-                                child: Text("Product Details",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                                child: Text("Production Details",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -538,8 +410,14 @@ class _PurchaseViewState extends State<PurchaseView> {
                             Container(
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
-                                child: FutureBuilder<List<Map<String, dynamic>>>(
-                                    future: fetchUnitEntries(widget.orderNo.toString()),
+                                child: FutureBuilder<List<Map<String, dynamic>>>
+                                  (
+                                    future: fetchUnitEntries(
+                                      widget.date.toString(),
+                                      widget.shiftType.toString(),
+                                      widget.machineName.toString(), // Assuming you have machineName property in your widget
+                                      widget.machineType.toString(), // Assuming you have machineType property in your widget
+                                    ),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
                                         // Your table-building logic
@@ -554,20 +432,22 @@ class _PurchaseViewState extends State<PurchaseView> {
                                             border: TableBorder.all(
                                                 color: Colors.black54
                                             ),
-                                            defaultColumnWidth: const FixedColumnWidth(605.0),
+                                            defaultColumnWidth: const FixedColumnWidth(100.0),
                                             columnWidths: const <int, TableColumnWidth>{
                                               0:FixedColumnWidth(52),
-                                              1:FixedColumnWidth(300),
-                                              2:FixedColumnWidth(300),
-                                              3:FixedColumnWidth(165),
-                                              4:FixedColumnWidth(165),
-
+                                              1:FixedColumnWidth(100),
+                                              2:FixedColumnWidth(100),
+                                              3:FixedColumnWidth(100),
+                                              4:FixedColumnWidth(100),
+                                              5:FixedColumnWidth(150),
+                                              6:FixedColumnWidth(150),
                                             },
                                             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                             children:[
                                               //Table row starting
                                               TableRow(
                                                   children: [
+                                                    //sno
                                                     TableCell(
                                                         child:Container(
                                                           color:Colors.blue.shade200,
@@ -580,8 +460,46 @@ class _PurchaseViewState extends State<PurchaseView> {
                                                               ],
                                                             ),),
                                                         )),
-                                                    //Meeting Name
+                                                    //Finished GSM
                                                     TableCell(
+                                                        child:Container(
+                                                          color:Colors.blue.shade200,
+                                                          child: Center(
+                                                            child: Column(
+                                                              children: [
+                                                                const SizedBox(height: 8,),
+                                                                Text('GSM',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                const SizedBox(height: 8,)
+                                                              ],
+                                                            ),),
+                                                        )),
+                                                    //Finished reel
+                                                    TableCell(
+                                                        child:Container(
+                                                          color:Colors.blue.shade200,
+                                                          child: Center(
+                                                            child: Column(
+                                                              children: [
+                                                                const SizedBox(height: 8,),
+                                                                Text('Reel',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                const SizedBox(height: 8,)
+                                                              ],
+                                                            ),),
+                                                        )),
+                                                    //Finished weight
+                                                     TableCell(
+                                                        child:Container(
+                                                          color:Colors.blue.shade200,
+                                                          child: Center(
+                                                            child: Column(
+                                                              children: [
+                                                                const SizedBox(height: 8,),
+                                                                Text('Weight',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                const SizedBox(height: 8,)
+                                                              ],
+                                                            ),),
+                                                        )),
+                                                     TableCell(
                                                         child:Container(
                                                           color:Colors.blue.shade200,
                                                           child: Center(
@@ -593,7 +511,7 @@ class _PurchaseViewState extends State<PurchaseView> {
                                                               ],
                                                             ),),
                                                         )),
-                                                    TableCell(
+                                                     TableCell(
                                                         child:Container(
                                                           color:Colors.blue.shade200,
                                                           child: Center(
@@ -605,35 +523,19 @@ class _PurchaseViewState extends State<PurchaseView> {
                                                               ],
                                                             ),),
                                                         )),
-
-                                                    TableCell(
+                                                     TableCell(
                                                         child:Container(
                                                           color:Colors.blue.shade200,
                                                           child: Center(
                                                             child: Column(
                                                               children: [
                                                                 const SizedBox(height: 8,),
-                                                                Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                Text('Prodused Cone',style: TextStyle(fontWeight: FontWeight.bold)),
                                                                 const SizedBox(height: 8,)
                                                               ],
                                                             ),),
                                                         )),
-
-                                                    /* TableCell(
-                                                        child:Container(
-                                                          color:Colors.blue.shade200,
-                                                          child: Center(
-                                                            child: Column(
-                                                              children: [
-                                                                const SizedBox(height: 8,),
-                                                                Text('Total',style: TextStyle(fontWeight: FontWeight.bold)),
-                                                                const SizedBox(height: 8,)
-                                                              ],
-                                                            ),),
-                                                        )),*/
-
                                                   ]),
-
                                               for (var i = 0; i < snapshot.data!.length; i++) ...[
                                                 TableRow(
                                                   // decoration: BoxDecoration(color: Colors.grey[200]),
@@ -645,9 +547,32 @@ class _PurchaseViewState extends State<PurchaseView> {
                                                           Text("${i+1}"),
                                                           const SizedBox(height: 10,),
                                                         ],
-                                                      )
-                                                      )
-                                                      ),
+                                                        ))),
+                                                      //gsm
+                                                      TableCell(child: Center(child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 10,),
+                                                          Text("${snapshot.data![i]["gsm"]}"),
+                                                          const SizedBox(height: 10,)
+                                                        ],
+                                                      ))),
+                                                      //reel
+                                                      TableCell(child: Center(child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 10,),
+                                                          Text("${snapshot.data![i]["finish_reel"]}"),
+                                                          const SizedBox(height: 10,)
+                                                        ],
+                                                      ))),
+                                                      //weight
+                                                      TableCell(child: Center(child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 10,),
+                                                          Text("${snapshot.data![i]["finish_weight"]}"),
+                                                          const SizedBox(height: 10,)
+                                                        ],
+                                                      ))),
+                                                      //itemGroup
                                                       TableCell(child: Center(child: Column(
                                                         children: [
                                                           const SizedBox(height: 10,),
@@ -655,6 +580,7 @@ class _PurchaseViewState extends State<PurchaseView> {
                                                           const SizedBox(height: 10,)
                                                         ],
                                                       ))),
+                                                      //itemame
                                                       TableCell(child: Center(child: Column(
                                                         children: [
                                                           const SizedBox(height: 10,),
@@ -662,26 +588,21 @@ class _PurchaseViewState extends State<PurchaseView> {
                                                           const SizedBox(height: 10,)
                                                         ],
                                                       ))),
-
+                                                      //production
                                                       TableCell(child: Center(child: Column(
                                                         children: [
                                                           const SizedBox(height: 10,),
-                                                          Text("${snapshot.data![i]["qty"]}"),
+                                                          Text("${snapshot.data![i]["num_of_production"]}"),
                                                           const SizedBox(height: 10,)
                                                         ],
                                                       ))),
-                                                      /*TableCell(child: Center(child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 10,),
-                                                          Text("${snapshot.data![i]["totQty"]}"),
-                                                          const SizedBox(height: 10,)
-                                                        ],
-                                                      ))),*/
+
                                                     ]
                                                 ),
                                               ],
                                             ]
-                                        );}
+                                        );
+                                      }
                                       return Container();
                                     }
                                 ),

@@ -2,9 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import 'package:intl/intl.dart';
-
 import '../../home.dart';
 
 class NightShift extends StatefulWidget {
@@ -145,12 +143,7 @@ class _NightShiftState extends State<NightShift> {
     if (salaryType == 'Daily') {
       return monthlySalary.toDouble();
     }
-    /* else if (salaryType == 'Weekly'){
-      // return (monthlySalary / 7).floorToDouble();
-    }*/
     else if (salaryType == 'Monthly') {
-      // double dailySalary = monthlySalary / daysInMonth;
-      // return (dailySalary >= 50) ? dailySalary.ceilToDouble() : dailySalary.floorToDouble();
       return monthlySalary.toDouble();
     }
     else {
@@ -180,130 +173,6 @@ class _NightShiftState extends State<NightShift> {
     DateTime checkOutEndTime = DateTime.parse('$currentDate 12:00:00');
     return dateTime.isAfter(checkOutStartTime) && dateTime.isBefore(checkOutEndTime);
   }
-
-/*
-  List<Map<String, dynamic>> processNightShiftEntries(List<Map<String, dynamic>> nightShiftEntries) {
-    List<Map<String, dynamic>> processedEntries = [];
-
-    for (int i = 0; i < nightShiftEntries.length; i += 2) {
-      Map<String, dynamic> entry1 = nightShiftEntries[i];
-      Map<String, dynamic> entry2 = (i + 1 < nightShiftEntries.length) ? nightShiftEntries[i + 1] : {};
-
-      DateTime? dateTime1 = entry1['punch_time'] != null ? DateTime.tryParse(entry1['punch_time'].toString()) : null;
-      DateTime? dateTime2 = entry2['punch_time'] != null ? DateTime.tryParse(entry2['punch_time'].toString()) : null;
-
-      String combinedDate = dateTime1 != null ? DateFormat('yyyy-MM-dd').format(dateTime1) : '';
-      String combinedDate2 = dateTime2 != null ? DateFormat('yyyy-MM-dd').format(dateTime2!) : '';
-
-      String chkin = '';
-      String chkout = '';
-
-      if (dateTime1 != null && entry1['punch_time']?.toString().isNotEmpty == true) {
-        chkin = DateFormat('HH:mm:ss').format(dateTime1.toLocal());
-      }
-
-      if (dateTime2 != null && entry2['punch_time']?.toString().isNotEmpty == true) {
-        chkout = DateFormat('HH:mm:ss').format(dateTime2.toLocal());
-      }else {
-        chkout = '00:00';
-      }
-
-
-      int checkInMinutes = timeToMinutes(chkin);
-      int firstHalfEndMinutes = timeToMinutes('24:00:00');
-      int secondHalfStartMinutes = timeToMinutes('00:00:00');
-      int checkOutMinutes = timeToMinutes(chkout);
-
-      int firstHalfDuration = firstHalfEndMinutes - checkInMinutes;
-      int secondHalfDuration = checkOutMinutes - secondHalfStartMinutes;
-
-      int actTime = firstHalfDuration + secondHalfDuration;
-
-      int expectedCheckInMinutes = timeToMinutes('20:00:00');
-      int expectedCheckOutMinutes = timeToMinutes('08:00:00');
-
-      int lateCheckIn = (checkInMinutes > expectedCheckInMinutes) ? (checkInMinutes - expectedCheckInMinutes) : 0;
-      int earlyCheckOut = (checkOutMinutes < expectedCheckOutMinutes) ? (expectedCheckOutMinutes - checkOutMinutes) : 0;
-      Map<String, dynamic> processedEntry = {
-        'emp_code': entry1['emp_code'],
-        'first_name': entry1['first_name'],
-        'inDate': combinedDate,
-        'outDate': combinedDate2,
-        'shiftType': 'Night',
-        'check_in': chkin,
-        'check_out': chkout,
-        'lunch_out': '0',
-        'lunch_in': '0',
-        'latecheck_in':formatMinutes(lateCheckIn),
-        'earlycheck_out':formatMinutes(earlyCheckOut),
-        'req_time':'720',
-        'act_time':actTime.toString(),
-        'salary': calculateSalary(
-            entry1['salary'], entry1['salaryType'],
-            daysInMonth),
-        'salaryType': entry1['salaryType'].toString(),
-        'remark': (chkin.isNotEmpty && chkout.isNotEmpty && chkout != '00:00') ? 'P' : 'A',
-      };
-
-      processedEntries.add(processedEntry);
-    }
-
-    return processedEntries;
-  }
-*/
-/*
-  List<Map<String, dynamic>> processNightShiftEntries(List<Map<String, dynamic>> nightShiftEntries) {
-    List<Map<String, dynamic>> processedEntries = [];
-
-    for (int i = 0; i < nightShiftEntries.length; i += 2) {
-      Map<String, dynamic> entry1 = nightShiftEntries[i];
-      Map<String, dynamic> entry2 = (i + 1 < nightShiftEntries.length) ? nightShiftEntries[i + 1] : {};
-
-      DateTime? dateTime1 = entry1['punch_time'] != null ? DateTime.tryParse(entry1['punch_time'].toString()) : null;
-      DateTime? dateTime2 = entry2['punch_time'] != null ? DateTime.tryParse(entry2['punch_time'].toString()) : null;
-
-      String combinedDate1 = dateTime1 != null ? DateFormat('yyyy-MM-dd').format(dateTime1) : '';
-      String combinedDate2 = dateTime2 != null ? DateFormat('yyyy-MM-dd').format(dateTime2!) : '';
-
-      String chkin = '';
-      String chkout = '';
-
-      if (dateTime1 != null && entry1['punch_time']?.toString().isNotEmpty == true) {
-        chkin = DateFormat('HH:mm:ss').format(dateTime1.toLocal());
-      }
-
-      if (dateTime2 != null && entry2['punch_time']?.toString().isNotEmpty == true) {
-        chkout = DateFormat('HH:mm:ss').format(dateTime2.toLocal());
-      } else {
-        chkout = '00:00:00';
-      }
-
-      int checkInMinutes = timeToMinutes(chkin);
-      int checkOutMinutes = timeToMinutes(chkout);
-
-      Map<String, dynamic> processedEntry = {
-        'emp_code': entry1['emp_code'],
-        'first_name': entry1['first_name'],
-        'inDate': combinedDate1,
-        'outDate': combinedDate2,
-        'check_in': (combinedDate1 == combinedDate2) ? '' : chkin,
-        'check_out': chkout,
-        'latecheck_in': formatMinutes(calculateLateMinutes(chkin, '20:00:00')),
-        'earlycheck_out': formatMinutes(calculateEarlyCheckout(chkout, '08:00:00')),
-        'req_time': '720',
-        'act_time': (checkOutMinutes - checkInMinutes).toString(),
-        'salary': calculateSalary(entry1['salary'], entry1['salaryType'], daysInMonth),
-        'salaryType': entry1['salaryType'].toString(),
-        'remark': (chkin.isNotEmpty && chkout.isNotEmpty && chkout != '00:00:00') ? 'P' : 'A',
-      };
-
-      processedEntries.add(processedEntry);
-    }
-
-    return processedEntries;
-  }
-*/
-// Modify the processNightShiftEntries function to handle multiple punch times for each date
   List<Map<String, dynamic>> processNightShiftEntries(List<Map<String, dynamic>> nightShiftEntries) {
     List<Map<String, dynamic>> processedEntries = [];
 
@@ -367,10 +236,12 @@ class _NightShiftState extends State<NightShift> {
         'latecheck_in': formatMinutes(lateCheckIn),
         'earlycheck_out': formatMinutes(earlyCheckOut),
         'req_time': '720',
-        'act_time': actTime.toString(),
-        'salary': calculateSalary(entry1['salary'], entry1['salaryType'], daysInMonth),
-        'salaryType': entry1['salaryType'].toString(),
-        'remark': (chkin.isNotEmpty && chkout.isNotEmpty && chkout != '00:00') ? 'P' : 'A',
+        'act_time': (chkin.isNotEmpty && chkout.isNotEmpty && chkout != '00:00') ? actTime.toString():'0',
+        //'salary': calculateSalary(entry1['salary'], entry1['salaryType'], daysInMonth),
+        'salaryType': (chkin.isNotEmpty && chkout.isNotEmpty && chkout != '00:00') ? entry1['salaryType'].toString():'',
+        'salary': (chkin.isNotEmpty && chkout.isNotEmpty && chkout != '00:00') ? entry1['salary'].toString() : '0',
+        //'remark': (chkin.isNotEmpty && chkout.isNotEmpty && chkout != '00:00') ? 'P' : 'A',
+        'remark': 'P',
       };
 
       processedEntries.add(processedEntry);
@@ -550,7 +421,7 @@ class _NightShiftState extends State<NightShift> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Padding(
+                       /* Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: MaterialButton(
                             color: Colors.green.shade600,
@@ -560,7 +431,7 @@ class _NightShiftState extends State<NightShift> {
 
                             child: const Text("Save",style: TextStyle(color: Colors.white),),),
 
-                        ),
+                        ),*/
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: MaterialButton(

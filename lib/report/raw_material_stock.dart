@@ -5,6 +5,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:vinayaga_project/main.dart';
 import 'package:http/http.dart' as http;
+import 'package:vinayaga_project/report/raw_material_edit.dart';
 import 'package:vinayaga_project/report/raw_material_report_pdf.dart';
 
 import '../home.dart';
@@ -555,6 +556,7 @@ class _RawMaterialStockEntriesState extends State<RawMaterialStockEntries> {
                                       DataColumn(label: Center(child: Text("Total Weight",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("Available Quantity",style: TextStyle(fontWeight: FontWeight.bold),))),
                                       DataColumn(label: Center(child: Text("Modify Date",style: TextStyle(fontWeight: FontWeight.bold),))),
+                                      DataColumn(label: Center(child: Text("Action",style: TextStyle(fontWeight: FontWeight.bold),))),
                                     ], source: _YourDataTableSource(filteredData,context,generatedButton),
                                   ),
                                 ),
@@ -668,6 +670,28 @@ class _YourDataTableSource extends DataTableSource {
                 : "",
           ),
         )),
+        DataCell(Center(child:
+        Row(
+          children: [
+            IconButton(icon: Icon(Icons.edit,color:Colors. blue,),onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>EditRawMaterial(
+                prodCode:row["prodCode"],
+                prodName:row["prodName"],
+                unit:row["unit"],
+                sNo:row["sNo"],
+                totalweight:row["totalweight"],
+                qty:row["qty"],
+
+              )));
+            },),
+            /*IconButton(icon: Icon(Icons.delete,color:Colors. red,),
+              onPressed: (){
+                showDeleteConfirmationDialog(context, id);
+              },),*/
+          ],
+        ),
+        )),
+
       ],
     );
   }

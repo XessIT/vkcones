@@ -440,37 +440,40 @@ class _PoViewState extends State<PoView> {
                                                       ),
                                                     ),
                                                   ),
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SizedBox(
-                                                      width: 200,
-                                                      // height: 30,
-                                                      child: TextFormField(
-                                                        readOnly: true,
-                                                        initialValue: () {
-                                                          try {
-                                                            if (widget.deliveryDate != null) {
-                                                              DateTime parsedDate = DateTime.parse("${widget.deliveryDate}");
-                                                              return DateFormat("dd-MM-yyyy").format(parsedDate);
+                                                  Visibility(
+                                                    visible: widget.deliveryDate != null,
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(8.0),
+                                                      child: SizedBox(
+                                                        width: 200,
+                                                        child: TextFormField(
+                                                          readOnly: true,
+                                                          initialValue: () {
+                                                            try {
+                                                              if (widget.deliveryDate != null) {
+                                                                DateTime parsedDate = DateTime.parse("${widget.deliveryDate}");
+                                                                return DateFormat("dd-MM-yyyy").format(parsedDate);
+                                                              }
+                                                            } catch (e) {
+                                                              print("Error parsing date: $e");
                                                             }
-                                                          } catch (e) {
-                                                            print("Error parsing date: $e");
-                                                          }
-                                                          return ""; // Default value in case of an error
-                                                        }(),
-                                                        style: TextStyle(fontSize: 13),
-                                                        keyboardType: TextInputType.text,
-                                                        decoration: InputDecoration(
-                                                          filled: true,
-                                                          fillColor: Colors.white,
-                                                          labelText: "Expected Delivery Date",
-                                                          border: OutlineInputBorder(
-                                                            borderRadius: BorderRadius.circular(8),
+                                                            return ""; // Default value in case of an error
+                                                          }(),
+                                                          style: TextStyle(fontSize: 13),
+                                                          keyboardType: TextInputType.text,
+                                                          decoration: InputDecoration(
+                                                            filled: true,
+                                                            fillColor: Colors.white,
+                                                            labelText: "Expected Delivery Date",
+                                                            border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(8),
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
+
                                                 ],
                                               ),
 

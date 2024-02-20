@@ -9,22 +9,27 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:vinayaga_project/main.dart';
 import 'package:http/http.dart' as http;
+import 'package:vinayaga_project/purchase/purchase_entry.dart';
 import '../home.dart';
 
-class Purchase extends StatefulWidget {
-  const Purchase({Key? key}) : super(key: key);
+class PurchaseEdit extends StatefulWidget {
+  const PurchaseEdit({Key? key}) : super(key: key);
   @override
-  State<Purchase> createState() => _PurchaseState();
+  State<PurchaseEdit> createState() => _PurchaseEditState();
 }
-class _PurchaseState extends State<Purchase> {
+class _PurchaseEditState extends State<PurchaseEdit> {
   final _formKey = GlobalKey<FormState>();
   final  selectedDate = DateTime.now();
 
   final  date = DateTime.now();
   List<List<TextEditingController>> controllers = [];
+  List<List<TextEditingController>> controllers2 = [];
   List<List<FocusNode>> focusNodes = [];
+  List<List<FocusNode>> focusNodes2 = [];
   List<Map<String, dynamic>> rowData = [];
+  List<Map<String, dynamic>> rowData2 = [];
   List<bool> isRowFilled = [false];
+  List<bool> isRowFilled2 = [false];
   bool allFieldsFilled = false;
   bool dropdownValid = true;
   String? payType;
@@ -37,151 +42,60 @@ class _PurchaseState extends State<Purchase> {
 
   bool dropdownValid1 = true;
   bool alertVisible = false;
+  double grandTotalGsm = 0.0;
+  double grandTotalValue = 0.0;
 
+  TextEditingController tcsController = TextEditingController();
+  TextEditingController discountController = TextEditingController();
 
+  void updateGrandTotal() {
+    double tcs = double.tryParse(tcsController.text) ?? 0.0;
+    double discount = double.tryParse(discountController.text) ?? 0.0;
 
-
-
-
-  double calculateTotal(int rowIndex) {
-    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-    double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-    double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
-
-    double amount = quantity * rate;
-    double gstAmt = (amount*gst)/100;
-    double total = amount + gstAmt;
-
-    controllers[rowIndex][5].text = amount.toStringAsFixed(2);
-    controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
-    controllers[rowIndex][8].text = total.toStringAsFixed(2);
-
+    if (selectedCheckbox == 1) {
+      grandTotalValue = calculateGrandTotal2() + tcs - discount;
+    } else {
+      grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;
+    }
+    setState(() {
+      grandTotalValue = calculateGrandTotal2() + tcs - discount;
+      grandTotalGsm = calculateGrandTotalGsm() + tcs - discount;    });
+  }
+  double calculateGrandTotalGsm() {
+    double total = 0.0;
+    for (var i = 0; i < controllers2.length; i++) {
+      total += double.tryParse(controllers2[i][9].text) ?? 0.0;
+    }
+    print("total------------------ $total");
     return total;
   }
-  double calculateGrandTotal() {
-    double grandTotalValue = 0.0;
+  double calculateGrandTotal2() {
+    double total = 0.0;
     for (var i = 0; i < controllers.length; i++) {
-      double total = double.tryParse(controllers[i][9].text) ?? 0.0;
-      grandTotalValue += total;
+      total += double.tryParse(controllers[i][8].text) ?? 0.0;
     }
-    return grandTotalValue;
+    print("total------------------ $total");
+    return total;
   }
 
+
+  bool isTextFormFieldsVisible = false;
+
+  void onArrowButtonClick() {
+    setState(() {
+      isTextFormFieldsVisible = !isTextFormFieldsVisible;
+    });
+  }
 
 
 
 
   List<Map<String, dynamic>> datapendingInsertList = [];
 
-/*
-  void removeRow(int rowIndex) {
-    if (rowIndex >= 0 && rowIndex < controllers.length) {
-      DateTime now = DateTime.now();
-      String year = (now.year % 100).toString();
-      String month = now.month.toString().padLeft(2, '0');
-      if (poNumber.isEmpty) {
-        poNumber = 'PP$year$month/001';
-      }
-      Map<String, dynamic> removedRowData = {
-        "poNo": poNumber,
-        "date": date.toString(),
-        "invoiceNo": invoiceNo.text.trim(),
-        "pendingOrderNo": poNumber,
-        "supCode": supCode.text,
-        "supName": supName.text,
-        "prodCode": controllers[rowIndex][0].text,
-        "prodName": controllers[rowIndex][1].text,
-        'qty': controllers[rowIndex][10].text.isNotEmpty ? controllers[rowIndex][10].text : '0',
-        "pincode": pincode.text,
-        "deliveryDate": "",
-        'unit': controllers[rowIndex][2].text,
-      };
-
-      controllers.removeAt(rowIndex);
-      rowslenth = controllers.length;
-      rowslenth2 = controllers.length;
-
-      List<Map<String, dynamic>> rowDataToInsert = [removedRowData];
-      datapendingInsertList.addAll(rowDataToInsert);
-
-      focusNodes.removeAt(rowIndex);
-      isRowFilled.removeAt(rowIndex);
-      setState(() {
-        grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-        for (int i = rowIndex; i < controllers.length; i++) {
-          int fetchedIndex = i + 1;
-          controllers[i][10].text = fetchedQuantities[fetchedIndex].toString();
-          fetchedQuantities[i] = fetchedQuantities[fetchedIndex]!;
-        }
-      });
-    } else {
-      print("Invalid index: $rowIndex");
-    }
-  }
-*/
-  void removeRow(int rowIndex) {
-    if (rowIndex >= 0 && rowIndex < controllers.length) {
-      DateTime now = DateTime.now();
-      String year = (now.year % 100).toString();
-      String month = now.month.toString().padLeft(2, '0');
-      if (poNumber.isEmpty) {
-        poNumber = 'PP$year$month/001';
-      }
-      Map<String, dynamic> removedRowData = {
-        "poNo": poNumber,
-        "date": date.toString(),
-        "invoiceNo": invoiceNo.text.trim(),
-        "pendingOrderNo": poNumber,
-        "supCode": supCode.text,
-        "supName": supName.text,
-        "prodCode": controllers[rowIndex][0].text,
-        "prodName": controllers[rowIndex][1].text,
-        'qty': controllers[rowIndex][10].text.isNotEmpty ? controllers[rowIndex][10].text : '0',
-        "pincode": pincode.text,
-        "deliveryDate": "",
-        'unit': controllers[rowIndex][2].text,
-      };
-
-      controllers.removeAt(rowIndex);
-      rowslenth = controllers.length;
-      rowslenth2 = controllers.length;
-
-      List<Map<String, dynamic>> rowDataToInsert = [removedRowData];
-      datapendingInsertList.addAll(rowDataToInsert);
-
-      focusNodes.removeAt(rowIndex);
-      isRowFilled.removeAt(rowIndex);
-      setState(() {
-        grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-        for (int i = rowIndex; i < controllers.length; i++)
-        {
-          int fetchedIndex = i + 1;
-          controllers[i][10].text = fetchedQuantities[fetchedIndex].toString();
-          fetchedQuantities[i] = fetchedQuantities[fetchedIndex]!;
-          rowData[i]['prodName'] = controllers[i][1].text;
-        }
-      });
-    } else {
-      print("Invalid index: $rowIndex");
-    }
-  }
 
   int? rowslenth=0;
   int? rowslenth2=0;
-/*
-  void removeRow(int index) {
-    setState(() {
-      // Remove controllers, focusNodes, and isRowFilled for the specified index
-      if (index >= 0 && index < controllers.length) {
-        controllers.removeAt(index);
-        focusNodes.removeAt(index);
-        isRowFilled.removeAt(index);
-        rowData.removeAt(index);
-        grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-      }
-    });
-  }
-*/
+
 
   void clearAllRows() {
     setState(() {
@@ -193,10 +107,20 @@ class _PurchaseState extends State<Purchase> {
       }
     });
   }
+  void clearAllRows2() {
+    setState(() {
+      rowData2.clear();
+      for (var rowControllers in controllers2) {
+        for (var controller in rowControllers) {
+          controller.clear();
+        }
+      }
+    });
+  }
   void updateFieldValidation() {
     bool allValid = true;
     for (var i = 0; i < controllers.length; i++) {
-      for (var j = 0; j < 12; j++) {
+      for (var j = 0; j < 11; j++) {
         if (i < controllers.length &&
             j < controllers[i].length &&
             controllers[i][j].text.isEmpty) {
@@ -207,120 +131,706 @@ class _PurchaseState extends State<Purchase> {
     }
     // Update any validation-related state here if needed.
   }
+  void updateFieldValidation2() {
+    bool allValid = true;
+    for (var i = 0; i < controllers2.length; i++) {
+      for (var j = 0; j < 10; j++) {
+        if (i < controllers2.length &&
+            j < controllers2[i].length &&
+            controllers2[i][j].text.isEmpty) {
+          allValid = false;
+          break;
+        }
+      }
+    }
+    // Update any validation-related state here if needed.
+  }
   int selectedCheckbox = 1;
 
-  ///pending po suggestion fetch
-  Future<void> fetchDataPendingPo() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:3309/fetch__pending_po_datas'));
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonData = jsonDecode(response.body);
-        setState(() {
-          dataPending = jsonData.cast<Map<String, dynamic>>();
-          print(" 555555555555555 $dataPending ");
-        });
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Failed to fetch dataPending'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+
+
+  @override
+  void dispose() {
+    for (var rowControllers in controllers) {
+      for (var controller in rowControllers) {
+        controller.dispose();
       }
-    } catch (error) {
+    }
+    super.dispose();
+  }
+
+
+
+  int fetchingQTY=0;
+  int editingQTY =0;
+  int calculateQTY =0;
+
+  TextEditingController invoiceNo=TextEditingController();
+  TextEditingController purchaseDate=TextEditingController();
+  TextEditingController supCode=TextEditingController();
+  TextEditingController podate=TextEditingController();
+  TextEditingController supName=TextEditingController();
+  TextEditingController supMobile=TextEditingController();
+  TextEditingController supAddress=TextEditingController();
+  TextEditingController pincode =TextEditingController();
+  TextEditingController poNUMber=TextEditingController();
+  TextEditingController pendingPoNUMber=TextEditingController();
+  TextEditingController grandTotal=TextEditingController();
+
+  int qty =0;
+  int recieved =0;
+  int pending=0;
+
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    return text.substring(0, 1).toUpperCase() + text.substring(1);
+  }
+  Map<String, dynamic> dataToInsertRaw = {};
+  Map<String, dynamic> dataToInsertRaw2 = {};
+  Map<String, dynamic> dataToInsertRawGsm = {};
+  Map<String, dynamic> dataToInsertSupItem2 = {};
+
+  Future<void> insertDataPoItem2(Map<String, dynamic> dataToInsertSupItem2) async {
+    const String apiUrl = 'http://localhost:3309/purchase_entry_item'; // Replace with your server details
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertSupItem2': dataToInsertSupItem2}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+        if(alertVisible==false) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Purchase"),
+                content: const Text(
+                    "Saved Successfully"),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.push(context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PurchaseEdit()));
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } else {
+        print('Failed to insert data into the table');
+        throw Exception('Failed to insert data into the table');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<void> submitItemDataToDatabase() async {
+    List<Future<void>> insertFutures = [];
+    for (var i = 0; i < controllers.length; i++) {
+      String purchaseDateString = purchaseDate.text;
+      DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+      String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
+
+      Map<String, dynamic> dataToInsertSupItem2 = {
+        'invoiceNo':invoiceNo.text,
+        "date":date.toString(),
+        'purchaseDate': formattedPurchaseDate,
+        "supName": supName.text,
+        "supCode":supCode.text,
+        "supAddress": supAddress.text,
+        "pincode": pincode.text,
+        "supMobile": supMobile.text,
+        'prodCode':controllers[i][0].text,
+        'prodName': controllers[i][1].text,
+        'unit': controllers[i][2].text,
+        'qty': controllers[i][3].text,
+        'rate':controllers[i][4].text,
+        'amt':controllers[i][5].text,
+        'gst': controllers[i][6].text,
+        'amtGST': controllers[i][7].text,
+        'total': controllers[i][8].text,
+        'grandTotal':grandTotalValue,
+        'extraCharge':tcsController.text,
+        'discount':discountController.text,
+        "payType":payType,
+        'returnTotal':"0.00"
+      };
+      insertFutures.add(insertDataPoItem2(dataToInsertSupItem2));
+    }
+
+    try {
+      await Future.wait(insertFutures);
+
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
+
+
+  bool isDuplicateProductCode(String productCode, int currentRowIndex) {
+    for (int i = 0; i < controllers.length; i++) {
+      if (i != currentRowIndex &&
+          controllers[i][0].text == productCode) {
+        return true;
+      }
+    }
+    return false;
+  }
+  bool isDuplicateProductName(String productName, int currentRowIndex) {
+    for (int i = 0; i < controllers.length; i++) {
+      if (i != currentRowIndex &&
+          controllers[i][1].text == productName) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  double calculateContainerWidth(String value) {
+    // You can define your own logic to calculate the width based on the value
+    // For example, you can set a threshold value and increase the width if the value exceeds that threshold.
+    double threshold = 10000;
+
+    if (value.isEmpty) {
+      return 110; // Default width when the field is empty
+    } else {
+      double numericValue = double.parse(value);
+      return numericValue > threshold ? 200 : 110; // Adjust the threshold and widths based on your requirement
+    }
+  }
+
+  Future<bool> checkForDuplicate(String prodCode, String poNo) async {
+    const String apiUrl = 'http://localhost:3309/fetch_productcode_poNo_duplicate'; // Replace with your server endpoint
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        bool isProdCodeDuplicate = data.any((item) => item['prodCode'] == prodCode);
+        bool isPoNoDuplicate = data.any((item) => item['poNo'] == poNo);
+
+        return isProdCodeDuplicate && isPoNoDuplicate;
+      } else {
+        print('Failed to fetch data');
+        throw Exception('Failed to fetch data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<void> insertDataRaw(Map<String, dynamic> dataToInsertRaw) async {
+    const String apiUrl = 'http://localhost:3309/purchase_edit_new_update'; // Replace with your server details
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertRaw': dataToInsertRaw}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+      } else {
+        print('Failed to insert data into the table');
+        throw Exception('Failed to insert data into the table');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<void> submitItemDataToRaw() async {
+    List<Future<void>> insertFutures = [];
+    for (var i = 0; i < controllers.length; i++) {
+      String purchaseDateString = purchaseDate.text;
+      DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+      String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
+      Map<String, dynamic> dataToInsertRaw = {
+        "date":date.toString(),
+        'purchaseDate': formattedPurchaseDate,
+        'invoiceNo':invoiceNo.text,
+        "supCode":supCode.text,
+        "supName": supName.text,
+        "supMobile": supMobile.text,
+        "supAddress": supAddress.text,
+        "pincode": pincode.text,
+        "payType":payType,
+        'prodCode':controllers[i][0].text,
+        'prodName': controllers[i][1].text,
+        'unit': controllers[i][2].text,
+        'qty': controllers[i][3].text,
+        'rate':controllers[i][4].text,
+        'amt':controllers[i][5].text,
+        'gst': controllers[i][6].text,
+        'amtGST': controllers[i][7].text,
+        'total': controllers[i][8].text,
+        'grandTotal':grandTotalValue,
+        'extraCharge':tcsController.text,
+        'discount':discountController.text,
+        "poNo":poNUMber.text,
+      };
+      insertFutures.add(insertDataRaw(dataToInsertRaw));
+    }
+    try {
+      await Future.wait(insertFutures);
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
+  Future<void> updatePurchase(String purchaseDate, String invoiceNo,String supCode,String supName,String supMobile,String supAddress,String pincode,String payType,String prodCode,String prodName,String unit,String qty,String rate,String amt,String gst,String amtGST,String total,String grandTotal,String extraCharge,String discount,String poNo) async {
+    final Uri url = Uri.parse('http://localhost:3309/purchase_edit_update'); // Replace with your actual backend URL
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(<String, dynamic>{
+        "date":date.toString(),
+        'purchaseDate': purchaseDate,
+        'invoiceNo':invoiceNo,
+        "supCode":supCode,
+        "supName": supName,
+        "supMobile": supMobile,
+        "supAddress": supAddress,
+        "pincode": pincode,
+        "payType":payType,
+        'prodCode':prodCode,
+        'prodName': prodName,
+        'unit': unit,
+        'qty': qty,
+        'rate':rate,
+        'amt':amt,
+        'gst': gst,
+        'amtGST': amtGST,
+        'total': total,
+        'grandTotal':grandTotal,
+        'extraCharge':extraCharge,
+        'discount':discount,
+        'poNo':poNo
+      }),
+    );
+
+    if (response.statusCode == 200) {
       showDialog(
+        barrierDismissible: false,
         context: context,
-        builder: (context) {
+        builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error'),
-            content: Text('An error occurred: $error'),
-            actions: [
+            title: Text("Purchase"),
+            content: const Text(
+                "Update Successfully"),
+            actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
+                  Navigator.push(context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              Purchase()));
                 },
-                child: Text('OK'),
+                child: Text("OK"),
               ),
             ],
           );
         },
       );
+    } else {
+      print('Failed to update. raw material  Status code: ${response.statusCode}');
+      throw Exception('Failed to update raw material');
     }
   }
-  TextEditingController PONUMBER=TextEditingController();
-  void filterDatapending(String searchText) {
-    setState(() {
-      if (searchText.isEmpty) {
-        filteredData = dataPending;
-        supCode.clear(); supName.clear();
-      } else {
-        filteredData = dataPending.where((item) {
-          String id = item['pendingOrderNo']?.toString()?.toLowerCase() ?? '';
-          return id == searchText.toLowerCase();
-        }).toList();
-        if (filteredData.isNotEmpty) {
-          Map<String, dynamic> order = filteredData.first;
-          supCode.text = order['supCode']?.toString() ?? '';
-          supName.text = order['supName']?.toString() ?? '';
-          PONUMBER.text = order['poNo']?.toString() ?? '';
-          print(PONUMBER.text);
-          //  invoiceNo.text = order['invoiceNo']?.toString() ?? '';
-        } else {
-          supCode.clear();supName.clear();
-        }
-      }
-    });
-  }
 
 
+  Future<void> updatePurchaseGsm(String purchaseDate, String invoiceNo,String supCode,String supName,String supMobile,String supAddress,String pincode,String payType,String prodCode,String prodName,String unit,String sNo,String totalWeight,String rate,String amt,String gst,String amtGST,String total,String grandTotal,String extraCharge,String discount,String poNo) async {
+    final Uri url = Uri.parse('http://localhost:3309/purchase_gsm_edit_update'); // Replace with your actual backend URL
 
-  ///pending number auto generation starts
-  int currentPoNumber = 1;
-  String? getNameFromJsonDatasalINv(Map<String, dynamic> jsonItem) {
-    return jsonItem['pendingOrderNo'];
-  }
-  String poNumber = "";
-  String? poNo;
-  List<Map<String, dynamic>> ponumdata = [];
-  String? PONO;
-  List<Map<String, dynamic>> codedatas = [];
-  String generateIdinvNo() {
-    DateTime now=DateTime.now();
-    String year=(now.year%100).toString();
-    String month=now.month.toString().padLeft(2,'0');
-    if (PONO != null) {
-      String ID = PONO!.substring(7);
-      int idInt = int.parse(ID) + 1;
-      //   String id = 'PO$year$month/${idInt.toString().padLeft(3, '0')}';
-      String id = 'PP$year$month/${idInt.toString().padLeft(3, '0')}';
-      print(id);
-      return id;
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(<String, dynamic>{
+        "date":date.toString(),
+        'purchaseDate': purchaseDate,
+        'invoiceNo':invoiceNo,
+        "supCode":supCode,
+        "supName": supName,
+        "supMobile": supMobile,
+        "supAddress": supAddress,
+        "pincode": pincode,
+        "payType":payType,
+        'prodCode':prodCode,
+        'prodName': prodName,
+        'unit': unit,
+        'sNo': sNo,
+        'totalWeight': totalWeight,
+        'rate':rate,
+        'amt':amt,
+        'gst': gst,
+        'amtGST': amtGST,
+        'total': total,
+        'grandTotal':grandTotal,
+        'extraCharge':extraCharge,
+        'discount':discount,
+        'poNo':poNo
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Purchase"),
+            content: const Text(
+                "Update Successfully"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.push(context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              Purchase()));
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      print('Failed to update. raw material  Status code: ${response.statusCode}');
+      throw Exception('Failed to update raw material');
     }
-    return "";
   }
-  Future<void> ponumfetchsalINv() async {
+  Future<void> insertDataRawGsm(Map<String, dynamic> dataToInsertRawGsm) async {
+    const String apiUrl = 'http://localhost:3309/purchase_edit_new_update_gsm'; // Replace with your server details
     try {
-      final response = await http.get(Uri.parse('http://localhost:3309/pendingPO_fetch'));
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertRawGsm': dataToInsertRawGsm}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+      } else {
+        print('Failed to insert data into the table');
+        throw Exception('Failed to insert data into the table');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<void> submitItemDataToRawGsm() async {
+    List<Future<void>> insertFutures = [];
+    for (var i = 0; i < controllers2.length; i++) {
+      String purchaseDateString = purchaseDate.text;
+      DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+      String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
+      Map<String, dynamic> dataToInsertRawGsm = {
+        "date":date.toString(),
+        'purchaseDate': formattedPurchaseDate,
+        'invoiceNo':invoiceNo.text,
+        "supCode":supCode.text,
+        "supName": supName.text,
+        "supMobile": supMobile.text,
+        "supAddress": supAddress.text,
+        "pincode": pincode.text,
+        "payType":payType,
+        'prodCode':controllers2[i][0].text,
+        'prodName': controllers2[i][1].text,
+        'unit': controllers2[i][2].text,
+        'sNo': controllers2[i][3].text,
+        'totalWeight':controllers2[i][4].text,
+        'rate':controllers2[i][5].text,
+        'amt': controllers2[i][6].text,
+        'gst': controllers2[i][7].text,
+        'amtGST': controllers2[i][8].text,
+        'total': controllers2[i][9].text,
+        'grandTotal':grandTotalGsm,
+        'extraCharge':tcsController.text,
+        'discount':discountController.text,
+        "poNo":poNUMber.text,
+
+      };
+      insertFutures.add(insertDataRawGsm(dataToInsertRawGsm));
+    }
+    try {
+      await Future.wait(insertFutures);
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
+
+  Future<String> fetchProductName(String prodCode) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:3309/fetchProductName'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'prodCode': prodCode}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['prodName'];
+    } else {
+      throw Exception('Failed to fetch product name');
+    }
+  }
+  Future<String> fetchProductCode(String prodName) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:3309/fetchProductCode'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'prodName': prodName}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['prodCode'];
+    } else {
+      throw Exception('Failed to fetch product code');
+    }
+  }
+
+  Future<bool> checkForDuplicate2(String prodCode) async {
+    const String apiUrl = 'http://localhost:3309/fetch_productcode_duplicate'; // Replace with your server endpoint
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        List<dynamic> sizeData = jsonDecode(response.body);
+        return sizeData.any((item) => item['prodCode'] == prodCode);
+      } else {
+        print('Failed to fetch data');
+        throw Exception('Failed to fetch data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<void> insertDataRaw2(Map<String, dynamic> dataToInsertRaw2) async {
+    const String apiUrl = 'http://localhost:3309/Raw_material_entry_edit'; // Replace with your server details
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertRaw2': dataToInsertRaw2}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+      } else {
+        print('Failed to insert data into the table');
+        throw Exception('Failed to insert data into the table');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+/*
+  Future<void> submitItemDataToRaw2() async {
+    List<Future<void>> insertFutures = [];
+    for (var i = 0; i < controllers.length; i++) {
+      Map<String, dynamic> dataToInsertRaw2 = {
+        "date":date.toString(),
+        'prodCode':controllers[i][0].text,
+        'prodName': controllers[i][1].text,
+        'unit':controllers[i][2].text,
+        'qty': controllers[i][3].text,
+      };
+      insertFutures.add(insertDataRaw2(dataToInsertRaw2));
+    }
+
+    try {
+      await Future.wait(insertFutures);
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
+*/
+  Future<void> addRawMaterial(String prodCode, String prodName, String unit, int qty, String modifyDate) async {
+    final Uri url = Uri.parse('http://localhost:3309/add_MinusRawMaterial'); // Replace with your actual backend URL
+
+    List<Future<void>> insertFutures = [];
+
+    for (var i = 0; i < controllers.length; i++) {
+      double initialQuantity = double.parse(controllers[i][9].text);
+      double editedQuantity = double.parse(controllers[i][3].text);
+
+      if (initialQuantity == editedQuantity) {
+        print('Quantities are equal. Skipping update for item $i');
+        continue;
+      }
+
+      insertFutures.add(
+            () async {
+          final response = await http.post(
+            url,
+            headers: <String, String>{
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(<String, dynamic>{
+              'prodCode': prodCode,
+              'prodName': prodName,
+              'unit': unit,
+              'qty': int.parse(controllers[i][10].text),
+              'modifyDate': date.toString(),
+              'isIncrease': initialQuantity < editedQuantity,
+            }),
+          );
+
+          if (response.statusCode == 200) {
+            print('Update raw material successful for item $i');
+          } else {
+            print('Failed to update raw material for item $i. Status code: ${response.statusCode}');
+            throw Exception('Failed to update raw material');
+          }
+        }(),
+      );
+    }
+
+    try {
+      await Future.wait(insertFutures);
+      print('All raw material data inserted successfully');
+    } catch (e) {
+      print('Error inserting raw material data: $e');
+    }
+  }
+
+  Future<void> submitItemDataToRaw2() async {
+    List<Future<void>> insertFutures = [];
+    for (var i = 0; i < controllers.length; i++) {
+      String purchaseDateString = purchaseDate.text;
+      DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+      String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
+
+      Map<String, dynamic> dataToInsertRaw2 = {
+        "date": date.toString(),
+        'prodCode': controllers[i][0].text,
+        'prodName': controllers[i][1].text,
+        'unit': controllers[i][2].text,
+        'qty': controllers[i][3].text,
+      };
+      insertFutures.add(
+            () async {
+          try {
+            await insertDataRaw2(dataToInsertRaw2);
+            print('Data inserted successfully for item $i');
+          } catch (e) {
+            print('Error inserting data for item $i: $e');
+          }
+        }(),
+      );
+    }
+
+    try {
+      await Future.wait(insertFutures);
+      print('All data inserted successfully');
+    } catch (e) {
+      print('Error inserting data: $e');
+    }
+  }
+
+  /*
+  Future<void> addRawMaterial(String prodCode, String prodName, String unit,int qty, String modifyDate) async {
+    final Uri url = Uri.parse('http://localhost:3309/add_MinusRawMaterial'); // Replace with your actual backend URL
+
+    for (var i = 0; i < controllers.length; i++) {
+      double initialQuantity = double.parse(controllers[i][9].text);
+      double editedQuantity = double.parse(controllers[i][3].text);
+
+      if (initialQuantity == editedQuantity) {
+        print('Quantities are equal. Skipping update for item $i');
+        continue;
+      }
+
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'prodCode': prodCode,
+          'prodName': prodName,
+          'unit': unit,
+          'qty': int.parse(controllers[i][10].text),
+          'modifyDate': date.toString(),
+          'isIncrease': initialQuantity < editedQuantity,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Update raw material successful for item $i');
+      } else {
+        print('Failed to update raw material for item $i. Status code: ${response.statusCode}');
+        throw Exception('Failed to update raw material');
+      }
+    }
+  }
+*/
+
+
+  String selectedInvoiceNo = '';
+  String selectedPoInvoiceNo = '';
+  final FocusNode _suppliernameFocusNode = FocusNode();
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(_suppliernameFocusNode);
+    });
+    fetchData();//add Row
+     addRow2();
+     addRow();
+    fetchDataSup();
+    calculateGrandTotal2();
+    calculateGrandTotalGsm();
+  }
+
+  List<Map<String, dynamic>> data = [];
+  List<Map<String, dynamic>> dataSup = [];
+  List<Map<String, dynamic>> data2 = [];
+  List<Map<String, dynamic>> data3 = [];
+  List<Map<String, dynamic>> filteredData = [];
+  List<Map<String, dynamic>> filteredData2 = [];
+  List<Map<String, dynamic>> filteredData3 = [];
+
+
+  Future<void> fetchData() async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:3309/fetch_purchase_datas'));
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = jsonDecode(response.body);
-        for(var item in jsonData){
-          PONO = getNameFromJsonDatasalINv(item);
-          print('pendingOrderNo: $PONO');
-        }
         setState(() {
-          ponumdata = jsonData.cast<Map<String, dynamic>>();
-          poNumber = generateIdinvNo(); // Call generateId here
+          data = jsonData.cast<Map<String, dynamic>>();
         });
       } else {
         showDialog(
@@ -361,576 +871,9 @@ class _PurchaseState extends State<Purchase> {
       );
     }
   }
-  ///pending number auto generation ends
-
-
-
-  /// pending data insert code starts here(1)
-  List<Map<String, dynamic>> dataPending = [];
-  String checkOrderNo = "";
-  Map<String, dynamic> datapendingInsert = {};
-  Future<void> insertDataPendingReport(Map<String, dynamic> datapendingInsert) async {
-    const String apiUrl = 'http://localhost:3309/pending_insert_PO'; // Replace with your server details
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({'datapendingInsert': datapendingInsert}),
-      );
-      if (response.statusCode == 200) {
-        print('TableData inserted successfully');
-      } else {
-        print('Failed to insert data into the table');
-        throw Exception('Failed to insert data into the table');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Error: $e');
-    }
-  }
-  Future<void> pendingToDatabase() async {
-    DateTime now=DateTime.now();
-    String year=(now.year%100).toString();
-    String month=now.month.toString().padLeft(2,'0');
-    if (poNumber.isEmpty) {
-      poNumber = 'PP$year$month/001';
-    }
-    print( "invoiceNo ${invoiceNo.text}");
-    try{
-      List<Future<void>> insertFutures = [];
-      for (var i = 0; i < controllers.length; i++) {
-        if (i >= controllers.length) {
-          controllers.add(List.generate(11, (j) => TextEditingController()));
-        }
-
-        String datepass =DateTime.now().toString();
-        print("Inserting data for row $i");
-        Map<String, dynamic> datapendingInsert = {
-          "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
-          //"poNo":poNUMber,
-          "date":datepass.toString(),
-          "invoiceNo":invoiceNo.text,
-          "pendingOrderNo":poNumber,
-          "supCode": supCode.text,
-          "supName":supName.text,
-          "prodCode": controllers[i][0].text,
-          "prodName": controllers[i][1].text,
-          'qty':controllers[i][11].text.isNotEmpty?controllers[i][11].text:'0',
-          "pincode":pincode.text,
-          "deliveryDate":"",
-          'unit': controllers[i][2].text,
-        };
-        insertFutures.add(insertDataPendingReport(datapendingInsert));
-
-        Future.microtask(() {
-          setState(() {
-            alertVisible=true;
-          });
-          showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                  title: const Text("PO Number"),
-                  //content:  poNUMber.text.isNotEmpty?Text("${poNUMber.text} had Partially purchased, Pending PO is ${poNumber.toString()} "):Text("$pendingPoNUMber had partially purchase, Pending PO Number is ${poNumber.toString()}    "),
-                  content: const Text("Partially purchased"),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const Purchase()));
-                      },
-                      child: Text("OK"),
-                    ), ]);
-            },
-          );
-        });
-        print("Data inserted for row $i");
-        print('Inserting data: $datapendingInsert');
-      }
-      await Future.wait(insertFutures);
-/*
-      Future.microtask(() {
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-                title: Text("Order Number"),
-
-                content:  poNUMber.text!.isNotEmpty?Text("$poNo had partially ordered, Pending orderNUmber is ${poNumber.toString()}    "):Text("$checkOrderNo had partially ordered, Pending orderNumber is ${poNumber.toString()}    "),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => Purchase()));
-                    },
-                    child: Text("OK"),
-                  ), ]);
-
-          },
-        );
-      });
-*/
-      print('All data inserted successfully');
-    } catch (e) {
-      print('Error inserting data: $e');
-    }
-  }
-  /// pending data insert code ends here(1)
-  /// pendingpo based fetch a data in page starts
-  Future<void> fetchDataByPONumber(String pendingOrderNo) async {
-    try {
-      final url = Uri.parse('http://localhost:3309/get_pending_po_item?pendingOrderNo=$pendingOrderNo');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final List<dynamic> rows = responseData;
-
-        setState(() {
-          controllers.clear();
-          focusNodes.clear();
-          isRowFilled.clear();
-          rowData.clear();
-          for (var i = 0; i < rows.length; i++) {
-            List<TextEditingController> rowControllers = [];
-            Map<String, dynamic> row = {
-              'prodCode': rows[i]['prodCode'],
-              'prodName': rows[i]['prodName'],
-              'unit':rows[i]['unit'],
-              'unit':rows[i]['unit'],
-              'qty': rows[i]['qty'],
-              'totalWeight': rows[i]['totalWeight'],
-              'rate': rows[i]['rate'],
-              'amt': rows[i]['amt'],
-              'gst': rows[i]['gst'],
-              'amtGST': rows[i]['amtGST'],
-              'total': rows[i]['total'],
-              'rQty': rows[i]['qty'],
-              //'aQty': rows[i]['qty'],
-            };
-
-            for (int j = 0; j < 12; j++) {
-              TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
-              rowControllers.add(controller);
-            }
-
-            controllers.add(rowControllers);
-            focusNodes.add(List.generate(12, (i) => FocusNode()));
-            rowData.add(row);
-            isRowFilled.add(true);
-            fetchedQuantities[i] = double.tryParse(rows[i]['qty']) ?? 0.0;
-
-          }
-        });
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-  }
-  /// pendingpo based fetch a data in page ends
-
-
-
-
-  @override
-  void dispose() {
-    for (var rowControllers in controllers) {
-      for (var controller in rowControllers) {
-        controller.dispose();
-      }
-    }
-    super.dispose();
-  }
-
-
-
-  int fetchingQTY=0;
-  int editingQTY =0;
-  int calculateQTY =0;
-
-  TextEditingController invoiceNo=TextEditingController();
-  TextEditingController purchaseDate=TextEditingController();
-  TextEditingController supCode=TextEditingController();
-  TextEditingController supName=TextEditingController();
-  TextEditingController supMobile=TextEditingController();
-  TextEditingController supAddress=TextEditingController();
-  TextEditingController pincode =TextEditingController();
-  TextEditingController poNUMber=TextEditingController();
-  TextEditingController pendingPoNUMber=TextEditingController();
-  TextEditingController grandTotal=TextEditingController();
-
-  int qty =0;
-  int recieved =0;
-  int pending=0;
-
-  String capitalizeFirstLetter(String text) {
-    if (text.isEmpty) return text;
-    return text.substring(0, 1).toUpperCase() + text.substring(1);
-  }
-  Map<String, dynamic> dataToInsertRaw = {};
-  Map<String, dynamic> dataToInsertSupItem2 = {};
-
-  Future<void> insertDataPoItem2(Map<String, dynamic> dataToInsertSupItem2) async {
-    const String apiUrl = 'http://localhost:3309/purchase_entry_item'; // Replace with your server details
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({'dataToInsertSupItem2': dataToInsertSupItem2}),
-      );
-      if (response.statusCode == 200) {
-        print('TableData inserted successfully');
-        if(alertVisible==false) {
-          showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("Purchase"),
-                content: const Text(
-                    "Saved Successfully"),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.push(context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  Purchase()));
-                    },
-                    child: Text("OK"),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      } else {
-        print('Failed to insert data into the table');
-        throw Exception('Failed to insert data into the table');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Error: $e');
-    }
-  }
-  Future<void> submitItemDataToDatabase() async {
-    List<Future<void>> insertFutures = [];
-    for (var i = 0; i < controllers.length; i++) {
-      String purchaseDateString = purchaseDate.text;
-      DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
-      String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
-
-      Map<String, dynamic> dataToInsertSupItem2 = {
-        'invoiceNo':invoiceNo.text,
-        "date":date.toString(),
-        // "poNo":poNUMber.text,
-        //        "poNo":poNUMber.text.isEmpty? pendingPoNUMber.text:poNUMber.text,
-        "poNo": dataPending.any((item) => item['poNo'] == PONUMBER.text) ? PONUMBER.text : poNUMber.text,
-        'purchaseDate': formattedPurchaseDate,
-        /*"supName": supplierInfo["supName"].toString(),
-        "supCode": supplierInfo["supCode"].toString(),
-        "supAddress": supplierInfo["supAddress"].toString(),
-        "supMobile": supplierInfo["supMobile"].toString(),*/
-        "supName": supName.text,
-        "supCode":supCode.text,
-        "supAddress": supAddress.text,
-        "pincode": pincode.text,
-        "supMobile": supMobile.text,
-        'prodCode':controllers[i][0].text,
-        'prodName': controllers[i][1].text,
-        'unit': controllers[i][2].text,
-        'qty': controllers[i][3].text,
-        'totalWeight': controllers[i][4].text,
-        'rate':controllers[i][5].text,
-        'amt':controllers[i][6].text,
-        'gst': controllers[i][7].text,
-        'amtGST': controllers[i][8].text,
-        'total': controllers[i][9].text,
-        'grandTotal':grandTotal.text,
-        "payType":payType,
-        'returnTotal':"0.00"
-      };
-      insertFutures.add(insertDataPoItem2(dataToInsertSupItem2));
-    }
-
-    try {
-      await Future.wait(insertFutures);
-
-      print('All data inserted successfully');
-    } catch (e) {
-      print('Error inserting data: $e');
-    }
-  }
-
-  Future<void> addRawMaterial(String prodCode, String prodName, String unit,int qty,String modifyDate,String totalweight) async {
-    final Uri url = Uri.parse('http://localhost:3309/addRawMaterial'); // Replace with your actual backend URL
-
-    final response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'prodCode': prodCode,
-        'prodName': prodName,
-        'unit':unit.toString(),
-        'totalweight':totalweight,
-        'qty': qty,
-        "modifyDate":date.toString(),
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('Update  raw material successful');
-    } else {
-      print('Failed to update. raw material  Status code: ${response.statusCode}');
-      throw Exception('Failed to update raw material');
-    }
-  }
-  bool isDuplicateProductCode(String productCode, int currentRowIndex) {
-    for (int i = 0; i < controllers.length; i++) {
-      if (i != currentRowIndex &&
-          controllers[i][0].text == productCode) {
-        return true;
-      }
-    }
-    return false;
-  }
-  bool isDuplicateProductName(String productName, int currentRowIndex) {
-    for (int i = 0; i < controllers.length; i++) {
-      if (i != currentRowIndex &&
-          controllers[i][1].text == productName) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  double calculateContainerWidth(String value) {
-    // You can define your own logic to calculate the width based on the value
-    // For example, you can set a threshold value and increase the width if the value exceeds that threshold.
-    double threshold = 10000;
-
-    if (value.isEmpty) {
-      return 110; // Default width when the field is empty
-    } else {
-      double numericValue = double.parse(value);
-      return numericValue > threshold ? 200 : 110; // Adjust the threshold and widths based on your requirement
-    }
-  }
-
-
-
-
-
-
-
-  Future<List<dynamic>> fetchSizeData() async {
-    const String apiUrl = 'http://localhost:3309/fetch_productcode_duplicate/'; // Replace with your server details
-
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-
-      if (response.statusCode == 200) {
-        List<dynamic> sizeData = jsonDecode(response.body);
-        return sizeData;
-      } else {
-        print('Failed to fetch data');
-        throw Exception('Failed to fetch data');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Error: $e');
-    }
-  }
-  Future<bool> checkForDuplicate(String prodCode) async {
-    const String apiUrl = 'http://localhost:3309/fetch_productcode_duplicate'; // Replace with your server endpoint
-
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-
-      if (response.statusCode == 200) {
-        List<dynamic> sizeData = jsonDecode(response.body);
-        return sizeData.any((item) => item['prodCode'] == prodCode);
-      } else {
-        print('Failed to fetch data');
-        throw Exception('Failed to fetch data');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Error: $e');
-    }
-  }
-  Future<void> insertDataRaw(Map<String, dynamic> dataToInsertRaw) async {
-    const String apiUrl = 'http://localhost:3309/Raw_material_entry'; // Replace with your server details
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({'dataToInsertRaw': dataToInsertRaw}),
-      );
-      if (response.statusCode == 200) {
-        print('TableData inserted successfully');
-      } else {
-        print('Failed to insert data into the table');
-        throw Exception('Failed to insert data into the table');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Error: $e');
-    }
-  }
-  Future<void> submitItemDataToRaw() async {
-    List<Future<void>> insertFutures = [];
-    for (var i = 0; i < controllers.length; i++) {
-      String purchaseDateString = purchaseDate.text;
-      DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
-      String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
-
-      Map<String, dynamic> dataToInsertRaw = {
-        //'invoiceNo':invoiceNo.text,
-        //"poNo":poNo.text,
-        "date":date.toString(),
-        'prodCode':controllers[i][0].text,
-        'prodName': controllers[i][1].text,
-        'unit':controllers[i][2].text,
-        'qty': controllers[i][3].text,
-        'totalweight': controllers[i][4].text,
-      };
-      insertFutures.add(insertDataRaw(dataToInsertRaw));
-    }
-
-    try {
-      await Future.wait(insertFutures);
-      print('All data inserted successfully');
-    } catch (e) {
-      print('Error inserting data: $e');
-    }
-  }
-
-  Future<String> fetchProductName(String prodCode) async {
-    final response = await http.post(
-      Uri.parse('http://localhost:3309/fetchProductName'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'prodCode': prodCode}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['prodName'];
-    } else {
-      throw Exception('Failed to fetch product name');
-    }
-  }
-  Future<String> fetchProductCode(String prodName) async {
-    final response = await http.post(
-      Uri.parse('http://localhost:3309/fetchProductCode'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'prodName': prodName}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['prodCode'];
-    } else {
-      throw Exception('Failed to fetch product code');
-    }
-  }
-
-
-  String selectedInvoiceNo = '';
-  String selectedPoInvoiceNo = '';
-  final FocusNode _suppliernameFocusNode = FocusNode();
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration(milliseconds: 300), () {
-      FocusScope.of(context).requestFocus(_suppliernameFocusNode);
-    });
-    fetchDataPendingPo();
-    fetchData();//add Row
-    fetchData2();
-    // addRow();
-    ponumfetchsalINv();
-
-
-    fetchPono();
-  }
-
-  List<Map<String, dynamic>> data = [];
-  List<Map<String, dynamic>> data2 = [];
-  List<Map<String, dynamic>> data3 = [];
-  List<Map<String, dynamic>> filteredData = [];
-  List<Map<String, dynamic>> filteredData2 = [];
-  List<Map<String, dynamic>> filteredData3 = [];
-  void filterData2(String searchText) {
-    setState(() {
-      if (searchText.isEmpty) {
-        filteredData2 = data2;
-        supMobile.clear();
-        supAddress.clear();
-        pincode.clear();
-        grandTotal.clear();
-      } else {
-        final existingSupplier = data2.firstWhere(
-              (item) => item['supCode']?.toString() == searchText,
-          orElse: () => {},
-          // Use an empty map literal as the default value
-        );
-        if (existingSupplier.isNotEmpty) {
-          supMobile.text = existingSupplier['supMobile']?.toString() ?? '';
-          supAddress.text = existingSupplier['supAddress']?.toString() ?? '';
-          pincode.text = existingSupplier['pincode']?.toString() ?? '';
-        } else {
-          supMobile.clear();
-          supAddress.clear();
-          pincode.clear();
-          grandTotal.clear();
-        }
-      }
-    });
-  }
   Future<void> fetchData2() async {
     try {
-      final url = Uri.parse('http://localhost:3309/fetch_supplier_data/');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final List<dynamic> itemGroups = responseData;
-
-        setState(() {
-          data2 = itemGroups.cast<Map<String, dynamic>>();
-        });
-
-        print('Data: $data2');
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle any other errors, e.g., network issues
-      print('Error: $error');
-    }
-  }
-
-
-  bool isMachineNameExists(String name) {
-    return data3.any((item) => item['poNo'].toString().toLowerCase() == name.toLowerCase());
-  }
-
-
-  Future<void> fetchData() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:3309/fetch_po_datas'));
+      final response = await http.get(Uri.parse('http://localhost:3309/fetch_purchase_datas_invoice'));
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = jsonDecode(response.body);
         setState(() {
@@ -979,16 +922,93 @@ class _PurchaseState extends State<Purchase> {
     setState(() {
       if (searchText.isEmpty) {
         filteredData = data;
-        supCode.clear(); supName.clear();
+        supCode.clear();
+        supName.clear();
+        supMobile.clear();
+        supAddress.clear();
+        invoiceNo.clear();
+        tcsController.clear();
+        discountController.clear();
+        setState(() {
+          purchaseDate.clear();
+          payType == null;
+        });
+
       } else {
         filteredData = data.where((item) {
-          String id = item['poNo']?.toString()?.toLowerCase() ?? '';
-          return id == searchText.toLowerCase();
+          String poNo = item['poNo']?.toString()?.toLowerCase() ?? '';
+         // String invoiceNo = item['invoiceNo']?.toString()?.toLowerCase() ?? '';
+
+          return poNo == searchText.toLowerCase() || invoiceNo == searchText.toLowerCase();
         }).toList();
         if (filteredData.isNotEmpty) {
           Map<String, dynamic> order = filteredData.first;
+
+          //poNUMber.text = order['poNo']?.toString() ?? '';
+          supCode.text = order['supCode']?.toString() ?? '';
           supCode.text = order['supCode']?.toString() ?? '';
           supName.text = order['supName']?.toString() ?? '';
+          supAddress.text = order['supAddress']?.toString() ?? '';
+          supMobile.text = order['supMobile']?.toString() ?? '';
+          pincode.text = order['pincode']?.toString() ?? '';
+          invoiceNo.text = order['invoiceNo']?.toString() ?? '';
+          if (order['purchaseDate'] != null) {
+            DateTime parsedDate = DateTime.parse(order['purchaseDate'].toString()).toLocal();
+            String formattedDate = DateFormat('dd-MM-yyyy').format(parsedDate);
+            purchaseDate.text = formattedDate;
+          } else { purchaseDate.clear();
+          }          tcsController.text = order['extraCharge']?.toString() ?? '';
+          discountController.text = order['discount']?.toString() ?? '';
+        }
+        else {
+          supCode.clear();supName.clear();
+        }
+      }
+    });
+  }
+  void filterData2(String searchText) {
+    setState(() {
+      if (searchText.isEmpty) {
+        filteredData = data;
+        supCode.clear();
+        supName.clear();
+        supMobile.clear();
+        supAddress.clear();
+        poNUMber.clear();
+        setState(() {
+          purchaseDate.clear();
+          payType == null;
+        });
+        tcsController.clear();
+        discountController.clear();
+
+
+
+      } else {
+        filteredData = data.where((item) {
+          //String poNo = item['poNo']?.toString()?.toLowerCase() ?? '';
+          String invoiceNo = item['invoiceNo']?.toString()?.toLowerCase() ?? '';
+
+          return invoiceNo == searchText.toLowerCase();
+        }).toList();
+        if (filteredData.isNotEmpty) {
+          Map<String, dynamic> order = filteredData.first;
+
+          poNUMber.text = order['poNo']?.toString() ?? '';
+          supCode.text = order['supCode']?.toString() ?? '';
+          supCode.text = order['supCode']?.toString() ?? '';
+          supName.text = order['supName']?.toString() ?? '';
+          supAddress.text = order['supAddress']?.toString() ?? '';
+          supMobile.text = order['supMobile']?.toString() ?? '';
+          pincode.text = order['pincode']?.toString() ?? '';
+          invoiceNo.text = order['invoiceNo']?.toString() ?? '';
+          if (order['purchaseDate'] != null) {
+            DateTime parsedDate = DateTime.parse(order['purchaseDate'].toString()).toLocal();
+            String formattedDate = DateFormat('dd-MM-yyyy').format(parsedDate);
+            purchaseDate.text = formattedDate;
+          } else { purchaseDate.clear();
+          }          tcsController.text = order['extraCharge']?.toString() ?? '';
+          discountController.text = order['discount']?.toString() ?? '';
         } else {
           supCode.clear();supName.clear();
         }
@@ -1003,54 +1023,155 @@ class _PurchaseState extends State<Purchase> {
   // String quantity = '';
 
 
-  Future<void> fetchPono() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:3309/get_purchase'));
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonData = jsonDecode(response.body);
-        setState(() {
-          data3 = jsonData.cast<Map<String, dynamic>>();
-        });
-      } else {
-      }
-    } catch (error) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('An error occurred: $error'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+  Map<int, double> fetchedQuantities = {};
+  Map<int, double> fetchedQuantities2 = {};
+  Map<int, double> fetchedtotalWeight = {};
+  Set<String> selectedProducts = Set();
+
+  Future<List<String>> fetchSuggestions(String pattern) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:3309/fetchSuggestions'), // Replace with your actual endpoint
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'pattern': pattern}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return List<String>.from(data['suggestions']);
+    } else {
+      throw Exception('Failed to fetch suggestions');
     }
   }
-  void filterPoNo(String query) {
+  void showWarningMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Warning'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert box
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Future<String> fetchUnitInPO(String prodCode, String prodName) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:3309/fetchUnitInPO'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'prodCode': prodCode, 'prodName': prodName}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['unit'];
+    } else {
+      throw Exception('Failed to fetch unit from PO table');
+    }
+  }
+  void addRow() {
     setState(() {
-      if (query.isNotEmpty) {
-        filteredData3 = data3.where((item) {
-          final custName = item[''].toString().toLowerCase();
-          return custName.contains(query.toLowerCase());
-        }).toList();
-      } else {
-        filteredData3 = List.from(data3);
+      List<TextEditingController> rowControllers = [];
+      List<FocusNode> rowFocusNodes = [];
+
+      for (int j = 0; j < 11; j++) {
+        rowControllers.add(TextEditingController());
+        rowFocusNodes.add(FocusNode());
+      }
+
+      controllers.add(rowControllers);
+      focusNodes.add(rowFocusNodes);
+
+      isRowFilled.add(false);
+
+      Map<String, dynamic> row = {
+        'prodCode': '',
+        'prodName': '',
+        'unit': '',
+        'qty': '',
+        'rate':'',
+        'amt':'',
+        'gst':'',
+        'amtGST':'',
+        'total':'',
+      };
+
+      rowData.add(row);
+      grandTotalValue = calculateGrandTotal2();
+
+      Future.delayed(Duration.zero, () {
+        FocusScope.of(context).requestFocus(rowFocusNodes[0]);
+      });
+    });
+  }
+  void addRow2() {
+    setState(() {
+      List<TextEditingController> rowControllers = [];
+      List<FocusNode> rowFocusNodes = [];
+
+      for (int j = 0; j < 10; j++) {
+        rowControllers.add(TextEditingController());
+        rowFocusNodes.add(FocusNode());
+      }
+
+      controllers2.add(rowControllers);
+      focusNodes.add(rowFocusNodes);
+
+      isRowFilled.add(false);
+
+      Map<String, dynamic> row = {
+        'prodCode': '',
+        'prodName': '',
+        'unit': '',
+        'sNo': '',
+        'totalWeight': '',
+        'rate':'',
+        'amt':'',
+        'gst':'',
+        'amtGST':'',
+        'total':'',
+      };
+
+      rowData.add(row);
+      grandTotalGsm = calculateGrandTotalGsm();
+
+      Future.delayed(Duration.zero, () {
+        FocusScope.of(context).requestFocus(rowFocusNodes[0]);
+      });
+    });
+  }
+  void removeRow(int index) {
+    setState(() {
+      if (index >= 0 && index < controllers.length) {
+        controllers.removeAt(index);
+        focusNodes.removeAt(index);
+        isRowFilled.removeAt(index);
+        rowData.removeAt(index);
+        grandTotalValue = calculateGrandTotal2();
       }
     });
   }
-  Map<int, double> fetchedQuantities = {};
-  Map<int, double> fetchedtotalWeight = {};
+  void removeRow2(int index) {
+    setState(() {
+      if (index >= 0 && index < controllers2.length) {
+        controllers2.removeAt(index);
+        focusNodes.removeAt(index);
+        isRowFilled.removeAt(index);
+        rowData.removeAt(index);
+        grandTotalGsm = calculateGrandTotalGsm();
+      }
+    });
+  }
 
-  Future<void> fetchDataByInvoiceNumber(String poNumber) async {
+  Future<void> fetchDataByInvoiceNumber(String invoiceNumber) async {
     try {
-      final url = Uri.parse('http://localhost:3309/get_po_item?poNo=$poNumber');
+      final url = Uri.parse('http://localhost:3309/get_purchase_item?invoiceNo=$invoiceNumber');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -1069,26 +1190,168 @@ class _PurchaseState extends State<Purchase> {
               'prodName': rows[i]['prodName'],
               'unit':rows[i]['unit'],
               'qty': rows[i]['qty'],
+              'rate': rows[i]['rate'],
+              'amt': rows[i]['amt'],
+              'gst': rows[i]['gst'],
+              'amtGST': rows[i]['amtGST'],
+              'total': rows[i]['total'],
+              'qty2': rows[i]['qty'],
+            };
+
+            for (int j = 0; j < 11; j++) {
+              TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
+              rowControllers.add(controller);
+            }
+
+            controllers.add(rowControllers);
+            focusNodes.add(List.generate(11, (i) => FocusNode()));
+            rowData.add(row);
+            isRowFilled.add(true);
+
+          }
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+  Future<void> fetchDataByPoNumber(String poNumber) async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_purchase_items?poNo=$poNumber');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> rows = responseData;
+
+        setState(() {
+          controllers.clear();
+          focusNodes.clear();
+          isRowFilled.clear();
+          rowData.clear();
+          for (var i = 0; i < rows.length; i++) {
+            List<TextEditingController> rowControllers = [];
+            Map<String, dynamic> row = {
+              'prodCode': rows[i]['prodCode'],
+              'prodName': rows[i]['prodName'],
+              'unit':rows[i]['unit'],
+              'qty': rows[i]['qty'],
+              'rate': rows[i]['rate'],
+              'amt': rows[i]['amt'],
+              'gst': rows[i]['gst'],
+              'amtGST': rows[i]['amtGST'],
+              'total': rows[i]['total'],
+              'qty2': rows[i]['qty'],
+            };
+
+            for (int j = 0; j < 11; j++) {
+              TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
+              rowControllers.add(controller);
+            }
+
+            controllers.add(rowControllers);
+            focusNodes.add(List.generate(11, (i) => FocusNode()));
+            rowData.add(row);
+            isRowFilled.add(true);
+
+          }
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+  Future<void> fetchDataByPoNumber2(String poNumber) async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_purchase_items?poNo=$poNumber');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> rows = responseData;
+
+        setState(() {
+          controllers2.clear();
+          focusNodes2.clear();
+          isRowFilled2.clear();
+          rowData2.clear();
+          for (var i = 0; i < rows.length; i++) {
+            List<TextEditingController> rowControllers = [];
+            Map<String, dynamic> row = {
+              'prodCode': rows[i]['prodCode'],
+              'prodName': rows[i]['prodName'],
+              'unit':rows[i]['unit'],
+              'sNo': rows[i]['sNo'],
               'totalWeight': rows[i]['totalWeight'],
               'rate': rows[i]['rate'],
               'amt': rows[i]['amt'],
               'gst': rows[i]['gst'],
               'amtGST': rows[i]['amtGST'],
               'total': rows[i]['total'],
-              'rQty': rows[i]['qty'],
-              //'aQty': rows[i]['qty'],
             };
 
-            for (int j = 0; j < 12; j++) {
-              TextEditingController controller = TextEditingController(text: row[_getKeyForColumn(j)]);
+            for (int j = 0; j < 10; j++) {
+              TextEditingController controller = TextEditingController(text: row[_getKeyForColumn2(j)]);
               rowControllers.add(controller);
             }
 
-            controllers.add(rowControllers);
-            focusNodes.add(List.generate(12, (i) => FocusNode()));
-            rowData.add(row);
-            isRowFilled.add(true);
-            fetchedQuantities[i] = double.tryParse(rows[i]['qty']) ?? 0.0;
+            controllers2.add(rowControllers);
+            focusNodes2.add(List.generate(10, (i) => FocusNode()));
+            rowData2.add(row);
+            isRowFilled2.add(true);
+
+          }
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+  Future<void> fetchDataByInvoiceNumber2(String invoiceNumber) async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_purchase_item?invoiceNo=$invoiceNumber');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> rows = responseData;
+
+        setState(() {
+          controllers2.clear();
+          focusNodes2.clear();
+          isRowFilled2.clear();
+          rowData2.clear();
+          for (var i = 0; i < rows.length; i++) {
+            List<TextEditingController> rowControllers = [];
+            Map<String, dynamic> row = {
+              'prodCode': rows[i]['prodCode'],
+              'prodName': rows[i]['prodName'],
+              'unit':rows[i]['unit'],
+              'sNo': rows[i]['sNo'],
+              'totalWeight': rows[i]['totalWeight'],
+              'rate': rows[i]['rate'],
+              'amt': rows[i]['amt'],
+              'gst': rows[i]['gst'],
+              'amtGST': rows[i]['amtGST'],
+              'total': rows[i]['total'],
+            };
+
+            for (int j = 0; j < 10; j++) {
+              TextEditingController controller = TextEditingController(text: row[_getKeyForColumn2(j)]);
+              rowControllers.add(controller);
+            }
+
+            controllers2.add(rowControllers);
+            focusNodes2.add(List.generate(10, (i) => FocusNode()));
+            rowData2.add(row);
+            isRowFilled2.add(true);
+            fetchedQuantities2[i] = double.tryParse(rows[i]['qty']) ?? 0.0;
             //    fetchedtotalWeight[i] = double.tryParse(rows[i]['totalWeight']) ?? 0.0;
 
           }
@@ -1100,122 +1363,256 @@ class _PurchaseState extends State<Purchase> {
       print('Error: $error');
     }
   }
+
+  /// fetch supplier
+  bool readOnlyFields = false;
+  String selectedCustomer=" ";
+
+  Future<void> insertDataSup(Map<String, dynamic> dataToInsertSup) async {
+    const String apiUrl = 'http://localhost:3309/supplier_data'; // Replace with your server details
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'dataToInsertSup': dataToInsertSup}),
+      );
+      if (response.statusCode == 200) {
+        print('TableData inserted successfully');
+      } else {
+        print('Failed to Table insert data');
+        throw Exception('Failed to Table insert data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<void> supDataToDatabase() async {
+    List<Future<void>> insertFutures = [];
+    Map<String, dynamic> dataToInsertSup = {
+      'date': date.toString(),
+      'supName': supName.text,
+      'supCode': supCode.text,
+      'supAddress': supAddress.text,
+      'pincode':pincode.text,
+      'supMobile': supMobile.text,
+    };
+    insertFutures.add(insertDataSup(dataToInsertSup));
+    await Future.wait(insertFutures);
+  }
+  Future<List<dynamic>> fetchSizeData() async {
+    const String apiUrl = 'http://localhost:3309/fetch_supCode/'; // Replace with your server details
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        List<dynamic> sizeData = jsonDecode(response.body);
+        return sizeData;
+      } else {
+        print('Failed to fetch data');
+        throw Exception('Failed to fetch data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
+    }
+  }
+  Future<bool> checkForDuplicateSup(String size) async {
+    List<dynamic> sizeData = await fetchSizeData();
+    for (var item in sizeData) {
+      if (item['supCode'] == size) {
+        return true; // Size already exists, return true
+      }
+    }
+    return false; // Size is unique, return false
+  }
+  void filterDataSup(String searchText) {
+    setState(() {
+      if (searchText.isEmpty) {
+        filteredData = dataSup;
+        readOnlyFields = false;
+        supCode.clear();
+        supAddress.clear();
+        pincode.clear();
+        supMobile.clear();
+      } else {
+        final existingSupplier = dataSup.firstWhere(
+              (item) => item['supName']?.toString() == searchText,
+          orElse: () => {}, // Use an empty map literal as the default value
+        );
+
+        if (existingSupplier.isNotEmpty) {
+          // Supplier found, populate fields
+          readOnlyFields = true;
+          supCode.text = existingSupplier['supCode']?.toString() ?? '';
+          supAddress.text = existingSupplier['supAddress']?.toString() ?? '';
+          supMobile.text = existingSupplier['supMobile']?.toString() ?? '';
+          pincode.text = existingSupplier['pincode']?.toString() ?? '';
+        } else {
+          readOnlyFields = false;
+          int maxCodeNumber = 0;
+          for (var item in dataSup) {
+            final supCodeStr = item['supCode']?.toString() ?? '';
+            if (supCodeStr.startsWith('S') && supCodeStr.length == 4) {
+              final codeNumber = int.tryParse(supCodeStr.substring(1));
+              if (codeNumber != null && codeNumber > maxCodeNumber) {
+                maxCodeNumber = codeNumber;
+              }
+            }
+          }
+          final newCode = 'S${(maxCodeNumber + 1).toString().padLeft(3, '0')}';
+          supCode.text = newCode;
+          supAddress.clear();
+          supMobile.clear();
+          pincode.clear();
+        }
+      }
+    });
+  }
+  Future<void> fetchDataSup() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/fetch_supplier/');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final List<dynamic> itemGroups = responseData;
+
+        setState(() {
+          dataSup = itemGroups.cast<Map<String, dynamic>>();
+        });
+
+        print('Data: $dataSup');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     poNUMber.addListener(() {
       filterData(poNUMber.text);
-      fetchDataByInvoiceNumber(poNUMber.text);
+      fetchDataByPoNumber2(poNUMber.text);
     });
-    pendingPoNUMber.addListener(() {
-      filterDatapending(pendingPoNUMber.text);
-      fetchDataByPONumber(pendingPoNUMber.text);
+    poNUMber.addListener(() {
+      filterData(poNUMber.text);
+      fetchDataByPoNumber(poNUMber.text);
     });
-    supCode.addListener(() {
-      filterData2(supCode.text);
+    invoiceNo.addListener(() {
+      filterData2(invoiceNo.text);
+      fetchDataByInvoiceNumber(invoiceNo.text);
     });
-
+    invoiceNo.addListener(() {
+      fetchDataByInvoiceNumber2(invoiceNo.text);
+    });
+    supName.addListener(() {
+      filterDataSup(supName.text);
+    });
     double screenWidth = MediaQuery.of(context).size.width;
     return MyScaffold(
         route: "purchase_entry",backgroundColor: Colors.white,
-        body:  Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Center(
-              child: Column(
-                  children: [
-                    SizedBox(height: 15,),
-                    SizedBox(
-                      //width: 720,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          width: double.infinity, // Set the width to full page width
-                          padding: EdgeInsets.all(14.0), // Add padding for spacing
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey), // Add a border for the box
-                            borderRadius: BorderRadius.circular(10.0), // Add border radius for rounded corners
-                          ),
-                          child: Wrap(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Row(
-                                            children:[    const Icon(Icons.local_grocery_store, size:30),
-                                              Text("Purchase Entry",style: TextStyle(fontSize:screenWidth * 0.019,fontWeight: FontWeight.bold),),
-                                            ]),
-                                        Row(
-                                          children: [
-                                            Checkbox(
-                                              value: selectedCheckbox == 1,
-                                              onChanged: (bool? value) {
-                                                setState(() {
-                                                  pendingPoNUMber.clear();
-                                                  errorMessage ="";
+        body:  Container(
+          //color: Colors.black,
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Center(
+                child: Column(
+                    children: [
+                      SizedBox(height: 15,),
+                      SizedBox(
+                        //width: 720,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            width: double.infinity, // Set the width to full page width
+                            padding: EdgeInsets.all(14.0), // Add padding for spacing
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: Colors.grey), // Add a border for the box
+                              borderRadius: BorderRadius.circular(10.0), // Add border radius for rounded corners
+                            ),
+                            child: Wrap(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Row(
+                                              children:[    const Icon(Icons.local_grocery_store, size:30),
+                                                Text("Purchase Edit",style: TextStyle(fontSize:screenWidth * 0.019,fontWeight: FontWeight.bold),),
+                                                IconButton(
+                                                  icon: Icon(Icons.refresh),
+                                                  onPressed: () {
+                                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>PurchaseEdit()));
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.arrow_back),
+                                                  onPressed: () {
+                                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                                    Navigator.pop(context);
+                                                  },
+                                                )
+                                              ]),
+                                          Row(
+                                            children: [
+                                              Checkbox(
+                                                value: selectedCheckbox == 1,
+                                                onChanged: (bool? value) {
+                                                  setState(() {
+                                                    pendingPoNUMber.clear();
+                                                    errorMessage ="";
 
-                                                  if (value != null && value) {
-                                                    selectedCheckbox = 1;
-                                                  } else {
-                                                    // Toggle between 1 and 2
-                                                    selectedCheckbox = selectedCheckbox == 1 ? 2 : 1;
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                            Text("PO"),
-                                            Checkbox(
-                                              value: selectedCheckbox == 3,
-                                              onChanged: (bool? value) {
-                                                setState(() {
-                                                  poNUMber.clear();
-                                                  errorMessage ="";
-                                                  //  checkOrderNo ="";
-                                                  if (value != null && value) {
-                                                    selectedCheckbox = 3;
-                                                  } else {
-                                                    selectedCheckbox = selectedCheckbox == 3 ? 1 : 3;
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                            const Text("GSM"),
-                                            Checkbox(
-                                              value: selectedCheckbox == 2,
-                                              onChanged: (bool? value) {
-                                                setState(() {
-                                                  poNUMber.clear();
-                                                  errorMessage ="";
-                                                  //  checkOrderNo ="";
-                                                  if (value != null && value) {
-                                                    selectedCheckbox = 2;
-                                                  } else {
-                                                    // Toggle between 2 and 1
-                                                    selectedCheckbox = selectedCheckbox == 2 ? 1 : 2;
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                            Text("Pending"),
-                                          ],
-                                        ),
-
-
-                                      ],
-                                    ),
-                                    //poNumber textformfield
-                                    Column(
-                                      children: [
-                                        Visibility(
-                                          visible: selectedCheckbox == 1 || selectedCheckbox == 3 ,
-                                          child: SizedBox(
-                                            width: 140,
+                                                    if (value != null && value) {
+                                                      selectedCheckbox = 1;
+                                                    }
+                                                    else {
+                                                      selectedCheckbox = selectedCheckbox == 1 ? 2 : 1;
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              Text("PO"),
+                                              Checkbox(
+                                                value: selectedCheckbox == 2,
+                                                onChanged: (bool? value) {
+                                                  setState(() {
+                                                    poNUMber.clear();
+                                                    errorMessage ="";
+                                                    //  checkOrderNo ="";
+                                                    if (value != null && value) {
+                                                      selectedCheckbox = 2;
+                                                    }
+                                                    else {
+                                                      selectedCheckbox = selectedCheckbox == 2 ? 1 : 2;
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              const Text("GSM"),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      //poNumber textformfield
+                                      Column(
+                                        children: [
+                                          SizedBox(
+                                            width: 150,
                                             height: 36,
                                             child: TypeAheadFormField<String>(
                                               textFieldConfiguration: TextFieldConfiguration(
-                                                controller: poNUMber,focusNode: _suppliernameFocusNode,
+                                                controller: poNUMber,
+                                                focusNode: _suppliernameFocusNode,
                                                 style: const TextStyle(fontSize: 13),
                                                 onChanged: (value) {
                                                   setState(() {
@@ -1243,18 +1640,18 @@ class _PurchaseState extends State<Purchase> {
                                                   suggestions = data
                                                       .where((item) =>
                                                   (item['poNo']?.toString()?.toLowerCase() ?? '')
-                                                      .startsWith(pattern.toLowerCase()) &&
-                                                      (selectedCheckbox != 1 || !item['prodName'].toString().startsWith('GSM')))
+                                                      .startsWith(pattern.toLowerCase())
+                                                      &&
+                                                      (selectedCheckbox == 1 && !item['prodName'].toString().startsWith('GSM')) ||
+                                                      (selectedCheckbox == 2 && item['prodName'].toString().startsWith('GSM'))
+                                                  )
                                                       .map((item) => item['poNo'].toString())
-                                                      .toSet() // Remove duplicates using a Set
+                                                      .toSet()
                                                       .toList();
 
-                                                  suggestions.removeWhere((existingInvoiceNo) =>
-                                                  isMachineNameExists(existingInvoiceNo) &&
-                                                      existingInvoiceNo != poNUMber.text);
-
                                                   suggestions = suggestions.take(5).toList();
-                                                } else {
+                                                }
+                                                else {
                                                   suggestions = [];
                                                 }
                                                 return suggestions;
@@ -1269,611 +1666,661 @@ class _PurchaseState extends State<Purchase> {
                                                 setState(() {
                                                   selectedInvoiceNo = suggestion;
                                                   poNUMber.text = suggestion;
-                                                  if (isMachineNameExists(poNUMber.text)) {
-                                                    setState(() {
-                                                      errorMessage = '* This PO Number is Already invoiced';
-                                                    });
-                                                  }
                                                 });
                                                 print('Selected Invoice Number: $selectedInvoiceNo');
                                               },
                                             ),
                                           ),
-                                        ),
-                                        Visibility(
-                                          visible: selectedCheckbox ==2,
+                                        ],
+                                      ),
+                                      //pending po textformfield
 
-                                          child: SizedBox(
-                                            width: 140,
-                                            height: 36,
-                                            child: TypeAheadFormField<String>(
-                                              textFieldConfiguration: TextFieldConfiguration(
-                                                controller: pendingPoNUMber,
-                                                style: const TextStyle(fontSize: 13),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    errorMessage = null; // Reset error message when the user types
-                                                  });
-                                                },
-                                                inputFormatters: [
-                                                  UpperCaseTextFormatter(),
-                                                ],
-                                                decoration: InputDecoration(
-                                                  // suffixIcon: Icon(Icons.search),
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  labelText: "Pending PO Number",
-                                                  labelStyle: TextStyle(fontSize: 12),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                  ),
+
+                                    ],),
+
+                                  Padding(
+                                    padding: const EdgeInsets.only(top:8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        SizedBox(
+                                      width: 140,
+                                      child: TextFormField(
+                                        style: TextStyle(fontSize: 13),
+                                        readOnly: true,
+                                        onTap: () async {
+                                          DateTime? pickDate = await showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now(),
+                                            firstDate: DateTime(1900),
+                                            lastDate: DateTime.now(),
+                                          );
+                                          if (pickDate == null) return;
+                                          {
+                                            setState(() {
+                                              // Format the picked date before setting it to the controller
+                                              purchaseDate.text = DateFormat('dd-MM-yyyy').format(pickDate);
+                                              errorMessage = null;
+                                            });
+                                          }
+                                        },
+                                        controller: purchaseDate,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: "Purchase Date",
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                        SizedBox(width: 5,),
+                                        SizedBox(
+                                          width: 140,
+                                          child:
+                                          TypeAheadFormField<String>(
+                                            textFieldConfiguration: TextFieldConfiguration(
+                                              controller: invoiceNo, // Use the controller for invoiceNo
+                                              style: const TextStyle(fontSize: 13),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  errorMessage = null;
+                                                });
+                                              },
+                                              inputFormatters: [
+                                                UpperCaseTextFormatter(),
+                                              ],
+                                              decoration: InputDecoration(
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                labelText: "Invoice Number",
+                                                labelStyle: TextStyle(fontSize: 13),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
                                                 ),
                                               ),
-                                              suggestionsCallback: (pattern) async {
-                                                List<String> suggestions;
-                                                if (pattern.isNotEmpty) {
-                                                  suggestions = dataPending
-                                                      .where((item) =>
-                                                      (item['pendingOrderNo']?.toString()?.toLowerCase() ?? '')
-                                                          .startsWith(pattern.toLowerCase()))
-                                                      .map((item) => item['pendingOrderNo'].toString())
-                                                      .toSet() // Remove duplicates using a Set
-                                                      .toList();
-                                                  suggestions.removeWhere((existingInvoiceNo) =>
-                                                  isMachineNameExists(existingInvoiceNo) &&
-                                                      existingInvoiceNo != pendingPoNUMber.text);
-                                                  suggestions = suggestions.take(5).toList();
-                                                } else {
-                                                  suggestions = [];
-                                                }
-                                                return suggestions;
-                                              },
-                                              itemBuilder: (context, suggestion) {
-                                                return ListTile(
-                                                  title: Text(suggestion),
-                                                );
-                                              },
-                                              onSuggestionSelected: (suggestion) {
-                                                if (isMachineNameExists(suggestion)) {
-                                                  setState(() {
-                                                    errorMessage = '* This Order already exists';
-                                                  });
-                                                } else {
-                                                  errorMessage = null;
-                                                }
-
-                                                setState(() {
-                                                  selectedPoInvoiceNo = suggestion;
-                                                  pendingPoNUMber.text = suggestion;
-                                                });
-                                                print('Selected Invoice Number: $selectedPoInvoiceNo');
-                                              },
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    //pending po textformfield
+                                            suggestionsCallback: (pattern) async {
+                                              List<String> suggestions;
+                                              if (pattern.isNotEmpty) {
+                                                suggestions = data
+                                                    .where((item) =>
+                                                (item['poNo']?.toString()?.toLowerCase() ?? '').startsWith(pattern.toLowerCase()) ||
+                                                    (item['invoiceNo']?.toString()?.toLowerCase() ?? '').startsWith(pattern.toLowerCase()) &&
+                                                        (selectedCheckbox == 1 && !item['prodName'].toString().startsWith('GSM') ||
+                                                            (selectedCheckbox == 2 && item['prodName'].toString().startsWith('GSM'))))
+                                                    .map((item) => item['invoiceNo'].toString())
+                                                    .toSet()
+                                                    .toList();
 
-
-                                  ],),
-
-                                Padding(
-                                  padding: const EdgeInsets.only(top:8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      SizedBox(
-                                        width: 140,
-                                        child: TextFormField(style: TextStyle(fontSize: 13),
-                                          readOnly: true, // Set the field as read-only
-                                          onTap: () async {
-                                            DateTime? pickDate = await showDatePicker(
-                                              context: context,
-                                              initialDate: DateTime.now(),
-                                              firstDate: DateTime(
-                                                  1900),
-                                              lastDate: DateTime.now(),
-                                            );
-                                            if (pickDate == null)
-                                              return;
-                                            {
+                                                suggestions = suggestions.take(5).toList();
+                                              } else {
+                                                suggestions = [];
+                                              }
+                                              return suggestions;
+                                            },
+                                            itemBuilder: (context, suggestion) {
+                                              return ListTile(
+                                                title: Text(suggestion),
+                                              );
+                                            },
+                                            onSuggestionSelected: (suggestion) {
                                               setState(() {
-                                                purchaseDate.text =
-                                                    DateFormat(
-                                                        'dd-MM-yyyy')
-                                                        .format(
-                                                        pickDate);
-                                                errorMessage=null;
-
+                                                selectedInvoiceNo = suggestion;
+                                                invoiceNo.text = suggestion;
                                               });
-                                            }
-                                          },
-                                          controller: purchaseDate, // Set the initial value of the field to the selected date
-                                          decoration: InputDecoration(
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            labelText: "Purchase Date",
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
+                                              print('Selected Invoice Number: $selectedInvoiceNo');
+                                            },
                                           ),
                                         ),
-                                      ),
-                                      SizedBox(width: 5,),
-                                      SizedBox(
-                                        width: 140,
-                                        child: TextFormField(
-                                          // readOnly: invoiceEditable,
-                                          controller: invoiceNo,
-                                          style: TextStyle(fontSize: 13),
-                                          inputFormatters: [
-                                            UpperCaseTextFormatter(), // Apply the formatter
-                                          ],
-                                          onChanged: (value){
-                                            setState(() {
-                                              errorMessage = null; // Reset error message when user types
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            labelText: "Invoice Number",
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-
-                                      ),
-                                    ],),
-                                ),
-                              ]
+                                      ],),
+                                  ),
+                                ]
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      // width: 720,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          width: double.infinity, // Set the width to full page width
-                          padding: EdgeInsets.all(16.0), // Add padding for spacing
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            border: Border.all(color: Colors.grey), // Add a border for the box
-                            borderRadius: BorderRadius.circular(10.0), // Add border radius for rounded corners
-                          ),
-                          child: Wrap(
-                            children: [
-                              Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Supplier Details",style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize:16,
-                                        ),),
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 8.0),
-                                          child: Text(
-                                            errorMessage ?? '',
-                                            style: TextStyle(color: Colors.red,fontSize: 13),
+                      SizedBox(
+                        // width: 720,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            width: double.infinity, // Set the width to full page width
+                            padding: EdgeInsets.all(16.0), // Add padding for spacing
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              border: Border.all(color: Colors.grey), // Add a border for the box
+                              borderRadius: BorderRadius.circular(10.0), // Add border radius for rounded corners
+                            ),
+                            child: Wrap(
+                              children: [
+                                Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Supplier Details",style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize:16,
+                                          ),),
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 8.0),
+                                            child: Text(
+                                              errorMessage ?? '',
+                                              style: TextStyle(color: Colors.red,fontSize: 13),
+                                            ),
                                           ),
-                                        ),
 
 
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Wrap(
-                                      children: [
-                                        SizedBox(
-                                          width: 190, height: 70,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            controller: supCode,
-                                            //initialValue: supplierInfo['supCode'].toString()??'',
-                                            style: TextStyle(fontSize: 13),
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Supplier Code",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Wrap(
+                                        children: [
+                                          SizedBox(
+                                            width: 240,height: 70,
+                                            child: TextFormField(
+                                              readOnly: true,
+                                              controller:supCode,
+                                              style: TextStyle(fontSize: 13),
+                                              onChanged: (value) {
+                                                String capitalizedValue = capitalizeFirstLetter(value);
+                                                supCode.value = supCode.value.copyWith(
+                                                  text: capitalizedValue,
+                                                  selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                );
 
-                                              ),
-                                            ),
-                                          ),
-                                        ),SizedBox(width: 20,),
-                                        SizedBox(
-                                          width: 190,height: 70,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            //initialValue: supplierInfo['supName'].toString()??'',
-                                            controller: supName,
-                                            style: TextStyle(fontSize: 13),
+                                              },
 
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Supplier Name",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
-
-                                              ),
-                                            ),
-                                          ),
-                                        ),SizedBox(width: 20,),
-                                        SizedBox(
-                                          width: 190,height: 70,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            controller: supAddress,
-                                            style: TextStyle(fontSize: 13),
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Supplier Address",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 20,),
-                                        SizedBox(
-                                          width: 190,height: 70,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            controller: pincode,
-                                            //initialValue: supplierInfo['supAddress'].toString()??'',
-                                            onChanged: (value) {
-                                              String capitalizedValue = capitalizeFirstLetter(value);
-                                              pincode.value = pincode.value.copyWith(
-                                                text: capitalizedValue,
-                                                //selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                              );
-                                              setState(() {
-                                                errorMessage = null; // Reset error message when user types
-                                              });
-                                            },
-                                            style: TextStyle(fontSize: 13),
-
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              labelText: "Pincode",
-                                              hintText: "Pincode",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 20,),
-                                        SizedBox(
-                                          width: 190,height: 70,
-                                          child: TextFormField(
-                                            readOnly: true,
-                                            controller: supMobile,
-                                            //initialValue: supplierInfo['supMobile'].toString()??'',
-                                            style: TextStyle(fontSize: 13),
-                                            onChanged: (value){
-                                            },
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              prefixText: "+91 ",
-                                              labelText: "Supplier Mobile",
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10,),
-                                              ),
-                                            ),
-                                          ),
-                                        ),SizedBox(width: 20,),
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 38),
-                                          child: SizedBox(
-                                            width: 190,height:38,
-                                            child: DropdownButtonHideUnderline(
-                                              child: DropdownButtonFormField<String>(
-                                                decoration: InputDecoration(
+                                              decoration: InputDecoration(
+                                                  labelText: "Supplier Code",
                                                   filled: true,
                                                   fillColor: Colors.white,
-                                                ),
-                                                value: payType,
-                                                hint:Text("Payment Type",style:TextStyle(fontSize: 13),),
-                                                items: <String>['Cash','Cheque','NEFT','RTGS']
-                                                    .map<DropdownMenuItem<String>>((String value) {
-                                                  return DropdownMenuItem<String>(
-                                                    value: value,
-                                                    child: Text(
-                                                      value,
-                                                      style: TextStyle(fontSize: 13),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10,),
+                                                  )
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 60,),
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 36),
+                                            child:SizedBox(
+                                              width: 240,
+                                              height:50,
+                                              child: TypeAheadFormField<String>(
+                                                textFieldConfiguration: TextFieldConfiguration(
+                                                  controller: supName,
+                                                  // focusNode: _suppliernameFocusNode,
+                                                  onChanged: (value) {
+                                                    String capitalizedValue = capitalizeFirstLetter(value);
+                                                    supName.value = supName.value.copyWith(
+                                                      text: capitalizedValue,
+                                                      selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                    );
+                                                    setState(() {
+                                                      errorMessage = null; // Reset error message when user types
+                                                    });
+                                                  },
+                                                  style: const TextStyle(fontSize: 13),
+                                                  decoration: InputDecoration(
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    labelText: "Supplier/Company Name",
+                                                    labelStyle: TextStyle(fontSize: 16,color: Colors.black),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
                                                     ),
+                                                  ),
+                                                ),
+                                                suggestionsCallback: (pattern) async {
+                                                  if (pattern.isEmpty) {
+                                                    return [];
+                                                  }
+                                                  List<String> suggestions = dataSup
+                                                      .where((item) =>
+                                                  (item['supName']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()) ||
+                                                      (item['supCode']?.toString()?.toLowerCase() ?? '').contains(pattern.toLowerCase()))
+                                                      .map((item) => item['supName'].toString())
+                                                      .toSet()
+                                                      .toList();
+                                                  return suggestions;
+                                                },
+                                                itemBuilder: (context, suggestion) {
+                                                  Map<String, dynamic> customerData = dataSup.firstWhere(
+                                                        (item) => item['supName'].toString() == suggestion,
+                                                    orElse: () => Map<String, dynamic>(),
                                                   );
-                                                }).toList(),
-                                                // Step 5.
-                                                onChanged: (String? newValue) {
+                                                  return ListTile(
+                                                    title: Text('${customerData['supName']} (${customerData['supCode']})'),
+                                                  );
+                                                },
+                                                onSuggestionSelected: (suggestion) {
+                                                  Map<String, dynamic> customerData = dataSup.firstWhere(
+                                                        (item) => item['supName'].toString() == suggestion,
+                                                    orElse: () => Map<String, dynamic>(),
+                                                  );
                                                   setState(() {
-                                                    payType = newValue!;
+                                                    selectedCustomer = suggestion;
+                                                    supName.text = suggestion;
                                                   });
+                                                  print('Selected Customer: $selectedCustomer, Customer Code: ${customerData['supCode']}');
                                                 },
                                               ),
                                             ),
+
+                                            /* SizedBox(
+                                              width: 220,
+                                              height: 34,
+                                              child:
+                                              TypeAheadFormField<String>(
+                                                hideKeyboard: checkName,
+                                                textFieldConfiguration: TextFieldConfiguration(
+                                                  controller: supName,
+                                                  onChanged: (value) {
+                                                    // fetchData5();
+                                                    String capitalizedValue = capitalizeFirstLetter(value);
+                                                    supName.value = supName.value.copyWith(
+                                                      text: capitalizedValue,
+                                                      selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                    );
+                                                  },
+                                                  style: const TextStyle(fontSize: 13),
+                                                  decoration: InputDecoration(
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    labelText: "Supplier Name", // Update label
+                                                    labelStyle: TextStyle(fontSize: 13, color: Colors.black),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
+                                                  ),
+                                                ),
+                                                suggestionsCallback: (pattern) async {
+                                                  if (pattern.isEmpty) {
+                                                    return [];
+                                                  }
+                                                  List<String> suggestions = data
+                                                      .where((item) {
+                                                    String empName = item['supName']?.toString()?.toLowerCase() ?? '';
+                                                    String empId = item['supCode']?.toString()?.toLowerCase() ?? '';
+                                                    return empName.contains(pattern.toLowerCase()) || empId.contains(pattern.toLowerCase());
+                                                  })
+                                                      .map<String>((item) =>
+                                                  '${item['supName']} (${item['supCode']})') // Modify this line to match your data structure
+                                                      .toSet() // Remove duplicates using a Set
+                                                      .toList();
+                                                  return suggestions;
+                                                },
+                                                itemBuilder: (context, suggestion) {
+                                                  return ListTile(
+                                                    title: Text(suggestion),
+                                                  );
+                                                },
+                                                onSuggestionSelected: (suggestion) {
+                                                  String selectedEmpName = suggestion.split(' ')[0];
+                                                  String selectedEmpID = suggestion.split('(')[1].split(')')[0];
+                                                  setState(() {
+                                                    selectedCustomer = selectedEmpName;
+                                                    supName.text = selectedEmpName;
+                                                    checkName = true;
+                                                  });
+                                                  print('Selected Customer: $selectedCustomer, ID: $selectedEmpID');
+                                                },
+                                              ),
+                                            ),*/
                                           ),
-                                        ),
-                                      ],
+                                          SizedBox(width: 60,),
+                                          SizedBox(
+                                            width: 240,height: 70,
+                                            child: TextFormField(
+                                              // readOnly: selectedCheckbox != 3,
+                                              controller: supAddress,
+                                              style: TextStyle(fontSize: 13),
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                labelText: "Supplier Address",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text("Product Details",style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize:16,
-                                    ),),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Wrap(
+                                        children: [
+                                          SizedBox(
+                                            width: 240,height: 70,
+                                            child: TextFormField(
+                                              //  readOnly: selectedCheckbox != 3,
+                                              controller: pincode,
+                                              //initialValue: supplierInfo['supAddress'].toString()??'',
+                                              onChanged: (value) {
+                                                String capitalizedValue = capitalizeFirstLetter(value);
+                                                pincode.value = pincode.value.copyWith(
+                                                  text: capitalizedValue,
+                                                  //selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                );
+                                                setState(() {
+                                                  errorMessage = null; // Reset error message when user types
+                                                });
+                                              },
+                                              style: TextStyle(fontSize: 13),
+
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                labelText: "Pincode",
+                                                hintText: "Pincode",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 60,),
+                                          SizedBox(
+                                            width: 240,height: 70,
+                                            child: TextFormField(
+                                              // readOnly: selectedCheckbox != 3,
+                                              controller: supMobile,
+                                              //initialValue: supplierInfo['supMobile'].toString()??'',
+                                              style: TextStyle(fontSize: 13),
+                                              onChanged: (value){
+                                              },
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                prefixText: "+91 ",
+                                                labelText: "Supplier Mobile",
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10,),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 60,),
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 38),
+                                            child:
+                                            SizedBox(
+                                              width: 240,height:38,
+                                              child: DropdownButtonHideUnderline(
+                                                child: DropdownButtonFormField<String>(
+                                                  decoration: InputDecoration(
+                                                    filled: true,
+                                                    fillColor: Colors.white,
+                                                  ),
+                                                  value: payType,
+                                                  hint:Text("Payment Type",style:TextStyle(fontSize: 13),),
+                                                  items: <String>['Cash','Cheque','NEFT','RTGS']
+                                                      .map<DropdownMenuItem<String>>((String value) {
+                                                    return DropdownMenuItem<String>(
+                                                      value: value,
+                                                      child: Text(
+                                                        value,
+                                                        style: TextStyle(fontSize: 13),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  // Step 5.
+                                                  onChanged: (String? newValue) {
+                                                    setState(() {
+                                                      payType = newValue!;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 5),
-                                child: Column(
-                                  children: [
-                                    SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: FocusTraversalGroup(
-                                        policy: OrderedTraversalPolicy(),
-                                        child: Table(
-                                          border: TableBorder.all(
-                                              color: Colors.black54
-                                          ),
-                                          defaultColumnWidth: const FixedColumnWidth(140.0),
-                                          columnWidths:  <int, TableColumnWidth>{
-                                            // 0: FixedColumnWidth(175),
-                                            // 1: FixedColumnWidth(175),
-                                            2: FixedColumnWidth(100),
-                                            3: FixedColumnWidth(100),
-                                            4: selectedCheckbox == 3 ? const FixedColumnWidth(100) : const FixedColumnWidth(0),
-                                            5: FixedColumnWidth(100),
-                                            6: FixedColumnWidth(100),
-                                            7: FixedColumnWidth(80),
-                                            8: FixedColumnWidth(115),
-                                            9: FixedColumnWidth(115),
-                                            10: FixedColumnWidth(0),
-                                            11: FixedColumnWidth(0),
-                                            12: FixedColumnWidth(60),
-
-                                          },
-                                          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                          children: [
-                                            // Table header row
-                                            TableRow(
-                                              children: [
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height:15 ),
-                                                          Text('Product Code',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height:15),
-                                                          Text('Product Name',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height:15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height:15),
-                                                          Text('Unit',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height:15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height:15),
-                                                          Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height:15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height:15),
-                                                          selectedCheckbox == 3 ?
-                                                          Text('Total Weight',style: TextStyle(fontWeight: FontWeight.bold),)
-                                                              : Text('',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height:15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 15),
-                                                          Text(' Rate ',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 15),
-                                                          Text('Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 15),
-                                                          Text('GST (%)',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 15),
-                                                          Text('GST Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 15),
-                                                          Text('Total',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Visibility(
-                                                  visible:false,
-                                                  child: TableCell(
-                                                    child: Container(
-                                                      color:Colors.blue.shade200,
-                                                      child: Center(
-                                                        child: Column(
-                                                          children: [
-                                                            const SizedBox(height: 15),
-                                                            Text('R qty',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                            const SizedBox(height: 15),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Visibility(
-
-                                                  visible:false,
-                                                  child: TableCell(
-                                                    child: Container(
-                                                      color:Colors.blue.shade200,
-                                                      child: Center(
-                                                        child: Column(
-                                                          children: [
-                                                            const SizedBox(height: 15),
-                                                            Text('A qty',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                            const SizedBox(height: 15),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                TableCell(
-                                                  child: Container(
-                                                    color:Colors.blue.shade200,
-                                                    child: Center(
-                                                      child: Column(
-                                                        children: [
-                                                          const SizedBox(height: 15),
-                                                          Text('Action',style: TextStyle(fontWeight: FontWeight.bold),),
-                                                          const SizedBox(height: 15),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("Product Details",style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize:16,
+                                      ),),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 5),
+                                  child: Column(
+                                    children: [
+                                      selectedCheckbox == 1 ?
+                                      SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: FocusTraversalGroup(
+                                          policy: OrderedTraversalPolicy(),
+                                          child: Table(
+                                            border: TableBorder.all(
+                                                color: Colors.black54
                                             ),
-                                            // Table data rows
-                                            for (var i = 0; i < controllers.length; i++)
+                                            defaultColumnWidth: const FixedColumnWidth(140.0),
+                                            columnWidths:  const <int, TableColumnWidth>{
+                                              // 0: FixedColumnWidth(175),
+                                              // 1: FixedColumnWidth(175),
+                                              2: FixedColumnWidth(100),
+                                              3: FixedColumnWidth(100),
+                                              4: FixedColumnWidth(100),
+                                              5: FixedColumnWidth(100),
+                                              6: FixedColumnWidth(100),
+                                              7: FixedColumnWidth(100),
+                                              8: FixedColumnWidth(115),
+                                              9: FixedColumnWidth(110),
+
+
+
+                                            },
+                                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                            children: [
+                                              // Table header row
                                               TableRow(
                                                 children: [
-                                                  for (var j = 0; j < 12; j++)
-                                                    j==4? TableCell(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.all(8.0),
-                                                        child: Visibility(
-                                                          visible: selectedCheckbox == 3, // Show only when GSM checkbox is selected
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15 ),
+                                                            Text('Product Code',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Product Name',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Unit',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text(' Rate ',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('GST (%)',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('GST Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Total',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('qty',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('dif',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Action',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              // Table data rows
+                                              for (var i = 0; i < controllers.length; i++)
+                                                TableRow(
+                                                  children: [
+                                                    for (var j = 0; j < 11; j++)
+                                                      TableCell(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
                                                           child: TextFormField(
                                                               style: TextStyle(fontSize: 13,
                                                                 color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
                                                               ),
                                                               controller: controllers[i][j],
                                                               inputFormatters: [
-                                                                UpperCaseTextFormatter(),
-                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                                                                if (j == 7)
-                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
+                                                                // UpperCaseTextFormatter(),
+                                                                // FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                                // if (j == 7)
+                                                                //   FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
                                                               ],
                                                               decoration: const InputDecoration(
                                                                 filled: true,
@@ -1881,7 +2328,7 @@ class _PurchaseState extends State<Purchase> {
                                                               ),
 
                                                               textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                              enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
+                                                              // enabled: (j == 3 || j == 6 || j == 4),
                                                               onChanged: (value) async {
                                                                 final int rowIndex = i;
                                                                 final int colIndex = j;
@@ -1896,7 +2343,6 @@ class _PurchaseState extends State<Purchase> {
                                                                   } else if (colIndex == 1) {
                                                                     controllers[i][0].clear();
                                                                   }
-
                                                                   if (productName.isNotEmpty) {
                                                                     controllers[i][1].text = productName;
                                                                   }
@@ -1916,815 +2362,1009 @@ class _PurchaseState extends State<Purchase> {
                                                                   }
                                                                   errorMessage = '';
 
+                                                                  double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
+                                                                  double rate = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
+                                                                  double gst = double.tryParse(controllers[rowIndex][6].text) ?? 0.0;
 
 
-
-                                                                  if( !rowData[i]['prodName'].startsWith('GSM')){
-                                                                    if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
-                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
+                                                                  double amount = quantity * rate;
+                                                                  double gstAmt = (amount * gst) / 100;
+                                                                  double total = amount + gstAmt;
 
 
-                                                                      double amount = quantity * rate;
-                                                                      double gstAmt = (amount * gst) / 100;
-                                                                      double total = amount + gstAmt;
-                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: const Duration(seconds: 2),
-                                                                        ));
+                                                                  controllers[rowIndex][5].text = amount.toStringAsFixed(2);
+                                                                  controllers[rowIndex][7].text = gstAmt.toStringAsFixed(2);
+                                                                  controllers[rowIndex][8].text = total.toStringAsFixed(2);
+                                                                  double initialQuantity = double.parse(controllers[i][9].text);
+                                                                  double editedQuantity = double.parse(controllers[i][3].text);
+                                                                  int dif;
 
-                                                                        setState(() {
-                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                        });
-                                                                        return;
-                                                                      }
-
-
-                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                      int? pendingqty = receiveqty-editedqty;
-                                                                      setState(() {
-
-                                                                        qty = receiveqty!;
-                                                                        recieved= editedqty;
-                                                                        pending= pendingqty;
-
-
-                                                                        print("  Qty $qty");
-                                                                        print(" received Qty $recieved");
-                                                                        print(" pending Qty  $pending");
-                                                                        // editqty = editedqty;
-                                                                      });
-                                                                      controllers[rowIndex][11].text = pendingqty.toString();
-                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                    }}else{
-                                                                    if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
-                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                      double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                      double amount = totweight * rate;
-                                                                      double gstAmt = (amount * gst) / 100;
-                                                                      double total = amount + gstAmt;
-                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: Duration(seconds: 2),
-                                                                        ));
-
-                                                                        setState(() {
-                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                        });
-                                                                        return;
-                                                                      }
-
-                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                      int? pendingqty = receiveqty-editedqty;
-                                                                      setState(() {
-
-                                                                        qty = receiveqty!;
-                                                                        recieved= editedqty;
-                                                                        pending= pendingqty;
-
-
-                                                                        print("  Qty $qty");
-                                                                        print(" received Qty $recieved");
-                                                                        print(" pending Qty  $pending");
-                                                                        // editqty = editedqty;
-                                                                      });
-                                                                      controllers[rowIndex][11].text = pending.toString();
-                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                    }
+                                                                  if (initialQuantity > editedQuantity) {
+                                                                    dif = (initialQuantity - editedQuantity).toInt();
+                                                                  } else if (initialQuantity < editedQuantity) {
+                                                                    dif = (editedQuantity - initialQuantity).toInt();
+                                                                  } else {
+                                                                    dif = 0; // or any other default value
                                                                   }
-                                                                });
-                                                                setState(() {
-                                                                  fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                  calculateQTY = fetchingQTY-editingQTY;
-                                                                  print("calculateQty $calculateQTY");
+                                                                  controllers[rowIndex][10].text = dif.toStringAsFixed(0);
+
+                                                                  print('Difference: $dif');
+
+                                                                  setState(() {
+                                                                    grandTotalValue = calculateGrandTotal2();
+                                                                    print("grandTotalGsm $grandTotalValue");
+                                                                  });
+
+                                                                  print("grandTotalValue0 $grandTotalValue");
 
                                                                 });
                                                               }
                                                           ),
                                                         ),
                                                       ),
-                                                    ) :
-                                                    j==4? TableCell(
+                                                    TableCell(
                                                       child: Padding(
                                                         padding: const EdgeInsets.all(8.0),
-                                                        child: Visibility(
-                                                          visible: selectedCheckbox == 3, // Show only when GSM checkbox is selected
-                                                          child: TextFormField(
-                                                              style: TextStyle(fontSize: 13,
-                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
-                                                              ),
-                                                              controller: controllers[i][j],
-                                                              inputFormatters: [UpperCaseTextFormatter(),
-                                                                if (j == 7)
-                                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                                                              ],
-                                                              decoration: const InputDecoration(
-                                                                filled: true,
-                                                                fillColor: Colors.white,
-                                                              ),
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
 
-                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                              enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
-                                                              onChanged: (value) async {
-                                                                final int rowIndex = i;
-                                                                final int colIndex = j;
-                                                                final String key = _getKeyForColumn(colIndex);
-                                                                final productName= await fetchProductName(value);
-                                                                final productCode= await fetchProductCode(value);
+                                                            //  if (controllers.length ==controllers.length && i != controllers.length - 1) // Render "Add" button only in the last row
+                                                            IconButton(
+                                                              icon: Icon(Icons.remove_circle_outline),
+                                                              color: Colors.red.shade600,
+                                                              onPressed: () {
+                                                                showDialog(
+                                                                  context: context,
+                                                                  builder: (BuildContext context) {
+                                                                    return AlertDialog(
+                                                                      title: Text('Confirmation'),
+                                                                      content: Text('Are you sure you want to remove this row?'),
+                                                                      actions: <Widget>[
+                                                                        TextButton(
+                                                                          child: Text('Cancel'),
+                                                                          onPressed: () {
+                                                                            Navigator.of(context).pop(); // Close the alert box
+                                                                          },
+                                                                        ),
+                                                                        TextButton(
+                                                                          child: Text('Remove'),
+                                                                          onPressed: () {
+                                                                            removeRow(i); // Remove the row
+                                                                            Navigator.of(context).pop(); // Close the alert box
+                                                                          },
+                                                                        ),
 
-
-                                                                updateFieldValidation();
-                                                                setState(() {
-                                                                  rowData[rowIndex][key] = value;
-                                                                  if (colIndex == 0) {
-                                                                    controllers[i][1].clear();
-                                                                  } else if (colIndex == 1) {
-                                                                    controllers[i][0].clear();
-                                                                  }
-
-                                                                  if (productName.isNotEmpty) {
-                                                                    controllers[i][1].text = productName;
-                                                                  }
-                                                                  if (productCode.isNotEmpty) {
-                                                                    controllers[i][0].text = productCode;
-                                                                  }
-                                                                  isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                    controllers[rowIndex][1].clear();
-                                                                    errorMessage = 'You already entered the\n product code $value.';
-                                                                    return;
-                                                                  }
-                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                    errorMessage = 'You already entered the\n product Name $value.';
-                                                                    controllers[rowIndex][0].clear();
-                                                                    return;
-                                                                  }
-                                                                  errorMessage = '';
-
-
-                                                                  if(!rowData[i]['prodName'].startsWith('GSM')){
-                                                                    if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
-                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                      double amount = quantity * rate;
-                                                                      double gstAmt = (amount * gst) / 100;
-                                                                      double total = amount + gstAmt;
-                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: Duration(seconds: 2),
-                                                                        ));
-
-                                                                        setState(() {
-                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                        });
-                                                                        return;
-                                                                      }
-
-                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                      int? pendingqty = receiveqty-editedqty;
-                                                                      setState(() {
-
-                                                                        qty = receiveqty!;
-                                                                        recieved= editedqty;
-                                                                        pending= pendingqty;
-
-
-                                                                        print("  Qty $qty");
-                                                                        print(" received Qty $recieved");
-                                                                        print(" pending Qty  $pending");
-                                                                        // editqty = editedqty;
-                                                                      });
-                                                                      controllers[rowIndex][11].text = pendingqty.toString();
-                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                    }}else{
-                                                                    if (colIndex == 4 || colIndex == 5 || colIndex == 7||colIndex == 3 ) {
-                                                                      double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                      double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                      double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                      double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                      double amount = totweight * rate;
-                                                                      double gstAmt = (amount * gst) / 100;
-                                                                      double total = amount + gstAmt;
-                                                                      if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                          content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                          duration: Duration(seconds: 2),
-                                                                        ));
-
-                                                                        setState(() {
-                                                                          controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                        });
-                                                                        return;
-                                                                      }
-
-                                                                      controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                      /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                      controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                      controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                      int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                      int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                      int? pendingqty = receiveqty-editedqty;
-                                                                      setState(() {
-
-                                                                        qty = receiveqty!;
-                                                                        recieved= editedqty;
-                                                                        pending= pendingqty;
-
-
-                                                                        print("  Qty $qty");
-                                                                        print(" received Qty $recieved");
-                                                                        print(" pending Qty  $pending");
-                                                                        // editqty = editedqty;
-                                                                      });
-                                                                      controllers[rowIndex][11].text = pending.toString();
-                                                                      grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                    }
-
-
-                                                                  }
-                                                                });
-                                                                setState(() {
-                                                                  fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                  editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                  calculateQTY = fetchingQTY-editingQTY;
-                                                                  print("calculateQty $calculateQTY");
-
-                                                                });
-
-                                                              }
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                        :  TableCell(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.all(8.0),
-                                                        child: TextFormField(
-                                                            style: TextStyle(fontSize: 13,
-                                                              color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                );
+                                                              },
                                                             ),
-                                                            controller: controllers[i][j],
-                                                            // enabled: !(j == 6 || j == 8 || j == 9) || (rowData[i]['unit'] != 'Kg' && rowData[i]['unit'] != 'Nos'), // Set enabled based on conditions for controllers[i][6], [8], and [9]
-
-                                                            inputFormatters: [UpperCaseTextFormatter(),
-                                                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')
+                                                            // if (i == controllers.length - 1&&allFieldsFilled) // Render "Add" button only in the last row
+                                                              Visibility(
+                                                                visible: i == controllers.length-1 && isRowFilled[i],
+                                                                child: Align(
+                                                                  alignment: Alignment.center,
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                    children: [
+                                                                      IconButton(
+                                                                        icon: Icon(Icons.add_circle_outline,color: Colors.green,),
+                                                                        onPressed: () {
+                                                                          addRow();
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
                                                               ),
-                                                              if (j == 7)
-                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
-                                                            ],
-
-                                                            decoration: const InputDecoration(
-                                                              filled: true,
-                                                              fillColor: Colors.white,
-                                                            ),
-
-                                                            textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
-                                                            enabled: (j == 3 || j == 5 || j == 7 || (rowData[i]['prodName'].startsWith('GSM') && (j == 3 || j == 4 || j == 5 || j == 7 ))),
-                                                            onChanged: (value) async {
-                                                              final int rowIndex = i;
-                                                              final int colIndex = j;
-                                                              final String key = _getKeyForColumn(colIndex);
-                                                              final productName= await fetchProductName(value);
-                                                              final productCode= await fetchProductCode(value);
-
-
-                                                              updateFieldValidation();
-                                                              setState(() {
-                                                                rowData[rowIndex][key] = value;
-                                                                if (colIndex == 0) {
-                                                                  controllers[i][1].clear();
-                                                                } else if (colIndex == 1) {
-                                                                  controllers[i][0].clear();
-                                                                }
-
-                                                                if (productName.isNotEmpty) {
-                                                                  controllers[i][1].text = productName;
-                                                                }
-                                                                if (productCode.isNotEmpty) {
-                                                                  controllers[i][0].text = productCode;
-                                                                }
-                                                                isRowFilled[i] = controllers[i].every((controller) => controller.text.isNotEmpty);
-                                                                if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
-                                                                  controllers[rowIndex][1].clear();
-                                                                  errorMessage = 'You already entered the\n product code $value.';
-                                                                  return;
-                                                                }
-                                                                if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
-                                                                  errorMessage = 'You already entered the\n product Name $value.';
-                                                                  controllers[rowIndex][0].clear();
-                                                                  return;
-                                                                }
-                                                                errorMessage = '';
-
-
-                                                                if( !rowData[i]['prodName'].startsWith('GSM')){
-                                                                  if (colIndex == 3 || colIndex == 5 || colIndex == 7) {
-                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-                                                                    double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                    double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                    double amount = quantity * rate;
-                                                                    double gstAmt = (amount * gst) / 100;
-                                                                    double total = amount + gstAmt;
-                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                        duration: Duration(seconds: 2),
-                                                                      ));
-
-                                                                      setState(() {
-                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                      });
-                                                                      return;
-                                                                    }
-
-                                                                    controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                    /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                    controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                    controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                    int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                    int? pendingqty = receiveqty-editedqty;
-                                                                    setState(() {
-
-                                                                      qty = receiveqty!;
-                                                                      recieved= editedqty;
-                                                                      pending= pendingqty;
-
-
-                                                                      print("  Qty $qty");
-                                                                      print(" received Qty $recieved");
-                                                                      print(" pending Qty  $pending");
-                                                                      // editqty = editedqty;
-                                                                    });
-                                                                    controllers[rowIndex][11].text = pending.toString();
-                                                                    grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                  }}else{
-                                                                  if (colIndex == 4 || colIndex == 5 || colIndex == 7) {
-                                                                    double quantity = double.tryParse(controllers[rowIndex][3].text) ?? 0.0;
-
-                                                                    double totweight = double.tryParse(controllers[rowIndex][4].text) ?? 0.0;
-                                                                    double rate = double.tryParse(controllers[rowIndex][5].text) ?? 0.0;
-                                                                    double gst = double.tryParse(controllers[rowIndex][7].text) ?? 0.0;
-
-                                                                    double amount = totweight * rate;
-                                                                    double gstAmt = (amount * gst) / 100;
-                                                                    double total = amount + gstAmt;
-                                                                    if (quantity > fetchedQuantities[rowIndex]!) {
-                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                        content: Text('Quantity should be less than or equal to ${fetchedQuantities[rowIndex]}'),
-                                                                        duration: Duration(seconds: 2),
-                                                                      ));
-
-                                                                      setState(() {
-                                                                        controllers[i][3].text = fetchedQuantities[rowIndex].toString();
-                                                                      });
-                                                                      return;
-                                                                    }
-
-
-                                                                    controllers[rowIndex][6].text = amount.toStringAsFixed(2);
-                                                                    /*controllers[rowIndex][5].text = gst.toStringAsFixed(2);*/
-                                                                    controllers[rowIndex][8].text = gstAmt.toStringAsFixed(2);
-                                                                    controllers[rowIndex][9].text = total.toStringAsFixed(2);
-                                                                    int? editedqty=  int.parse(controllers[rowIndex][3].text);//10
-                                                                    int? receiveqty = int.parse(controllers[rowIndex][10].text);//10
-                                                                    int? pendingqty = receiveqty-editedqty;
-                                                                    setState(() {
-
-                                                                      qty = receiveqty!;
-                                                                      recieved= editedqty;
-                                                                      pending= pendingqty;
-
-
-                                                                      print("  Qty $qty");
-                                                                      print(" received Qty $recieved");
-                                                                      print(" pending Qty  $pending");
-                                                                      // editqty = editedqty;
-                                                                    });
-                                                                    controllers[rowIndex][11].text = pending.toString();
-                                                                    grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
-                                                                  }
-
-
-                                                                }                                                              });
-                                                              setState(() {
-                                                                fetchingQTY = int.parse(controllers[rowIndex][10].text);
-                                                                editingQTY =int.parse(controllers[rowIndex][3].text);
-                                                                calculateQTY = fetchingQTY-editingQTY;
-                                                                print("calculateQty $calculateQTY");
-
-                                                              });
-                                                            }
+                                                          ],
                                                         ),
                                                       ),
                                                     ),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ):
+                                      SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: FocusTraversalGroup(
+                                          policy: OrderedTraversalPolicy(),
+                                          child: Table(
+                                            border: TableBorder.all(
+                                                color: Colors.black54
+                                            ),
+                                            defaultColumnWidth: const FixedColumnWidth(140.0),
+                                            columnWidths:  const <int, TableColumnWidth>{
+                                              // 0: FixedColumnWidth(175),
+                                              // 1: FixedColumnWidth(175),
+                                              2: FixedColumnWidth(100),
+                                              3: FixedColumnWidth(100),
+                                              4: FixedColumnWidth(100),
+                                              5: FixedColumnWidth(100),
+                                              6: FixedColumnWidth(100),
+                                              7: FixedColumnWidth(100),
+                                              8: FixedColumnWidth(115),
+                                              9: FixedColumnWidth(110),
+                                              10: FixedColumnWidth(100),
+
+
+
+                                            },
+                                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                            children: [
+                                              // Table header row
+                                              TableRow(
+                                                children: [
                                                   TableCell(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.all(8.0),
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-
-                                                          //  if (controllers.length ==controllers.length && i != controllers.length - 1) // Render "Add" button only in the last row
-                                                          IconButton(
-                                                              icon: const Icon(Icons.remove_circle_outline),
-                                                              color: Colors.red.shade600,
-                                                              onPressed: () {
-                                                                if (_formKey
-                                                                    .currentState!
-                                                                    .validate()) {
-                                                                  if (invoiceNo
-                                                                      .text
-                                                                      .isEmpty) {
-                                                                    setState(() {
-                                                                      errorMessage =
-                                                                      "* Enter a invoiceNo";
-                                                                    });
-                                                                  }
-                                                                  else {
-
-                                                                    if (controllers.length > 1) {
-                                                                      showDialog(
-                                                                        context: context,
-                                                                        builder: (
-                                                                            BuildContext context) {
-                                                                          return AlertDialog(
-                                                                            title: Text('Confirmation'),
-                                                                            content: Text('Are you sure you want to remove this row?'),
-                                                                            actions: <Widget>[TextButton(child: Text('Cancel'),
-                                                                              onPressed: () {Navigator.of(context).pop();},),
-                                                                              TextButton(child: Text('Remove'),
-                                                                                onPressed: () {removeRow(i);Navigator.of(context).pop(); },),],);
-                                                                        },
-                                                                      );
-                                                                    } else {
-                                                                      print(
-                                                                          'Cannot remove the first row. At least one row is required.');
-                                                                    }
-                                                                  }
-                                                                }
-                                                              }),
-                                                          ///addrow                                                      // if (i == controllers.length - 1&&allFieldsFilled) // Render "Add" button only in the last row
-/*
-                                                          Visibility(
-                                                            visible: i == controllers.length-1 && isRowFilled[i],
-                                                            child: Align(
-                                                              alignment: Alignment.center,
-                                                              child: Row(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                children: [
-                                                                  IconButton(
-                                                                    icon: Icon(Icons.add_circle_outline,color: Colors.green,),
-                                                                    onPressed: () {
-                                                                      addRow();
-                                                                    },
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-*/
-                                                        ],
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15 ),
+                                                            Text('Product Code',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Product Name',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Unit',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('S.No',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height:15),
+                                                            Text('Weight',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height:15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text(' Rate ',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('GST (%)',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('GST Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Total',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TableCell(
+                                                    child: Container(
+                                                      color:Colors.blue.shade200,
+                                                      child: const Center(
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(height: 15),
+                                                            Text('Action',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                            SizedBox(height: 15),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                          ],
+                                              // Table data rows
+                                              for (var i = 0; i < controllers2.length; i++)
+                                                TableRow(
+                                                  children: [
+                                                    for (var j = 0; j < 10; j++)
+                                                      TableCell(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: TextFormField(
+                                                              style: TextStyle(fontSize: 13,
+                                                                color: (j == 0 || j == 1 || j == 2 || j == 5 || rowData2[i]['prodName'].startsWith('GSM') || j == 7 || j == 2||j==3) ? Colors.black : Colors.grey, // Set the text color
+                                                              ),
+                                                              controller: controllers2[i][j],
+                                                              inputFormatters: [
+                                                                UpperCaseTextFormatter(),
+                                                                // FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                                                // if (j == 7)
+                                                                //   FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,1})?$')),
+                                                              ],
+                                                              decoration: const InputDecoration(
+                                                                filled: true,
+                                                                fillColor: Colors.white,
+                                                              ),
+
+                                                              textAlign: (j >= 0 && j <= 3) ? TextAlign.center : TextAlign.right,
+                                                              // enabled: (j == 3 || j == 6 || j == 4),
+                                                              onChanged: (value) async {
+                                                                final int rowIndex = i;
+                                                                final int colIndex = j;
+                                                                final String key = _getKeyForColumn2(colIndex);
+                                                                final productName= await fetchProductName(value);
+                                                                final productCode= await fetchProductCode(value);
+                                                                updateFieldValidation2();
+                                                                setState(() {
+                                                                  rowData2[rowIndex][key] = value;
+                                                                  if (colIndex == 0) {
+                                                                    controllers2[i][1].clear();
+                                                                  } else if (colIndex == 1) {
+                                                                    controllers2[i][0].clear();
+                                                                  }
+
+                                                                  if (productName.isNotEmpty) {
+                                                                    controllers2[i][1].text = productName;
+                                                                  }
+                                                                  if (productCode.isNotEmpty) {
+                                                                    controllers2[i][0].text = productCode;
+                                                                  }
+                                                                  isRowFilled2[i] = controllers2[i].every((controller) => controller.text.isNotEmpty);
+                                                                  if (value.isNotEmpty && isDuplicateProductCode(value, rowIndex)) {
+                                                                    controllers2[rowIndex][1].clear();
+                                                                    errorMessage = 'You already entered the\n product code $value.';
+                                                                    return;
+                                                                  }
+                                                                  if (value.isNotEmpty && isDuplicateProductName(value, rowIndex)) {
+                                                                    errorMessage = 'You already entered the\n product Name $value.';
+                                                                    controllers2[rowIndex][0].clear();
+                                                                    return;
+                                                                  }
+                                                                  errorMessage = '';
+                                                                  double quantity = double.tryParse(controllers2[rowIndex][4].text) ?? 0.0;
+                                                                  double rate = double.tryParse(controllers2[rowIndex][5].text) ?? 0.0;
+                                                                  double gst = double.tryParse(controllers2[rowIndex][7].text) ?? 0.0;
+
+
+                                                                  double amount = quantity * rate;
+                                                                  double gstAmt = (amount * gst) / 100;
+                                                                  double total = amount + gstAmt;
+
+
+                                                                  controllers2[rowIndex][6].text = amount.toStringAsFixed(2);
+                                                                  controllers2[rowIndex][8].text = gstAmt.toStringAsFixed(2);
+                                                                  controllers2[rowIndex][9].text = total.toStringAsFixed(2);
+
+                                                                  setState(() {
+                                                                    grandTotalGsm = calculateGrandTotalGsm();
+                                                                    print("grandTotalGsm $grandTotalGsm");
+                                                                  });
+
+                                                                  print("grandTotalValue0 $grandTotalValue");
+                                                                }
+                                                                );
+                                                              }
+                                                          ),
+                                                        ),
+                                                      ) ,
+                                                    TableCell(
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+
+                                                            //  if (controllers.length ==controllers.length && i != controllers.length - 1) // Render "Add" button only in the last row
+                                                            IconButton(
+                                                              icon: Icon(Icons.remove_circle_outline),
+                                                              color: Colors.red.shade600,
+                                                              onPressed: () {
+                                                                showDialog(
+                                                                  context: context,
+                                                                  builder: (BuildContext context) {
+                                                                    return AlertDialog(
+                                                                      title: Text('Confirmation'),
+                                                                      content: Text('Are you sure you want to remove this row?'),
+                                                                      actions: <Widget>[
+                                                                        TextButton(
+                                                                          child: Text('Cancel'),
+                                                                          onPressed: () {
+                                                                            Navigator.of(context).pop(); // Close the alert box
+                                                                          },
+                                                                        ),
+                                                                        TextButton(
+                                                                          child: Text('Remove'),
+                                                                          onPressed: () {
+                                                                            removeRow2(i); // Remove the row
+                                                                            Navigator.of(context).pop(); // Close the alert box
+                                                                          },
+                                                                        ),
+
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                );
+                                                              },
+                                                            ),
+                                                            // if (i == controllers.length - 1&&allFieldsFilled) // Render "Add" button only in the last row
+                                                            Visibility(
+                                                              visible: i == controllers2.length-1 && isRowFilled2[i],
+                                                              child: Align(
+                                                                alignment: Alignment.center,
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                  children: [
+                                                                    IconButton(
+                                                                      icon: const Icon(Icons.add_circle_outline,color: Colors.green,),
+                                                                      onPressed: () {
+                                                                        addRow2();
+                                                                      },
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(height: 10,),
-                                    Wrap(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            Text("Grand Total  ₹ ", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14)),
-                                            SizedBox(
-                                              width: calculateContainerWidth(grandTotal.text),
-                                              //  height: 70,
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(right: 32),
-                                                child: TextFormField(
-                                                  readOnly: true,
-                                                  controller: grandTotal,
-                                                  style: const TextStyle(fontSize: 13),
-                                                  textAlign: TextAlign.right,
-                                                  /*  validator: (value) {
-                                                if (value!.isEmpty) {
-                                                  return '* Enter Grand Total';
-                                                }
-                                                return null;
-                                            },*/
-                                                  keyboardType: TextInputType.number,
-                                                  inputFormatters: <TextInputFormatter>[
-                                                    LengthLimitingTextInputFormatter(10),
-                                                    FilteringTextInputFormatter.digitsOnly,
-                                                  ],
-                                                  decoration: InputDecoration(
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      //prefixIcon: const Icon(Icons.currency_rupee),
-                                                      enabledBorder: OutlineInputBorder(
-                                                          borderSide: BorderSide(color: Colors.grey)
-                                                      )
-                                                  ),
-                                                ),
+                                      const SizedBox(height: 10,),
+                                      Wrap(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(Icons.arrow_left_sharp ),
+                                                onPressed: () {
+                                                  onArrowButtonClick();
+                                                },
                                               ),
-                                            ),
-                                            // SizedBox(
-                                            //     width: 140,
-                                            //     child: Text(" ")),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        /* Padding(
-                                          padding: const EdgeInsets.only(top:20),
-                                          child: Text(
-                                            errorMessage ?? '',
-                                            style: TextStyle(color: Colors.red,fontSize: 15),
+                                              Row(
+                                                children: [
+                                                  SizedBox(
+                                                    width: 70,
+                                                    height: 30,
+                                                    child: TextFormField(
+                                                      controller: tcsController,
+                                                      keyboardType: TextInputType.number,
+                                                      decoration: const InputDecoration(
+                                                        labelText: 'charge',
+                                                        labelStyle: TextStyle(fontSize: 10), // Set the font size for the label
+                                                      ),
+                                                      style: TextStyle(fontSize: 10), // Set the font size for the input text
+                                                      onChanged: (_) {
+                                                        updateGrandTotal();
+                                                      },
+
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  SizedBox(
+                                                    width: 70,
+                                                    height: 30,
+                                                    child: TextFormField(
+                                                      controller: discountController,
+                                                      keyboardType: TextInputType.number,
+                                                      decoration: const InputDecoration(
+                                                        labelText: 'Dis',
+                                                        labelStyle: TextStyle(fontSize: 10), // Set the font size for the label
+                                                      ),
+                                                      style: TextStyle(fontSize: 10),                                                      onChanged: (_) {
+                                                      updateGrandTotal();
+                                                    },
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                ],
+                                              ),
+                                              selectedCheckbox == 1
+                                                  ?
+                                              Text("Grand Total ₹ ${grandTotalValue.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
+                                                  :
+                                              Text("Grand Total ₹ ${grandTotalGsm.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+
+                                            ],
                                           ),
-                                        ),*/
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                      const Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          /* Padding(
+                                            padding: const EdgeInsets.only(top:20),
+                                            child: Text(
+                                              errorMessage ?? '',
+                                              style: TextStyle(color: Colors.red,fontSize: 15),
+                                            ),
+                                          ),*/
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(40.0),
-                      child:
-                      Wrap(
-                        children: [
-                          MaterialButton(
-                            color: Colors.green.shade600,
-                            onPressed: () async {
-                              bool hasDuplicateProdCode = false;
-                              bool hasNewProdCode = false;
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child:
+                        Wrap(
+                          children: [
+                            Visibility(
+                              visible: selectedCheckbox == 1,
+                              child:MaterialButton(
+                                color: Colors.green.shade600,
+                                onPressed: () async {
+                                  String purchaseDateString = purchaseDate.text;
+                                  DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+                                  String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
+                                  bool hasDuplicateProdCode = false;
+                                  bool hasDuplicateProdCode2 = false;
+                                  bool hasNewProdCode = false;
+                                  bool hasNewProdCode2 = false;
 
-                              /*   if (poNUMber.text.isEmpty||pendingPoNUMber.text.isEmpty) {
-                                setState(() {
-                                  errorMessage = '* Enter a PO Number';
-                                });
-                              }*/
-                              if (isMachineNameExists(poNUMber.text)) {
-                                setState(() {
-                                  errorMessage = '* This PO Number is Already invoiced';
-                                });
-                              }
-                              else if (isMachineNameExists(pendingPoNUMber.text)) {
-                                setState(() {
-                                  errorMessage = '* This PendingPo Number is Already invoiced';
-                                });
-                              }
-
-                              else if (purchaseDate.text.isEmpty) {
-                                setState(() {
-                                  errorMessage = '* Enter a Purchase Date';
-                                });
-                              }
-                              else if (invoiceNo.text.isEmpty) {
-                                setState(() {
-                                  errorMessage = '* Enter a Invoice Number';
-                                });
-                              }
-                              else {
-                                if (_formKey.currentState!.validate()
-                                    &&
-                                    !controllers.any((controller) =>
-                                    controller[0].text.isEmpty ||
-                                        controller[1].text.isEmpty ||
-                                        controller[2].text.isEmpty ||
-                                        controller[3].text.isEmpty ||
-                                        controller[5].text.isEmpty ||
-                                        controller[6].text.isEmpty ||
-                                        controller[7].text.isEmpty ||
-                                        controller[8].text.isEmpty ||
-                                        controller[9].text.isEmpty
-
-                                    )
-                                    || selectedCheckbox == 3 &&
-                                    !controllers.any((controller) =>
-                                    controller[0].text.isEmpty ||
-                                        controller[1].text.isEmpty ||
-                                        controller[2].text.isEmpty ||
-                                        controller[3].text.isEmpty ||
-                                        controller[4].text.isEmpty ||
-                                        controller[5].text.isEmpty ||
-                                        controller[6].text.isEmpty ||
-                                        controller[7].text.isEmpty ||
-                                        controller[8].text.isEmpty ||
-                                        controller[9].text.isEmpty
-                                    )
-                                )
-
-                                {
-                                  for (var i = 0; i < controllers.length; i++) {
-                                    String enteredProdCode = controllers[i][0]
-                                        .text;
-                                    bool isDuplicate = await checkForDuplicate(
-                                        enteredProdCode);
-                                    if (isDuplicate) {
-                                      hasDuplicateProdCode = true;
-                                    } else {
-                                      hasNewProdCode = true;
-                                    }
+                                  if (purchaseDate.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Purchase Date';
+                                    });
                                   }
-
-                                  if (hasDuplicateProdCode && hasNewProdCode) {
-                                    // Case: Both duplicate and new product codes
-                                    for (int i = 0; i < controllers.length; i++) {
-                                      String enteredProdCode = controllers[i][0]
-                                          .text;
-                                      bool isDuplicate = await checkForDuplicate(
-                                          enteredProdCode);
-                                      if (isDuplicate) {
-                                        await addRawMaterial(
-                                          controllers[i][0].text,
-                                          controllers[i][1].text,
-                                          controllers[i][2].text,
-                                          int.parse(controllers[i][3].text),
-                                          date.toIso8601String(),
-                                          controllers[i][4].text,
-                                        );
-                                      } else {
-                                        Map<String, dynamic> dataToInsertRaw = {
-                                          'date': date.toString(),
-                                          'prodCode': controllers[i][0].text,
-                                          'prodName': controllers[i][1].text,
-                                          'unit': controllers[i][2].text,
-                                          'qty': controllers[i][3].text,
-                                          "totalweight":controllers[i][4].text,
-                                        };
-                                        await insertDataRaw(dataToInsertRaw);
+                                  else if (invoiceNo.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Invoice Number';
+                                    });
+                                  }
+                                  else {
+                                    if (_formKey.currentState!.validate())
+                                    {
+                                      for (var i = 0; i < controllers.length; i++) {
+                                        String enteredProdCode = controllers[i][0].text;
+                                        String enteredPoNo = poNUMber.text;
+                                        bool isDuplicate = await checkForDuplicate(enteredProdCode,enteredPoNo);
+                                        if (isDuplicate) {
+                                          hasDuplicateProdCode = true;
+                                        } else {
+                                          hasNewProdCode = true;
+                                        }
                                       }
-                                    }
-                                  } else if (hasDuplicateProdCode) {
-                                    // Case: Only duplicate product codes
-                                    for (int i = 0; i <
-                                        controllers.length; i++) {
-                                      await addRawMaterial(
-                                          controllers[i][0].text,
-                                          controllers[i][1].text,
-                                          controllers[i][2].text,
-                                          int.parse(controllers[i][3].text),
-                                          date.toIso8601String(),
-                                          controllers[i][4].text);
+                                      if (hasDuplicateProdCode && hasNewProdCode) {
+                                        for (int i = 0; i < controllers.length; i++) {
+                                          String enteredProdCode = controllers[i][0].text;
+                                          String enteredPoNo = poNUMber.text;
+                                          bool isDuplicate = await checkForDuplicate(enteredProdCode,enteredPoNo);
+                                          if (isDuplicate) {
+                                            await updatePurchase(
+                                              formattedPurchaseDate,
+                                              invoiceNo.text,
+                                              supCode.text,
+                                              supName.text,
+                                              supMobile.text,
+                                              supAddress.text,
+                                              pincode.text,
+                                              payType.toString(),
+                                              controllers[i][0].text,
+                                                controllers[i][1].text,
+                                                controllers[i][2].text,
+                                                controllers[i][3].text,
+                                                controllers[i][4].text,
+                                                controllers[i][5].text,
+                                                controllers[i][6].text,
+                                                controllers[i][7].text,
+                                                controllers[i][8].text,
+                                              grandTotalValue.toStringAsFixed(2),
+                                              tcsController.text,
+                                              discountController.text,
+                                              poNUMber.text
+                                            );
+                                          }
+                                          else {
+                                            Map<String, dynamic> dataToInsertRaw = {
+                                              "date":date.toString(),
+                                              'purchaseDate': formattedPurchaseDate,
+                                              'invoiceNo':invoiceNo.text,
+                                              "supCode":supCode.text,
+                                              "supName": supName.text,
+                                              "supMobile": supMobile.text,
+                                              "supAddress": supAddress.text,
+                                              "pincode": pincode.text,
+                                              "payType":payType,
+                                              'prodCode':controllers[i][0].text,
+                                              'prodName': controllers[i][1].text,
+                                              'unit': controllers[i][2].text,
+                                              'qty': controllers[i][3].text,
+                                              'rate':controllers[i][4].text,
+                                              'amt':controllers[i][5].text,
+                                              'gst': controllers[i][6].text,
+                                              'amtGST': controllers[i][7].text,
+                                              'total': controllers[i][8].text,
+                                              'grandTotal':grandTotalGsm,
+                                              'extraCharge':tcsController.text,
+                                              'discount':discountController.text,
+                                              "poNo":poNUMber.text,
+                                            };
+                                            await insertDataRaw(dataToInsertRaw);
+                                          }
+                                        }
+                                      }
+                                      else if (hasDuplicateProdCode) {
+                                        for (int i = 0; i < controllers.length; i++) {
+                                          await updatePurchase(
+                                              formattedPurchaseDate,
+                                              invoiceNo.text,
+                                              supCode.text,
+                                              supName.text,
+                                              supMobile.text,
+                                              supAddress.text,
+                                              pincode.text,
+                                              payType.toString(),
+                                              controllers[i][0].text,
+                                              controllers[i][1].text,
+                                              controllers[i][2].text,
+                                              controllers[i][3].text,
+                                              controllers[i][4].text,
+                                              controllers[i][5].text,
+                                              controllers[i][6].text,
+                                              controllers[i][7].text,
+                                              controllers[i][8].text,
+                                              grandTotalGsm.toStringAsFixed(2),
+                                              tcsController.text,
+                                              discountController.text,
+                                              poNUMber.text
+                                          );
+
+                                        }
+                                      }
+                                      else if (hasNewProdCode) {
+                                        submitItemDataToRaw();
+                                      }
+                                      for (int i = 0; i < controllers.length; i++) {
+                                        await updatePurchase(
+                                            formattedPurchaseDate,
+                                            invoiceNo.text,
+                                            supCode.text,
+                                            supName.text,
+                                            supMobile.text,
+                                            supAddress.text,
+                                            pincode.text,
+                                            payType.toString(),
+                                            controllers[i][0].text,
+                                            controllers[i][1].text,
+                                            controllers[i][2].text,
+                                            controllers[i][3].text,
+                                            controllers[i][4].text,
+                                            controllers[i][5].text,
+                                            controllers[i][6].text,
+                                            controllers[i][7].text,
+                                            controllers[i][8].text,
+                                            grandTotalGsm.toStringAsFixed(2),
+                                            tcsController.text,
+                                            discountController.text,
+                                            poNUMber.text
+                                        );
+
+                                      }
+                                      setState(() {
+                                        isDataSaved = true;
+                                      });
+                                      for (var i = 0; i < controllers.length; i++) {
+                                        String enteredProdCode = controllers[i][0].text;
+                                        bool isDuplicate = await checkForDuplicate2(enteredProdCode);
+                                        if (isDuplicate) {
+                                          hasDuplicateProdCode2 = true;
+                                        } else {
+                                          hasNewProdCode2 = true;
+                                        }
+                                      }
+                                      if (hasDuplicateProdCode2 && hasNewProdCode2) {
+                                        for (int i = 0; i < controllers.length; i++) {
+                                          String enteredProdCode = controllers[i][0].text;
+                                          bool isDuplicate = await checkForDuplicate2(enteredProdCode);
+                                          if (isDuplicate) {
+                                            await addRawMaterial(
+                                              controllers[i][0].text,
+                                              controllers[i][1].text,
+                                              controllers[i][2].text,
+                                              int.parse(controllers[i][10].text),
+                                              date.toIso8601String(),
+                                            );
+                                          }
+                                          else {
+                                            // submitItemDataToRaw2();
+                                            Map<String, dynamic> dataToInsertRaw2 = {
+                                              'date': date.toString(),
+                                              'prodCode': controllers[i][0].text,
+                                              'prodName': controllers[i][1].text,
+                                              'unit': controllers[i][2].text,
+                                              'qty': controllers[i][3].text,
+                                            };
+                                            await insertDataRaw2(dataToInsertRaw2);
+                                          }
+                                        }
+                                      }
+                                      else if (hasDuplicateProdCode2) {
+                                        for (int i = 0; i < controllers.length; i++) {
+                                          await addRawMaterial(
+                                              controllers[i][0].text,
+                                              controllers[i][1].text,
+                                              controllers[i][2].text,
+                                              int.parse(controllers[i][10].text),
+                                              date.toIso8601String()
+                                          );
+
+                                        }
+                                      }
+                                      else if (hasNewProdCode2) {
+                                        submitItemDataToRaw2();
+                                      }
+                                      setState(() {
+                                        isDataSaved = true;
+                                      });
 
                                     }
-                                  } else if (hasNewProdCode) {
-                                    submitItemDataToRaw();
+                                    else {
+                                      setState(() {
+                                        errorMessage =
+                                        '* Fill all fields in the table';
+                                      });
+                                    }
                                   }
-
-                                  setState(() {
-                                    isDataSaved = true;
-                                  });
-                                  submitItemDataToDatabase();
-
-                                  List<Map<String, dynamic>> rowsDataToInsert = [];
-
-                                  if(fetchingQTY != editingQTY){
-                                    rowsDataToInsert.add(datapendingInsert);
-                                    await pendingToDatabase();
-                                  }
-                                  List<Future<void>> insertFutures = [];
-                                  for (var i = 0; i < datapendingInsertList.length; i++) {
-                                    insertFutures.add(insertDataPendingReport(datapendingInsertList[i]));
-                                    await Future.wait(insertFutures);
-                                  }
-
-                                  // datapendingInsertList.clear();
-
-                                  setState(() {
-                                    isDataSaved = true;
-                                  });
-
-                                }
-                                else {
-                                  setState(() {
-                                    errorMessage =
-                                    '* Fill all fields in the table';
-                                  });
-                                }
-                              }
-                            },
-                            child: const Text("SAVE", style: TextStyle(color: Colors.white)),
-                          ),
-
-
-                          const SizedBox(width: 20,),
-                          MaterialButton(
-                            color: Colors.blue.shade600,
-                            onPressed: (){
-                              /*  Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) =>const Home()));*/// Close the alert box
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Confirmation'),
-                                    content: const Text('Do you want to Reset?'),
-                                    actions: <Widget>[
-
-                                      TextButton(
-                                        child: const Text('Yes'),
-                                        onPressed: () {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) =>const Purchase()));// Close the alert box
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text('No'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(); // Close the alert box
-                                        },
-                                      ),
-                                    ],
-                                  );
                                 },
-                              );
-                            },
-                            child: const Text("RESET",style: TextStyle(color: Colors.white),),),
-                          SizedBox(width: 20,),
-                          MaterialButton(
-                            color: Colors.red.shade600,
-                            onPressed: (){
-                              /* Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) =>Home()));*/
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Confirmation'),
-                                    content: Text('Do you want to cancel?'),
-                                    actions: <Widget>[
+                                child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                            Visibility(
+                              visible: selectedCheckbox == 2,
+                              child:MaterialButton(
+                                color: Colors.green.shade600,
+                                onPressed: () async {
+                                  String purchaseDateString = purchaseDate.text;
+                                  DateTime purchaseDateTime = DateFormat('dd-MM-yyyy').parse(purchaseDateString);
+                                  String formattedPurchaseDate = DateFormat('yyyy-MM-dd').format(purchaseDateTime);
+                                  bool hasDuplicateProdCode = false;
+                                  bool hasNewProdCode = false;
 
-                                      TextButton(
-                                        child: const Text('Yes'),
-                                        onPressed: () {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) =>Home()));// Close the alert box
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text('No'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(); // Close the alert box
-                                        },
-                                      ),
-                                    ],
-                                  );
+                                  if (purchaseDate.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Purchase Date';
+                                    });
+                                  }
+                                  else if (invoiceNo.text.isEmpty) {
+                                    setState(() {
+                                      errorMessage = '* Enter a Invoice Number';
+                                    });
+                                  }
+                                  else {
+                                    if (_formKey.currentState!.validate())
+                                    {
+
+                                      for (var i = 0; i < controllers2.length; i++) {
+                                        String enteredProdCode = controllers2[i][0].text;
+                                        String enteredPoNo = poNUMber.text;
+                                        bool isDuplicate = await checkForDuplicate(enteredProdCode,enteredPoNo);
+                                        if (isDuplicate) {
+                                          hasDuplicateProdCode = true;
+                                        } else {
+                                          hasNewProdCode = true;
+                                        }
+                                      }
+                                      if (hasDuplicateProdCode && hasNewProdCode) {
+                                        for (int i = 0; i < controllers2.length; i++) {
+                                          String enteredProdCode = controllers2[i][0].text;
+                                          String enteredPoNo = poNUMber.text;
+                                          bool isDuplicate = await checkForDuplicate(enteredProdCode,enteredPoNo);
+                                          if (isDuplicate) {
+                                            await updatePurchaseGsm(
+                                                formattedPurchaseDate,
+                                                invoiceNo.text,
+                                                supCode.text,
+                                                supName.text,
+                                                supMobile.text,
+                                                supAddress.text,
+                                                pincode.text,
+                                                payType.toString(),
+                                                controllers2[i][0].text,
+                                                controllers2[i][1].text,
+                                                controllers2[i][2].text,
+                                                controllers2[i][3].text,
+                                                controllers2[i][4].text,
+                                                controllers2[i][5].text,
+                                                controllers2[i][6].text,
+                                                controllers2[i][7].text,
+                                                controllers2[i][8].text,
+                                                controllers2[i][9].text,
+                                                grandTotalGsm.toStringAsFixed(2),
+                                                tcsController.text,
+                                                discountController.text,
+                                                poNUMber.text
+                                            );
+                                          }
+                                          else {
+                                            Map<String, dynamic> dataToInsertRawGsm = {
+                                              "date":date.toString(),
+                                              'purchaseDate': formattedPurchaseDate,
+                                              'invoiceNo':invoiceNo.text,
+                                              "supCode":supCode.text,
+                                              "supName": supName.text,
+                                              "supMobile": supMobile.text,
+                                              "supAddress": supAddress.text,
+                                              "pincode": pincode.text,
+                                              "payType":payType,
+                                              'prodCode':controllers2[i][0].text,
+                                              'prodName': controllers2[i][1].text,
+                                              'unit': controllers2[i][2].text,
+                                              'sNo': controllers2[i][3].text,
+                                              'totalWeight':controllers2[i][4].text,
+                                              'rate':controllers2[i][5].text,
+                                              'amt': controllers2[i][6].text,
+                                              'gst': controllers2[i][7].text,
+                                              'amtGST': controllers2[i][8].text,
+                                              'total': controllers2[i][9].text,
+                                              'grandTotal':grandTotalGsm,
+                                              'extraCharge':tcsController.text,
+                                              'discount':discountController.text,
+                                              "poNo":poNUMber.text,
+
+                                            };
+                                            await insertDataRawGsm(dataToInsertRawGsm);
+                                          }
+                                        }
+                                      }
+                                      else if (hasDuplicateProdCode) {
+                                        for (int i = 0; i < controllers2.length; i++) {
+                                          await updatePurchaseGsm(
+                                              formattedPurchaseDate,
+                                              invoiceNo.text,
+                                              supCode.text,
+                                              supName.text,
+                                              supMobile.text,
+                                              supAddress.text,
+                                              pincode.text,
+                                              payType.toString(),
+                                              controllers2[i][0].text,
+                                              controllers2[i][1].text,
+                                              controllers2[i][2].text,
+                                              controllers2[i][3].text,
+                                              controllers2[i][4].text,
+                                              controllers2[i][5].text,
+                                              controllers2[i][6].text,
+                                              controllers2[i][7].text,
+                                              controllers2[i][8].text,
+                                              controllers2[i][9].text,
+                                              grandTotalGsm.toStringAsFixed(2),
+                                              tcsController.text,
+                                              discountController.text,
+                                              poNUMber.text
+                                          );
+
+                                        }
+                                      }
+                                      else if (hasNewProdCode) {
+                                        submitItemDataToRaw();
+                                      }
+                                      for (int i = 0; i < controllers2.length; i++) {
+                                        await updatePurchaseGsm(
+                                            formattedPurchaseDate,
+                                            invoiceNo.text,
+                                            supCode.text,
+                                            supName.text,
+                                            supMobile.text,
+                                            supAddress.text,
+                                            pincode.text,
+                                            payType.toString(),
+                                            controllers2[i][0].text,
+                                            controllers2[i][1].text,
+                                            controllers2[i][2].text,
+                                            controllers2[i][3].text,
+                                            controllers2[i][4].text,
+                                            controllers2[i][5].text,
+                                            controllers2[i][6].text,
+                                            controllers2[i][7].text,
+                                            controllers2[i][8].text,
+                                            controllers2[i][9].text,
+                                            grandTotalGsm.toStringAsFixed(2),
+                                            tcsController.text,
+                                            discountController.text,
+                                            poNUMber.text,
+
+                                        );
+
+                                      }
+
+                                      //submitItemDataToDatabase();
+
+                                      setState(() {
+                                        isDataSaved = true;
+                                      });
+
+                                    }
+                                    else {
+                                      setState(() {
+                                        errorMessage =
+                                        '* Fill all fields in the table';
+                                      });
+                                    }
+                                  }
                                 },
-                              );
-                            },
-                            child: Text("CANCEL",style: TextStyle(color: Colors.white),),)
-                        ],
+                                child: const Text("SAVE", style: TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                            SizedBox(width: 20,),
+                            MaterialButton(
+                              color: Colors.blue.shade600,
+                              onPressed: (){
+                                /*  Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) =>const Home()));*/// Close the alert box
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Confirmation'),
+                                      content: const Text('Do you want to Reset?'),
+                                      actions: <Widget>[
+
+                                        TextButton(
+                                          child: const Text('Yes'),
+                                          onPressed: () {
+                                            Navigator.push(context,
+                                                MaterialPageRoute(builder: (context) =>const PurchaseEdit()));// Close the alert box
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text('No'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(); // Close the alert box
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: const Text("RESET",style: TextStyle(color: Colors.white),),),
+                            SizedBox(width: 20,),
+                            MaterialButton(
+                              color: Colors.red.shade600,
+                              onPressed: (){
+                                /* Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) =>Home()));*/
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Confirmation'),
+                                      content: Text('Do you want to cancel?'),
+                                      actions: <Widget>[
+
+                                        TextButton(
+                                          child: const Text('Yes'),
+                                          onPressed: () {
+                                            Navigator.push(context,
+                                                MaterialPageRoute(builder: (context) =>Home()));// Close the alert box
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text('No'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(); // Close the alert box
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text("CANCEL",style: TextStyle(color: Colors.white),),)
+                          ],
+                        ),
                       ),
-                    ),
-                  ]),
+                    ]),
+              ),
             ),
           ),
         ) );
   }
 }
-/*
 String _getKeyForColumn(int columnIndex) {
   switch (columnIndex) {
     case 0:
@@ -2746,15 +3386,14 @@ String _getKeyForColumn(int columnIndex) {
     case 8:
       return 'total';
     case 9:
-      return 'rQty';
+      return 'qty';
     case 10:
-      return 'aQty';
+      return 'dif';
     default:
       return '';
   }
 }
-*/
-String _getKeyForColumn(int columnIndex) {
+String _getKeyForColumn2(int columnIndex) {
   switch (columnIndex) {
     case 0:
       return 'prodCode';
@@ -2763,7 +3402,7 @@ String _getKeyForColumn(int columnIndex) {
     case 2:
       return 'unit';
     case 3:
-      return 'qty';
+      return 'sNo';
     case 4:
       return 'totalWeight';
     case 5:
@@ -2776,10 +3415,6 @@ String _getKeyForColumn(int columnIndex) {
       return 'amtGST';
     case 9:
       return 'total';
-    case 10:
-      return 'rQty';
-    case 11:
-      return 'aQty';
     default:
       return '';
   }

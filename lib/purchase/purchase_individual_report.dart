@@ -22,10 +22,13 @@ class PurchaseIndividualReport extends StatefulWidget {
   String? qty;
   String? weight;
   String? amtGST;
+  String? gst;
   String? rate;
   String? total;
   String? grandTotal;
   String? payType;
+  String? extraCharge;
+  String? discount;
  // String? amt;
 
   PurchaseIndividualReport({super.key,
@@ -45,7 +48,9 @@ class PurchaseIndividualReport extends StatefulWidget {
     required this.total,
     required this.grandTotal,
     required this. payType,
-    //required this. amt,
+    required this. extraCharge,
+    required this. discount,
+    required this. gst,
   });
 
   @override
@@ -802,17 +807,19 @@ class _PurchaseIndividualReportState
                                     child: pw.Row(
                                       mainAxisAlignment: pw.MainAxisAlignment.end,
                                       children: [
-                                        pw.Text("Total : ", style: pw.TextStyle(fontSize: 10)),
-                                        pw.SizedBox(width: 10),
-                                        pw.Container(
-
-                                          child: pw.Row(
-                                            mainAxisAlignment: pw.MainAxisAlignment.end,
-                                            children: [
-                                              pw.Text("${widget.grandTotal}",style: pw.TextStyle(fontSize: 10)),
-
-                                            ],
-                                          ),
+                                        pw.Column(
+                                          children: [
+                                            pw.Text("Gst (%) :${widget.gst} ", style: pw.TextStyle(fontSize: 10)),
+                                            pw.SizedBox(width: 10),
+                                            pw.Text("Gst Amt :${widget.amtGST} ", style: pw.TextStyle(fontSize: 10)),
+                                            pw.SizedBox(width: 10),
+                                            pw.Text("Charge :${widget.extraCharge} ", style: pw.TextStyle(fontSize: 10)),
+                                            pw.SizedBox(width: 10),
+                                            pw.Text("Discount : ${widget.discount}", style: pw.TextStyle(fontSize: 10)),
+                                            pw.SizedBox(width: 10),
+                                            pw.Text("Total : ${widget.grandTotal} ", style: pw.TextStyle(fontSize: 10)),
+                                            pw.SizedBox(width: 10),
+                                          ],
                                         ),
                                       ],
                                     ),

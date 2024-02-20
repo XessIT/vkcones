@@ -126,18 +126,25 @@ class _SalaryCalculationState extends State<SalaryCalculation> {
     double totalLate = 0;
 
     for (var row in filteredData) {
-      double reqTime = double.parse(row['req_time'] ?? '0');
-      double workTime = double.parse(row['act_time'] ?? '0');
+      try {
+        double reqTime = double.parse(row['req_time'] ?? '0');
+        double workTime = double.parse(row['act_time'] ?? '0');
 
-      if (reqTime < workTime) {
-        return 0;
-      } else {
-        totalLate += reqTime - workTime;
+        if (reqTime < workTime) {
+          return 0;
+        } else {
+          totalLate += reqTime - workTime;
+        }
+      } catch (e) {
+        // Handle the exception, e.g., log it or set a default value
+        print('Error parsing double: $e');
       }
     }
+
     setState(() {
       toLate = formatDuration(totalLate);
     });
+
     return totalLate;
   }
   String formatDuration(double durationInMinutes) {

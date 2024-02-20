@@ -316,7 +316,7 @@ class _StockReportState extends State<StockReport> {
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 controller: _scrollController,
-                                child: SizedBox(width: 1000,
+                                child: SizedBox(width: 1500,
                                   child: PaginatedDataTable(
                                     columnSpacing:130.0,
                                     rowsPerPage:25,
@@ -423,8 +423,9 @@ class _YourDataTableSource extends DataTableSource {
         DataCell(Center(child: Text("${row["itemName"]}"))),
         // DataCell(Center(child: Text("${row["size"]}"))),
         // DataCell(Center(child: Text("${row["color"]}"))),
-        DataCell(Center(child: Text("${row["totalcones"]}"))),
-        DataCell(Center(child: Text("${row["qty"]}"))),
+        DataCell(Center(child: Text(row["totalcones"]!= null ? "${row["totalcones"]}" : "0"))),
+       // DataCell(Center(child: Text("${row["totalcones"]}"))),
+        DataCell(Center(child: Text(row["qty"]!= null ? "${row["qty"]}" : "0"))),
       ],
     );
 

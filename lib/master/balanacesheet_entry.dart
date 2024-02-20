@@ -1312,63 +1312,59 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                                 ],)
                             ],
                           ),
+                          SizedBox(height: 10,),
+                          Table(
+                            border: TableBorder.all(color: Colors.black),
+                            defaultColumnWidth: const FixedColumnWidth(260.0),
+                            children: [
 
-                        ],),
-                      ),
-                    ),
-                    SizedBox(height: 10,),
-                    Table(
-                      border: TableBorder.all(color: Colors.black),
-                      defaultColumnWidth: const FixedColumnWidth(260.0),
-                      children: [
-
-                        TableRow(
-                          decoration: BoxDecoration(color: Colors.blue.shade200),
-                          children: const [
-                            TableCell(
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 15),
-                                    Text('Invoice No', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 15),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 15),
-                                    Text('Invoice Amount ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 15),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 15),
-                                    Text('Received Cheque Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 15),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 15),
-                                    Text('Balance Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 15),
-                                  ],
-                                ),
-                              ),
-                            ),
+                              TableRow(
+                                decoration: BoxDecoration(color: Colors.blue.shade200),
+                                children: const [
+                                  TableCell(
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          SizedBox(height: 15),
+                                          Text('Invoice No', style: TextStyle(fontWeight: FontWeight.bold)),
+                                          SizedBox(height: 15),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          SizedBox(height: 15),
+                                          Text('Invoice Amount ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                          SizedBox(height: 15),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          SizedBox(height: 15),
+                                          Text('Received Cheque Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                          SizedBox(height: 15),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          SizedBox(height: 15),
+                                          Text('Balance Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                                          SizedBox(height: 15),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
 
 /*
                             TableCell(
@@ -1383,38 +1379,38 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                               ),
                             ),
 */
-                          ],
-                        ),
+                                ],
+                              ),
 
-                        for (int i = 0; i < controllers.length; i++)
-                          if(invoiceNo.text.isNotEmpty)
-                            TableRow(
-                              children: [
-                                for (int j = 0; j < 4; j++)
-                                  TableCell(
-                                    verticalAlignment: TableCellVerticalAlignment.middle,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: TextFormField(
-                                        style: TextStyle(fontSize: 13, color: Colors.black),
-                                        textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.number,
-                                        controller: controllers[i][j]
-                                        ,
-                                        onChanged: (value){
-                                          if (value.length > 2) {
-                                            controllers[i][j].text = value.substring(0, 2);
-                                          }
-                                          setState(() {
-                                            grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
+                              for (int i = 0; i < controllers.length; i++)
+                                if(invoiceNo.text.isNotEmpty)
+                                  TableRow(
+                                    children: [
+                                      for (int j = 0; j < 4; j++)
+                                        TableCell(
+                                          verticalAlignment: TableCellVerticalAlignment.middle,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: TextFormField(
+                                              style: TextStyle(fontSize: 13, color: Colors.black),
+                                              textAlign: TextAlign.center,
+                                              keyboardType: TextInputType.number,
+                                              controller: controllers[i][j]
+                                              ,
+                                              onChanged: (value){
+                                                if (value.length > 2) {
+                                                  controllers[i][j].text = value.substring(0, 2);
+                                                }
+                                                setState(() {
+                                                  grandTotal.text = calculateGrandTotal().toStringAsFixed(2);
 
-                                          });
+                                                });
 
-                                        },
+                                              },
 
-                                      ),
-                                    ),
-                                  ),
+                                            ),
+                                          ),
+                                        ),
 /*
                                 TableCell(
                                   verticalAlignment: TableCellVerticalAlignment.middle,
@@ -1463,10 +1459,15 @@ class _BalanaceSheetState extends State<BalanaceSheet> {
                               ),
 */
 
-                              ],
-                            ),
-                      ],
+                                    ],
+                                  ),
+                            ],
+                          ),
+                        ],
+                        ),
+                      ),
                     ),
+
 
 
 

@@ -149,7 +149,7 @@ class _PunchState extends State<Punch> {
 
         if (itemDate != null &&
             !itemDate.isBefore(fromDate!) &&
-            !itemDate.isAfter(toDate!.add(Duration(days: 1)))) {
+            !itemDate.isAfter(toDate!.add(const Duration(days: 1)))) {
           return true;
         }
         return false;

@@ -172,7 +172,7 @@ class _NoReturnPurchaseIndividualReportState
                 child: pw.Center(child:
                 pw.Column(children: [
                   pw.SizedBox(height: 3),
-                  pw.Text('Quantity',style: pw.TextStyle(fontSize:9,font: font ),),
+                  pw.Text('Quantity/S.No',style: pw.TextStyle(fontSize:9,font: font ),),
                   pw.SizedBox(height: 3),
                 ])),
               ),
@@ -258,9 +258,10 @@ class _NoReturnPurchaseIndividualReportState
                         pw.Text(
                           data[i]['qty'] != null
                               ? data[i]['qty']
-                              : '${data[i]['totalWeight'] ?? ''} Kg',
+                              : '${data[i]['totalWeight'] ?? ''} Kg - ${data[i]['sNo'] ?? ''}',
                           style: pw.TextStyle(fontSize: 9, font: font1),
                         ),
+
                         pw.SizedBox(height: 3),
                       ],
                     ),

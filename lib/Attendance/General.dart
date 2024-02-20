@@ -115,6 +115,7 @@ class _GeneralState extends State<General> {
 
     for (var empEntry in groupedEntries.entries) {
       bool isPresent = groupedEntries[empEntry.key]!.length <= 4;
+      bool isSalary = groupedEntries[empEntry.key]!.length > 1;
 
       List<Map<String, dynamic>> empData = empEntry.value;
       Map<String, dynamic> dataToInsertcustomer = {
@@ -140,26 +141,23 @@ class _GeneralState extends State<General> {
             ? DateFormat('HH:mm:ss').format(
             DateTime.parse(empData[3]['punch_time'].toString()).toLocal())
             : '',
+
+
         'latecheck_in': calculateLate(groupedEntries[empEntry.key]!),
         'late_lunch': calculateLateLunch(groupedEntries[empEntry.key]!),
         'earlycheck_out': calculateEarlyLeave(
             groupedEntries[empEntry.key]!),
-        'req_time': calculateReqTime(groupedEntries[empEntry.key]!),
-        'act_time': calculateActTime(
+       // 'req_time': calculateReqTime(groupedEntries[empEntry.key]!),
+        'req_time': "510",
+        'act_time': isSalary ? calculateActTime(
           groupedEntries[empEntry.key]!.length % 2 == 0
               ? groupedEntries[empEntry.key]!
               : groupedEntries[empEntry.key]!.sublist(0, groupedEntries[empEntry.key]!.length - 1),
-        ).toString(),
-        'salary': calculateSalary(
-            empData.first['salary'], empData.first['salaryType'],
-            daysInMonth),
-        'salaryType': empData.first['salaryType'].toString(),
-        // 'working_salary': calculateWorkingSalary(
-        //   calculateActTime(groupedEntries[empEntry.key]!),
-        //   int.parse(calculateReqTime(groupedEntries[empEntry.key]!)),
-        //   empData.first['salary'],
-        // )?.toString() ?? '',
-        'remark': isPresent ? 'P' : 'A',
+        ).toString():"0",
+        'salaryType': isSalary ? empData.first['salaryType'].toString() : "",
+        'salary': isSalary ? empData.first['salary'].toString(): '0',
+       // 'remark': isPresent ? 'P' : 'A',
+        'remark': 'P',
       };
 
       insertFutures.add(insertDatacustomer(dataToInsertcustomer));
@@ -329,7 +327,7 @@ class _GeneralState extends State<General> {
 */
   String calculateReqTime(List<Map<String, dynamic>> punches) {
     if (punches.length < 2) {
-      return ('');
+      return ('0');
     }
 
     switch (punches[0]['shiftType']) {
@@ -497,300 +495,10 @@ class _GeneralState extends State<General> {
                   },
                 ),
               ),
-
-              /*SingleChildScrollView(
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: fetchUnitEntries(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-                      Map<String, List<Map<String, dynamic>>> groupedEntries = {};
-                      for (var entry in snapshot.data!) {
-                        String date = DateFormat('yyyy-MM-dd').format(DateTime.parse(entry['punch_time'].toString()));
-                        if (!groupedEntries.containsKey(entry['emp_code'])) {
-                          groupedEntries[entry['emp_code']] = [];
-                        }
-                        groupedEntries[entry['emp_code']]!.add(entry);
-                      }
-
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          padding: EdgeInsets.all(4.0),
-                          child: Table(
-                            columnWidths: const {},
-                            border: TableBorder.all(color: Colors.black),
-                            children: [
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.shade300,
-                                ),
-                                children: const [
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: TableCell(
-                                      child: Center(
-                                        child: Text('Emp Code', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: TableCell(
-                                      child: Center(
-                                        child: Text('Emp Name', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: TableCell(
-                                      child: Center(
-                                        child: Text('In Date', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: TableCell(
-                                      child: Center(
-                                        child: Text('Check In', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: TableCell(
-                                      child: Center(
-                                        child: Text('Lunch Out', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: TableCell(
-                                      child: Center(
-                                        child: Text('Lunch In', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: TableCell(
-                                      child: Center(
-                                        child: Text('Check Out', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              for (var empEntry in groupedEntries.entries)
-                                TableRow(
-                                  children: [
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(child: Text(empEntry.value.first['emp_code'].toString())),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(child: Text(empEntry.value.first['first_name'].toString())),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: Text(
-                                            empEntry.value.isNotEmpty
-                                                ? DateFormat('yyyy-MM-dd').format(DateTime.parse(empEntry.value[0]['punch_time'].toString()).toLocal())
-                                                : '',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: Text(
-                                            empEntry.value.isNotEmpty
-                                                ? DateFormat('HH:mm:ss').format(DateTime.parse(empEntry.value[0]['punch_time'].toString()).toLocal())
-                                                : '',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: Text(
-                                            empEntry.value.length >= 2
-                                                ? DateFormat('HH:mm:ss').format(DateTime.parse(empEntry.value[1]['punch_time'].toString()).toLocal())
-                                                : '',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: Text(
-                                            empEntry.value.length >= 3
-                                                ? DateFormat('HH:mm:ss').format(DateTime.parse(empEntry.value[2]['punch_time'].toString()).toLocal())
-                                                : '',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: Text(
-                                            empEntry.value.length >= 4
-                                                ? DateFormat('HH:mm:ss').format(DateTime.parse(empEntry.value[3]['punch_time'].toString()).toLocal())
-                                                : '',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                  ],
-                                ),
-                              *//*for (var empEntry in groupedEntries.entries)
-
-                                TableRow(
-                                  children: [
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: TextFormField(
-                                            controller: textControllers[0],
-                                            decoration: const InputDecoration(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: TextFormField(
-                                            controller: textControllers[1],
-                                            decoration: const InputDecoration(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: TextFormField(
-                                            controller: textControllers[2],
-                                            decoration: const InputDecoration(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: TextFormField(
-                                            controller: textControllers[3],
-                                            decoration: const InputDecoration(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: TextFormField(
-                                            controller: textControllers[4],
-                                            decoration: const InputDecoration(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: TextFormField(
-                                            controller: textControllers[5],
-                                            decoration: const InputDecoration(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: TextFormField(
-                                            controller: textControllers[6],
-                                            decoration: const InputDecoration(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: TextFormField(
-                                            controller: textControllers[7],
-                                            decoration: const InputDecoration(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-
-                                  ],
-                                ),*//*
-                            ],
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const Center(
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'No Data Available',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ],
-
-                        ),
-
-                      );
-                    }
-                  },
-                ),
-              ),*/
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
+                  /*Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MaterialButton(
                       color: Colors.green.shade600,
@@ -799,7 +507,7 @@ class _GeneralState extends State<General> {
                       },
                       child: const Text("SAVE",style: TextStyle(color: Colors.white),),),
 
-                  ),
+                  ),*/
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MaterialButton(

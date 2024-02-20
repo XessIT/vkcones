@@ -613,6 +613,7 @@ import 'package:vinayaga_project/purchase/preturn_individual_view.dart';
 import 'package:vinayaga_project/purchase/preturn_overall_pdf.dart';
 import 'package:vinayaga_project/purchase/purchase_individual_report.dart';
 import 'package:vinayaga_project/purchase/purchase_orderin_pdf.dart';
+import 'package:vinayaga_project/purchase/purchase_return.dart';
 import 'package:vinayaga_project/purchase/purchase_view.dart';
 import 'package:vinayaga_project/purchase/purchaseview_pdf.dart';
 import 'package:vinayaga_project/report/winding_report_pdf.dart';
@@ -831,16 +832,29 @@ class _PurchaseReturnReportState extends State<PurchaseReturnReport> {
                         ),
                         child: Column(
                           children: [
-                            const Row(
+                             Row(
                               children: [
                                 Icon(Icons.report,),
                                 SizedBox(width:10,),
-                                Text(
+                                const Text(
                                   'Purchase Return Report',
                                   style: TextStyle(
                                     fontSize:20,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.refresh),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> PurchaseReturn()));
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_back),
+                                  onPressed: () {
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
+                                    Navigator.pop(context);
+                                  },
                                 ),
                               ],
                             ),

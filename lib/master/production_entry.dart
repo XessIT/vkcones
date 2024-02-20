@@ -305,7 +305,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
                 TextButton(
                   onPressed: () {
                     final formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
-                    updateqtyinProduction(selectedmachine.toString(), itemGroupcontroll.text, itemNamecontroll.text, int.parse(roundqty.text),int.parse(qty.text), formattedDate);
+                    // updateqtyinProduction(selectedmachine.toString(), itemGroupcontroll.text, itemNamecontroll.text, int.parse(roundqty.text),int.parse(qty.text), formattedDate);
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductionEntry()));
                   },
                   child: Text("yes"),
@@ -700,14 +700,14 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                                 keyboardType: TextInputType.number,
                                                 inputFormatters: <TextInputFormatter>[
                                                   FilteringTextInputFormatter.digitsOnly,
-                                                  LengthLimitingTextInputFormatter(7)
+                                                  LengthLimitingTextInputFormatter(6)
                                                 ],
                                                 decoration: InputDecoration(
                                                   filled: true,
                                                   fillColor: Colors.white,
                                                   labelText: "Total Cones",
                                                   border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
+                                                    borderRadius: BorderRadius.circular(15),
                                                   ),
                                                 ),
                                               ),
@@ -732,7 +732,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                               keyboardType: TextInputType.number,
                                               inputFormatters: <TextInputFormatter>[
                                                 FilteringTextInputFormatter.digitsOnly,
-                                                LengthLimitingTextInputFormatter(7)
+                                                LengthLimitingTextInputFormatter(5)
                                               ],
                                               decoration: InputDecoration(
                                                 filled: true,
@@ -764,7 +764,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                               keyboardType: TextInputType.number,
                                               inputFormatters: <TextInputFormatter>[
                                                 FilteringTextInputFormatter.digitsOnly,
-                                                LengthLimitingTextInputFormatter(7)
+                                                LengthLimitingTextInputFormatter(6)
                                               ],
                                               decoration: InputDecoration(
                                                 filled: true,
@@ -794,7 +794,7 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                               keyboardType: TextInputType.number,
                                               inputFormatters: <TextInputFormatter>[
                                                 FilteringTextInputFormatter.digitsOnly,
-                                                LengthLimitingTextInputFormatter(7)
+                                                LengthLimitingTextInputFormatter(4)
                                               ],
                                               decoration: InputDecoration(
                                                 filled: true,
@@ -868,10 +868,10 @@ class _ProductionEntryState extends State<ProductionEntry> {
                                               bool isDuplicate = await checkForDuplicate(itemGroupcontroll.text!, itemNamecontroll.text!,);
                                               bool isDuplicateProduction = await checkForDuplicateProduction(itemGroupcontroll.text!, itemNamecontroll.text!, selectedmachine.toString(), selectedDate.toString());
                                               if(isDuplicateProduction){
-                                                updateqtyinProduction(selectedmachine.toString(), itemGroupcontroll.text, itemNamecontroll.text,int.parse(roundqty.text),int.parse(qty.text),selectedDate.toString());
+                                                // updateqtyinProduction(selectedmachine.toString(), itemGroupcontroll.text, itemNamecontroll.text,int.parse(roundqty.text),int.parse(qty.text),selectedDate.toString());
                                               }
                                               if (isDuplicate) {
-                                                updateStock(itemGroupcontroll.text!, itemNamecontroll.text!, int.parse(roundqty.text), int.parse(qty.text));
+                                                //updateStock(itemGroupcontroll.text!, itemNamecontroll.text!, int.parse(roundqty.text), int.parse(qty.text));
                                               }else {
                                                 final dataToInsert2 = {
                                                   'date':selectedDate.toString(),

@@ -155,16 +155,8 @@ function calculateActTime(entries) {
 
   return actTime;
 }
-let daysInMonth;
-daysInMonth = moment().endOf('month').date();
-function calculateSalary(monthlySalary, salaryType, daysInMonth) {
-  if (salaryType === 'Daily' || salaryType === 'Monthly') {
-    return monthlySalary;
-  } else {
-    return 0.0;
-  }
-}
-cron.schedule('0 0,8,16 * * *', async () => {
+
+cron.schedule('*/1 * * * *', async () => {
   console.log('Automated task started at', new Date());
 
   try {
@@ -183,11 +175,16 @@ cron.schedule('0 0,8,16 * * *', async () => {
 
     for (const empEntry of Object.entries(groupedEntries)) {
       const isPresent = empEntry[1].length >= 4;
+      const isSalary = empEntry[1].length > 1;
 
       const empData = empEntry[1];
       const dataToInsertcustomer = {
         "emp_code": empEntry[0],
         "first_name": empData[0]['first_name'].toString(),
+        "salary": isSalary ? empData[0]['salary'].toString() : '0',
+        "salaryType": isSalary ? empData[0]['salaryType'].toString() : '',
+//                "salary": empData[0]['salary'].toString(),
+//                "salaryType": empData[0]['salaryType'].toString(),
         'inDate': moment(empData[0]['punch_time']).format('YYYY-MM-DD'),
         'shiftType': empData[0]['shiftType'],
         'check_in': empData.length >= 1 ? moment(empData[0]['punch_time']).format('HH:mm:ss') : '',
@@ -198,9 +195,7 @@ cron.schedule('0 0,8,16 * * *', async () => {
         'late_lunch': calculateLateLunch(empEntry[1]),
         'earlycheck_out': calculateEarlyLeave(empEntry[1]),
         'req_time': '690',
-        'act_time': calculateActTime(empEntry[1]).toString(),
-        'salary': calculateSalary(empData[0]['salary'], empData[0]['salaryType'], daysInMonth),
-        'salaryType': empData[0]['salaryType'].toString(),
+        'act_time': isSalary ? calculateActTime(empEntry[1]).toString() : '0',
         'remark': isPresent ? 'P' : 'A',
       };
 
@@ -234,7 +229,7 @@ function calculateActTimeGeneral(entries) {
     // Ensure the calculated time is positive
     actTime += Math.max(0, diffMinutes);
   }
-
+  actTime -= 30;
   return actTime;
 }
 function calculateLateCheck(punches) {
@@ -265,7 +260,7 @@ async function fetchUnitEntriesGeneral() {
     throw new Error(`Failed to load unit entries: ${error.message}`);
   }
 }
-cron.schedule('0 0,8,16 * * *', async () => {
+cron.schedule('*/1 * * * *', async () => {
   console.log('Automated task started at', new Date());
 
   try {
@@ -283,12 +278,17 @@ cron.schedule('0 0,8,16 * * *', async () => {
     const insertFutures = [];
 
     for (const empEntry of Object.entries(groupedEntries)) {
-      const isPresent = empEntry[1].length >= 4;
+      const isPresent = empEntry[1].length >= 2;
+      const isSalary = empEntry[1].length > 1;
 
       const empData = empEntry[1];
       const dataToInsertcustomer = {
         "emp_code": empEntry[0],
         "first_name": empData[0]['first_name'].toString(),
+        "salary": isSalary ? empData[0]['salary'].toString() : '0',
+        "salaryType": isSalary ? empData[0]['salaryType'].toString() : '',
+        //"salary": empData[0]['salary'].toString(),
+        //"salaryType": empData[0]['salaryType'].toString(),
         'inDate': moment(empData[0]['punch_time']).format('YYYY-MM-DD'),
         'shiftType': empData[0]['shiftType'],
         'check_in': empData.length >= 1 ? moment(empData[0]['punch_time']).format('HH:mm:ss') : '',
@@ -299,10 +299,9 @@ cron.schedule('0 0,8,16 * * *', async () => {
         'late_lunch': calculateLateLunch(empEntry[1]),
         'earlycheck_out': calculateEarlyLeave(empEntry[1]),
         'req_time': '510',
-        'act_time': calculateActTimeGeneral(empEntry[1]).toString(),
-        'salary': calculateSalary(empData[0]['salary'], empData[0]['salaryType'], daysInMonth),
-        'salaryType': empData[0]['salaryType'].toString(),
-        'remark': isPresent ? 'P' : 'A',
+        'act_time': isSalary ? calculateActTimeGeneral(empEntry[1]).toString() : '0',
+        //'remark': isPresent ? 'P' : 'A',
+        'remark': 'P',
       };
 
       insertFutures.push(insertDatacustomer(dataToInsertcustomer));
@@ -318,6 +317,140 @@ cron.schedule('0 0,8,16 * * *', async () => {
 });
 //end General auto save
 //Night auto save
+function processNightShiftEntries(nightShiftEntries) {
+  const processedEntries = [];
+
+  nightShiftEntries.forEach((entry, index) => {
+    const dateTime = entry['punch_time'] ? moment(entry['punch_time']) : null;
+    const combinedDate = dateTime ? dateTime.format('YYYY-MM-DD') : '';
+
+    let chkin = '';
+    let chkout = '';
+
+    if (dateTime) {
+      chkin = dateTime.format('HH:mm:ss');
+    }
+
+    // Set check_out to '00:00:00' if it is the last entry or after 22:00:00
+    if (index === nightShiftEntries.length - 1 || dateTime.isAfter(moment('22:00:00', 'HH:mm:ss'))) {
+      chkout = '00:00:00';
+    } else {
+      chkout = moment(nightShiftEntries[index + 1]['punch_time']).format('HH:mm:ss');
+    }
+
+    const checkInMinutes = timeToMinutes(chkin);
+    const checkOutMinutes = timeToMinutes(chkout);
+
+    const firstHalfEndMinutes = timeToMinutes('24:00:00');
+    const secondHalfStartMinutes = timeToMinutes('00:00:00');
+
+    const firstHalfDuration = firstHalfEndMinutes - checkInMinutes;
+    const secondHalfDuration = checkOutMinutes - secondHalfStartMinutes;
+    const actTime = firstHalfDuration + secondHalfDuration;
+
+    const expectedCheckInMinutes = timeToMinutes('20:00:00');
+    const expectedCheckOutMinutes = timeToMinutes('08:00:00');
+
+    // Ensure check_in is between 18:00:00 and 22:00:00
+    if (checkInMinutes < timeToMinutes('18:00:00') || checkInMinutes >= timeToMinutes('22:00:00')) {
+      chkin = '00:00:00';
+    }
+
+    // Ensure check_out is between 04:00:00 and 10:00:00
+    if (checkOutMinutes < timeToMinutes('04:00:00') || checkOutMinutes >= timeToMinutes('10:00:00')) {
+      chkout = '00:00:00';
+    }
+
+
+    const actualCheckOut = chkout === '00:00:00' ? timeToMinutes('22:00:00') : checkOutMinutes;
+
+    const lateCheckIn = Math.round((checkInMinutes > expectedCheckInMinutes) ? (checkInMinutes - expectedCheckInMinutes) : 0);
+    const earlyCheckOut = Math.round((chkout !== '00:00:00' && checkOutMinutes < expectedCheckOutMinutes) ? (expectedCheckOutMinutes - actualCheckOut) : 0);
+
+    const processedEntry = {
+      'emp_code': entry['emp_code'],
+      'first_name': entry['first_name'],
+      'salary': (chkin && chkout && chkout !== '00:00:00') ? entry['salary'] : '0',
+      'salaryType': (chkin && chkout && chkout !== '00:00:00') ? entry['salaryType'] : '',
+      'inDate': combinedDate,
+      'shiftType': 'Night',
+      'check_in': chkin,
+      'check_out': chkout,
+      'lunch_out': '0',
+      'lunch_in': '0',
+      'latecheck_in': lateCheckIn,
+      'earlycheck_out': earlyCheckOut,
+      'req_time': '720',
+      'act_time': (chkin && chkout && chkout !== '00:00:00') ? Math.round(actTime) : "0",
+      'remark': (chkin == '00:00:00' && chkout == '00:00:00') ? 'A':'P',
+    };
+
+    processedEntries.push(processedEntry);
+  });
+
+  return processedEntries;
+}
+/*
+function processNightShiftEntries(nightShiftEntries) {
+  const processedEntries = [];
+
+  nightShiftEntries.forEach((entry, index) => {
+    const dateTime = entry['punch_time'] ? moment(entry['punch_time']) : null;
+    const combinedDate = dateTime ? dateTime.format('YYYY-MM-DD') : '';
+
+    let chkin = '';
+    let chkout = '';
+
+    if (dateTime) {
+      chkin = dateTime.format('HH:mm:ss');
+    }
+
+    // Set check_out to '00:00:00' if it is the last entry or after 22:00:00
+    if (index === nightShiftEntries.length - 1 || dateTime.isAfter(moment('22:00:00', 'HH:mm:ss'))) {
+      chkout = '00:00:00';
+    } else {
+      chkout = moment(nightShiftEntries[index + 1]['punch_time']).format('HH:mm:ss');
+    }
+
+    const checkInMinutes = timeToMinutes(chkin);
+    const checkOutMinutes = timeToMinutes(chkout);
+
+    const expectedCheckInMinutes = timeToMinutes('18:00:00');
+    const expectedCheckOutMinutes = timeToMinutes('04:00:00');
+    const maxCheckOutMinutes = timeToMinutes('10:00:00');
+
+    if (checkInMinutes < expectedCheckInMinutes || checkInMinutes >= timeToMinutes('22:00:00')) {
+      chkin = '00:00:00';
+    }
+    if (checkOutMinutes < expectedCheckOutMinutes || checkOutMinutes >= maxCheckOutMinutes) {
+      chkout = '00:00:00';
+    }
+
+    const processedEntry = {
+      'emp_code': entry['emp_code'],
+      'first_name': entry['first_name'],
+      'salary': (chkin && chkout && chkout !== '00:00:00') ? entry['salary'] : '0',
+      'salaryType': (chkin && chkout && chkout !== '00:00:00') ? entry['salaryType'] : '',
+      'inDate': combinedDate,
+      'shiftType': 'Night',
+      'check_in': chkin,
+      'check_out': chkout,
+      'lunch_out': '0',
+      'lunch_in': '0',
+      'latecheck_in': 0,
+      'earlycheck_out': 0,
+      'req_time': '720',
+      'act_time': (chkin && chkout && chkout !== '00:00:00') ? Math.round(timeToMinutes(chkin) - timeToMinutes(chkout)) : "0",
+      'remark': (chkin == '00:00:00' && chkout == '00:00:00') ? 'A':'P',
+    };
+
+    processedEntries.push(processedEntry);
+  });
+
+  return processedEntries;
+}
+*/
+/*
 function processNightShiftEntries(nightShiftEntries) {
   const processedEntries = [];
 
@@ -345,9 +478,10 @@ function processNightShiftEntries(nightShiftEntries) {
     }
 
     const checkInMinutes = timeToMinutes(chkin);
+    const checkOutMinutes = timeToMinutes(chkout);
+
     const firstHalfEndMinutes = timeToMinutes('24:00:00');
     const secondHalfStartMinutes = timeToMinutes('00:00:00');
-    const checkOutMinutes = timeToMinutes(chkout);
 
     const firstHalfDuration = firstHalfEndMinutes - checkInMinutes;
     const secondHalfDuration = checkOutMinutes - secondHalfStartMinutes;
@@ -363,8 +497,10 @@ function processNightShiftEntries(nightShiftEntries) {
     const processedEntry = {
       'emp_code': entry1['emp_code'],
       'first_name': entry1['first_name'],
+      'salary': (chkin && chkout && chkout !== '00:00:00') ? entry1['salary'] : '0',
+      'salaryType': (chkin && chkout && chkout !== '00:00:00') ? entry1['salaryType'] : '',
       'inDate': combinedDate,
-      'outDate': combinedDate2,
+      //'outDate': combinedDate2,
       'shiftType': 'Night',
       'check_in': chkin,
       'check_out': chkout,
@@ -373,10 +509,9 @@ function processNightShiftEntries(nightShiftEntries) {
       'latecheck_in': lateCheckIn,
       'earlycheck_out': earlyCheckOut,
       'req_time': '720',
-      'act_time': Math.round(actTime),  // Round to the nearest whole number
-      'salary': calculateSalary(entry1['salary'], entry1['salaryType'], daysInMonth),
-      'salaryType': entry1['salaryType'].toString(),
-      'remark': (chkin && chkout && chkout !== '00:00:00') ? 'P' : 'A',
+      'act_time': (chkin && chkout && chkout !== '00:00:00') ? Math.round(actTime) : "0",
+      'remark': 'P',
+
     };
 
     processedEntries.push(processedEntry);
@@ -384,11 +519,11 @@ function processNightShiftEntries(nightShiftEntries) {
 
   return processedEntries;
 }
+*/
 function timeToMinutes(timeString) {
   const [hours, minutes, seconds] = timeString.split(':').map(Number);
   return hours * 60 + minutes + seconds / 60;
 }
-
 async function fetchNightShiftEntries() {
   try {
     const response = await axios.get('http://localhost:3309/attendance_view_night');
@@ -397,6 +532,7 @@ async function fetchNightShiftEntries() {
 
     if (response.status === 200) {
       const data = response.data;
+      data.sort((a, b) => moment(a['punch_time']).valueOf() - moment(b['punch_time']).valueOf());
       return data;
     } else {
       throw new Error(`Error loading night shift entries: ${response.status}`);
@@ -406,8 +542,8 @@ async function fetchNightShiftEntries() {
     throw new Error(`Failed to load night shift entries: ${error.message}`);
   }
 }
-
-cron.schedule('0 0,8,16 * * *', async () => {
+//'0 */2 * * *'
+cron.schedule('*/1 * * * *', async () => {
   console.log('Automated task started at', new Date());
 
   try {
@@ -832,7 +968,21 @@ app.put('/stock/update/:itemGroup/:itemName', (req, res) => {
     }
   });
 });
+app.post('/sales_to_update_Stock', async (req, res) => {
+  const { itemGroup, itemName, qty, totalcones } = req.body;
+  const sql = 'UPDATE stock SET qty=qty-? , totalcones=totalcones-?  WHERE itemGroup=? AND itemName=? ';
+  const values = [qty, totalcones, itemGroup, itemName,];
 
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error updating production_entry entry:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.send('production_entry updated successfully');
+    }
+  });
+});
+/*
 app.post('/sales_to_update_Stock', async (req, res) => {
   const { itemGroup, itemName, qty } = req.body;
   const sql = 'UPDATE stock SET qty=qty-? WHERE itemGroup=? AND itemName=? ';
@@ -847,6 +997,7 @@ app.post('/sales_to_update_Stock', async (req, res) => {
     }
   });
 });
+*/
 
 //production decrease in sales
 app.post('/sales_to_update_Production', async (req, res) => {
@@ -904,7 +1055,176 @@ app.get('/dc_item_view', (req, res) => {
     res.json(result);
   });
 });
+//purchase edit
+app.post('/add_MinusRawMaterial', async (req, res) => {
+  const { prodCode, prodName, qty, unit, modifyDate, isIncrease } = req.body;
 
+  let sql, values;
+
+  if (isIncrease) {
+    // Increase quantity
+    sql = 'UPDATE raw_material SET qty = qty + ?, modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ?';
+    values = [qty, modifyDate, prodCode, prodName, unit];
+  } else {
+    // Decrease quantity
+    sql = 'UPDATE raw_material SET qty = qty - ?, modifyDate = ? WHERE prodCode = ? AND prodName = ? AND unit = ?';
+    values = [qty, modifyDate, prodCode, prodName, unit];
+  }
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error updating raw_material entry:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.send('raw_material updated successfully');
+    }
+  });
+});
+app.post('/Raw_material_entry_edit', (req, res) => {
+  const { dataToInsertRaw2 } = req.body; // Assuming you send the data to insert in the request body
+  const sql = 'INSERT INTO raw_material SET ?'; // Modify to your table name
+  db.query(sql, [dataToInsertRaw2], (err, result) => { // Wrap dataToInsert in an array
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).json({ error: 'Error inserting data' });
+    } else {
+      console.log('Data inserted successfully');
+      res.status(200).json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+
+
+app.get('/fetch_productcode_poNo_duplicate', (req, res) => {
+  const sql = 'SELECT * FROM purchase';
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+
+app.post('/purchase_edit_new_update', (req, res) => {
+  const { dataToInsertRaw } = req.body; // Assuming you send the data to insert in the request body
+  const sql = 'INSERT INTO purchase SET ?'; // Modify to your table name
+  db.query(sql, [dataToInsertRaw], (err, result) => { // Wrap dataToInsert in an array
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).json({ error: 'Error inserting data' });
+    } else {
+      console.log('Data inserted successfully');
+      res.status(200).json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+app.post('/purchase_edit_new_update_gsm', (req, res) => {
+  const { dataToInsertRawGsm } = req.body; // Assuming you send the data to insert in the request body
+  const sql = 'INSERT INTO purchase SET ?'; // Modify to your table name
+  db.query(sql, [dataToInsertRawGsm], (err, result) => { // Wrap dataToInsert in an array
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).json({ error: 'Error inserting data' });
+    } else {
+      console.log('Data inserted successfully');
+      res.status(200).json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+app.post('/purchase_gsm_edit_update', async (req, res) =>    {
+  const { purchaseDate, invoiceNo, supCode, supName, supMobile, supAddress, pincode, payType, prodCode, prodName, unit, sNo, totalWeight, rate, amt, gst, amtGST, total, grandTotal, extraCharge, discount, poNo } = req.body;
+
+  if (!poNo || !prodCode) {
+    res.status(400).send('Both poNo and prodCode are required for the update');
+    return;
+  }
+
+  const sql = 'UPDATE purchase SET purchaseDate = ?, invoiceNo = ?, supCode = ?, supName = ?, supMobile = ?, supAddress = ?, pincode = ?, payType = ?, prodCode = ?, prodName = ?, unit = ?, sNo = ?, totalWeight = ?, rate = ?, amt = ?, gst = ?, amtGST = ?, total = ?, grandTotal = ?, extraCharge = ?, discount = ? WHERE poNo = ? AND prodCode = ?';
+  const values = [purchaseDate, invoiceNo, supCode, supName, supMobile, supAddress, pincode, payType, prodCode, prodName, unit, sNo, totalWeight, rate, amt, gst, amtGST, total, grandTotal, extraCharge, discount, poNo, prodCode];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error updating purchase entry:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.send('Purchase entry updated successfully');
+    }
+  });
+});
+app.post('/purchase_edit_update', async (req, res) => {
+  const { purchaseDate, invoiceNo, supCode, supName, supMobile, supAddress, pincode, payType, prodCode, prodName, unit, qty, rate, amt, gst, amtGST, total, grandTotal, extraCharge, discount, poNo } = req.body;
+
+  if (!poNo || !prodCode) {
+    res.status(400).send('Both poNo and prodCode are required for the update');
+    return;
+  }
+
+  const sql = 'UPDATE purchase SET purchaseDate = ?, invoiceNo = ?, supCode = ?, supName = ?, supMobile = ?, supAddress = ?, pincode = ?, payType = ?, prodCode = ?, prodName = ?, unit = ?, qty = ?, rate = ?, amt = ?, gst = ?, amtGST = ?, total = ?, grandTotal = ?, extraCharge = ?, discount = ? WHERE poNo = ? AND prodCode = ?';
+  const values = [purchaseDate, invoiceNo, supCode, supName, supMobile, supAddress, pincode, payType, prodCode, prodName, unit, qty, rate, amt, gst, amtGST, total, grandTotal, extraCharge, discount, poNo, prodCode];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error updating purchase entry:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.send('Purchase entry updated successfully');
+    }
+  });
+});
+app.get('/fetch_purchase_datas', (req, res) => {
+  const sql = 'SELECT * FROM purchase ORDER BY poNo DESC';
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+app.get('/fetch_purchase_datas_invoice', (req, res) => {
+  const sql = 'SELECT * FROM purchase ORDER BY invoiceNo DESC';
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+/*
+app.get('/get_purchase_items', (req, res) => {
+  const poNo = req.query.poNo;
+  const invoiceNo = req.query.invoiceNo;
+
+  let sql;
+  let values;
+
+  if (poNo) {
+    sql = `SELECT * FROM purchase WHERE poNo = ?`;
+    values = [poNo];
+  } else if (invoiceNo) {
+    sql = `SELECT * FROM purchase WHERE invoiceNo = ?`;
+    values = [invoiceNo];
+  } else {
+    res.status(400).send('Missing poNo or invoiceNo parameter');
+    return;
+  }
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.json(result);
+  });
+});
+*/
 
 //purchase order entry
 app.post('/purchaseorder_entry', (req, res) => {
@@ -1498,12 +1818,57 @@ app.get('/balance_sheet_values_get_for_table', (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 });
+app.get('/balance_sheet_values_purchase', (req, res) => {
+  try {
+    const invoiceNosParam = req.query.invoiceNos;
+
+    if (!invoiceNosParam) {
+      return res.status(400).json({ error: 'Bad Request', message: 'Order numbers not provided.' });
+    }
+
+    const invoiceNos = invoiceNosParam.split(',');
+
+    const query = `
+    SELECT distinct invoiceNo,grandTotal,supName,supCode FROM purchase WHERE invoiceNo in (?)
+    `;
+
+    db.query(query, [invoiceNos], (error, results) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+      } else {
+        res.json(results);
+      }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+});
 
 app.get('/get_balancesheet_for_suggestion', (req, res) => {
   const sql = `
     SELECT DISTINCT s.invoiceNo
     FROM sales s
     LEFT JOIN balance_sheet b ON s.invoiceNo = b.individual_invoice
+    WHERE b.individual_invoice IS NULL;
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      console.log('Data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+app.get('/get_balancesheet_for_suggestion_purchase', (req, res) => {
+  const sql = `
+    SELECT DISTINCT p.invoiceNo
+    FROM purchase p
+    LEFT JOIN balance_sheet_purchase b ON p.invoiceNo = b.individual_invoice
     WHERE b.individual_invoice IS NULL;
   `;
 
@@ -1533,9 +1898,36 @@ app.post('/balanace_sheet', (req, res) => {
     }
   });
 });
+app.post('/balanace_sheet_purchase', (req, res) => {
+  const { dataToInsert } = req.body; // Assuming you send the data to insert in the request body
+
+  const sql = 'INSERT INTO balance_sheet_purchase SET ?';// Modify to your table name
+
+  db.query(sql, [dataToInsert], (err, result) => { // Wrap dataToInsert in an array
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).json({ error: 'Error inserting data' });
+    } else {
+      console.log('Data inserted successfully');
+      res.status(200).json({ message: 'Data inserted successfully' });
+    }
+  });
+});
 
 app.get('/getBalance', (req, res) => {
   const sql = 'select * from balance_sheet'; // Modify to your table name
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+app.get('/getPurchaseBalance', (req, res) => {
+  const sql = 'select * from balance_sheet_purchase'; // Modify to your table name
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -1766,6 +2158,18 @@ app.get('/checknonorderNo_Customer_order', (req, res) => {
 //20//12//23
 app.get('/checkinvoiveNo_forbalancesheet', (req, res) => {
   const sql = 'select * from balance_sheet'; // Modify to your table name
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+app.get('/checkinvoiveNo_forbalancesheet_purchase', (req, res) => {
+  const sql = 'select * from balance_sheet_purchase'; // Modify to your table name
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -2247,9 +2651,9 @@ app.get('/get_po_item', (req, res) => {
 
 //16//01
 app.post('/purchase_entry_item', (req, res) => {
-  const { dataToInsertSupItem2 } = req.body; // Assuming you send the data to insert in the request body
+  const { dataToInsertSupItem } = req.body; // Assuming you send the data to insert in the request body
   const sql = 'INSERT INTO purchase SET ?'; // Modify to your table name
-  db.query(sql, [dataToInsertSupItem2], (err, result) => { // Wrap dataToInsert in an array
+  db.query(sql, [dataToInsertSupItem], (err, result) => { // Wrap dataToInsert in an array
     if (err) {
       console.error('Error inserting data:', err);
       res.status(500).json({ error: 'Error inserting data' });
@@ -2437,11 +2841,20 @@ app.post('/purchase_ret_item', (req, res) => {
 });
 app.get('/get_purchase_item', (req, res) => {
   const invoiceNo = req.query.invoiceNo;
- // Add this line to get supplier name
-
   const sql = 'SELECT * FROM purchase WHERE invoiceNo = ?'; // Update the SQL query
 
   db.query(sql, [invoiceNo], (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.json(result);
+  });
+});
+app.get('/get_purchase_items', (req, res) => {
+  const poNo = req.query.poNo;
+  const sql = 'SELECT * FROM purchase WHERE poNo = ?'; // Update the SQL query
+
+  db.query(sql, [poNo], (err, result) => {
     if (err) {
       throw err;
     }
@@ -3430,6 +3843,53 @@ app.get('/attendance_view_general', (req, res) => {
     }
   });
 });
+/*
+app.get('/attendance_view_night', (req, res) => {
+  const currentDate = new Date().toISOString().split('T')[0]; // Get current date in 'YYYY-MM-DD' format
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayDate = yesterday.toISOString().split('T')[0]; // Get yesterday's date in 'YYYY-MM-DD' format
+
+  const sql = `
+    SELECT
+      e.emp_code,
+      e.first_name,
+      e.salary,
+      e.salaryType,
+      it.punch_time,
+      s.shiftType,
+      s.fromDate,
+      s.toDate,
+      s.shiftTime
+    FROM
+      employee e
+    JOIN
+      iclock_transaction it ON e.emp_code = it.emp_code
+    LEFT JOIN
+      shift s ON e.emp_code = s.emp_code
+    WHERE
+      s.fromDate <= ? AND
+      s.toDate >= ? AND
+      s.shiftType = 'Night' AND
+      ((? BETWEEN s.fromDate AND s.toDate) OR (? BETWEEN s.fromDate AND s.toDate)) AND
+      (
+        (DATE(it.punch_time) = ? AND TIME(it.punch_time) BETWEEN '18:00:00' AND '21:00:00') OR
+        (DATE(it.punch_time) = ? AND TIME(it.punch_time) BETWEEN '18:00:00' AND '21:00:00')
+      )
+    ORDER BY e.emp_code, it.punch_time;
+  `;
+
+  db.query(sql, [currentDate, currentDate, yesterdayDate, yesterdayDate, yesterdayDate, currentDate], (err, result) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+    } else {
+      res.json(result);
+    }
+  });
+});
+*/
+
 app.get('/attendance_view_night', (req, res) => {
   const currentDate = new Date().toISOString().split('T')[0]; // Get current date in 'YYYY-MM-DD' format
 
@@ -3466,9 +3926,8 @@ app.get('/attendance_view_night', (req, res) => {
       res.json(result);
     }
   });
-
-
 });
+
 app.get('/get_attendance_report', (req, res) => {
   const currentDate = new Date().toISOString().split('T')[0]; // Get current date in 'YYYY-MM-DD' format
 
@@ -7140,7 +7599,7 @@ app.post('/updateproductiondailywork', async (req, res) => {
 
 //update_finishing_production
 app.post('/update_finishing_dailywork', async (req, res) => {
-  const { qty, itemGroup, itemName, date } = req.body;
+  const { qty, totalcones, itemGroup, itemName, date } = req.body;
   // Check if a record with the specified GSM value already exists
   const checkSql = 'SELECT * FROM stock WHERE itemGroup = ? AND itemName = ?';
   db.query(checkSql, [itemGroup, itemName], (checkErr, checkResult) => {
@@ -7150,9 +7609,8 @@ app.post('/update_finishing_dailywork', async (req, res) => {
     } else {
       if (checkResult.length > 0) {
         // Update the existing record
-        const updateSql = 'UPDATE stock SET qty = qty + ?, date = ? WHERE itemGroup = ? AND itemName = ?';
-        const updateValues = [qty, date, itemGroup, itemName];
-
+        const updateSql = 'UPDATE stock SET qty = qty + ?, totalcones = totalcones + ?, date = ? WHERE itemGroup = ? AND itemName = ?';
+        const updateValues = [qty, totalcones, date, itemGroup, itemName];
         db.query(updateSql, updateValues, (updateErr, updateResult) => {
           if (updateErr) {
             console.error('Error updating entry:', updateErr);
@@ -7163,9 +7621,8 @@ app.post('/update_finishing_dailywork', async (req, res) => {
         });
       } else {
         // Insert a new record
-        const insertSql = 'INSERT INTO stock (qty, itemGroup, itemName, date) VALUES (?, ?, ?, ?)';
-        const insertValues = [qty, itemGroup, itemName, date];
-
+        const insertSql = 'INSERT INTO stock (qty, totalcones, itemGroup, itemName, date) VALUES (?, ?, ?, ?, ?)';
+        const insertValues = [qty, totalcones, itemGroup, itemName, date];
         db.query(insertSql, insertValues, (insertErr, insertResult) => {
           if (insertErr) {
             console.error('Error inserting new entry:', insertErr);
@@ -7178,7 +7635,6 @@ app.post('/update_finishing_dailywork', async (req, res) => {
     }
   });
 });
-
 //decrese the withprinting cones after
 app.post('/updatewithprinting_production', async (req, res) => {
   const { gsm, itemGroup, itemName, numofcones, status, date } = req.body;
@@ -7589,9 +8045,119 @@ app.get('/get_serialnum_gsm', (req, res) => {
 });
 
 
+app.get('/daily_work_status_view', (req, res) => {
+  const createDate = req.query.createDate;
+  const shiftType = req.query.shiftType;
+  const machineType = req.query.machineType;
+  const machineName = req.query.machineName;
 
 
+  const sql = `SELECT * FROM daily_work_status WHERE createDate = ? AND shiftType = ? AND machineType = ? AND machineName = ?`;
 
+  db.query(sql, [createDate, shiftType, machineType, machineName], (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.json(result);
+  });
+});
+app.get('/daily_work_status_winding', (req, res) => {
+  const selectedDate = req.query.selectedDate;
+  const shiftType = req.query.shiftType;
+  const machName = req.query.machName;
+
+  const sql = `SELECT * FROM winding_entry WHERE
+               ? BETWEEN fromDate AND toDate AND
+               fromDate <= ? AND toDate >= ? AND
+               (AltEmp = 'Yes' OR (AltEmp IS NULL AND NOT EXISTS (
+                   SELECT 1 FROM winding_entry sub
+                   WHERE ? BETWEEN sub.fromDate AND sub.toDate
+                     AND sub.fromDate <= ? AND sub.toDate >= ?
+                     AND sub.shiftType = ? AND sub.machName = ?
+                     AND sub.AltEmp = 'Yes'
+               ))) AND
+               shiftType = ? AND machName = ?`;
+
+  db.query(
+    sql,
+    [selectedDate, selectedDate, selectedDate, selectedDate, selectedDate, selectedDate, shiftType, machName, shiftType, machName],
+    (err, result) => {
+      if (err) {
+        console.error('Error executing SQL query:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Result:', result);  // Debugging purpose
+        res.json(result);
+      }
+    }
+  );
+});
+
+
+app.get('/daily_work_status_printing', (req, res) => {
+  const selectedDate = req.query.selectedDate;
+  const shiftType = req.query.shiftType;
+  const machName = req.query.machName;
+
+  const sql = `SELECT * FROM printing_entry WHERE
+               ? BETWEEN fromDate AND toDate AND
+               fromDate <= ? AND toDate >= ? AND
+               (AltEmp = 'Yes' OR (AltEmp IS NULL AND NOT EXISTS (
+                   SELECT 1 FROM printing_entry sub
+                   WHERE ? BETWEEN sub.fromDate AND sub.toDate
+                     AND sub.fromDate <= ? AND sub.toDate >= ?
+                     AND sub.shiftType = ? AND sub.machName = ?
+                     AND sub.AltEmp = 'Yes'
+               ))) AND
+               shiftType = ? AND machName = ?`;
+
+  db.query(
+    sql,
+    [selectedDate, selectedDate, selectedDate, selectedDate, selectedDate, selectedDate, shiftType, machName, shiftType, machName],
+    (err, result) => {
+      if (err) {
+        console.error('Error executing SQL query:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Result:', result);  // Debugging purpose
+        res.json(result);
+      }
+    }
+  );
+});
+
+
+app.get('/daily_work_status_finishing', (req, res) => {
+  const selectedDate = req.query.selectedDate;
+  const shiftType = req.query.shiftType;
+  const machName = req.query.machName;
+
+  const sql = `SELECT * FROM finishing_entry WHERE
+               ? BETWEEN fromDate AND toDate AND
+               fromDate <= ? AND toDate >= ? AND
+               (AltEmp = 'Yes' OR (AltEmp IS NULL AND NOT EXISTS (
+                   SELECT 1 FROM finishing_entry sub
+                   WHERE ? BETWEEN sub.fromDate AND sub.toDate
+                     AND sub.fromDate <= ? AND sub.toDate >= ?
+                     AND sub.shiftType = ? AND sub.machName = ?
+                     AND sub.AltEmp = 'Yes'
+               ))) AND
+               shiftType = ? AND machName = ?`;
+
+  db.query(
+    sql,
+    [selectedDate, selectedDate, selectedDate, selectedDate, selectedDate, selectedDate, shiftType, machName, shiftType, machName],
+    (err, result) => {
+      if (err) {
+        console.error('Error executing SQL query:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Result:', result);  // Debugging purpose
+        res.json(result);
+      }
+    }
+  );
+});
 // Starting the server
 app.listen(app.get('port'), () => {
   console.log('Server on port', app.get('port'));

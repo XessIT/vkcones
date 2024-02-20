@@ -219,18 +219,20 @@ class _MorningState extends State<Morning> {
         'late_lunch': calculateLateLunch(groupedEntries[empEntry.key]!),
         'earlycheck_out': calculateEarlyLeave(
             groupedEntries[empEntry.key]!),
-        'req_time': calculateReqTime(groupedEntries[empEntry.key]!),
-        'act_time': calculateActTime(groupedEntries[empEntry.key]!)
-            .toString(),
+        //'req_time': calculateReqTime(groupedEntries[empEntry.key]!),
+        'req_time': "690",
+        'act_time': isPresent ? calculateActTime(groupedEntries[empEntry.key]!)
+            .toString():'0',
         // 'working_salary': calculateWorkingSalary(
         //   calculateActTime(groupedEntries[empEntry.key]!),
         //   int.parse(calculateReqTime(groupedEntries[empEntry.key]!)),
         //   empData.first['salary'],
         // )?.toString() ?? '',
-        'salary': calculateSalary(
-            empData.first['salary'], empData.first['salaryType'],
-            daysInMonth),
-        'salaryType': empData.first['salaryType'].toString(),
+        // 'salary': calculateSalary(
+        //     empData.first['salary'], empData.first['salaryType'],
+        //     daysInMonth),
+        'salaryType': isPresent ? empData.first['salaryType'].toString():'',
+        'salary': isPresent ? empData.first['salary'].toString():"0",
         //'salaryType': widget.shiftType.toString(),
         'remark': isPresent ? 'P' : 'A',
       };
@@ -289,10 +291,10 @@ class _MorningState extends State<Morning> {
   }
   void showSuccessDialog() {
     showDialog(
-      context: context, // Make sure to have access to the BuildContext
+      context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Text('Save Successfully'),
+          content: const Text('Save Successfully'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -300,7 +302,7 @@ class _MorningState extends State<Morning> {
                 isDialogShowing = false; // Reset the flag when the dialog is closed
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('OK'),
+              child:const Text('OK'),
             ),
           ],
         );
@@ -427,7 +429,7 @@ class _MorningState extends State<Morning> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
+                  /*Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MaterialButton(
                       color: Colors.green.shade600,
@@ -435,8 +437,7 @@ class _MorningState extends State<Morning> {
                         customerDataToDatabase();
                       },
                       child: const Text("SAVE",style: TextStyle(color: Colors.white),),),
-
-                  ),
+                  ),*/
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MaterialButton(

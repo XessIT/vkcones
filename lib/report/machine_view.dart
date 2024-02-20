@@ -660,9 +660,6 @@ class _MachineViewState extends State<MachineView> {
                               ),
                             ),
                           ),
-
-
-
                           SizedBox(
                             width: 220, height: 70,
                             child: TextFormField(
@@ -694,7 +691,6 @@ class _MachineViewState extends State<MachineView> {
                               ),
                             ),
                           )
-
                         ],
                       ),
                     ),
@@ -705,7 +701,7 @@ class _MachineViewState extends State<MachineView> {
           ),
           Wrap(
             children: [
-              Padding(
+            /*  Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: MaterialButton(
                   color: Colors.green.shade600,
@@ -770,7 +766,7 @@ class _MachineViewState extends State<MachineView> {
                       );
 
                       // Show an alert box
-                      /* showDialog(
+                      *//* showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
@@ -786,12 +782,12 @@ class _MachineViewState extends State<MachineView> {
                             ],
                           );
                         },
-                      );*/
+                      );*//*
                     }
                   },
                   child: const Text("SAVE", style: TextStyle(color: Colors.white)),
                 ),
-              ),
+              ),*/
 
               Padding(
                 padding: const EdgeInsets.all(8.0),

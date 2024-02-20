@@ -361,28 +361,30 @@ class _purchaseViewState extends State<purchaseView> {
                                                       ),
                                                     ),
                                                     SizedBox(width:11),
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(8.0),
-                                                      child: SizedBox(
-                                                        width: 200,
-                                                        height: 30,
-                                                        child: TextFormField(
-                                                          readOnly: true,
-                                                          initialValue: widget.payType,
-                                                          style: TextStyle(
-                                                              fontSize: 13),
-                                                          keyboardType: TextInputType.text,
-                                                          decoration: InputDecoration(
+                                                    Visibility(
+                                                      visible: widget.payType != null,
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: SizedBox(
+                                                          width: 200,
+                                                          height: 30,
+                                                          child: TextFormField(
+                                                            readOnly: true,
+                                                            initialValue: widget.payType,
+                                                            style: TextStyle(fontSize: 13),
+                                                            keyboardType: TextInputType.text,
+                                                            decoration: InputDecoration(
                                                               filled: true,
                                                               fillColor: Colors.white,
                                                               labelText: "Payment Type",
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(8,),
-                                                              )
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
+                                                    )
                                                   ],
                                                 ),
                                               ),
@@ -418,16 +420,16 @@ class _purchaseViewState extends State<purchaseView> {
                                                               TableColumnWidth>{
                                                             0: FixedColumnWidth(60),
                                                             1: FixedColumnWidth(
-                                                                80),
+                                                                110),
                                                             2: FixedColumnWidth(
-                                                                200),
+                                                                300),
                                                             3: FixedColumnWidth(
                                                                 80),
                                                             // Adjust the width of the second column
                                                             4: FixedColumnWidth(
                                                                 80),
                                                             5: FixedColumnWidth(
-                                                                80),
+                                                                128),
                                                             6: FixedColumnWidth(
                                                                 100),
                                                             7: FixedColumnWidth(
@@ -450,13 +452,15 @@ class _purchaseViewState extends State<purchaseView> {
                                                                 Center(
                                                                   child: Padding(
                                                                     padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                      'S.No',
-                                                                      style: TextStyle(
-                                                                        fontWeight: FontWeight
-                                                                            .bold,
-                                                                        color: Colors
-                                                                            .black,
+                                                                    child: Center(
+                                                                      child: Text(
+                                                                        'S.No',
+                                                                        style: TextStyle(
+                                                                          fontWeight: FontWeight
+                                                                              .bold,
+                                                                          color: Colors
+                                                                              .black,
+                                                                        ),
                                                                       ),
                                                                     ),
                                                                   ),
@@ -464,37 +468,43 @@ class _purchaseViewState extends State<purchaseView> {
                                                                 TableCell(
                                                                   child: Padding(
                                                                     padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                        'Product Code',
-                                                                        style: TextStyle(
-                                                                            fontWeight: FontWeight
-                                                                                .bold,
-                                                                            color: Colors
-                                                                                .black)),
+                                                                    child: Center(
+                                                                      child: Text(
+                                                                          'Product Code',
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight
+                                                                                  .bold,
+                                                                              color: Colors
+                                                                                  .black)),
+                                                                    ),
                                                                   ),
                                                                 ),
                                                                 TableCell(
                                                                   child: Padding(
                                                                     padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                        'Product Name',
-                                                                        style: TextStyle(
-                                                                            fontWeight: FontWeight
-                                                                                .bold,
-                                                                            color: Colors
-                                                                                .black)),
+                                                                    child: Center(
+                                                                      child: Text(
+                                                                          'Product Name',
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight
+                                                                                  .bold,
+                                                                              color: Colors
+                                                                                  .black)),
+                                                                    ),
                                                                   ),
                                                                 ),
                                                                 TableCell(
                                                                   child: Padding(
                                                                     padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                        'Unit',
-                                                                        style: TextStyle(
-                                                                            fontWeight: FontWeight
-                                                                                .bold,
-                                                                            color: Colors
-                                                                                .black)),
+                                                                    child: Center(
+                                                                      child: Text(
+                                                                          'Unit',
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight
+                                                                                  .bold,
+                                                                              color: Colors
+                                                                                  .black)),
+                                                                    ),
                                                                   ),
                                                                 ),
                                                                 /* Padding(
@@ -510,64 +520,47 @@ class _purchaseViewState extends State<purchaseView> {
                                                                 TableCell(
                                                                   child: Padding(
                                                                     padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                        'Rate',
-                                                                        style: TextStyle(
-                                                                            fontWeight: FontWeight
-                                                                                .bold,
-                                                                            color: Colors
-                                                                                .black)),
+                                                                    child: Center(
+                                                                      child: Text(
+                                                                          'Rate',
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight
+                                                                                  .bold,
+                                                                              color: Colors
+                                                                                  .black)),
+                                                                    ),
                                                                   ),
                                                                 ),
                                                                 TableCell(
                                                                   child: Padding(
                                                                     padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                        'Quantity',
-                                                                        style: TextStyle(
-                                                                            fontWeight: FontWeight
-                                                                                .bold,
-                                                                            color: Colors
-                                                                                .black)),
+                                                                    child: Center(
+                                                                      child: Text(
+                                                                          'Quantity/S.No',
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight
+                                                                                  .bold,
+                                                                              color: Colors
+                                                                                  .black)),
+                                                                    ),
                                                                   ),
                                                                 ),
 
                                                                 TableCell(
                                                                   child: Padding(
                                                                     padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                        'Amount',
-                                                                        style: TextStyle(
-                                                                            fontWeight: FontWeight
-                                                                                .bold,
-                                                                            color: Colors
-                                                                                .black)),
+                                                                    child: Center(
+                                                                      child: Text(
+                                                                          'Amount',
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight
+                                                                                  .bold,
+                                                                              color: Colors
+                                                                                  .black)),
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                        'GST',
-                                                                        style: TextStyle(
-                                                                            fontWeight: FontWeight
-                                                                                .bold,
-                                                                            color: Colors
-                                                                                .black)),
-                                                                  ),
-                                                                ),
-                                                                TableCell(
-                                                                  child: Padding(
-                                                                    padding: EdgeInsets.all(8.0),
-                                                                    child: Text(
-                                                                        'Total',
-                                                                        style: TextStyle(
-                                                                            fontWeight: FontWeight
-                                                                                .bold,
-                                                                            color: Colors
-                                                                                .black)),
-                                                                  ),
-                                                                ),
+
                                                               ],
                                                             ),
                                                             for (var entry in snapshot
@@ -641,7 +634,7 @@ class _purchaseViewState extends State<purchaseView> {
                                                                         child: Text(
                                                                           entry.value['qty'] != null
                                                                               ? entry.value['qty'].toString()
-                                                                              : '${entry.value['totalWeight'].toString()} Kg',
+                                                                              : '${entry.value['totalWeight'].toString()} Kg - ${entry.value['sNo'].toString()}',
                                                                         ),
                                                                       ),
                                                                     ),
@@ -664,36 +657,7 @@ class _purchaseViewState extends State<purchaseView> {
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                  TableCell(
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .all(
-                                                                          8.0),
-                                                                      child: Center(
-                                                                          child: Align(
-                                                                              alignment: Alignment
-                                                                                  .topRight,
-                                                                              child: Text(
-                                                                                  entry
-                                                                                      .value['amtGST']
-                                                                                      .toString()))),
-                                                                    ),
-                                                                  ),
-                                                                  TableCell(
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .all(
-                                                                          8.0),
-                                                                      child: Center(
-                                                                          child: Align(
-                                                                              alignment: Alignment
-                                                                                  .topRight,
-                                                                              child: Text(
-                                                                                  entry
-                                                                                      .value['total']
-                                                                                      .toString()))),
-                                                                    ),
-                                                                  ),
+
                                                                 ],
                                                               ),
                                                           ],
@@ -730,13 +694,37 @@ class _purchaseViewState extends State<purchaseView> {
                                                     return Center(child: Text('No data available.'));
                                                   } else {
                                                     final purchaseTotal = snapshot.data![0]["grandTotal"].toString(); // Assuming "grandTotal" is a key in the map
+                                                    final charge = snapshot.data![0]["extraCharge"].toString(); // Assuming "grandTotal" is a key in the map
+                                                    final dis = snapshot.data![0]["discount"].toString(); // Assuming "grandTotal" is a key in the map
+                                                    final gst = snapshot.data![0]["gst"].toString(); // Assuming "grandTotal" is a key in the map
+                                                    final gstAmt = snapshot.data![0]["gstAmt"].toString(); // Assuming "grandTotal" is a key in the map
 
                                                     return Column(
                                                       children: [
                                                         Row(
                                                           mainAxisAlignment: MainAxisAlignment.end,
                                                           children: [
-                                                            Text("Purchase Total: ${purchaseTotal}", style: TextStyle(fontWeight: FontWeight.bold)),
+                                                            Row(
+                                                              children: [
+                                                                charge.isNotEmpty
+                                                                    ? Text("GST (%): $gst", style: TextStyle(fontWeight: FontWeight.bold))
+                                                                    : const Text(""),
+                                                                const SizedBox(width: 15,),
+                                                                charge.isNotEmpty
+                                                                    ? Text("Gst Amt: $gstAmt", style: TextStyle(fontWeight: FontWeight.bold))
+                                                                    : const Text(""),
+                                                                const SizedBox(width: 15,),
+                                                                charge.isNotEmpty
+                                                                    ? Text("Charge: $charge", style: TextStyle(fontWeight: FontWeight.bold))
+                                                                    : const Text(""),
+                                                                const SizedBox(width: 15,), // Use Container() or SizedBox() to have an empty space if charge is null
+                                                                dis.isNotEmpty
+                                                                    ? Text("Discount: $dis", style: TextStyle(fontWeight: FontWeight.bold))
+                                                                    : const Text(""),
+                                                                const SizedBox(width: 15,),
+                                                                Text("Purchase Total: $purchaseTotal", style: TextStyle(fontWeight: FontWeight.bold)),
+                                                              ],
+                                                            ),
                                                             SizedBox(
                                                                 width:20,
                                                                 child: Text("   ")),
@@ -779,9 +767,9 @@ class _purchaseViewState extends State<purchaseView> {
                                                             columnWidths: const <int, TableColumnWidth>{
                                                               0: FixedColumnWidth(60),
                                                               1: FixedColumnWidth(
-                                                                  80),
+                                                                  150),
                                                               2: FixedColumnWidth(
-                                                                  200),
+                                                                  310),
                                                               3: FixedColumnWidth(
                                                                   80),
                                                               // Adjust the width of the second column
@@ -803,10 +791,10 @@ class _purchaseViewState extends State<purchaseView> {
                                                                 decoration: BoxDecoration(
                                                                   color: Colors.blue.shade300,
                                                                 ),
-                                                                children: [
+                                                                children: const [
                                                                   TableCell(// Set the desired height
                                                                     child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      padding: EdgeInsets.all(8.0),
                                                                       child: Center(
                                                                         child: Text(
                                                                           'S.No',
@@ -820,19 +808,19 @@ class _purchaseViewState extends State<purchaseView> {
                                                                   ),
                                                                   TableCell(
                                                                     child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      padding: EdgeInsets.all(8.0),
                                                                       child: Center(child: Text('Product Code', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                     ),
                                                                   ),
                                                                   TableCell(
                                                                     child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      padding: EdgeInsets.all(8.0),
                                                                       child: Center(child: Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                     ),
                                                                   ),
                                                                   TableCell(
                                                                     child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      padding: EdgeInsets.all(8.0),
                                                                       child: Center(child: Text('Unit', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                     ),
                                                                   ),
@@ -847,34 +835,23 @@ class _purchaseViewState extends State<purchaseView> {
                                                                   ),*/
                                                                   TableCell(
                                                                     child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      padding: EdgeInsets.all(8.0),
                                                                       child: Center(child: Text('Rate', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                     ),
                                                                   ),
                                                                   TableCell(
                                                                     child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      padding: EdgeInsets.all(8.0),
                                                                       child: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                     ),
                                                                   ),
                                                                   TableCell(
                                                                     child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      padding: EdgeInsets.all(8.0),
                                                                       child: Center(child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
                                                                     ),
                                                                   ),
-                                                                  TableCell(
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: Center(child: Text('GST', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                    ),
-                                                                  ),
-                                                                  TableCell(
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets.all(8.0),
-                                                                      child: Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black))),
-                                                                    ),
-                                                                  ),
+
                                                                 ],
                                                               ),
                                                               for (var entry in snapshot.data!.asMap().entries)
@@ -934,22 +911,7 @@ class _purchaseViewState extends State<purchaseView> {
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                    TableCell(
-                                                                      child: Padding(
-                                                                        padding: const EdgeInsets.all(8.0),
-                                                                        child: Center(child:Align(
-                                                                            alignment: Alignment.topRight,
-                                                                            child: Text(entry.value['amtGST'].toString()))),
-                                                                      ),
-                                                                    ),
-                                                                    TableCell(
-                                                                      child: Padding(
-                                                                        padding: const EdgeInsets.all(8.0),
-                                                                        child: Center(child:Align(
-                                                                            alignment: Alignment.topRight,
-                                                                            child: Text(entry.value['total'].toString()))),
-                                                                      ),
-                                                                    ),
+
                                                                   ],
                                                                 ),
                                                             ],
@@ -995,8 +957,9 @@ class _purchaseViewState extends State<purchaseView> {
                                                         } else if (returnSnapshot.hasError) {
                                                           return Center(child: Text('Error: ${returnSnapshot.error}'));
                                                         } else if (!returnSnapshot.hasData || returnSnapshot.data!.isEmpty) {
-                                                          return Center(child: Text('No return data available.'));
-                                                        } else {
+                                                          return Center(child: Text(''));
+                                                        }
+                                                        else {
                                                           final returnTotal = double.parse(returnSnapshot.data![0]["grandTotal"].toString());
                                                           final grandTotal = purchaseTotal - returnTotal;
 

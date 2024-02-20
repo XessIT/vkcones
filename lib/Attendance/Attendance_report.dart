@@ -60,8 +60,6 @@ class _AttendanceReportState extends State<AttendanceReport> {
   List<String> invoiceNumber = [];
   String selectedCustomer="";
 
-
-
   Future<void> fetchData() async {
     try {
       final url = Uri.parse('http://localhost:3309/get_attendance_overall/');
@@ -107,7 +105,6 @@ class _AttendanceReportState extends State<AttendanceReport> {
     }
   }
 
-
   List<Map<String, dynamic>> data = [];
   List<Map<String, dynamic>> filteredData = [];
 
@@ -119,9 +116,12 @@ class _AttendanceReportState extends State<AttendanceReport> {
       } else {
         filteredData = data.where((item) {
           String supName = item['first_name']?.toString()?.toLowerCase() ?? '';
+          String shiftType = item['shiftType']?.toString()?.toLowerCase() ?? '';
+
           String searchTextLowerCase = searchText.toLowerCase();
 
-          return supName.contains(searchTextLowerCase);
+          return supName.contains(searchTextLowerCase)||
+              shiftType.contains(searchTextLowerCase);
         }).toList();
         if (filteredData.isNotEmpty) {
           Map<String, dynamic> order = filteredData.first;
@@ -154,7 +154,9 @@ class _AttendanceReportState extends State<AttendanceReport> {
         String searchTextLowerCase = searchController.text.toLowerCase();
         filteredData = filteredData.where((item) {
           String id = item['first_name']?.toString()?.toLowerCase() ?? '';
-          return id.contains(searchTextLowerCase);
+          String shiftType = item['shiftType']?.toString()?.toLowerCase() ?? '';
+          return id.contains(searchTextLowerCase) ||
+              shiftType.contains(searchTextLowerCase);
         }).toList();
       }
       filteredData.sort((a, b) {
@@ -449,7 +451,8 @@ class _AttendanceReportState extends State<AttendanceReport> {
                                       // Navigator.push(context, MaterialPageRoute(builder: (context)=>SalaryCalculation()));
                                       Navigator.pop(context);
                                     },
-                                  )
+                                  ),
+                                  //set total present day and absent day design
                                 ],
                               ),
                             ),
@@ -614,18 +617,47 @@ class _YourDataTableSource extends DataTableSource {
         DataCell(Center(child: Text("${row["first_name"]}"))),
         DataCell(Center(child: Text("${row["shiftType"]}"))),
         DataCell(Center(child: Text(formatTime(row["check_in"])))),
-        DataCell(Center(child: Text(formatTimeOrZero(row["lunch_out"])))),
+        DataCell(Center(
+          child: Text(formatTimeOrZero(
+            (row["shiftType"] == "General" &&
+                isBetweenLunchOutTime(row["lunch_out"]))
+                ? "00:00:00"
+                : row["lunch_out"],
+          )),
+        )),
         DataCell(Center(child: Text(formatTimeOrZero(row["lunch_in"])))),
-        DataCell(Center(child: Text(formatTime(row["check_out"])))),
+        DataCell(Center(
+          child: Text(formatTime(
+            (row["shiftType"] == "General" &&
+                isBetweenLunchOutTime(row["lunch_out"]))
+                ? row["lunch_out"]
+                : row["check_out"],
+          )),
+        )),
         DataCell(Center(child: Text(formatDuration(row["latecheck_in"])))),
         DataCell(Center(child: Text(formatDuration(row["late_lunch"].toString())))),
         DataCell(Center(child: Text(formatDuration(row["earlycheck_out"])))),
-        DataCell(Center(child: Text("${row["remark"]}",style: TextStyle( fontSize: 15,color: row["remark"] == "P" ? Colors.green.shade500 : Colors.red,
-            fontWeight: FontWeight.bold
-        ),))),
+        DataCell(Center(
+          child: Text(
+            "${row["remark"]}",
+            style: TextStyle(
+              fontSize: 15,
+              color: row["remark"] == "P" ? Colors.green.shade500 : Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        )),
       ],
     );
+  }
 
+  bool isBetweenLunchOutTime(String lunchOutTime) {
+    if (lunchOutTime == "00:00:00") {
+      return false; // Handle the "00:00:00" case as needed
+    }
+
+    DateTime dummyDate = DateTime.parse("2000-01-01 $lunchOutTime");
+    return dummyDate.hour >= 16 && dummyDate.hour < 19;
   }
   String formatTime(String timeString) {
     if (timeString != null && timeString != "00:00:00") {
