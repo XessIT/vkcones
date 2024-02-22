@@ -498,17 +498,9 @@ class _PoIndividualReportState
                                                 pw.Text("+91 "+supdata[0]["supMobile"].toString(), style: pw.TextStyle(fontSize: 9,font:font1)),
                                                 pw.SizedBox(height: 5),
                                                 // pw.Text(widget.deliveryType.toString(), style: pw.TextStyle(fontSize: 10,)),
-                                                if (widget.deliveryDate != null && widget.deliveryDate!.isNotEmpty)
-                                                  pw.Text(  widget.deliveryDate != null
-                                                      ? DateFormat("dd-MM-yyyy")
-                                                      .format(DateTime.parse(
-                                                      "${widget.deliveryDate}").toLocal())
-                                                      : "-", style: pw.TextStyle(fontSize: 9,font:font1,)),
-
-
-                                                pw.SizedBox(height:4),
-                                                pw.Text("")
-
+                                                widget.deliveryDate != null && widget.deliveryDate!.isNotEmpty ?
+                                                pw.Text(widget.deliveryDate.toString(),style: pw.TextStyle(fontSize: 9,font:font1)):
+                                                pw.Text(""),
                                               ],
                                             ),
                                           ),

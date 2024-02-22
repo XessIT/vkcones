@@ -155,7 +155,6 @@ function calculateActTime(entries) {
 
   return actTime;
 }
-
 cron.schedule('*/1 * * * *', async () => {
   console.log('Automated task started at', new Date());
 

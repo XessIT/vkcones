@@ -212,7 +212,7 @@ class _SalaryCalculationState extends State<SalaryCalculation> {
   }
 
 
-  Future<void> fetchData() async {
+  void fetchData() async {
     try {
       final url = Uri.parse('http://localhost:3309/get_attendance_overall/');
       final response = await http.get(url);
@@ -238,14 +238,7 @@ class _SalaryCalculationState extends State<SalaryCalculation> {
         setState(() {
           data = uniqueData.cast<Map<String, dynamic>>();
           filteredData = List<Map<String, dynamic>>.from(data);
-          filteredData.sort((a, b) {
-            DateTime? dateA = DateTime.tryParse(a['inDate'] ?? '');
-            DateTime? dateB = DateTime.tryParse(b['outDate'] ?? '');
-            if (dateA == null || dateB == null) {
-              return 0;
-            }
-            return dateB.compareTo(dateA);
-          });
+          applySorting();
         });
 
         print('Data: $data');
@@ -256,7 +249,16 @@ class _SalaryCalculationState extends State<SalaryCalculation> {
       print('Error: $error');
     }
   }
-
+  void applySorting() {
+    filteredData.sort((a, b) {
+      DateTime? dateA = DateTime.tryParse(a['inDate'] ?? '');
+      DateTime? dateB = DateTime.tryParse(b['inDate'] ?? '');
+      if (dateA == null || dateB == null) {
+        return 0;
+      }
+      return dateB.compareTo(dateA);
+    });
+  }
 
   List<Map<String, dynamic>> data = [];
   List<Map<String, dynamic>> filteredData = [];
@@ -280,6 +282,14 @@ class _SalaryCalculationState extends State<SalaryCalculation> {
           emp_code.clear();
         }
       }
+      filteredData.sort((a, b) {
+        DateTime? dateA = DateTime.tryParse(a['inDate'] ?? '');
+        DateTime? dateB = DateTime.tryParse(b['inDate'] ?? '');  // Change 'outDate' to 'inDate'
+        if (dateA == null || dateB == null) {
+          return 0;
+        }
+        return dateB.compareTo(dateA); // Compare in descending order
+      });
     });
     print("Filtered Data Length: ${filteredData.length}");
   }
@@ -369,6 +379,7 @@ class _SalaryCalculationState extends State<SalaryCalculation> {
       reqWorkTime = calculateReqWorkTime(filteredData) as double;
       totalLate = calculateTotalLate(filteredData);
     });
+    applySorting();
   }
 
 

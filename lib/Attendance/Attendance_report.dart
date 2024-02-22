@@ -60,7 +60,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
   List<String> invoiceNumber = [];
   String selectedCustomer="";
 
-  Future<void> fetchData() async {
+  void fetchData() async {
     try {
       final url = Uri.parse('http://localhost:3309/get_attendance_overall/');
       final response = await http.get(url);
@@ -86,14 +86,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
         setState(() {
           data = uniqueData.cast<Map<String, dynamic>>();
           filteredData = List<Map<String, dynamic>>.from(data);
-          filteredData.sort((a, b) {
-            DateTime? dateA = DateTime.tryParse(a['inDate'] ?? '');
-            DateTime? dateB = DateTime.tryParse(b['outDate'] ?? '');
-            if (dateA == null || dateB == null) {
-              return 0;
-            }
-            return dateB.compareTo(dateA);
-          });
+          applySorting();
         });
 
         print('Data: $data');
@@ -105,6 +98,16 @@ class _AttendanceReportState extends State<AttendanceReport> {
     }
   }
 
+  void applySorting() {
+    filteredData.sort((a, b) {
+      DateTime? dateA = DateTime.tryParse(a['inDate'] ?? '');
+      DateTime? dateB = DateTime.tryParse(b['inDate'] ?? '');
+      if (dateA == null || dateB == null) {
+        return 0;
+      }
+      return dateB.compareTo(dateA);
+    });
+  }
   List<Map<String, dynamic>> data = [];
   List<Map<String, dynamic>> filteredData = [];
 
@@ -120,7 +123,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
 
           String searchTextLowerCase = searchText.toLowerCase();
 
-          return supName.contains(searchTextLowerCase)||
+          return supName.contains(searchTextLowerCase) ||
               shiftType.contains(searchTextLowerCase);
         }).toList();
         if (filteredData.isNotEmpty) {
@@ -130,7 +133,18 @@ class _AttendanceReportState extends State<AttendanceReport> {
           emp_code.clear();
         }
       }
+
+      // Move the sorting after applying the search filter
+      filteredData.sort((a, b) {
+        DateTime? dateA = DateTime.tryParse(a['inDate'] ?? '');
+        DateTime? dateB = DateTime.tryParse(b['inDate'] ?? '');  // Change 'outDate' to 'inDate'
+        if (dateA == null || dateB == null) {
+          return 0;
+        }
+        return dateB.compareTo(dateA); // Compare in descending order
+      });
     });
+
     print("Filtered Data Length: ${filteredData.length}");
   }
   double totalWorkingSalary = 0;
@@ -139,6 +153,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
       if (!isDateRangeValid) {
         return;
       }
+
       filteredData = data.where((item) {
         String dateStr = item['inDate']?.toString() ?? '';
         DateTime? itemDate = DateTime.tryParse(dateStr);
@@ -150,6 +165,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
         }
         return false;
       }).toList();
+
       if (searchController.text.isNotEmpty) {
         String searchTextLowerCase = searchController.text.toLowerCase();
         filteredData = filteredData.where((item) {
@@ -159,15 +175,8 @@ class _AttendanceReportState extends State<AttendanceReport> {
               shiftType.contains(searchTextLowerCase);
         }).toList();
       }
-      filteredData.sort((a, b) {
-        DateTime? dateA = DateTime.tryParse(a['inDate'] ?? '');
-        DateTime? dateB = DateTime.tryParse(b['outDate'] ?? '');
-        if (dateA == null || dateB == null) {
-          return 0;
-        }
-        return dateB.compareTo(dateA); // Compare in descending order
-      });
-      // totalWorkingSalary = calculateTotalWorkingSalary(filteredData);
+
+      applySorting();
     });
   }
   @override
