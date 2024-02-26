@@ -52,8 +52,6 @@ class _DailyWorkStatusReportState extends State<DailyWorkStatusReport> {
   List<String> invoiceNumber = [];
   // String selectedCustomer="";
 
-
-
   Future<void> fetchDataReport() async {
     try {
       final url = Uri.parse('http://localhost:3309/get_daily_work_status/');
@@ -61,6 +59,72 @@ class _DailyWorkStatusReportState extends State<DailyWorkStatusReport> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
+        final List<dynamic> itemGroups = responseData;
+
+        // Use a Set to filter out duplicate items based on the composite key
+        Set<String> uniqueKeys = Set();
+
+        // Filter out duplicate values based on the composite key
+        final List uniqueData = itemGroups.where((item) {
+          String date = item['createDate']?.toString() ?? '';
+          String shiftype = item['shiftType']?.toString() ?? '';
+          String machinename = item['machineName']?.toString() ?? '';
+          String machinetype = item['machineType']?.toString() ?? '';
+
+          // Create a composite key using the selected fields
+          String compositeKey = '$date|$shiftype|$machinename|$machinetype';
+
+          if (!uniqueKeys.contains(compositeKey)) {
+            uniqueKeys.add(compositeKey);
+            return true;
+          }
+          return false;
+        }).toList();
+
+        setState(() {
+          datas = uniqueData.cast<Map<String, dynamic>>();
+          filteredData = List<Map<String, dynamic>>.from(datas);
+          filteredData.sort((a, b) {
+            DateTime? dateA = DateTime.tryParse(a['fromDate'] ?? '');
+            DateTime? dateB = DateTime.tryParse(b['fromDate'] ?? '');
+            if (dateA == null || dateB == null) {
+              return 0;
+            }
+            return dateB.compareTo(dateA);
+          });
+        });
+
+        print('Data: $datas');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+/*  Future<void> fetchDataReport() async {
+    try {
+      final url = Uri.parse('http://localhost:3309/get_daily_work_status/');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        Set<String> uniqueCustNames = Set();
+        final List<dynamic> itemGroups = responseData;
+        final List uniqueData = itemGroups
+            .where((item) {
+          String custName = item['check_in']?.toString() ?? '';
+          String inDate = item['inDate']?.toString() ?? '';
+          String uniqueIdentifier = '$custName-$inDate';
+
+          if (!uniqueCustNames.contains(uniqueIdentifier)) {
+            uniqueCustNames.add(uniqueIdentifier);
+            return true;
+          }
+          return false;
+        })
+            .toList();
         //  final List<dynamic> itemGroups = responseData;
 
         // Use a Set to filter out duplicate custName values
@@ -99,7 +163,7 @@ class _DailyWorkStatusReportState extends State<DailyWorkStatusReport> {
     } catch (error) {
       print('Error: $error');
     }
-  }
+  }*/
 
   List<Map<String, dynamic>> datas = [];
   List<Map<String, dynamic>> filteredData = [];

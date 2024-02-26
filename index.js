@@ -195,7 +195,7 @@ cron.schedule('*/1 * * * *', async () => {
         'earlycheck_out': calculateEarlyLeave(empEntry[1]),
         'req_time': '690',
         'act_time': isSalary ? calculateActTime(empEntry[1]).toString() : '0',
-        'remark': isPresent ? 'P' : 'A',
+        'remark': 'P',
       };
 
       insertFutures.push(insertDatacustomer(dataToInsertcustomer));
@@ -3744,6 +3744,7 @@ app.get('/get_attendance_alter', (req, res) => {
     }
   });
 });
+
 app.get('/attendance_view_morning', (req, res) => {
   const currentDate = new Date().toISOString().split('T')[0]; // Get current date in 'YYYY-MM-DD' format
   const sql = `

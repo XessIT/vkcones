@@ -407,6 +407,7 @@ class _DailyWorkViewState extends State<DailyWorkView> {
                             ),
 
                             const SizedBox(height: 30,),
+                            if(widget.machineType == "Winding")
                             Container(
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
@@ -499,6 +500,7 @@ class _DailyWorkViewState extends State<DailyWorkView> {
                                                               ],
                                                             ),),
                                                         )),
+
                                                      TableCell(
                                                         child:Container(
                                                           color:Colors.blue.shade200,
@@ -511,6 +513,7 @@ class _DailyWorkViewState extends State<DailyWorkView> {
                                                               ],
                                                             ),),
                                                         )),
+
                                                      TableCell(
                                                         child:Container(
                                                           color:Colors.blue.shade200,
@@ -523,6 +526,7 @@ class _DailyWorkViewState extends State<DailyWorkView> {
                                                               ],
                                                             ),),
                                                         )),
+
                                                      TableCell(
                                                         child:Container(
                                                           color:Colors.blue.shade200,
@@ -560,7 +564,9 @@ class _DailyWorkViewState extends State<DailyWorkView> {
                                                       TableCell(child: Center(child: Column(
                                                         children: [
                                                           const SizedBox(height: 10,),
-                                                          Text("${snapshot.data![i]["finish_reel"]}"),
+                                                          Text("${snapshot.data![i]["finish_reel"]}" ?? '' ),
+
+                                                             // Text("${snapshot.data![i]["finish_reel"]}"),
                                                           const SizedBox(height: 10,)
                                                         ],
                                                       ))),
@@ -572,6 +578,171 @@ class _DailyWorkViewState extends State<DailyWorkView> {
                                                           const SizedBox(height: 10,)
                                                         ],
                                                       ))),
+                                                      //itemGroup
+                                                      TableCell(child: Center(child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 10,),
+                                                          Text("${snapshot.data![i]["itemGroup"] ?? 'N/A'}"),
+                                                          const SizedBox(height: 10,)
+                                                        ],
+                                                      ))),
+                                                      //itemame
+                                                      TableCell(child: Center(child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 10,),
+                                                          Text("${snapshot.data![i]["itemName"]}"),
+                                                          const SizedBox(height: 10,)
+                                                        ],
+                                                      ))),
+                                                      //production
+                                                      TableCell(child: Center(child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 10,),
+                                                          Text("${snapshot.data![i]["num_of_production"]}"),
+                                                          const SizedBox(height: 10,)
+                                                        ],
+                                                      ))),
+
+                                                    ]
+                                                ),
+                                              ],
+                                            ]
+                                        );
+                                      }
+                                      return Container();
+                                    }
+                                ),
+                              ),
+                            ),
+
+                            if(widget.machineType == "Printing"  || widget.machineType == "Finishing")
+                            Container(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: FutureBuilder<List<Map<String, dynamic>>>
+                                  (
+                                    future: fetchUnitEntries(
+                                      widget.date.toString(),
+                                      widget.shiftType.toString(),
+                                      widget.machineName.toString(), // Assuming you have machineName property in your widget
+                                      widget.machineType.toString(), // Assuming you have machineType property in your widget
+                                    ),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        // Your table-building logic
+                                      } else if (snapshot.hasError) {
+                                        return Text('Error: ${snapshot.error}');
+                                      } else {
+                                        return CircularProgressIndicator(); // or some loading indicator
+                                      }
+                                      if (snapshot.data!.isNotEmpty ||
+                                          snapshot.data!.isEmpty){
+                                        return Table(
+                                            border: TableBorder.all(
+                                                color: Colors.black54
+                                            ),
+                                            defaultColumnWidth: const FixedColumnWidth(100.0),
+                                            columnWidths: const <int, TableColumnWidth>{
+                                              0:FixedColumnWidth(52),
+                                              1:FixedColumnWidth(100),
+                                              4:FixedColumnWidth(100),
+                                              5:FixedColumnWidth(150),
+                                              6:FixedColumnWidth(200),
+                                            },
+                                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                            children:[
+                                              //Table row starting
+                                              TableRow(
+                                                  children: [
+                                                    //sno
+                                                    TableCell(
+                                                        child:Container(
+                                                          color:Colors.blue.shade200,
+                                                          child: Center(
+                                                            child: Column(
+                                                              children: [
+                                                                const SizedBox(height: 8,),
+                                                                Text('S.No',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                const SizedBox(height: 8,)
+                                                              ],
+                                                            ),),
+                                                        )),
+                                                    //Finished GSM
+                                                    TableCell(
+                                                        child:Container(
+                                                          color:Colors.blue.shade200,
+                                                          child: Center(
+                                                            child: Column(
+                                                              children: [
+                                                                const SizedBox(height: 8,),
+                                                                Text('GSM',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                const SizedBox(height: 8,)
+                                                              ],
+                                                            ),),
+                                                        )),
+                                                    //Finished reel
+
+                                                    TableCell(
+                                                        child:Container(
+                                                          color:Colors.blue.shade200,
+                                                          child: Center(
+                                                            child: Column(
+                                                              children: [
+                                                                const SizedBox(height: 8,),
+                                                                Text('Item Group',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                const SizedBox(height: 8,)
+                                                              ],
+                                                            ),),
+                                                        )),
+
+                                                    TableCell(
+                                                        child:Container(
+                                                          color:Colors.blue.shade200,
+                                                          child: Center(
+                                                            child: Column(
+                                                              children: [
+                                                                const SizedBox(height: 8,),
+                                                                Text('Item Name',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                const SizedBox(height: 8,)
+                                                              ],
+                                                            ),),
+                                                        )),
+
+                                                    TableCell(
+                                                        child:Container(
+                                                          color:Colors.blue.shade200,
+                                                          child: Center(
+                                                            child: Column(
+                                                              children: [
+                                                                const SizedBox(height: 8,),
+                                                                Text('Prodused Cone',style: TextStyle(fontWeight: FontWeight.bold)),
+                                                                const SizedBox(height: 8,)
+                                                              ],
+                                                            ),),
+                                                        )),
+                                                  ]),
+                                              for (var i = 0; i < snapshot.data!.length; i++) ...[
+                                                TableRow(
+                                                  // decoration: BoxDecoration(color: Colors.grey[200]),
+                                                    children: [
+                                                      // 1 s.no
+                                                      TableCell(child: Center(child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 10,),
+                                                          Text("${i+1}"),
+                                                          const SizedBox(height: 10,),
+                                                        ],
+                                                      ))),
+                                                      //gsm
+                                                      TableCell(child: Center(child: Column(
+                                                        children: [
+                                                          const SizedBox(height: 10,),
+                                                          Text("${snapshot.data![i]["gsm"]}"),
+                                                          const SizedBox(height: 10,)
+                                                        ],
+                                                      ))),
+                                                      //reel
+
                                                       //itemGroup
                                                       TableCell(child: Center(child: Column(
                                                         children: [

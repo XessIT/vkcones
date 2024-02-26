@@ -467,6 +467,7 @@ class _WindingEntryState extends State<WindingEntry> {
   TextEditingController emp_code3=TextEditingController();
   String? errorMessage;
   String dropdownvalue = "Shift Type";
+  String membersvalue = "Workers";
   String validname1="";
   List<String> selectedNames = []; /// for suggestion fillter
 
@@ -1029,7 +1030,6 @@ class _WindingEntryState extends State<WindingEntry> {
                                                   width: 200, height:38 ,
                                                   child: Container(
                                                     // color: Colors.white,
-
                                                     padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
                                                     decoration: BoxDecoration(
                                                         color: Colors.white,
@@ -1116,12 +1116,45 @@ class _WindingEntryState extends State<WindingEntry> {
                                         child: Wrap(
                                           //crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-
+                                            SizedBox(
+                                              width: 200, height:38 ,
+                                              child: Container(
+                                                // color: Colors.white,
+                                                padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    border: Border.all(color: Colors.black),
+                                                    borderRadius: BorderRadius.circular(5)
+                                                ),
+                                                child: DropdownButtonHideUnderline(
+                                                  child: DropdownButton<String>(
+                                                    value: membersvalue,
+                                                    items: <String>['Workers','1','2','3']
+                                                        .map<DropdownMenuItem<String>>((String value) {
+                                                      return DropdownMenuItem<String>(
+                                                        // enabled: false,
+                                                        value: value,
+                                                        child: Text(
+                                                          value,
+                                                          style: TextStyle(fontSize: 12),
+                                                        ),
+                                                      );
+                                                    }).toList(),
+                                                    // Step 5.
+                                                    onChanged: (String? newValue) {
+                                                      setState(() {
+                                                        membersvalue = newValue!;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(width: 50,),
                                             SizedBox(
                                               width: 200, height: 70,
                                               child: TypeAheadFormField<String>(
                                                 textFieldConfiguration: TextFieldConfiguration(
-
                                                   controller: op1,
                                                   focusNode: op1FocusNode,
                                                   enabled: selectedmachine != null,
@@ -1132,7 +1165,6 @@ class _WindingEntryState extends State<WindingEntry> {
                                                         errorMessage = null;
                                                       });
                                                     }
-
 
                                                     String capitalizedValue = capitalizeFirstLetter(query);
                                                     op1.value = op1.value.copyWith(
@@ -1250,225 +1282,225 @@ class _WindingEntryState extends State<WindingEntry> {
                                               ),
                                             ),  /// operator 1
                                             SizedBox(width: 50,),
-                                            SizedBox(
-                                              width: 200, height: 70,
-                                              child:  TypeAheadFormField<String>(
-                                                textFieldConfiguration: TextFieldConfiguration(
-                                                  controller: ass1,
-                                                  enabled: selectedmachine != null,
-                                                  onChanged: (query) {
-                                                    if (selectedmachine != null)
-                                                      setState(() {
-                                                        ass1.text = query;
-                                                        errorMessage = null; // Reset error message when the user types
-                                                      });
-                                                    String capitalizedValue = capitalizeFirstLetter(query);
-                                                    ass1.value = ass1.value.copyWith(
-                                                      text: capitalizedValue,
-                                                      selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                                    );
-                                                  },
-                                                  style: const TextStyle(fontSize: 13),
-                                                  decoration: InputDecoration(
-                                                      fillColor: Colors.white,
-                                                      filled: true,
-                                                      labelText: "Assistant 1 ",
-                                                      labelStyle: TextStyle(fontSize: 13, color: Colors.black),
-                                                      border:selectedmachine != null
-                                                          ?
-                                                      OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(10),
-                                                      ): null
+                                            if (membersvalue == '2' || membersvalue == '3' )
+                                              SizedBox(
+                                                width: 200, height: 70,
+                                                child:  TypeAheadFormField<String>(
+                                                  textFieldConfiguration: TextFieldConfiguration(
+                                                    controller: ass1,
+                                                    enabled: selectedmachine != null,
+                                                    onChanged: (query) {
+                                                      if (selectedmachine != null)
+                                                        setState(() {
+                                                          ass1.text = query;
+                                                          errorMessage = null; // Reset error message when the user types
+                                                        });
+                                                      String capitalizedValue = capitalizeFirstLetter(query);
+                                                      ass1.value = ass1.value.copyWith(
+                                                        text: capitalizedValue,
+                                                        selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                      );
+                                                    },
+                                                    style: const TextStyle(fontSize: 13),
+                                                    decoration: InputDecoration(
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        labelText: "Assistant 1 ",
+                                                        labelStyle: TextStyle(fontSize: 13, color: Colors.black),
+                                                        border:selectedmachine != null
+                                                            ?
+                                                        OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(10),
+                                                        ): null
+                                                    ),
                                                   ),
-                                                ),
-                                                suggestionsCallback: (pattern) async {
-                                                  // If there are selected names in Operator 1, exclude them from suggestions
-                                                  if (selectedNames.isNotEmpty) {
-                                                    List<String> suggestions = persondata
-                                                        .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
-                                                        .toSet()
-                                                        .toList();
+                                                  suggestionsCallback: (pattern) async {
+                                                    // If there are selected names in Operator 1, exclude them from suggestions
+                                                    if (selectedNames.isNotEmpty) {
+                                                      List<String> suggestions = persondata
+                                                          .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
+                                                          .toSet()
+                                                          .toList();
 
-                                                    suggestions = suggestions
-                                                        .where((suggestion) => !selectedNames.contains(suggestion))
-                                                        .toList();
+                                                      suggestions = suggestions
+                                                          .where((suggestion) => !selectedNames.contains(suggestion))
+                                                          .toList();
 
-                                                    return suggestions;
-                                                  }
-
-                                                  // If the input pattern is empty, return all names from persondata
-                                                  if (pattern.isEmpty) {
-                                                    return persondata
-                                                        .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
-                                                        .toSet()
-                                                        .toList();
-                                                  }
-
-                                                  // Filter suggestions based on the input pattern
-                                                  List<String> suggestions = persondata
-                                                      .where((item) =>
-                                                  (item['first_name']?.toString()?.toLowerCase() ?? '')
-                                                      .startsWith(pattern.toLowerCase()) &&
-                                                      item['emp_code']?.toString()?.toLowerCase() != empID?.toLowerCase() &&
-                                                      item['emp_code']?.toString()?.toLowerCase() != empID2?.toLowerCase() &&
-                                                      item['emp_code']?.toString()?.toLowerCase() != empID3?.toLowerCase())
-                                                      .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
-                                                      .toSet()
-                                                      .toList();
-
-                                                  return suggestions;
-                                                },
-                                                itemBuilder: (context, suggestion) {
-                                                  return ListTile(
-                                                    title: Text(suggestion),
-                                                  );
-                                                },
-                                                onSuggestionSelected: (suggestion) {
-                                                  String selectedEmpName = suggestion.split(' ')[0];
-                                                  String selectedEmpID = suggestion.split('(')[1].split(')')[0];
-                                                  //selectedOperator3 = suggestion;
-                                                  setState(() {
-                                                    emp_code2.text = selectedEmpID;
-                                                    print(emp_code2.text);
-                                                  });
-
-
-                                                  selectedNames.add(suggestion);
-
-
-
-                                                  if (selectedEmpID == empID) {
-                                                    setState(() {
-                                                      errorMessage = "Already Assigned the ID in Operator 1";
-                                                    });
-
-                                                  } else if (selectedEmpID == empID3) {
-                                                    setState(() {
-                                                      errorMessage = "Already Assigned the ID in Assistant 1";
-                                                    });
-                                                  } else if (selectedEmpID == empID4) {
-                                                    setState(() {
-                                                      errorMessage = "Already Assigned the ID in Assistant 2";
-                                                    });
-                                                  } else if (selectedEmpID == empID5) {
-                                                    setState(() {
-                                                      errorMessage = "Already Assigned the ID in Assistant 3";
-                                                    });
-                                                  } else {
-                                                    setState(() {
-                                                      errorMessage = null;
-                                                      assName1 = selectedEmpName;
-                                                      ass1.text = suggestion;
-                                                    });
-                                                    print('Selected Assistant 1: $assName1, ID: $selectedEmpID');
-                                                  }
-                                                },
-                                              ),
-                                            ),   /// Assistant 1
-                                            SizedBox(width: 50,),
-                                            SizedBox(
-                                              width: 200, height: 70,
-                                              child:  TypeAheadFormField<String>(
-                                                textFieldConfiguration: TextFieldConfiguration(
-                                                  controller: ass2,
-                                                  enabled: selectedmachine != null,
-                                                  onChanged: (query) {
-                                                    if(selectedmachine != null) {
-                                                      setState(() {
-                                                        ass2.text =query;
-                                                        errorMessage = null; // Reset error message when the user types
-                                                      });
+                                                      return suggestions;
                                                     }
-                                                    String capitalizedValue = capitalizeFirstLetter(query);
-                                                    ass2.value = ass2.value.copyWith(
-                                                      text: capitalizedValue,
-                                                      selection: TextSelection.collapsed(offset: capitalizedValue.length),
-                                                    );
-                                                  },
-                                                  style: const TextStyle(fontSize: 13),
-                                                  decoration: InputDecoration(
-                                                      fillColor: Colors.white,
-                                                      filled: true,
-                                                      labelText: "Assistant 2",
-                                                      labelStyle: TextStyle(fontSize: 13, color: Colors.black),
-                                                      border:selectedmachine != null
-                                                          ?
-                                                      OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(10),
-                                                      ): null
-                                                  ),
-                                                ),
-                                                suggestionsCallback: (pattern) async {
-                                                  if (selectedNames.isNotEmpty) {
+
+                                                    // If the input pattern is empty, return all names from persondata
+                                                    if (pattern.isEmpty) {
+                                                      return persondata
+                                                          .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
+                                                          .toSet()
+                                                          .toList();
+                                                    }
+
+                                                    // Filter suggestions based on the input pattern
                                                     List<String> suggestions = persondata
+                                                        .where((item) =>
+                                                    (item['first_name']?.toString()?.toLowerCase() ?? '')
+                                                        .startsWith(pattern.toLowerCase()) &&
+                                                        item['emp_code']?.toString()?.toLowerCase() != empID?.toLowerCase() &&
+                                                        item['emp_code']?.toString()?.toLowerCase() != empID2?.toLowerCase() &&
+                                                        item['emp_code']?.toString()?.toLowerCase() != empID3?.toLowerCase())
                                                         .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
                                                         .toSet()
                                                         .toList();
 
-                                                    suggestions = suggestions
-                                                        .where((suggestion) => !selectedNames.contains(suggestion))
+                                                    return suggestions;
+                                                  },
+                                                  itemBuilder: (context, suggestion) {
+                                                    return ListTile(
+                                                      title: Text(suggestion),
+                                                    );
+                                                  },
+                                                  onSuggestionSelected: (suggestion) {
+                                                    String selectedEmpName = suggestion.split(' ')[0];
+                                                    String selectedEmpID = suggestion.split('(')[1].split(')')[0];
+                                                    //selectedOperator3 = suggestion;
+                                                    setState(() {
+                                                      emp_code2.text = selectedEmpID;
+                                                      print(emp_code2.text);
+                                                    });
+
+
+                                                    selectedNames.add(suggestion);
+
+
+
+                                                    if (selectedEmpID == empID) {
+                                                      setState(() {
+                                                        errorMessage = "Already Assigned the ID in Operator 1";
+                                                      });
+
+                                                    } else if (selectedEmpID == empID3) {
+                                                      setState(() {
+                                                        errorMessage = "Already Assigned the ID in Assistant 1";
+                                                      });
+                                                    } else if (selectedEmpID == empID4) {
+                                                      setState(() {
+                                                        errorMessage = "Already Assigned the ID in Assistant 2";
+                                                      });
+                                                    } else if (selectedEmpID == empID5) {
+                                                      setState(() {
+                                                        errorMessage = "Already Assigned the ID in Assistant 3";
+                                                      });
+                                                    } else {
+                                                      setState(() {
+                                                        errorMessage = null;
+                                                        assName1 = selectedEmpName;
+                                                        ass1.text = suggestion;
+                                                      });
+                                                      print('Selected Assistant 1: $assName1, ID: $selectedEmpID');
+                                                    }
+                                                  },
+                                                ),
+                                              ),   /// Assistant 1
+                                            SizedBox(width: 50,),
+                                            if ( membersvalue == '3' )
+                                              SizedBox(
+                                                width: 200, height: 70,
+                                                child:  TypeAheadFormField<String>(
+                                                  textFieldConfiguration: TextFieldConfiguration(
+                                                    controller: ass2,
+                                                    enabled: selectedmachine != null,
+                                                    onChanged: (query) {
+                                                      if(selectedmachine != null) {
+                                                        setState(() {
+                                                          ass2.text =query;
+                                                          errorMessage = null; // Reset error message when the user types
+                                                        });
+                                                      }
+                                                      String capitalizedValue = capitalizeFirstLetter(query);
+                                                      ass2.value = ass2.value.copyWith(
+                                                        text: capitalizedValue,
+                                                        selection: TextSelection.collapsed(offset: capitalizedValue.length),
+                                                      );
+                                                    },
+                                                    style: const TextStyle(fontSize: 13),
+                                                    decoration: InputDecoration(
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        labelText: "Assistant 2",
+                                                        labelStyle: TextStyle(fontSize: 13, color: Colors.black),
+                                                        border:selectedmachine != null
+                                                            ?
+                                                        OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(10),
+                                                        ): null
+                                                    ),
+                                                  ),
+                                                  suggestionsCallback: (pattern) async {
+                                                    if (selectedNames.isNotEmpty) {
+                                                      List<String> suggestions = persondata
+                                                          .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
+                                                          .toSet()
+                                                          .toList();
+
+                                                      suggestions = suggestions
+                                                          .where((suggestion) => !selectedNames.contains(suggestion))
+                                                          .toList();
+
+                                                      return suggestions;
+                                                    }
+                                                    List<String> suggestions = persondata
+                                                        .where((item) =>
+                                                    (item['first_name']?.toString()?.toLowerCase() ?? '')
+                                                        .startsWith(pattern.toLowerCase()) &&
+                                                        item['emp_code']?.toString()?.toLowerCase() != empID?.toLowerCase() &&
+                                                        item['emp_code']?.toString()?.toLowerCase() != empID2?.toLowerCase() &&
+                                                        item['emp_code']?.toString()?.toLowerCase() != empID3?.toLowerCase() )
+
+                                                        .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
+                                                        .toSet()
                                                         .toList();
 
+                                                    suggestions = suggestions.where((suggestion) =>
+                                                    suggestion != op1.text &&
+                                                        suggestion != op2.text &&
+                                                        suggestion != ass1.text
+                                                    ).toList();
                                                     return suggestions;
-                                                  }
-                                                  List<String> suggestions = persondata
-                                                      .where((item) =>
-                                                  (item['first_name']?.toString()?.toLowerCase() ?? '')
-                                                      .startsWith(pattern.toLowerCase()) &&
-                                                      item['emp_code']?.toString()?.toLowerCase() != empID?.toLowerCase() &&
-                                                      item['emp_code']?.toString()?.toLowerCase() != empID2?.toLowerCase() &&
-                                                      item['emp_code']?.toString()?.toLowerCase() != empID3?.toLowerCase() )
-
-                                                      .map<String>((item) => '${item['first_name']} (${item['emp_code']})')
-                                                      .toSet()
-                                                      .toList();
-
-                                                  suggestions = suggestions.where((suggestion) =>
-                                                  suggestion != op1.text &&
-                                                      suggestion != op2.text &&
-                                                      suggestion != ass1.text
-                                                  ).toList();
-                                                  return suggestions;
-                                                },
-                                                itemBuilder: (context, suggestion) {
-                                                  return ListTile(
-                                                    title: Text(suggestion),
-                                                  );
-                                                },
-                                                onSuggestionSelected: (suggestion) {
-                                                  String selectedEmpName = suggestion.split(' ')[0];
-                                                  String selectedEmpID = suggestion.split('(')[1].split(')')[0];
-                                                  //selectedOperator4 = suggestion;
-                                                  setState(() {
-                                                    emp_code3.text = selectedEmpID;
-                                                    print(emp_code3.text);
-                                                  });
-
-                                                  selectedNames.add(suggestion);
-
-                                                  if (selectedEmpID == empID || selectedEmpID == empID2 || selectedEmpID == empID3 || selectedEmpID == empID4 || selectedEmpID == empID5) {
+                                                  },
+                                                  itemBuilder: (context, suggestion) {
+                                                    return ListTile(
+                                                      title: Text(suggestion),
+                                                    );
+                                                  },
+                                                  onSuggestionSelected: (suggestion) {
+                                                    String selectedEmpName = suggestion.split(' ')[0];
+                                                    String selectedEmpID = suggestion.split('(')[1].split(')')[0];
+                                                    //selectedOperator4 = suggestion;
                                                     setState(() {
-                                                      errorMessage = "Already Assigned the ID in Operator or Assistant";
+                                                      emp_code3.text = selectedEmpID;
+                                                      print(emp_code3.text);
                                                     });
-                                                  } else {
-                                                    setState(() {
-                                                      errorMessage = null;
-                                                      assName2 = selectedEmpName;
-                                                      ass2.text = suggestion;
-                                                    });
-                                                    print('Selected Assistant 2: $assName2, ID: $selectedEmpID');
-                                                  }
-                                                },
-                                              ),
-                                            ),   /// Assistant 2
-                                            SizedBox(child: Container(width: 200, height: 70,))
+
+                                                    selectedNames.add(suggestion);
+
+                                                    if (selectedEmpID == empID || selectedEmpID == empID2 || selectedEmpID == empID3 || selectedEmpID == empID4 || selectedEmpID == empID5) {
+                                                      setState(() {
+                                                        errorMessage = "Already Assigned the ID in Operator or Assistant";
+                                                      });
+                                                    } else {
+                                                      setState(() {
+                                                        errorMessage = null;
+                                                        assName2 = selectedEmpName;
+                                                        ass2.text = suggestion;
+                                                      });
+                                                      print('Selected Assistant 2: $assName2, ID: $selectedEmpID');
+                                                    }
+                                                  },
+                                                ),
+                                              ),   /// Assistant 2
                                           ],
                                         ),
                                       ),  /// Operator 1 , Assistant 1, Assistant 2
                                       SizedBox(width: 50,),
 
                                     ]),
-
                               ]
                           ),
                         ),
@@ -1495,16 +1527,18 @@ class _WindingEntryState extends State<WindingEntry> {
                                     errorMessage = '* Enter a machine name';
                                   });
                                 }
-                                else if(op1.text.isEmpty) {
+                         /*       else if(op1.text.isEmpty) {
                                   setState(() {
                                     errorMessage = '* Enter a Operator ';
                                   });
                                 }
+                                if (membersvalue == '2' || membersvalue == '3' );
                                 else if(ass1.text.isEmpty){
                                   setState(() {
                                     errorMessage = '* Enter a Assistant 1';
                                   });
                                 }
+                                if (membersvalue == '3' );
                                 else if(ass2.text.isEmpty){
                                   setState(() {
                                     errorMessage = '* Enter a Assistant 2';
@@ -1515,16 +1549,18 @@ class _WindingEntryState extends State<WindingEntry> {
                                     errorMessage = '* Enter a correct Operator ';
                                   });
                                 }
+                                if (membersvalue == '2' || membersvalue == '3' );
                                 else if(emp_code2.text.isEmpty){
                                   setState(() {
                                     errorMessage = '* Enter a correct Assistant 1';
                                   });
                                 }
+                                if (membersvalue == '3' );
                                 else if(emp_code3.text.isEmpty){
                                   setState(() {
                                     errorMessage = '* Enter a correct Assistant 2';
                                   });
-                                }
+                                }*/
                                 else {
                                   onButtonPressed();
                                   filterFromtodateData(fromDate.toString(),toDate.toString(),dropdownvalue);

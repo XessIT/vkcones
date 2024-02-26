@@ -193,6 +193,11 @@ class _MorningState extends State<Morning> {
       bool isPresent = groupedEntries[empEntry.key]!.length <= 4;
 
       List<Map<String, dynamic>> empData = empEntry.value;
+      if (empData.length >= 3 &&
+          empData[1]['punch_time'] == empData[2]['punch_time']) {
+        print('Error: Lunch Out and Lunch In times are the same for emp_code ${empEntry.key}');
+        continue; // Skip this entry
+      }
       Map<String, dynamic> dataToInsertcustomer = {
         "emp_code": empEntry.key,
         "first_name": empData.first['first_name'].toString(),
@@ -243,6 +248,10 @@ class _MorningState extends State<Morning> {
       prefs.setString("key", "Your data here");
 
       print("Data auto-saved at ${DateTime.now()}");
+
+      print('Check-In: ${dataToInsertcustomer["check_in"]}');
+      print('Lunch_out: ${dataToInsertcustomer["lunch_out"]}');
+
     }
 
     try {
